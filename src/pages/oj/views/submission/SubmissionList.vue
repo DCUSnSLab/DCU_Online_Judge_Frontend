@@ -64,7 +64,7 @@
         },
         columns: [
           {
-            title: this.$i18n.t('m.When'),
+            title: '날짜',
             align: 'center',
             render: (h, params) => {
               return h('span', time.utcToLocal(params.row.create_time))
@@ -149,7 +149,7 @@
             key: 'language'
           },
           {
-            title: this.$i18n.t('m.Author'),
+            title: '작성자',
             align: 'center',
             render: (h, params) => {
               return h('a', {

@@ -66,16 +66,16 @@
     <Form ref="formProfile" :model="formProfile">
       <Row type="flex" :gutter="30" justify="space-around">
         <Col :span="11">
-          <FormItem label="Real Name">
+          <FormItem label="실명">
             <Input v-model="formProfile.real_name"/>
           </FormItem>
-          <Form-item label="School">
+          <Form-item label="학교">
             <Input v-model="formProfile.school"/>
           </Form-item>
-          <Form-item label="Major">
+          <Form-item label="학과">
             <Input v-model="formProfile.major"/>
           </Form-item>
-          <FormItem label="Language">
+          <FormItem label="언어">
             <Select v-model="formProfile.language">
               <Option v-for="lang in languages" :key="lang.value" :value="lang.value">{{lang.label}}</Option>
             </Select>
@@ -89,10 +89,10 @@
           <Form-item label="Mood">
             <Input v-model="formProfile.mood"/>
           </Form-item>
-          <Form-item label="Blog">
+          <Form-item label="Blog 주소">
             <Input v-model="formProfile.blog"/>
           </Form-item>
-          <Form-item label="Github">
+          <Form-item label="Github 주소">
             <Input v-model="formProfile.github"/>
           </Form-item>
         </Col>

@@ -17,6 +17,7 @@ import {
   UserHome
 } from '../views'
 
+import * as Test from '@oj/views/Test'
 import * as Contest from '@oj/views/contest'
 import * as Setting from '@oj/views/setting'
 
@@ -70,14 +71,20 @@ export default [
     component: SubmissionDetails
   },
   {
-    name: 'contest-list',
+    name: 'lecture-list',
     path: '/contest',
+    meta: {title: 'Lecture List'},
+    component: Contest.LectureList
+  },
+  {
+    name: 'contest-list',
+    path: '/contests/',
     meta: {title: 'Contest List'},
     component: Contest.ContestList
   },
   {
     name: 'contest-details',
-    path: '/contest/:contestID/',
+    path: '/contests/:contestID/',
     component: Contest.ContestDetails,
     meta: {title: 'Contest Details'},
     children: [
@@ -110,6 +117,56 @@ export default [
         name: 'acm-helper',
         path: 'helper',
         component: Contest.ACMContestHelper
+      }
+    ]
+  },
+  {
+    name: 'Test-list',
+    path: '/Test',
+    meta: {title: 'Test List'},
+    component: Test.TestList
+  },
+  {
+    name: 'contest-list',
+    path: '/Test/:Test-list',
+    meta: {title: 'Contest List'},
+    component: Test.ContestList
+  },
+  {
+    name: 'contest-details',
+    path: '/Test/:TestID/',
+    component: Test.ContestDetails,
+    meta: {title: 'Contest Details'},
+    children: [
+      {
+        name: 'contest-submission-list',
+        path: 'submissions',
+        component: SubmissionList
+      },
+      {
+        name: 'contest-problem-list',
+        path: 'problems',
+        component: Test.ContestProblemList
+      },
+      {
+        name: 'contest-problem-details',
+        path: 'problem/:problemID/',
+        component: Problem
+      },
+      {
+        name: 'contest-announcement-list',
+        path: 'announcements',
+        component: Announcements
+      },
+      {
+        name: 'contest-rank',
+        path: 'rank',
+        component: Test.ContestRank
+      },
+      {
+        name: 'acm-helper',
+        path: 'helper',
+        component: Test.ACMContestHelper
       }
     ]
   },

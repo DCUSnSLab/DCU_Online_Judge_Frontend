@@ -11,7 +11,7 @@
                 <Icon type="arrow-down-b"></Icon>
               </span>
               <Dropdown-menu slot="list">
-                <Dropdown-item name="">{{$t('m.All')}}</Dropdown-item>
+                <Dropdown-item name="">전체</Dropdown-item>
                 <Dropdown-item name="Low">{{$t('m.Low')}}</Dropdown-item>
                 <Dropdown-item name="Mid" >{{$t('m.Mid')}}</Dropdown-item>
                 <Dropdown-item name="High">{{$t('m.High')}}</Dropdown-item>
@@ -20,8 +20,8 @@
           </li>
           <li>
             <i-switch size="large" @on-change="handleTagsVisible">
-              <span slot="open">{{$t('m.Tags')}}</span>
-              <span slot="close">{{$t('m.Tags')}}</span>
+              <span slot="open">Tag</span>
+              <span slot="close">Tag</span>
             </i-switch>
           </li>
           <li>
@@ -34,7 +34,7 @@
           <li>
             <Button type="info" @click="onReset">
               <Icon type="refresh"></Icon>
-              {{$t('m.Reset')}}
+              새로고침
             </Button>
           </li>
         </ul>
@@ -63,7 +63,7 @@
 
       <Button long id="pick-one" @click="pickone">
         <Icon type="shuffle"></Icon>
-        {{$t('m.Pick_One')}}
+        랜덤 문제
       </Button>
     </Panel>
     <Spin v-if="loadings.tag" fix size="large"></Spin>

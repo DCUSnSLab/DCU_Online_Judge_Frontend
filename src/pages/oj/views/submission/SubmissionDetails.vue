@@ -56,7 +56,7 @@
       return {
         columns: [
           {
-            title: this.$i18n.t('m.ID'),
+            title: '번호',
             align: 'center',
             type: 'index'
           },
@@ -72,14 +72,14 @@
             }
           },
           {
-            title: this.$i18n.t('m.Memory'),
+            title: '메모리',
             align: 'center',
             render: (h, params) => {
               return h('span', utils.submissionMemoryFormat(params.row.memory))
             }
           },
           {
-            title: this.$i18n.t('m.Time'),
+            title: '시간',
             align: 'center',
             render: (h, params) => {
               return h('span', utils.submissionTimeFormat(params.row.cpu_time))

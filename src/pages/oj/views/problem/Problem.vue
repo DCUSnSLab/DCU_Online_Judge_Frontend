@@ -57,7 +57,12 @@
                     @resetCode="onResetToTemplate"
                     @changeTheme="onChangeTheme"
                     @changeLang="onChangeLang"></CodeMirror>
-        <Row type="flex" justify="space-between">
+        
+	<div>
+          <iframe src="https://ide.judge0.com/" width="100%" height="500px"></iframe>
+        </div>
+	
+	<Row type="flex" justify="space-between">
           <Col :span="10">
             <div class="status" v-if="statusVisible">
               <template v-if="!this.contestID || (this.contestID && OIContestRealTimePermission)">
@@ -67,17 +72,17 @@
                 </Tag>
               </template>
               <template v-else-if="this.contestID && !OIContestRealTimePermission">
-                <Alert type="success" show-icon>{{$t('m.Submitted_successfully')}}</Alert>
+                <Alert type="success" show-icon>성공적으로 제출되었습니다.</Alert>
               </template>
             </div>
             <div v-else-if="problem.my_status === 0">
-              <Alert type="success" show-icon>{{$t('m.You_have_solved_the_problem')}}</Alert>
+              <Alert type="success" show-icon>이미 푼 문제입니다.</Alert>
             </div>
             <div v-else-if="this.contestID && !OIContestRealTimePermission && submissionExists">
-              <Alert type="success" show-icon>{{$t('m.You_have_submitted_a_solution')}}</Alert>
+              <Alert type="success" show-icon>풀이를 제출했습니다.</Alert>
             </div>
             <div v-if="contestEnded">
-              <Alert type="warning" show-icon>{{$t('m.Contest_has_ended')}}</Alert>
+              <Alert type="warning" show-icon>대회가 종료되었습니다.</Alert>
             </div>
           </Col>
 
@@ -93,8 +98,8 @@
             <Button type="warning" icon="edit" :loading="submitting" @click="submitCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="fl-right">
-              <span v-if="submitting">{{$t('m.Submitting')}}</span>
-              <span v-else>{{$t('m.Submit')}}</span>
+              <span v-if="submitting">제출중</span>
+              <span v-else>제출</span>
             </Button>
           </Col>
         </Row>
@@ -106,29 +111,29 @@
         <template v-if="this.contestID">
           <VerticalMenu-item :route="{name: 'contest-problem-list', params: {contestID: contestID}}">
             <Icon type="ios-photos"></Icon>
-            {{$t('m.Problems')}}
+            문제
           </VerticalMenu-item>
 
           <VerticalMenu-item :route="{name: 'contest-announcement-list', params: {contestID: contestID}}">
             <Icon type="chatbubble-working"></Icon>
-            {{$t('m.Announcements')}}
+            공지사항
           </VerticalMenu-item>
         </template>
 
         <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission" :route="submissionRoute">
           <Icon type="navicon-round"></Icon>
-           {{$t('m.Submissions')}}
+           제출 현황
         </VerticalMenu-item>
 
         <template v-if="this.contestID">
           <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission"
                              :route="{name: 'contest-rank', params: {contestID: contestID}}">
             <Icon type="stats-bars"></Icon>
-            {{$t('m.Rankings')}}
+            랭킹
           </VerticalMenu-item>
           <VerticalMenu-item :route="{name: 'contest-details', params: {contestID: contestID}}">
             <Icon type="home"></Icon>
-            {{$t('m.View_Contest')}}
+            수강 과목
           </VerticalMenu-item>
         </template>
       </VerticalMenu>
@@ -139,7 +144,7 @@
           <span class="card-title">{{$t('m.Information')}}</span>
         </div>
         <ul>
-          <li><p>ID</p>
+          <li><p>번호</p>
             <p>{{problem._id}}</p></li>
           <li>
             <p>{{$t('m.Time_Limit')}}</p>
@@ -153,7 +158,7 @@
             <p>{{problem.io_mode.io_mode}}</p>
           </li>
           <li>
-            <p>{{$t('m.Created')}}</p>
+            <p>작성자</p>
             <p>{{problem.created_by.username}}</p></li>
           <li v-if="problem.difficulty">
             <p>{{$t('m.Level')}}</p>
@@ -179,8 +184,8 @@
       <Card id="pieChart" :padding="0" v-if="!this.contestID || OIContestRealTimePermission">
         <div slot="title">
           <Icon type="ios-analytics"></Icon>
-          <span class="card-title">{{$t('m.Statistic')}}</span>
-          <Button type="ghost" size="small" id="detail" @click="graphVisible = !graphVisible">Details</Button>
+          <span class="card-title">통계</span>
+          <Button type="ghost" size="small" id="detail" @click="graphVisible = !graphVisible">자세히</Button>
         </div>
         <div class="echarts">
           <ECharts :options="pie"></ECharts>
@@ -193,7 +198,7 @@
         <ECharts :options="largePie" :initOptions="largePieInitOpts"></ECharts>
       </div>
       <div slot="footer">
-        <Button type="ghost" @click="graphVisible=false">{{$t('m.Close')}}</Button>
+        <Button type="ghost" @click="graphVisible=false">닫기</Button>
       </div>
     </Modal>
   </div>
