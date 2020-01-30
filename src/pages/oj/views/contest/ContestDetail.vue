@@ -123,6 +123,30 @@
             render: (h, data) => {
               return h('span', data.row.created_by.username)
             }
+          },
+          {
+            title: 'id (test)',
+            render: (h, data) => {
+              return h('span', data.row.id)
+            }
+          },
+          {
+            title: 'description (test)',
+            render: (h, data) => {
+              return h('span', data.row.description)
+            }
+          },
+          {
+            title: 'created_time (test)',
+            render: (h, data) => {
+              return h('span', time.utcToLocal(data.row.created_time)) // 날짜 표기 시 time.utcToLocal() 내부에 작성하여야 하는듯..
+            }
+          },
+          {
+            title: 'visible (test)',
+            render: (h, data) => {
+              return h('span', data.row.visible)
+            }
           }
         ]
       }
