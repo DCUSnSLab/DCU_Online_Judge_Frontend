@@ -138,7 +138,30 @@ export default {
         problem_id: problemID
       }
     })
+  }, // lecture API 시작
+  getLectureList (offset, limit, searchParams) {
+    let params = {
+      offset,
+      limit
+    }
+    if (searchParams !== undefined) {
+      Object.keys(searchParams).forEach((element) => {
+        if (searchParams[element]) {
+          params[element] = searchParams[element]
+        }
+      })
+    }
+    return ajax('lectures', 'get', {
+      params
+    })
   },
+  getLecture (id) {
+    return ajax('lecture', 'get', {
+      params: {
+        id
+      }
+    })
+  }, // lecture API 끝
   getContestList (offset, limit, searchParams) {
     let params = {
       offset,

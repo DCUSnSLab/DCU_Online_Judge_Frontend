@@ -42,7 +42,7 @@ export const m = {
   // NavBar.vue
   Home: '홈',
   NavProblems: '문제',
-  Contests: '수강 과목',
+  Contests: '실습, 과제',
   NavStatus: '상태',
   Rank: '랭킹',
   ACM_Rank: 'ACM 랭킹',
@@ -103,5 +103,7 @@ export const m = {
   UserHomeScore: '점수',
   List_Solved_Problems: '푼 문제들',
   UserHomeIntro: '아직 어떠한 문제도 풀지 않았습니다.',
-  Test: '테스트'
+  Test: '테스트',
+  // Lecture
+  Lectures: '수강 과목'
 }

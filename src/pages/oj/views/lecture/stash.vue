@@ -11,12 +11,7 @@
           <div id="contest-desc">
             <Panel :padding="20" shadow>
               <div slot="title">
-                {{contest.title}}
-              </div>
-              <div slot="extra">
-                <Tag type="dot" :color="countdownColor">
-                  <span id="countdown">{{countdown}}</span>
-                </Tag>
+                {{lecture.title}}
               </div>
               <div v-html="contest.description" class="markdown-body"></div>
               <div v-if="passwordFormVisible" class="contest-password">
@@ -30,6 +25,7 @@
           </div>
         </template>
       </div>
+
     </div>
     <div v-show="showMenu" id="contest-menu">
       <VerticalMenu @on-click="handleRoute">
@@ -94,36 +90,6 @@
         contestPassword: '',
         columns: [
           {
-            title: this.$i18n.t('m.Id'),
-            render: (h, params) => {
-              return h('span', params.row.id)
-            }
-          },
-          {
-            title: this.$i18n.t('m.StartAt'),
-            render: (h, params) => {
-              return h('span', time.utcToLocal(params.row.start_time))
-            }
-          },
-          {
-            title: this.$i18n.t('m.EndAt'),
-            render: (h, params) => {
-              return h('span', time.utcToLocal(params.row.end_time))
-            }
-          },
-          {
-            title: this.$i18n.t('m.ContestType'),
-            render: (h, params) => {
-              return h('span', this.$i18n.t('m.' + params.row.contest_type.replace(' ', '_')))
-            }
-          },
-          {
-            title: this.$i18n.t('m.Rule'),
-            render: (h, params) => {
-              return h('span', this.$i18n.t('m.' + params.row.rule_type))
-            }
-          },
-          {
             title: this.$i18n.t('m.Creator'),
             render: (h, data) => {
               return h('span', data.row.created_by.username)
@@ -181,9 +147,6 @@
         if (this.contestStatus) {
           return CONTEST_STATUS_REVERSE[this.contestStatus].color
         }
-      },
-      showAdminHelper () {
-        return this.isContestAdmin && this.contestRuleType === 'ACM'
       }
     },
     watch: {

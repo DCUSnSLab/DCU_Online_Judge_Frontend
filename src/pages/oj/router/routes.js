@@ -18,7 +18,10 @@ import {
 } from '../views'
 
 import * as Contest from '@oj/views/contest'
+
 import * as Setting from '@oj/views/setting'
+
+import * as Lecture from '@oj/views/lecture'
 
 export default [
   {
@@ -68,7 +71,51 @@ export default [
     path: '/status/:id/',
     meta: {title: 'Submission Details'},
     component: SubmissionDetails
+  }, // contest를 포괄하는 lecture 시작
+  {
+    name: 'lecture-list',
+    path: '/lecture',
+    meta: {title: 'Lecture List'},
+    component: Lecture.LectureList
   },
+  {
+    name: 'lecture-details',
+    path: '/lecture/:lectureID/',
+    component: Lecture.LectureDetails,
+    meta: {title: 'Lecture Details'},
+    children: [
+      {
+        name: 'lecture-submission-list',
+        path: 'submissions',
+        component: SubmissionList
+      },
+      {
+        name: 'contest-problem-list',
+        path: 'problems',
+        component: Lecture.LectureContestList
+      },
+      {
+        name: 'contest-problem-details',
+        path: 'problem/:problemID/',
+        component: Problem
+      },
+      {
+        name: 'contest-announcement-list',
+        path: 'announcements',
+        component: Announcements
+      },
+      {
+        name: 'contest-rank',
+        path: 'rank',
+        component: Contest.ContestRank
+      },
+      {
+        name: 'acm-helper',
+        path: 'helper',
+        component: Contest.ACMContestHelper
+      }
+    ]
+  }, // lecture 끝
   {
     name: 'contest-list',
     path: '/contest',
