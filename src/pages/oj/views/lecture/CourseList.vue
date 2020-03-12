@@ -14,16 +14,19 @@
       <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
       <ol id="lecture-list">
         <li v-if="lectures != 0"><!--표시될 수강과목 수가 0이 아닌 경우에만 출력-->
-          <Row type="flex" justify="space-between" align="middle">
+          <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="1" style="text-align: center">
               년도
 			      </Col>
             <Col :span="1" style="text-align: center">
               학기
 			      </Col>
-            <Col :span="18">
+            <Col :span="16">
               과목명
             </Col>
+            <Col :span="2">
+              담당교수
+			      </Col>
             <Col :span="4" style="text-align: center">
               수강신청 상태
 			      </Col>
@@ -38,12 +41,15 @@
             <Col :span="1" style="text-align: center">
               {{ lecture.lecture.semester }}
 			      </Col>
-            <Col :span="18" class="lecture-main">
+            <Col :span="16" class="lecture-main">
               <p class="title">
                 <span class="entry" v-if="lecture.isallow">{{ lecture.lecture.title }}</span>
                 <span id="waitlecture" class="entry" v-else>{{ lecture.lecture.title }}</span>
               </p>
             </Col>
+            <Col :span="2">
+              {{ lecture.lecture.created_by.realname }}
+			      </Col>
             <Col :span="4" style="text-align: center">
               <Button @click="goLecture(lecture.lecture)" v-if="lecture.isallow">수강하기</Button>
               <Button v-else disabled>수강대기</Button>
@@ -210,6 +216,10 @@
           }
         }
       }
+    }
+    #tb-column {
+      font-weight: bold;
+      font-size: 18px;
     }
   }
 </style>
