@@ -152,14 +152,17 @@ export default {
       }
     })
   }, // lecture API 시작
-  getTakingLectureList (offset, limit, searchParams, yearSort, subjSort, profSort) {
+  getTakingLectureList (offset, limit, searchParams, yearSort, subjSort, profSort, yearFilter, semesterFilter) {
+    console.log(yearFilter)
     let params = {
       offset,
       limit,
       searchParams,
       yearSort,
       subjSort,
-      profSort
+      profSort,
+      yearFilter,
+      semesterFilter
     }
     if (searchParams !== undefined) {
       Object.keys(searchParams).forEach((element) => {
@@ -168,6 +171,7 @@ export default {
         }
       })
     }
+    console.log(params)
     return ajax('takinglec', 'get', {
       params
     })

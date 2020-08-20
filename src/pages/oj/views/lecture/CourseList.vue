@@ -16,12 +16,33 @@
         <li v-if="lectures != 0"><!--표시될 수강과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="1" style="text-align: center">
-              <a id=listing @click="sortYear()">년도</a>
+              <Dropdown @on-click="changeYear">
+                <span>{{ year }}<Icon type="arrow-down-b"></Icon>
+                </span>
+                <Dropdown-menu slot="list">
+                  <Dropdown-item name="2020">2020</Dropdown-item>
+                  <Dropdown-item name="2021">2021</Dropdown-item>
+                  <Dropdown-item name="2022">2022</Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </Col>
+            <Col :span="1">
+              <a id=listing @click="sortYear()"> 년도</a>
 			      </Col>
             <Col :span="1" style="text-align: center">
+              <Dropdown @on-click="changeSemester">
+                <span>{{ semester }}<Icon type="arrow-down-b"></Icon>
+                </span>
+                <Dropdown-menu slot="list"> 
+                  <Dropdown-item name='1'>1</Dropdown-item>
+                  <Dropdown-item name='2'>2</Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </Col>
+            <Col :span="1">
               학기
 			      </Col>
-            <Col :span="16">
+            <Col :span="12">
               <a id=listing @click="sortYear()">과목명</a>
             </Col>
             <Col :span="2">
@@ -38,10 +59,10 @@
             <Col :span="1" style="text-align: center">
               {{ lecture.lecture.year }}
 			      </Col>
-            <Col :span="1" style="text-align: center">
+            <Col :span="4" style="text-align: center">
               {{ lecture.lecture.semester }}
 			      </Col>
-            <Col :span="16" class="lecture-main">
+            <Col :span="13" class="lecture-main">
               <p class="title">
                 <span class="entry" v-if="lecture.isallow"><a id="lecture-title" @click="goLecture(lecture.lecture)">{{ lecture.lecture.title }}</a></span>
                 <span id="waitlecture" class="entry" v-else>{{ lecture.lecture.title }}</span>
@@ -81,9 +102,12 @@
     data () {
       return {
         page: 1,
+        year: 2020,
+        semester: 1,
         yearsort: 0,
         subjsort: 0,
         profsort: 0,
+
         query: {
           status: '',
           keyword: '',
@@ -97,6 +121,7 @@
         cur_lecture_id: '',
         sugaing: false,
         apptext: 'Apply'
+
       }
     },
     beforeRouteEnter (to, from, next) {
@@ -117,6 +142,23 @@
         this.page = parseInt(route.page) || 1
         this.getLectureList()
       },
+      changeYear (year, page = 1) {
+        this.year = year
+        let offset = (page - 1) * this.limit // offset 변위차
+        api.getTakingLectureList(offset, this.limit, this.query, undefined, undefined, undefined, this.year, undefined).then((res) => {
+          this.lectures = res.data.data.results // res는 응답 객체
+          this.total = res.data.data.total
+        })
+      },
+      changeSemester (semester, page = 1) {
+        this.semester = semester
+        console.log(this.semester)
+        let offset = (page - 1) * this.limit // offset 변위차
+        api.getTakingLectureList(offset, this.limit, this.query, undefined, undefined, undefined, undefined, this.semester).then((res) => {
+          this.lectures = res.data.data.results // res는 응답 객체
+          this.total = res.data.data.total
+        })
+      },
       sortYear () {
         console.log('test')
         if (this.yearsort === 0 || this.yearsort === -1) {
@@ -124,26 +166,27 @@
         } else {
           this.yearsort = -1
         }
-        let route = this.$route.query
+        let route = this.$route.query  // route 변수 선언 // $(선택자).동작함수();
+        // 달러($) 기호는 제이쿼리를 의미, 제이쿼리에 접근할 수 있게 해주는 식별자임
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
         this.page = parseInt(route.page) || 1
         this.getSortedLectureList(this.page, 'year')
       },
       getSortedLectureList (page = 1, sorttype) {
-        let offset = (page - 1) * this.limit
+        let offset = (page - 1) * this.limit // offset 변위차
         if (sorttype === 'year') {
-          api.getTakingLectureList(offset, this.limit, this.query, this.yearsort, undefined, undefined).then((res) => {
-            this.lectures = res.data.data.results
+          api.getTakingLectureList(offset, this.limit, this.query, this.yearsort, undefined, undefined, undefined, undefined).then((res) => {
+            this.lectures = res.data.data.results // res는 응답 객체
             this.total = res.data.data.total
           })
         } else if (sorttype === 'subj') {
-          api.getTakingLectureList(offset, this.limit, this.query, undefined, this.subjsort, undefined).then((res) => {
+          api.getTakingLectureList(offset, this.limit, this.query, undefined, this.subjsort, undefined, undefined, undefined).then((res) => {
             this.lectures = res.data.data.results
             this.total = res.data.data.total
           })
         } else {
-          api.getTakingLectureList(offset, this.limit, this.query, undefined, undefined, this.profsort).then((res) => {
+          api.getTakingLectureList(offset, this.limit, this.query, undefined, undefined, this.profsort, undefined, undefined).then((res) => {
             this.lectures = res.data.data.results
             this.total = res.data.data.total
           })
@@ -151,7 +194,7 @@
       },
       getLectureList (page = 1) {
         let offset = (page - 1) * this.limit
-        api.getTakingLectureList(offset, this.limit, this.query, undefined, undefined, undefined).then((res) => {
+        api.getTakingLectureList(offset, this.limit, this.query, undefined, undefined, undefined, undefined, undefined).then((res) => {
           this.lectures = res.data.data.results
           this.total = res.data.data.total
         })

@@ -12,20 +12,41 @@
         </ul>
       </div>
       <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
-      <ol id="lecture-list">
+      <ol id="lecture-list"> <!--개설과목페이지--->
         <li v-if="lectures != 0"><!--표시될 개설과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="1" style="text-align: center">
-              년도
+              <Dropdown @on-click="changeYear">
+                <span>{{ year }}<Icon type="arrow-down-b"></Icon>
+                </span>
+                <Dropdown-menu slot="list">
+                  <Dropdown-item name="2020">2020</Dropdown-item>
+                  <Dropdown-item name="2021">2021</Dropdown-item>
+                  <Dropdown-item name="2022">2022</Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </Col>
+            <Col :span="1">
+              <a id=listing @click="sortYear()"> 년도</a>
 			      </Col>
             <Col :span="1" style="text-align: center">
+              <Dropdown @on-click="changeSemester">
+                <span>{{ semester }}<Icon type="arrow-down-b"></Icon>
+                </span>
+                <Dropdown-menu slot="list"> 
+                  <Dropdown-item name='1'>1</Dropdown-item>
+                  <Dropdown-item name='2'>2</Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </Col>
+            <Col :span="1">
               학기
 			      </Col>
-            <Col :span="16">
-              과목명
+            <Col :span="12">
+              <a id=listing @click="sortYear()">과목명</a>
             </Col>
-            <Col :span="2" style="text-align: center">
-              담당교수
+            <Col :span="2">
+              <a id=listing @click="sortYear()">담당교수</a>
 			      </Col>
             <Col :span="4" style="text-align: center">
               수강신청 상태
@@ -38,15 +59,15 @@
             <Col :span="1" style="text-align: center">
               {{ lecture.year }}
 			      </Col>
-            <Col :span="1" style="text-align: center">
+            <Col :span="4" style="text-align: center">
               {{ lecture.semester }}
 			      </Col>
-            <Col :span="16" class="lecture-main">
+            <Col :span="12" class="lecture-main">
               <p class="title">
                 <span>{{ lecture.title }}</span>
               </p>
             </Col>
-            <Col :span="2" style="text-align: center">
+            <Col :span="2">
               {{ lecture.created_by.realname }}
 			      </Col>
             <Col :span="4" style="text-align: center">
@@ -79,6 +100,8 @@
     data () {
       return {
         page: 1,
+        year: 2020,
+        semester: 1,
         query: {
           status: '',
           keyword: '',
@@ -111,6 +134,12 @@
         this.query.keyword = route.keyword || ''
         this.page = parseInt(route.page) || 1
         this.getLectureList()
+      },
+      changeYear (year) {
+        this.year = year
+      },
+      changeSemester (semester) {
+        this.semester = semester
       },
       getLectureList (page = 1) {
         let offset = (page - 1) * this.limit
@@ -152,6 +181,20 @@
             this.getLectureList(this.page)
             this.$success('Success')
           })
+        }
+      },
+      sortYear () {
+        if (!this.user.username) {
+          this.$error('로그인 후 가능합니다.')
+        } else {
+          let data = {
+            lecture_year: this.lecture.year,
+            lecture_semester: this.lecture.semester,
+            lectureTitle: this.lecture.title,
+            lector_creator: this.lecture.creator,
+            status: false
+          }
+          console.log(data)
         }
       },
       getDuration (startTime, endTime) {

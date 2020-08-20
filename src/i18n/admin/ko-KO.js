@@ -104,7 +104,7 @@ export const m = {
   OI: 'OI',
   ACM: 'ACM',
   Underway: '진행중',
-  All: '모두 보기',
+  All: '전체',
   Not_Started: '시작전',
   Ended: '종료됨',
   No_contest: '대회가 없습니다.',

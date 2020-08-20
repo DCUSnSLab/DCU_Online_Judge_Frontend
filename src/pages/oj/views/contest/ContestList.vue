@@ -147,6 +147,7 @@
         })
       },
       onRuleChange (rule) {
+        console.log(rule)
         this.query.rule_type = rule
         this.page = 1
         this.changeRoute()
