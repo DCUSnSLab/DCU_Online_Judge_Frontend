@@ -11,10 +11,21 @@
           </li>
         </ul>
       </div>
-      <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
       <ol id="lecture-list">
-        <li v-if="lectures != 0"><!--표시될 수강과목 수가 0이 아닌 경우에만 출력-->
+        <li><!--표시될 수강과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
+            <Col :span="2" style="text-align: center">
+              <Dropdown @on-click="sortYear">
+                <span>{{ yearsort }} 년도 <Icon type="arrow-down-b"></Icon>
+                </span>
+                <!-- 구현 예정 -->
+                <Dropdown-menu slot="list">
+                  <Dropdown-item name="2020">2020</Dropdown-item>
+                  <Dropdown-item name="2021">2021</Dropdown-item>
+                  <Dropdown-item name="2022">2022</Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </Col>
             <Col :span="1" style="text-align: center">
               <Dropdown @on-click="changeYear">
                 <span>{{ year }}<Icon type="arrow-down-b"></Icon>
@@ -46,7 +57,7 @@
               <a id=listing @click="sortYear()">과목명</a>
             </Col>
             <Col :span="2">
-              <a id=listing @click="sortYear()">담당교수</a>
+              <p>담당교수</p>
 			      </Col>
             <Col :span="4" style="text-align: center">
               수강신청 상태
@@ -56,7 +67,7 @@
         <li v-for="lecture in lectures" :key="lecture.lecture.id"><!--v-if 조건식을 통해 열림 상태인 수강 과목만 출력한다.-->
           <Row type="flex" justify="space-between" align="middle">
             <!--<img class="trophy" src="../../../../assets/Cup.png"/>--><!--트로피 대신 다른 이미지 추가-->
-            <Col :span="1" style="text-align: center">
+            <Col :span="2" style="text-align: center">
               {{ lecture.lecture.year }}
 			      </Col>
             <Col :span="4" style="text-align: center">
@@ -78,6 +89,7 @@
           </Row>
         </li>
       </ol>
+      <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
     </Panel>
     <Pagination :total="total" :pageSize="limit" @on-change="getLectureList" :current.sync="page"></Pagination>
     </Col>
@@ -125,7 +137,10 @@
       }
     },
     beforeRouteEnter (to, from, next) {
-      api.getTakingLectureList(0, limit).then((res) => {
+      let d = new Date()
+      let semester = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
+
+      api.getTakingLectureList(0, limit, undefined, d.getFullYear(), semester).then((res) => {
         next((vm) => {
           vm.lectures = res.data.data.results
           vm.total = res.data.data.total
@@ -133,6 +148,10 @@
       }, (res) => {
         next()
       })
+    },
+    mounted () {
+      let d = new Date()
+      this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
     },
     methods: {
       init () {
@@ -170,8 +189,8 @@
         // 달러($) 기호는 제이쿼리를 의미, 제이쿼리에 접근할 수 있게 해주는 식별자임
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
-        this.page = parseInt(route.page) || 1
-        this.getSortedLectureList(this.page, 'year')
+        this.page = 1
+        this.getSortedLectureList(this.page)
       },
       getSortedLectureList (page = 1, sorttype) {
         let offset = (page - 1) * this.limit // offset 변위차
@@ -225,7 +244,6 @@
             user_id: this.user.id,
             status: false
           }
-          console.log(data)
           api.applyLecture(data).then(res => {
             this.getLectureList(this.page)
             this.$success('Success')

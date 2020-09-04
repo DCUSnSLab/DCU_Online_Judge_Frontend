@@ -74,6 +74,7 @@
             title: this.$i18n.t('m.ID'),
             align: 'center',
             render: (h, params) => {
+              console.log(params)
               if (params.row.show_link) {
                 return h('span', {
                   style: {
@@ -320,7 +321,8 @@
         return this.formFilter.result === '' ? this.$i18n.t('m.Status') : this.$i18n.t('m.' + JUDGE_STATUS[this.formFilter.result].name.replace(/ /g, '_'))
       },
       rejudgeColumnVisible () {
-        return !this.contestID && this.user.admin_type === USER_TYPE.SUPER_ADMIN
+        return !this.contestID && this.user.admin_type === USER_TYPE.SUPER_ADMIN // 특정 대회에 소속된 문제이면서, 사용자가 관리자인 경우에면 Rejudge 옵션 추가
+        // return !this.contestID && this.user.admin_type === USER_TYPE.SUPER_ADMIN
       }
     },
     watch: {

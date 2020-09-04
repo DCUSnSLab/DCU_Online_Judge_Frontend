@@ -89,12 +89,17 @@
         </el-table-column>
       </el-table>
       <div class="panel-options">
-        <el-button type="primary" size="small"
+        <el-button v-if="lectureId"
+                   type="primary" size="small"
                    @click="goCreateContest" icon="el-icon-plus">강의 생성
         </el-button>
         <el-button v-if="lectureId" type="primary"
                    size="small" icon="el-icon-plus"
-                   @click="addContestDialogVisible = true">실습, 과제 Import
+                   @click="addContestDialogVisible = true">실습, 과제 가져오기
+        </el-button>
+        <el-button v-if="lectureId" type="primary"
+                   size="small" icon="el-icon-plus"
+                   @click="addLectureDialogVisible = true">과목 전체 복사
         </el-button>
         <el-pagination
           class="page"
@@ -113,12 +118,22 @@
         <el-button type="primary" @click="downloadSubmissions">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="Add Lecture Contest"
+    <el-dialog title="실습, 과제, 대회 전체 복사"
                v-if="lectureId"
                width="80%"
+               :modal-append-to-body='true'
                :visible.sync="addContestDialogVisible"
                @close-on-click-modal="false">
       <add-contest-component :lectureID="lectureId" @on-change="getContestList"></add-contest-component>
+    </el-dialog>
+    <el-dialog title="실습, 과제, 대회 전체 복사"
+               v-if="lectureId"
+               width="80%"
+               :modal-append-to-body='true'
+               :visible.sync="addLectureDialogVisible"
+               @close-on-click-modal="false">
+      <add-lecture-component :lectureID="lectureId" @on-change="getContestList"></add-lecture-component>
+      <!-- <add-contest-component :lectureID="lectureId" @on-change="getContestList"></add-contest-component> -->
     </el-dialog>
   </div>
 </template>
@@ -128,11 +143,13 @@
   import utils from '@/utils/utils'
   import {CONTEST_STATUS_REVERSE} from '@/utils/constants'
   import AddContestComponent from './AddPublicContest.vue'
+  import AddLectureComponent from './AddLectureCopy.vue'
 
   export default {
     name: 'ContestList',
     components: {
-      AddContestComponent
+      AddContestComponent,
+      AddLectureComponent
     },
     data () {
       return {
@@ -147,7 +164,8 @@
         currentId: 1,
         lectureId: '',
         downloadDialogVisible: false,
-        addContestDialogVisible: false
+        addContestDialogVisible: false,
+        addLectureDialogVisible: false
       }
     },
     mounted () {

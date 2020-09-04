@@ -6,6 +6,13 @@
       <div slot="extra">
         <ul class="filter">
           <li>
+            <div v-if="isSuperAdmin">
+              <Button size="small" @click="goSubmissionDetail">
+                Show Submission Detail
+              </Button>
+            </div>
+          </li>
+          <li>
             <Dropdown @on-click="onRuleChange">
               <span>{{query.rule_type === '' ? this.$i18n.t('m.Rule') : this.$i18n.t('m.' + query.rule_type)}}
                 <Icon type="arrow-down-b"></Icon>
@@ -168,6 +175,14 @@
         this.page = 1
         this.changeRoute()
       },
+      goSubmissionDetail () {
+        if (!this.isAuthenticated) {
+          this.$error(this.$i18n.t('m.Please_login_first'))
+          this.$store.dispatch('changeModalStatus', {visible: true})
+        } else {
+          this.$router.push({name: 'lecture-submission-detail', params: {lectureID: this.query.lectureid}})
+        }
+      },
       goContest (contest) {
         this.cur_contest_id = contest.id
         if (contest.contest_type !== CONTEST_TYPE.PUBLIC && !this.isAuthenticated) {
@@ -191,9 +206,6 @@
           remain = time.duration(new Date(), endTime)
           let current = new Date()
           let end = new Date(endTime)
-          console.log(current)
-          console.log(end)
-          console.log(end - current)
           let dateGap = end.getTime() - current.getTime()
           let timeGap = new Date(0, 0, 0, 0, 0, 0, end - current)
           let diffDay = Math.floor(dateGap / (1000 * 60 * 60 * 24))
@@ -206,7 +218,7 @@
       }
     },
     computed: {
-      ...mapGetters(['isAuthenticated', 'user'])
+      ...mapGetters(['isAuthenticated', 'user', 'isSuperAdmin'])
     },
     watch: {
       '$route' (newVal, oldVal) {

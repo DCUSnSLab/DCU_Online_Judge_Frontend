@@ -98,6 +98,12 @@ export default [
     meta: {title: 'Lecture Details'}
   },
   {
+    name: 'lecture-submission-detail',
+    path: '/CourseList/:lectureID/submissions',
+    component: Lecture.LectureSubmissionDetails,
+    meta: {title: 'Lecture Details'}
+  },
+  {
     name: 'lecture-contest-details',
     path: '/CourseList/:lectureID/:contestID/',
     component: Lecture.LectureContestDetails,

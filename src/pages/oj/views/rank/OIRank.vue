@@ -61,6 +61,27 @@
               }, params.row.user.username)
             }
           },
+          {
+            title: this.$i18n.t('m.Realname'),
+            align: 'center',
+            render: (h, params) => {
+              return h('a', {
+                style: {
+                  'display': 'inline-block',
+                  'max-width': '200px'
+                },
+                on: {
+                  click: () => {
+                    this.$router.push(
+                      {
+                        name: 'user-home',
+                        query: {username: params.row.user.username}
+                      })
+                  }
+                }
+              }, params.row.user.realname)
+            }
+          },
           // {
           //   title: this.$i18n.t('m.mood'),
           //   align: 'center',

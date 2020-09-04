@@ -15,6 +15,9 @@
       <ol id="lecture-list"> <!--개설과목페이지--->
         <li v-if="lectures != 0"><!--표시될 개설과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
+            <Col :span="2" style="text-align: center">
+                <span>{{ yearsort }} 년도</span>
+            </Col>
             <Col :span="1" style="text-align: center">
               <Dropdown @on-click="changeYear">
                 <span>{{ year }}<Icon type="arrow-down-b"></Icon>
@@ -56,7 +59,7 @@
         <li v-for="lecture in lectures" :key="lecture.id"><!--v-if 조건식을 통해 열림 상태인 수강 과목만 출력한다.-->
           <Row type="flex" justify="space-between" align="middle">
             <!--<img class="trophy" src="../../../../assets/Cup.png"/>--><!--트로피 대신 다른 이미지 추가-->
-            <Col :span="1" style="text-align: center">
+            <Col :span="2" style="text-align: center">
               {{ lecture.year }}
 			      </Col>
             <Col :span="4" style="text-align: center">
@@ -76,6 +79,7 @@
           </Row>
         </li>
       </ol>
+      <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
     </Panel>
     <Pagination :total="total" :pageSize="limit" @on-change="getLectureList" :current.sync="page"></Pagination>
     </Col>
@@ -127,12 +131,19 @@
         next()
       })
     },
+    mounted () {
+      let d = new Date()
+      this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
+    },
     methods: {
       init () {
         let route = this.$route.query
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
         this.page = parseInt(route.page) || 1
+        let d = new Date()
+        this.yearsort = d.getFullYear()
+        this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
         this.getLectureList()
       },
       changeYear (year) {

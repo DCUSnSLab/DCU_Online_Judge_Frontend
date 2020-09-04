@@ -1,23 +1,48 @@
 <template>
   <div>
-    <el-input
-      v-model="keyword"
-      placeholder="Keywords"
-      prefix-icon="el-icon-search">
-    </el-input>
+    <el-row>
+      <el-col :span="4">
+        <el-select v-model="searchType">
+          <el-option value="과목">과목</el-option>
+          <el-option value="문제">문제</el-option>
+        </el-select>
+      </el-col>
+      <el-col :span="16">
+        <el-input
+          v-model="keyword"
+          placeholder="Keywords"
+          :width="150"
+          prefix-icon="el-icon-search">
+        </el-input>
+      </el-col>
+      <el-col :span="4">
+        <el-checkbox v-model="showPublic" label="공개 문제 보기" border></el-checkbox>
+        <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
+      </el-col>
+    </el-row>
     <el-table :data="problems" v-loading="loading">
       <el-table-column
         label="ID"
-        width="100"
+        width="80"
         prop="id">
       </el-table-column>
       <el-table-column
-        label="DisplayID"
-        width="200"
-        prop="_id">
+        label="생성자"
+        width="80"
+        prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="Title"
+        label="과목명"
+        width="150"
+        prop="contest.lecture_title">
+      </el-table-column>
+      <el-table-column
+        label="실습/과제/시험"
+        width="150"
+        prop="contest.title">
+      </el-table-column>
+      <el-table-column
+        label="문제이름"
         prop="title">
       </el-table-column>
       <el-table-column
@@ -55,7 +80,9 @@
         loading: false,
         problems: [],
         contest: {},
-        keyword: ''
+        keyword: '',
+        showPublic: false,
+        searchType: '문제'
       }
     },
     mounted () {
@@ -70,14 +97,17 @@
         this.loading = true
         let params = {
           keyword: this.keyword,
+          searchType: this.searchType,
           offset: (page - 1) * this.limit,
           limit: this.limit,
-          rule_type: this.contest.rule_type
+          rule_type: this.contest.rule_type,
+          showPublic: this.showPublic
         }
         api.getProblemList(params).then(res => {
           this.loading = false
           this.total = res.data.data.total
           this.problems = res.data.data.results
+          console.log(this.problems)
         }).catch(() => {
         })
       },
@@ -99,6 +129,12 @@
     watch: {
       'keyword' () {
         this.getPublicProblem(this.page)
+      },
+      'showPublic' () {
+        this.getPublicProblem(1)
+      },
+      'searchType' () {
+        this.getPublicProblem(1)
       }
     }
   }

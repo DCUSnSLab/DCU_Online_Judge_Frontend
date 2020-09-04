@@ -1,81 +1,89 @@
 <template>
   <Row type="flex" justify="space-around">
     <Col :span="22">
-    <panel class="lecture" v-if="$store.state.user.profile.id !== undefined">
+    <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
       <div slot="title">
         나의 수강과목 진행 현황
       </div>
       <!-- DivTable.com -->
-      <template v-for="pie in pielist">
-        <el-Card class="lecture-card">
-          <h2 style="margin-bottom:10px">{{ pie.title }}</h2>
-          <el-table-column
-            align="center">
-            <el-row :gutter="12">
-                <el-col :span="10">
-                  <el-card shadow="always">
-                    <div class="echarts">
-                      <ECharts :options="pie.pie" auto-resize></ECharts>
-                    </div>
-                  </el-card>
-                </el-col>
-                <el-col :span="14">
-                  <h2 style="padding-bottom:10px">진행중인 실습 및 과제</h2>
-                  <el-card v-if="clsize > 0" shadow="always">
-                    <ul class="announcements-container" key="list">
-                      <li>
-                        <div class="flex-container">
-                          <div class="title">
-                            <div class="entry">
-                              <strong>실습/과제</strong>
+      <!-- <template v-for="pie in pielist"> -->
+      <el-tabs v-model="activeName" tab-position="left" @tab-click="handleClick">
+        <template v-for="pie in pielist">
+          <el-tab-pane :label="pie.title" :name="pie.title">
+            <el-Card class="lecture-card">
+              <h2 style="margin-bottom:10px">{{ pie.title }}</h2>
+              <el-table-column
+                align="center">
+                <el-row :gutter="12">
+                    <el-col :span="12">
+                      <el-card shadow="always">
+                        <div class="echarts">
+                          <ECharts :options="pie.pie" auto-resize></ECharts>
+                        </div>
+                      </el-card>
+                    </el-col>
+                    <el-col :span="12">
+                      <h2 style="padding-bottom:10px">진행중인 실습 및 과제</h2>
+                      <el-card v-if="clsize > 0" shadow="always">
+                        <ul class="announcements-container" key="list">
+                          <li>
+                            <div class="flex-container">
+                              <div class="title">
+                                <div class="entry">
+                                  <strong>실습/과제</strong>
+                                </div>
+                              </div>
+                              <div class="date">
+                                <strong>종료일</strong>
+                              </div>
+                              <div class="creator">
+                                <strong>남은 기간</strong>
+                              </div>
+                              <div class="problem">
+                                <strong>남은 문제 수</strong>
+                              </div>
                             </div>
-                          </div>
-                          <div class="date">
-                            <strong>종료일</strong>
-                          </div>
-                          <div class="creator">
-                            <strong>남은 기간</strong>
-                          </div>
-                          <div class="problem">
-                            <strong>남은 문제 수</strong>
-                          </div>
-                        </div>
-                      </li>
-                      <li v-for="contest in pie.contestlist">
-                        <div class="flex-container">
-                          <div class="title">
-                            <a class="entry" v-bind:href="'/CourseList/' + pie.lecture_id + '/' + contest.id">
-                              {{ contest.title }}
-                            </a>
-                          </div>
-                          <div class="date">
-                            {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
-                          </div>
-                          <div class="creator">
-                            {{ remainDuration(contest.end_time) }}
-                          </div>
-                          <div class="problem">
-                            {{ contest.remainproblem }}
-                          </div>
-                        </div>
-                      </li>
-                    </ul>
-                  </el-card>
-                  <el-card v-else style="text-align:center">
-                    <strong>없음</strong>
-                  </el-card>
-                </el-col>
-              </el-row>
-          </el-table-column>
-        </el-Card>
-      </template>
+                          </li>
+                          <li v-for="contest in pie.contestlist">
+                            <div class="flex-container">
+                              <div class="title">
+                                <a class="entry" v-bind:href="'/CourseList/' + pie.lecture_id + '/' + contest.id">
+                                  {{ contest.title }}
+                                </a>
+                              </div>
+                              <div class="date">
+                                {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
+                              </div>
+                              <div class="creator">
+                                {{ remainDuration(contest.end_time) }}
+                              </div>
+                              <div class="problem">
+                                {{ contest.remainproblem }}
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                      </el-card>
+                      <el-card v-else style="text-align:center">
+                        <strong>없음</strong>
+                      </el-card>
+                    </el-col>
+                  </el-row>
+              </el-table-column>
+            </el-Card>
+          </el-tab-pane>
+        </template>
+      </el-tabs>
+      <!-- </template> -->
     </panel>
+    <!--
     <panel shadow v-if="contests.length" class="contest">
       <div slot="title">
         <Button type="text"  class="contest-title" @click="goContest">{{contests[index].title}}</Button>
       </div>
       <Table stripe :loading="loading" :disabled-hover="true" :columns="columns" :data="dashboard"></Table>
     </panel>
+    -->
     <Announcements class="announcement"></Announcements>
     </Col>
   </Row>
@@ -87,6 +95,7 @@
   import 'element-ui/lib/theme-chalk/index.css'
   import Announcements from './Announcements.vue'
   import api from '@oj/api'
+  import { mapGetters } from 'vuex'
   import time from '@/utils/time'
   import { CONTEST_STATUS } from '@/utils/constants'
 
@@ -111,6 +120,9 @@
     components: {
       Announcements
     },
+    computed: {
+      ...mapGetters(['isAdmin'])
+    },
     data () {
       return {
         pielist: [],
@@ -118,7 +130,9 @@
         lecturelist: [],
         contests: [],
         index: 0,
-        clsize: 0
+        activeName: '',
+        clsize: 0,
+        resize: true
       }
     },
     mounted () {
@@ -142,12 +156,12 @@
               pie: {
                 title: [
                   {
-                    subtext: '실습 진행 현황 (문제 수)',
+                    subtext: '실습 진행 현황',
                     left: '25%',
                     top: '85%',
                     textAlign: 'center'
                   }, {
-                    subtext: '과제 진행 현황 (문제 수)',
+                    subtext: '과제 진행 현황',
                     left: '75%',
                     top: '85%',
                     textAlign: 'center'
@@ -160,6 +174,10 @@
                 ],
                 legend: {
                   data: ['성공', '도전 중', '시작 전']
+                },
+                opts: {
+                  width: 'auto',
+                  height: 'auto'
                 },
                 series: [
                   {
@@ -267,6 +285,8 @@
             }
             this.pielist.push(jsonpie)
           })
+          // console.log(this.pielist[0].title)
+          this.activeName = this.pielist[0].title
         })
       },
       goContest () {
@@ -274,6 +294,9 @@
           name: 'contest-details',
           params: {contestID: this.contests[this.index].id}
         })
+      },
+      handleClick (tab, event) {
+        console.log(tab, event)
       },
       remainDuration (endTime) {
         let remain
@@ -423,11 +446,14 @@
     }
   }
 </style>
-
-<style scoped lang="less">
-  .echarts {
-    margin: 0 auto;
-    width: 95%;
-    height: 400px;
-  }
+<style>
+/**
+ * The default size is 600px×400px, for responsive charts
+ * you may need to set percentage values as follows (also
+ * don't forget to provide a size for the container).
+ */
+.echarts {
+  width: auto!important;
+  height: auto;
+}
 </style>

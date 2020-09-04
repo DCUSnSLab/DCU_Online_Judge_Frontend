@@ -98,6 +98,12 @@
               <span v-else>{{$t('m.Submit')}}</span>
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{$t('m.WrongPath')}}</Button>
+            <!--
+            <Button :disabled="true"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
+            </Button>
+            -->
           </Col>
         </Row>
       </Card>
@@ -419,7 +425,6 @@
           code: this.code,
           contest_id: this.contestID
         }
-        console.log(data)
         if (this.captchaRequired) {
           data.captcha = this.captchaCode
         }

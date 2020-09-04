@@ -121,6 +121,10 @@
       ...mapGetters(['website', 'modalStatus', 'user', 'isAuthenticated', 'isAdminRole']),
       // 跟随路由变化
       activeMenu () {
+        // 여기서 이전 주소의 [1], [4]가 CourseList, problems 일때 return을 CourseList
+        if (this.$route.path.split('/')[1] === 'contest' && parseInt(this.$route.path.split('/')[2]) > 0) {
+          return '/' + 'CourseList'
+        }
         return '/' + this.$route.path.split('/')[1]
       },
       modalVisible: {

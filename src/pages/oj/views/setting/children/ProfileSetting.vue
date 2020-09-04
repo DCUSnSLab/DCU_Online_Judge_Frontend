@@ -66,14 +66,8 @@
       <Row type="flex" :gutter="30" justify="space-around">
         <Col :span="11">
           <FormItem label="실명">
-            <Input v-model="formProfile.real_name"/>
+            <Input v-model="formProfile.realname"/>
           </FormItem>
-          <Form-item label="학교">
-            <Input v-model="formProfile.school"/>
-          </Form-item>
-          <Form-item label="전공">
-            <Input v-model="formProfile.major"/>
-          </Form-item>
           <FormItem label="언어/Language/語言/语言">
             <Select v-model="formProfile.language">
               <Option v-for="lang in languages" :key="lang.value" :value="lang.value">{{lang.label}}</Option>
@@ -85,14 +79,8 @@
         </Col>
 
         <Col :span="11">
-          <Form-item label="닉네임">
-            <Input v-model="formProfile.mood"/>
-          </Form-item>
-          <Form-item label="Blog주소">
-            <Input v-model="formProfile.blog"/>
-          </Form-item>
-          <Form-item label="Github주소">
-            <Input v-model="formProfile.github"/>
+          <Form-item label="학번">
+            <Input v-model="formProfile.schoolssn"/>
           </Form-item>
         </Col>
       </Row>
@@ -125,18 +113,14 @@
         },
         languages: languages,
         formProfile: {
-          real_name: '',
-          mood: '',
-          major: '',
-          blog: '',
-          school: '',
-          github: '',
-          language: ''
+          realname: '',
+          schoolssn: ''
         }
       }
     },
     mounted () {
-      let profile = this.$store.state.user.profile
+      let profile = this.$store.state.user.profile.user
+      console.log(profile)
       Object.keys(this.formProfile).forEach(element => {
         if (profile[element] !== undefined) {
           this.formProfile[element] = profile[element]
@@ -226,6 +210,7 @@
       updateProfile () {
         this.loadingSaveBtn = true
         let updateData = utils.filterEmptyValue(Object.assign({}, this.formProfile))
+        console.log(updateData)
         api.updateProfile(updateData).then(res => {
           this.$success('Success')
           this.$store.commit(types.CHANGE_PROFILE, {profile: res.data.data})

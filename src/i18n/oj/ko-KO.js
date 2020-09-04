@@ -11,6 +11,7 @@ export const m = {
   Hint: '힌트',
   Source: '소스코드',
   Status: '제출 상태',
+  calltara: '조교에게 질문하기',
   Information: '정보',
   Time_Limit: '시간 제한',
   Memory_Limit: '메모리 제한',
@@ -50,8 +51,10 @@ export const m = {
   Contest_Announcements: '실습 및 과제 공지사항',
   // ContestProblemList
   Problems_List: '문제 목록',
-// OIRank.vue
+  // OIRank.vue
   OI_Ranklist: 'OI 순위표',
+  // OIContestRank.vue
+  Realname: '이름',
   // ACMRank.vue
   ACM_Ranklist: 'ACM 순위표',
   mood: 'mood',

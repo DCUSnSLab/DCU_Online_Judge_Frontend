@@ -50,6 +50,9 @@
             <span v-if="scope.row.admin_type === 'Regular User'">
               학생
             </span>
+            <span v-else-if="scope.row.admin_type === 'TA_Admin'">
+              TA/RA
+            </span>
             <span v-else-if="scope.row.admin_type === 'Admin'">
               교수
             </span>
@@ -205,6 +208,7 @@
             <el-form-item :label="$t('m.User_Type')">
               <el-select v-model="user.admin_type">
                 <el-option label="학생" value="Regular User"></el-option>
+                <el-option label="TA/RA" value="TA_Admin"></el-option>
                 <el-option label="교수" value="Admin"></el-option>
                 <el-option label="관리자" value="Super Admin"></el-option>
               </el-select>
@@ -212,7 +216,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('m.Problem_Permission')">
-              <el-select v-model="user.problem_permission" :disabled="user.admin_type!=='Admin'">
+              <el-select v-model="user.problem_permission" :disabled="user.admin_type!=='Admin|TA_Admin'">
                 <el-option label="승인불가" value="None"></el-option>
                 <el-option label="자신만" value="Own"></el-option>
                 <el-option label="모든사람" value="All"></el-option>
@@ -415,6 +419,8 @@
         if (this.user.admin_type === 'Super Admin') {
           this.user.problem_permission = 'All'
         } else if (this.user.admin_type === 'Regular User') {
+          this.user.problem_permission = 'None'
+        } else if (this.user.admin_type === 'TA_Admin') {
           this.user.problem_permission = 'None'
         }
       },

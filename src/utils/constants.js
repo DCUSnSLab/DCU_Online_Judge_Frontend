@@ -107,12 +107,14 @@ export const CONTEST_TYPE = {
 export const USER_TYPE = {
   REGULAR_USER: 'Regular User',
   ADMIN: 'Admin',
+  TA_ADMIN: 'TA_Admin',
   SUPER_ADMIN: 'Super Admin'
 }
 
 export const PROBLEM_PERMISSION = {
   NONE: 'None',
   OWN: 'Own',
+  SEMI: 'Semi',
   ALL: 'All'
 }
 

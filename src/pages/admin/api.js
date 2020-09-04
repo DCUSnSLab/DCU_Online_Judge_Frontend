@@ -172,8 +172,36 @@ export default {
     })
   },
 
+  // TA/RA 인원 추가를 위한 함수
+  getUserInfo (data) {
+    console.log(data)
+    return ajax('admin/tauser', 'post', {
+      data
+    })
+  },
+  getTAUserList (lecture) {
+    return ajax('admin/tauser', 'get', {
+      params: {
+        lecture_id: lecture
+      }
+    })
+  },
+  updateTAuserPermit (permit, ssn, lectureID) {
+    let params = {permit: permit, ssn: ssn, lecture_id: lectureID}
+    console.log(params)
+    return ajax('admin/tauser', 'put', {
+      params
+    })
+  },
+  deleteTAUser (ssn, lectureID) {
+    return ajax('admin/tauser', 'delete', {
+      params: {
+        ssn: ssn,
+        lecture_id: lectureID
+      }
+    })
+  },
   // Contest를 포함하는 강의 테이블 생성을 위한 함수
-
   createLecture (data) {
     return ajax('admin/lecture', 'post', {
       data
@@ -321,6 +349,14 @@ export default {
       params
     })
   },
+  getContProblemList (id) {
+    console.log(id)
+    return ajax('admin/contest/contproblem', 'get', {
+      params: {
+        id
+      }
+    })
+  },
   getContestProblemList (params) {
     params = utils.filterEmptyValue(params)
     return ajax('admin/contest/problem', 'get', {
@@ -364,6 +400,18 @@ export default {
   addContestFromPublic (data) {
     return ajax('admin/lecture/add_contest_from_public', 'post', {
       data
+    })
+  },
+  addLectureCopy (params) {
+    params = utils.filterEmptyValue(params)
+    return ajax('admin/lecture/add_lecture_copy', 'get', {
+      params
+    })
+  },
+  LectureCopy (params) {
+    params = utils.filterEmptyValue(params)
+    return ajax('admin/lecture/add_lecture_copy', 'post', {
+      params
     })
   },
   getReleaseNotes () {

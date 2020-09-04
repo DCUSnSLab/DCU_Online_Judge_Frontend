@@ -100,6 +100,22 @@
                 }
               }, params.row.total_score)
             }
+          },
+          {
+            title: this.$i18n.t('m.Realname'),
+            align: 'center',
+            render: (h, params) => {
+              return h('a', {
+                on: {
+                  click: () => {
+                    this.$router.push({
+                      name: 'contest-submission-list',
+                      query: {username: params.row.user.realname}
+                    })
+                  }
+                }
+              }, params.row.user.realname)
+            }
           }
         ],
         dataRank: [],
@@ -185,6 +201,7 @@
       },
       applyToTable (data) {
         // deepcopy
+        // let test = 0
         let dataRank = JSON.parse(JSON.stringify(data))
         // 从submission_info中取出相应的problem_id 放入到父object中,这么做主要是为了适应iview table的data格式
         // 见https://www.iviewui.com/components/table

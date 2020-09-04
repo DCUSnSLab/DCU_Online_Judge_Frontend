@@ -100,6 +100,22 @@
                 }
               }, params.row.total_score)
             }
+          },
+          {
+            title: this.$i18n.t('m.Realname'),
+            align: 'center',
+            render: (h, params) => {
+              return h('a', {
+                on: {
+                  click: () => {
+                    this.$router.push({
+                      name: 'contest-submission-list',
+                      query: {realname: params.row.user.realname}
+                    })
+                  }
+                }
+              }, params.row.user.realname)
+            }
           }
         ],
         dataRank: [],

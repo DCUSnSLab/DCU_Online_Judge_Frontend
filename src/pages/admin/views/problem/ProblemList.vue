@@ -81,12 +81,12 @@
         </el-table-column>
       </el-table>
       <div class="panel-options">
-        <el-button type="primary" size="small"
+        <el-button v-if="contestId" type="primary" size="small"
                    @click="goCreateProblem" icon="el-icon-plus">문제 만들기
         </el-button>
         <el-button v-if="contestId" type="primary"
                    size="small" icon="el-icon-plus"
-                   @click="addProblemDialogVisible = true">공개문제에서 가져오기
+                   @click="addProblemDialogVisible = true">문제 가져오기
         </el-button>
         <el-pagination
           class="page"
@@ -132,7 +132,7 @@
     },
     data () {
       return {
-        pageSize: 10,
+        pageSize: 20,
         total: 0,
         problemList: [],
         keyword: '',

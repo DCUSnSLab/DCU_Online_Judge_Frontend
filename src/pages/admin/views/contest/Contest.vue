@@ -10,10 +10,10 @@
           </el-col>
           <el-col :span="8">
             <el-form-item :label="$t('m.LectureContestType')" required>
-              <el-select v-model="contest.lecture_contest_type" :disabled="disableLectureContestType">
+              <el-select v-model="contest.lecture_contest_type">
                 <el-option value="실습">실습</el-option>
                 <el-option value="과제">과제</el-option>
-                <el-option value="대회">대회</el-option>
+                <el-option value="대회">시험 (대회)</el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -125,8 +125,7 @@
     methods: {
       saveContest () {
         let lectureId = this.lecture_id
-        console.log(lectureId)
-        console.log(this.lecture_id)
+        console.log(this.contest.lecture_contest_type)
         let funcName = this.$route.name === 'edit-contest' ? 'editContest' : 'createContest' // ../../router.js 파일 내부 참조하여 일치하는 component 가져옴
         if (lectureId) {
           this.contest.lecture_id = this.lecture_id

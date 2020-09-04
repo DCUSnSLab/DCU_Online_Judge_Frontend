@@ -176,10 +176,12 @@ export default {
       params
     })
   },
-  getLectureList (offset, limit, searchParams) {
+  getLectureList (offset, limit, searchParams, sortYear, sortSemester) {
     let params = {
       offset,
-      limit
+      limit,
+      sortYear,
+      sortSemester
     }
     if (searchParams !== undefined) {
       Object.keys(searchParams).forEach((element) => {
