@@ -1,98 +1,98 @@
 <template>
   <div id="header">
-    <Menu theme="light" mode="horizontal" @on-select="handleRoute" :active-name="activeMenu" class="oj-menu">
-      <a href="/"><div class="logo"><img id="logo" src="../../../assets/logo.jpg" alt="oj logo"/></div></a>
-      <Menu-item name="/">
-        <Icon type="home"></Icon>
-        {{$t('m.Home')}}
-      </Menu-item>
-      <Menu-item name="/CourseList">
-        <Icon type="ios-book"></Icon>
-      {{$t('m.Signup_Lectures')}}
-      </Menu-item>
-      <Menu-item name="/lecture">
-        <Icon type="ios-book"></Icon>
-      {{$t('m.Lectures')}}
-      </Menu-item>
-      <Menu-item name="/contest">
-        <Icon type="ios-book"></Icon>
-        {{$t('m.Public_Contests')}}
-      </Menu-item>
-      <Menu-item name="/problem">
-        <Icon type="ios-keypad"></Icon>
-        {{$t('m.NavProblems')}}
-      </Menu-item>
-      <Menu-item name="/status">
-        <Icon type="ios-pulse-strong"></Icon>
-        {{$t('m.NavStatus')}}
-      </Menu-item>
-      <Submenu name="rank">
-        <template slot="title">
-          <Icon type="podium"></Icon>
-          {{$t('m.Rank')}}
-        </template>
-        <Menu-item name="/acm-rank">
-          {{$t('m.ACM_Rank')}}
-        </Menu-item>
-        <Menu-item name="/oi-rank">
-          {{$t('m.OI_Rank')}}
-        </Menu-item>
-      </Submenu>
-      <Submenu name="about">
-        <template slot="title">
-          <Icon type="information-circled"></Icon>
-          {{$t('m.About')}}
-        </template>
-        <Menu-item name="/about">
-          {{$t('m.Judger')}}
-        </Menu-item>
-        <Menu-item name="/FAQ">
-          {{$t('m.FAQ')}}
-        </Menu-item>
-      </Submenu>
-      <template v-if="!isAuthenticated">
-        <div class="btn-menu">
-          <Button type="ghost"
-                  ref="loginBtn"
-                  shape="circle"
-                  @click="handleBtnClick('login')">{{$t('m.Login')}}
-          </Button>
-          <Button v-if="website.allow_register"
-                  type="ghost"
-                  shape="circle"
-                  @click="handleBtnClick('register')"
-                  style="margin-left: 5px;">{{$t('m.Register')}}
-          </Button>
-        </div>
-      </template>
-      <template v-else>
-        <Dropdown class="drop-menu" @on-click="handleRoute" placement="bottom" trigger="click">
-          <Button type="text" class="drop-menu-title">{{ user.username }}
-            <Icon type="arrow-down-b"></Icon>
-          </Button>
-          <Dropdown-menu slot="list">
-            <Dropdown-item name="/user-home">{{$t('m.MyHome')}}</Dropdown-item>
-            <Dropdown-item name="/status?myself=1">{{$t('m.MySubmissions')}}</Dropdown-item>
-            <Dropdown-item name="/setting/profile">{{$t('m.Settings')}}</Dropdown-item>
-            <Dropdown-item v-if="isAdminRole" name="/admin">{{$t('m.Management')}}</Dropdown-item>
-            <Dropdown-item divided name="/logout">{{$t('m.Logout')}}</Dropdown-item>
-          </Dropdown-menu>
-        </Dropdown>
-      </template>
-    </Menu>
-    <Modal v-model="modalVisible" :width="400">
-      <div slot="header" class="modal-title">{{$t('m.Welcome_to')}} {{website.website_name_shortcut}}</div>
-      <component :is="modalStatus.mode" v-if="modalVisible"></component>
-      <div slot="footer" style="display: none"></div>
-    </Modal>
-  </div>
+  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu">
+  <a href="/"><div class="logo"><img id="logo" src="../../../assets/logo.jpg" alt="oj logo"/></div></a>
+  <el-menu-item index="/">
+    <Icon type="home"></Icon>
+    {{$t('m.Home')}}
+  </el-menu-item>
+  <el-menu-item index="/CourseList">
+    <Icon type="ios-book"></Icon>
+    {{$t('m.Signup_Lectures')}}
+  </el-menu-item>
+  <el-menu-item index="/lecture">
+    <Icon type="ios-book"></Icon>
+    {{$t('m.Lectures')}}
+  </el-menu-item>
+  <el-menu-item index="/contest">
+    <Icon type="ios-book"></Icon>
+    {{$t('m.Public_Contests')}}
+  </el-menu-item>
+  <el-menu-item index="/problem">
+    <Icon type="ios-keypad"></Icon>
+    {{$t('m.NavProblems')}}
+  </el-menu-item>
+  <el-menu-item index="/status">
+    <Icon type="ios-pulse-strong"></Icon>
+    {{$t('m.NavStatus')}}
+  </el-menu-item>
+  <el-menu-item index="/question">
+   <Icon type="help"></Icon>
+   공개 질문
+  </el-menu-item>
+  <el-submenu index="8" name="rank">
+    <template slot="title"><Icon type="podium"></Icon>{{$t('m.Rank')}}</template>
+    <el-menu-item index="/acm-rank">{{$t('m.ACM_Rank')}}</el-menu-item>
+    <el-menu-item index="/oi-rank">{{$t('m.OI_Rank')}}</el-menu-item>
+  </el-submenu>
+  <el-submenu index="9">
+    <template slot="title"><Icon type="information-circled"></Icon>{{$t('m.About')}}</template>
+    <el-menu-item index="/about">{{$t('m.Judger')}}</el-menu-item>
+    <el-menu-item index="/FAQ">{{$t('m.FAQ')}}</el-menu-item>
+  </el-submenu>
+  <el-menu-item1 index="register" v-if="!isAuthenticated" style="float:right;">
+    <div class="btn-menu">
+      <Button v-if="website.allow_register" 
+              type="ghost"
+              shape="circle"
+              @click="handleBtnClick('register')"
+              style="margin-left: 5px;">{{$t('m.Register')}}
+      </Button>
+    </div>
+  </el-menu-item1>
+  <el-menu-item1 index="login" v-if="!isAuthenticated" style="float:right;">
+    <div class="btn-menu">
+      <Button index="login" type="ghost"
+            ref="loginBtn"
+            shape="circle"
+            @click="handleBtnClick('login')">{{$t('m.Login')}}
+      </Button>
+    </div>
+  </el-menu-item1>
+  <el-submenu v-else style="float:right;">
+           <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" style="margin-left: 50px;">{{ user.username }}</template>
+           <el-menu-item index="/user-home">
+             {{$t('m.MyHome')}}
+           </el-menu-item>
+           <el-menu-item index="/status?myself=1">
+             {{$t('m.MySubmissions')}}
+           </el-menu-item>
+           <el-menu-item index="/setting/profile">
+             {{$t('m.Settings')}}
+           </el-menu-item>
+           <el-menu-item v-if="isAdminRole" index="/admin">
+             {{$t('m.Management')}}
+           </el-menu-item>
+           <el-menu-item divided index="/logout">
+             {{$t('m.Logout')}}
+           </el-menu-item>
+  </el-submenu>
+  </el-menu>
+<Modal v-model="modalVisible" :width="500">
+  <div slot="header" class="modal-title">{{$t('m.Welcome_to')}} {{website.website_name_shortcut}}</div>
+  <component :is="modalStatus.mode" v-if="modalVisible"></component>
+  <div slot="footer" style="display: none"></div>
+</Modal>
+</div>
 </template>
 
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.14.1/lib/index.js"></script>
 <script>
   import { mapGetters, mapActions } from 'vuex'
   import login from '@oj/views/user/Login'
   import register from '@oj/views/user/Register'
-
+  import api from '@oj/api'
   export default {
     components: {
       login,
@@ -100,6 +100,12 @@
     },
     mounted () {
       this.getProfile()
+    },
+    data () {
+      return {
+        activeIndex: '1',
+        inCollapse: true
+      }
     },
     methods: {
       ...mapActions(['getProfile', 'changeModalStatus']),
@@ -110,11 +116,32 @@
           window.open('/admin/')
         }
       },
+      currentChange (page) {
+        let params = { offset: (page - 1) * this.limit,
+          limit: this.limit }
+        api.PostListPushSerializer(params).then((res) => {
+          this.pushTotal = res.data.data.total
+          this.pushData = res.data.data.results
+        })
+      },
       handleBtnClick (mode) {
+        console.log(mode)
         this.changeModalStatus({
           visible: true,
           mode: mode
         })
+      },
+      handleSelect (key, keypath) {
+        console.log(key)
+        console.log(keypath)
+        if (key && key.indexOf('admin') < 0) {
+          this.$router.push(key)
+        } else {
+          window.open('/admin/')
+          // window.open('/admin/') 없애도 되는지 모르겠다
+          // root 계정으로 '관리' 메뉴에 들어가려면 위 코드가 필히 필요해 보임.
+          // 검토 요망.. 다예
+        }
       }
     },
     computed: {
@@ -138,10 +165,11 @@
     }
   }
 </script>
-
+<style>
+  @import url("//unpkg.com/element-ui@2.14.1/lib/theme-chalk/index.css");
+</style>
 <style lang="less" scoped>
   #header {
-    min-width: 1100px;
     position: fixed;
     top: 0;
     left: 0;
@@ -159,7 +187,7 @@
       margin-right: 2%;
       font-size: 20px;
       float: left;
-      line-height: 60px;
+      line-height: 30px;
       #logo{
         width: 130px;
         padding-top: 5px;
@@ -179,6 +207,10 @@
       font-size: 16px;
       float: right;
       margin-right: 10px;
+      margin-top: 15px;
+    }
+    .el-menu-item1 {
+      padding-right: 0 !important;
     }
   }
 

@@ -144,6 +144,17 @@ export default {
   },
   pickone () {
     return ajax('pickone', 'get')
+  }, // 임의 생성 API
+  getcode (id, code, input, result) {
+    console.log('call')
+    return ajax('submission_code', 'get', {
+      params: {
+        id,
+        code,
+        input,
+        result
+      }
+    })
   },
   getProblem (problemID) {
     return ajax('problem', 'get', {

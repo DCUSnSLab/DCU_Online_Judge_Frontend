@@ -27,6 +27,7 @@ import * as Lecture from '@oj/views/lecture'
 export default [
   {
     name: 'home',
+    index: '1',
     path: '/',
     meta: {title: 'Home'},
     component: Home
@@ -58,6 +59,7 @@ export default [
   {
     name: 'problem-list',
     path: '/problem',
+    index: '5',
     meta: {title: 'Problem List'},
     component: ProblemList
   },
