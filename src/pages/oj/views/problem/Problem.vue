@@ -568,7 +568,7 @@
         }
         const checkStatus = () => {
           let secondRequest = $.ajax({
-            url: '../judge0/submissions/' + this.requestdata.responseJSON.token,
+            url: '/submissions/' + this.requestdata.responseJSON.token,
             // + '?base64_encoded=true',
             type: 'get'
           })
@@ -632,7 +632,7 @@
           data.language_id = '71'
         }
         let request = $.ajax({
-          url: '../judge0/submissions',
+          url: '/submissions/',
           type: 'post',
           data: data
         })
@@ -642,7 +642,7 @@
           // Log a message to the console
           console.log('Hooray, it worked!')
           let token = response.token
-          console.log('after 3 seconds', token)
+          console.log('after 5 seconds', token)
         })
         this.checkRunStatus()
         this.submitting = false

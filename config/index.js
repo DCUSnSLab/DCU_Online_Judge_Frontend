@@ -50,7 +50,7 @@ module.exports = {
     proxyTable: {
       "/api": commonProxy,
       "/public": commonProxy,
-      "/judge0": judge0Proxy
+      "/submissions": judge0Proxy
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README
