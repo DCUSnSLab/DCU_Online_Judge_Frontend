@@ -423,13 +423,13 @@ export default {
       }
     })
   },
-  // getContestTimeOverExit (contestId) {  // working by soojung
-  //   return ajax('contest/time_over_exit', 'get', {
-  //     params: {
-  //       contest_id: contestId
-  //     }
-  //   })
-  // },
+  getContestTimeOverExit (contestId) {  // working by soojung
+    return ajax('contest/time_over_exit', 'get', {
+      params: {
+        contest_id: contestId
+      }
+    })
+  },
   checkContestExitManage (contestId, userId) {    // working by soojung
     return ajax('lecture/contest_exit_manage', 'get', {
       params: {
