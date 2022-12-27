@@ -18,7 +18,7 @@ import {
   SubmissionList,
   UserHome,
   ProblemQnADetail,
-  TestCase
+  TestCase,
   LectureContestExit,
   ContestExit,
   ide
