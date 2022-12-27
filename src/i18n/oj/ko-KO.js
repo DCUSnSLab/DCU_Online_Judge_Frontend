@@ -124,7 +124,7 @@ export const m = {
   schoolssn_Again: '학번 / 교직번호 확인',
   Phonenum: '전화번호 ([-] 제외 11자리로 입력),',
   Phonenum_Again: '전화번호 확인',
-  Affliation: '소속기관 입력 (ex : 학교,회사명 or 취준생, 무직 )',
+  Affiliation: '소속기관 입력 (ex : 학교,회사명 or 취준생, 무직 )',
   Captcha: 'Captcha',
   UserRegister: '회원가입',
   Already_Registed: '이미 등록하셨나요? 로그인하세요!',
