@@ -185,6 +185,12 @@
         }, (res) => {
           this.btnLoading = false
         })
+      },
+      ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
+        api.getContestTimeOverExit(this.$route.params.contestID).then(res => {
+          console.log('-- contest time over --')
+        }).catch(() => {
+        })
       }
     },
     computed: {
@@ -200,6 +206,9 @@
       ),
       countdownColor () {
         if (this.contestStatus) {
+          if (this.contestStatus === CONTEST_STATUS.ENDED) {  // working by soojung
+            this.ContestTimeOverExit()
+          }
           return CONTEST_STATUS_REVERSE[this.contestStatus].color
         }
       },
