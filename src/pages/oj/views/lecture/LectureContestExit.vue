@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container" v-if="isAdmin">
+  <div class="flex-container" v-if="isAdmin || isSemiAdmin">
     <div id="manage">
       <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b></div>
