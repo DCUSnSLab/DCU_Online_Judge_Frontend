@@ -574,14 +574,16 @@
           })
           this.outputdata = secondRequest.done(async function (response) {
             console.log(response, '결과!!')
+            if (response.status.description === 'In Queue' || response.status.description === 'Processing') {
+              this.refreshStatus = setTimeout(checkStatus, 2000)
+            }
             $('#ans').html(response.stdout)
           })
           this.submitting = false
           this.submitted = false
-          clearTimeout(this.refreshStatus)
           this.init()
         }
-        this.refreshStatus = setTimeout(checkStatus, 5000)
+        this.refreshStatus = setTimeout(checkStatus, 2000)
       },
       // 코드 실행버튼
       runCode () {
@@ -640,9 +642,8 @@
         // Callback handler that will be called on success
         this.requestdata = request.done(async function (response, textStatus, jqXHR) {
           // Log a message to the console
-          console.log('Hooray, it worked!')
           let token = response.token
-          console.log('after 5 seconds', token)
+          console.log('after 2 seconds', token)
         })
         this.checkRunStatus()
         this.submitting = false
