@@ -32,9 +32,9 @@ import 'echarts/lib/component/legend'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/toolbox'
 import 'echarts/lib/component/markPoint'
-import IconBtn from './components/btn/IconBtn'  // working by soojung
-import Save from './components/btn/Save'  // working by soojung
-import Cancel from './components/btn/Cancel'  // working by soojung
+import IconBtn from './components/btn/IconBtn.vue'  // working by soojung
+import Save from './components/btn/Save.vue'  // working by soojung
+import Cancel from './components/btn/Cancel.vue'  // working by soojung
 
 // register global utility filters.
 Object.keys(filters).forEach(key => {
