@@ -117,6 +117,12 @@
       </Card>
        <Card :padding="20" id="run_code" dis-hover>
        <h2>예시입력 실행</h2>
+       <p>예시 선택: 
+       <select v-model="selectedTestCase">
+      <option v-for="(sample, index) of problem.samples">
+        예시 {{ index+1 }}
+      </option>
+    </select></p>
         <p>실행결과 : {{ outputdata.responseJSON.status.description }}</p>
         <p>출력결과</p>
         <OutMirror :value.sync="outputdata.responseJSON.stdout"></OutMirror>
@@ -273,6 +279,7 @@
       return {
         outputdata: {'responseJSON': {'stdout': '', 'status': {'description': ''}}},
         requestdata: 'request_',
+        selectedTestCase: '0',
         statusVisible: false,
         captchaRequired: false,
         graphVisible: false,
@@ -611,8 +618,8 @@
           enable_per_process_and_thread_memory_limit: false,
           max_file_size: '1024'
         }
-        data.stdin = this.problem.samples[0].input
-        data.expected_output = this.problem.samples[0].output
+        data.stdin = this.problem.samples[this.selectedTestCase].input
+        data.expected_output = this.problem.samples[this.selectedTestCase].output
         console.log(data.stdin, '입력')
         console.log(data, 'data')
         if (this.captchaRequired) {
