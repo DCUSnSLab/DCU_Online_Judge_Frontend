@@ -120,7 +120,7 @@
        <p>예시 선택: 
        <select v-model="selectedTestCase">
       <option v-for="(sample, index) of problem.samples">
-        예시 {{ index+1 }}
+        {{ index+1 }}
       </option>
     </select></p>
         <p>실행결과 : {{ outputdata.responseJSON.status.description }}</p>
@@ -618,8 +618,8 @@
           enable_per_process_and_thread_memory_limit: false,
           max_file_size: '1024'
         }
-        data.stdin = this.problem.samples[this.selectedTestCase].input
-        data.expected_output = this.problem.samples[this.selectedTestCase].output
+        data.stdin = this.problem.samples[this.selectedTestCase - 1].input
+        data.expected_output = this.problem.samples[this.selectedTestCase - 1].output
         console.log(data.stdin, '입력')
         console.log(data, 'data')
         if (this.captchaRequired) {
