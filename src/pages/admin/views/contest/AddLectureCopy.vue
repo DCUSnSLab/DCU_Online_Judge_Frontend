@@ -6,29 +6,29 @@
           <el-option value="2020">2020년도</el-option>
           <el-option value="2021">2021년도</el-option>
           <el-option value="2022">2022년도</el-option>
-          <el-option value="2022">2023년도</el-option>
-          <el-option value="2022">2024년도</el-option>
+          <el-option value="2023">2023년도</el-option>
+          <el-option value="2024">2024년도</el-option>
         </el-select>
       </el-col>
       <el-col :span="2">
         <el-select v-model="semester">
-          <el-option value="1">1학기</el-option>
-          <el-option value="2">2학기</el-option>
-          <el-option value="3">입학 전</el-option>
+          <el-option value="1">{{$t('m.First_Semester')}}</el-option>
+          <el-option value="2">{{$t('m.Second_Semester')}}</el-option>
+          <el-option value="3">{{$t('m.Semester_Before')}}</el-option>
         </el-select>
       </el-col>
       <el-col :span="12">
         <el-input
           v-model="keyword"
-          placeholder="과목 검색"
+          placeholder="$t('m.Lecture_Search')"
           width="100">
         </el-input>
       </el-col>
       <el-col :span="2">
-        <el-button @click="searchLecture">검색</el-button>
+        <el-button @click="searchLecture">{{$t('m.Search')}}</el-button>
       </el-col>
       <el-col :span="4">
-        <el-checkbox v-model="showPublic" label="전체 과목 보기" border></el-checkbox>
+        <el-checkbox v-model="showPublic" label="$t('m.See_All_Lecture')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
       </el-col>
     </el-row>
@@ -39,16 +39,16 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="생성자"
+        label="$t('m.Maker')"
         width="70"
         prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="과목 명"
+        label="$t('m.LectureTitle')"
         prop="title">
       </el-table-column>
       <el-table-column
-        label="추가하기"
+        label="$t('m.Add')"
         align="center"
         width="100"
         fixed="right">
