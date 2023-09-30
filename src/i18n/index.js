@@ -21,6 +21,7 @@ for (let lang of languages) {
 // load language packages
 export default new VueI18n({
   locale: 'ko-KO',
+  fallbackLocale: 'ko-KO', // 지정한 언어에 번역이 없을 때 보여줄 언어
   messages: messages
 })
 
