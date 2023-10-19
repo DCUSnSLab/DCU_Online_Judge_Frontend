@@ -8,6 +8,7 @@ SHELL ["/bin/bash", "-c"]
 RUN apt-get update -y
 RUN apt-get install curl -y
 RUN apt-get install git -y
+RUN apt-get install vim -y
 
 RUN mkdir -p /usr/local/nvm
 ENV NVM_DIR /usr/local/nvm
