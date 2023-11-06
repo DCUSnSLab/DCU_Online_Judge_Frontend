@@ -182,7 +182,7 @@
     height: auto !important;
   }
   .CodeMirror-scroll {
-    min-height: 300px;
-    max-height: 1000px;
+    min-height: 660px;
+    max-height: 660px;
   }
 </style>
