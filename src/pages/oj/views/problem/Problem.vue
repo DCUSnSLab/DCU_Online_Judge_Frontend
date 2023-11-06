@@ -1,7 +1,7 @@
 <template>
   <div class="flex-container">
     <el-col :span="10" v-if="problemRes" id="view-mode">
-      <el-col :span="5" v-if="toggleValue" id="problem-main-width"> <!--가로 모드 문제란-->
+      <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: dynamicHeight-150 + 'px' }"> <!--가로 모드 문제란-->
         <Panel :padding="40" shadow>
           <div slot="title">{{ problem.title }}</div>
           <div id="problem-content" class="markdown-body" v-katex>
@@ -53,7 +53,7 @@
       </iframe>-->  
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
-            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang"></CodeMirror>
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight" :ToggleValue="toggleValue"></CodeMirror>
           <Row type="flex" justify="space-between">
             <Col :span="10">
             <div class="status" v-if="statusVisible">
@@ -424,7 +424,8 @@
           height: '480'
         },
         contestEndtime: '',  // working by soojung
-        contestExitStatus: false // working by soojung
+        contestExitStatus: false, // working by soojung
+        dynamicHeight: window.innerHeight
       }
     },
 
@@ -443,13 +444,19 @@
     mounted () {
       this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
       this.init()
+      window.addEventListener('resize', this.handleResize)
+    },
+    beforeDestroy () {
+      window.removeEventListener('resize', this.handleResize)
     },
     methods: {
+      handleResize () {
+        this.dynamicHeight = window.innerHeight
+      },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
         if (!newToggleValue) {
           window.scrollTo(0, 0)
-          console.log('scrollUp')
         }
         console.log(newToggleValue)
       },
@@ -796,7 +803,7 @@
       flex: 5; /* 5:7 비율로 나누기 위해 5로 설정 */
       margin-right: 9px;
       overflow: scroll;
-      height: 800px;
+ 
     }
     #problem-main-height {
       flex: auto;

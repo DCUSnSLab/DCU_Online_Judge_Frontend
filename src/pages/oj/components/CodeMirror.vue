@@ -80,6 +80,11 @@
       theme: {
         type: String,
         default: 'solarized'
+      },
+      newHeight: Number,
+      ToggleValue: {
+        type: Boolean,
+        default: false
       }
     },
     data () {
@@ -110,6 +115,7 @@
       }
     },
     mounted () {
+      this.initializeHeight() // 초기화 함수 호출
       utils.getLanguages().then(languages => {
         let mode = {}
         languages.forEach(lang => {
@@ -121,6 +127,15 @@
       this.editor.focus()
     },
     methods: {
+      initializeHeight () { // 초기화
+        const editor = this.editor
+        if (editor) {
+          const scrollElement = editor.getWrapperElement().getElementsByClassName('CodeMirror-scroll')[0]
+          const initialHeight = this.newHeight - 300 + 'px'
+          scrollElement.style.minHeight = initialHeight
+          scrollElement.style.maxHeight = initialHeight
+        }
+      },
       onEditorCodeChange (newCode) {
         this.$emit('update:value', newCode)
       },
@@ -159,6 +174,21 @@
     watch: {
       'theme' (newVal, oldVal) {
         this.editor.setOption('theme', newVal)
+      },
+
+      newHeight (newVal, oldVal) {
+        // CodeMirror 인스턴스 가져오기
+        const editor = this.editor
+        if (editor) {
+          // .CodeMirror-scroll 클래스를 가진 요소 선택
+          const scrollElement = editor.getWrapperElement().getElementsByClassName('CodeMirror-scroll')[0]
+
+          // 동적으로 설정할 max-height 및 min-height 계산
+          const newHeightWithMargin = newVal - 300 + 'px'
+          // .CodeMirror-scroll 요소에 직접 스타일을 적용
+          scrollElement.style.minHeight = newHeightWithMargin
+          scrollElement.style.maxHeight = newHeightWithMargin
+        }
       }
     }
   }
@@ -182,7 +212,7 @@
     height: auto !important;
   }
   .CodeMirror-scroll {
-    min-height: 660px;
     max-height: 660px;
+    min-height: 660px;
   }
 </style>
