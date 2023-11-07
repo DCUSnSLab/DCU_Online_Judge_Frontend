@@ -494,7 +494,7 @@
         this.lectureID = this.$route.params.lectureID
         this.getLectureID()
         this.checkAllowedAIhelper()
-        let func = this.$route.name === 'problem-details' || 'problem-details New page' ? 'getProblem' : 'getContestProblem'
+        let func = this.$route.name === 'problem-details' ? 'getProblem' : 'getContestProblem'
         api[func](this.problemID_, this.contestID).then(res => {
           this.$Loading.finish()
           let problem = res.data.data
