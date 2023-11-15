@@ -7,7 +7,7 @@ const languages = [
   {value: 'en-US', label: 'English'},
   {value: 'zh-CN', label: '简体中文'},
   {value: 'zh-TW', label: '繁體中文'},
-  {value: 'ko-KO', label: '한국어'}
+  {value: 'ko-KR', label: '한국어'}
 ]
 const messages = {}
 
@@ -20,7 +20,8 @@ for (let lang of languages) {
 }
 // load language packages
 export default new VueI18n({
-  locale: 'ko-KO',
+  locale: 'ko-KR',
+  fallbackLocale: 'ko-KR', // 지정한 언어에 번역이 없을 때 보여줄 언어
   messages: messages
 })
 
