@@ -1,159 +1,255 @@
 <template>
   <div class="flex-container">
-    <div v-if="problemRes" id="problem-main">
-      <!--problem main-->
-      <Panel :padding="40" shadow>
-        <div slot="title">{{problem.title}}</div>
-        <div id="problem-content" class="markdown-body" v-katex>
-          <p class="title">{{$t('m.Description')}}</p>
-          <p class="content" v-html=problem.description></p>
-          <!-- {{$t('m.music')}} -->
-          <p class="title">{{$t('m.Input')}} <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.FromFile')}}: {{ problem.io_mode.input }})</span></p>
-          <p class="content" v-html=problem.input_description></p>
+    <el-col :span="10" v-if="problemRes" id="view-mode">
+      <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: dynamicHeight-150 + 'px' }"> <!--가로 모드 문제란-->
+        <Panel :padding="40" shadow>
+          <div slot="title">{{ problem.title }}</div>
+          <div id="problem-content" class="markdown-body" v-katex>
+            <p class="title">{{ $t('m.Description') }}</p>
+            <p class="content" v-html=problem.description></p>
+            <!-- {{$t('m.music')}} -->
+            <p class="title">{{ $t('m.Input') }} <span v-if="problem.io_mode.io_mode == 'File IO'">({{ $t('m.FromFile') }}: {{ problem.io_mode.input }})</span></p>
+            <p class="content" v-html=problem.input_description></p>
 
-          <p class="title">{{$t('m.Output')}} <span v-if="problem.io_mode.io_mode=='File IO'">({{$t('m.ToFile')}}: {{ problem.io_mode.output }})</span></p>
-          <p class="content" v-html=problem.output_description></p>
+            <p class="title">{{ $t('m.Output') }} <span v-if="problem.io_mode.io_mode == 'File IO'">({{ $t('m.ToFile') }}: {{ problem.io_mode.output }})</span></p>
+            <p class="content" v-html=problem.output_description></p>
 
-          <div v-for="(sample, index) of problem.samples" :key="index">
-            <div class="flex-container sample">
-              <div class="sample-input">
-                <p class="title">{{$t('m.Sample_Input')}} {{index + 1}}
-                  <a class="copy"
-                     v-clipboard:copy="sample.input"
-                     v-clipboard:success="onCopy"
-                     v-clipboard:error="onCopyError">
-                    <Icon type="clipboard"></Icon>
-                  </a>
-                </p>
-                <pre>{{sample.input}}</pre>
-              </div>
-              <div class="sample-output">
-                <p class="title">{{$t('m.Sample_Output')}} {{index + 1}}</p>
-                <pre>{{sample.output}}</pre>
+            <div v-for="(sample, index) of problem.samples" :key="index">
+              <div class="flex-container sample">
+                <div class="sample-input">
+                  <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
+                    <a class="copy" v-clipboard:copy="sample.input" v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError">
+                      <Icon type="clipboard"></Icon>
+                    </a>
+                  </p>
+                  <pre>{{ sample.input }}</pre>
+                </div>
+                <div class="sample-output">
+                  <p class="title">{{ $t('m.Sample_Output') }} {{ index + 1 }}</p>
+                  <pre>{{ sample.output }}</pre>
+                </div>
               </div>
             </div>
+
+            <div v-if="problem.hint">
+              <p class="title">{{ $t('m.Hint') }}</p>
+              <Card dis-hover>
+                <div class="content" v-html=problem.hint></div>
+              </Card>
+            </div>
+
+            <div v-if="problem.source">
+              <p class="title">{{ $t('m.Source') }}</p>
+              <p class="content">{{ problem.source }}</p>
+            </div>
+
           </div>
-
-          <div v-if="problem.hint">
-            <p class="title">{{$t('m.Hint')}}</p>
-            <Card dis-hover>
-              <div class="content" v-html=problem.hint></div>
-            </Card>
-          </div>
-
-          <div v-if="problem.source">
-            <p class="title">{{$t('m.Source')}}</p>
-            <p class="content">{{problem.source}}</p>
-          </div>
-
-        </div>
-      </Panel>
-
-      <!--problem main end-->
-      <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
-      </iframe>-->
-      <Card :padding="20" id="submit-code" dis-hover>
-        <CodeMirror :value.sync="code"
-                    :languages="problem.languages"
-                    :language="language"
-                    :theme="theme"
-                    @resetCode="onResetToTemplate"
-                    @changeTheme="onChangeTheme"
-                    @changeLang="onChangeLang"></CodeMirror>
-        <Row type="flex" justify="space-between">
-          <Col :span="10">
+        </Panel>
+      </el-col>
+      <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
+        <!--problem main end-->
+        <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
+      </iframe>-->  
+        <Card id="submit-code" dis-hover>
+          <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight" :ToggleValue="toggleValue"></CodeMirror>
+          <Row type="flex" justify="space-between">
+            <Col :span="10">
             <div class="status" v-if="statusVisible">
               <template v-if="!this.contestID || (this.contestID && OIContestRealTimePermission)">
-                <span>{{$t('m.Status')}}</span>
-                <Tag type="dot" :color="submissionStatus.color" @click.native="handleRoute('/status/'+submissionId)">
-                  {{$t('m.' + submissionStatus.text.replace(/ /g, "_"))}}
+                <span>{{ $t('m.Status') }}</span>
+                <Tag type="dot" :color="submissionStatus.color" @click.native="handleRoute('/status/' + submissionId)">
+                  {{ $t('m.' + submissionStatus.text.replace(/ /g, "_")) }}
                 </Tag>
               </template>
               <template v-else-if="this.contestID && !OIContestRealTimePermission">
-                <Alert type="success" show-icon>{{$t('m.Submitted_successfully')}}</Alert>
+                <Alert type="success" show-icon>{{ $t('m.Submitted_successfully') }}</Alert>
               </template>
             </div>
             <div v-else-if="problem.my_status === 0">
-              <Alert type="success" show-icon>{{$t('m.You_have_solved_the_problem')}}</Alert>
+              <Alert type="success" show-icon>{{ $t('m.You_have_solved_the_problem') }}</Alert>
             </div>
             <div v-else-if="this.contestID && !OIContestRealTimePermission && submissionExists">
-              <Alert type="success" show-icon>{{$t('m.You_have_submitted_a_solution')}}</Alert>
+              <Alert type="success" show-icon>{{ $t('m.You_have_submitted_a_solution') }}</Alert>
             </div>
             <div v-if="contestEnded">
-              <Alert type="warning" show-icon>{{$t('m.Contest_has_ended')}}</Alert>
+              <Alert type="warning" show-icon>{{ $t('m.Contest_has_ended') }}</Alert>
             </div>
             <div v-else-if="contestExitStatus"> <!--working by soojung-->
-              <Alert type="warning" show-icon>{{$t('m.Already_Submitted')}}</Alert>
+              <Alert type="warning" show-icon>{{ $t('m.Already_Submitted') }}</Alert>
             </div>
-          </Col>
-          <Col :span="12">
+            </Col>
+            <Col :span="12">
             <template v-if="captchaRequired">
               <div class="captcha-container">
                 <Tooltip v-if="captchaRequired" content="Click to refresh" placement="top">
-                  <img :src="captchaSrc" @click="getCaptchaSrc"/>
+                  <img :src="captchaSrc" @click="getCaptchaSrc" />
                 </Tooltip>
-                <Input v-model="captchaCode" class="captcha-code"/>
+                <Input v-model="captchaCode" class="captcha-code" />
               </div>
             </template>
 
             <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
-                    :disabled="problemSubmitDisabled || submitted"
-                    class="fl-right">   <!--제출(비활성화)-->
-              <span v-if="submitting">{{$t('m.Submitting')}}</span>   <!--제출중-->
-              <span v-else>{{$t('m.Submit')}}</span>  <!--제출(평소)-->
+              :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
+              <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
+              <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
-            <Button v-else="problemRes" class="fl-right" disabled>{{$t('m.WrongPath')}}</Button>
-            <Button v-on:click="toggleSidebar"
-                    v-if="aihelperflag"
-                    :enabled=aiaskbutton
-                    @click.native="askAI"
-                    class="fl-right">
-              <span>{{$t('m.callai')}}</span>
+            <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
+            <Button v-on:click="toggleSidebar" v-if="aihelperflag" :disabled=askbutton @click.native="askAI"
+              class="fl-right">
+              <span>{{ $t('m.callai') }}</span>
             </Button>
-            <Button v-b-toggle.sidebar-right
-                    :enabled="askbutton"
-                    class="fl-right">
-              <span>{{$t('m.calltara')}}</span>
+            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
+              <span>{{ $t('m.calltara') }}</span>
+            </Button>
+            </Col>
+          </Row>
+        </Card>
+      </el-col>
+      <div v-else id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
+        <Panel :padding="40" shadow>
+          <div slot="title">{{ problem.title }}</div>
+          <div id="problem-content" class="markdown-body" v-katex>
+            <p class="title">{{ $t('m.Description') }}</p>
+            <p class="content" v-html=problem.description></p>
+            <!-- {{$t('m.music')}} -->
+            <p class="title">{{ $t('m.Input') }} <span v-if="problem.io_mode.io_mode == 'File IO'">({{ $t('m.FromFile') }}: {{
+              problem.io_mode.input }})</span></p>
+            <p class="content" v-html=problem.input_description></p>
+
+            <p class="title">{{ $t('m.Output') }} <span v-if="problem.io_mode.io_mode == 'File IO'">({{ $t('m.ToFile') }}: {{
+              problem.io_mode.output }})</span></p>
+            <p class="content" v-html=problem.output_description></p>
+
+            <div v-for="(sample, index) of problem.samples" :key="index">
+              <div class="flex-container sample">
+                <div class="sample-input">
+                  <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
+                    <a class="copy" v-clipboard:copy="sample.input" v-clipboard:success="onCopy"
+                      v-clipboard:error="onCopyError">
+                      <Icon type="clipboard"></Icon>
+                    </a>
+                  </p>
+                  <pre>{{ sample.input }}</pre>
+                </div>
+                <div class="sample-output">
+                  <p class="title">{{ $t('m.Sample_Output') }} {{ index + 1 }}</p>
+                  <pre>{{ sample.output }}</pre>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="problem.hint">
+              <p class="title">{{ $t('m.Hint') }}</p>
+              <Card dis-hover>
+                <div class="content" v-html=problem.hint></div>
+              </Card>
+            </div>
+
+            <div v-if="problem.source">
+              <p class="title">{{ $t('m.Source') }}</p>
+              <p class="content">{{ problem.source }}</p>
+            </div>
+
+          </div>
+        </Panel>
+        <br>
+        <Card :padding="20" id="submit-code" dis-hover>
+          <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang"></CodeMirror>
+          <Row type="flex" justify="space-between">
+            <Col :span="10">
+            <div class="status" v-if="statusVisible">
+              <template v-if="!this.contestID || (this.contestID && OIContestRealTimePermission)">
+                <span>{{ $t('m.Status') }}</span>
+                <Tag type="dot" :color="submissionStatus.color" @click.native="handleRoute('/status/' + submissionId)">
+                  {{ $t('m.' + submissionStatus.text.replace(/ /g, "_")) }}
+                </Tag>
+              </template>
+              <template v-else-if="this.contestID && !OIContestRealTimePermission">
+                <Alert type="success" show-icon>{{ $t('m.Submitted_successfully') }}</Alert>
+              </template>
+            </div>
+            <div v-else-if="problem.my_status === 0">
+              <Alert type="success" show-icon>{{ $t('m.You_have_solved_the_problem') }}</Alert>
+            </div>
+            <div v-else-if="this.contestID && !OIContestRealTimePermission && submissionExists">
+              <Alert type="success" show-icon>{{ $t('m.You_have_submitted_a_solution') }}</Alert>
+            </div>
+            <div v-if="contestEnded">
+              <Alert type="warning" show-icon>{{ $t('m.Contest_has_ended') }}</Alert>
+            </div>
+            <div v-else-if="contestExitStatus"> <!--working by soojung-->
+              <Alert type="warning" show-icon>{{ $t('m.Already_Submitted') }}</Alert>
+            </div>
+            </Col>
+            <Col :span="12">
+            <template v-if="captchaRequired">
+              <div class="captcha-container">
+                <Tooltip v-if="captchaRequired" content="Click to refresh" placement="top">
+                  <img :src="captchaSrc" @click="getCaptchaSrc" />
+                </Tooltip>
+                <Input v-model="captchaCode" class="captcha-code" />
+              </div>
+            </template>
+
+            <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
+              :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
+              <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
+              <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
+            </Button>
+            <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
+
+            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
+              <span>{{ $t('m.calltara') }}</span>
+
             </Button>
 
-          </Col>
-        </Row>
+            </Col>
+          </Row>
+        </Card>
+      </div>
+    </el-col>
+    <div v-else></div>
+
+    <el-col :span="2" id="right-column">
+      <Card id="page-mode">
+        <el-switch v-model="toggleValue" size="large" active-text="가로" inactive-text="세로" @change="toggleSwitch" />
+
       </Card>
-    </div>
-    <div v-else="problemRes"></div>
-
-    <div id="right-column">
+      <br />
       <VerticalMenu @on-click="handleRoute">
         <template v-if="this.contestID">
-          <VerticalMenu-item :route="{name: 'contest-problem-list', params: {contestID: contestID}}">
+          <VerticalMenu-item :route="{ name: 'contest-problem-list', params: { contestID: contestID } }">
             <Icon type="ios-photos"></Icon>
-            {{$t('m.Problems')}}
+            {{ $t('m.Problems') }}
           </VerticalMenu-item>
 
-          <VerticalMenu-item :route="{name: 'contest-announcement-list', params: {contestID: contestID}}">
+          <VerticalMenu-item :route="{ name: 'contest-announcement-list', params: { contestID: contestID } }">
             <Icon type="chatbubble-working"></Icon>
-            {{$t('m.Announcements')}}
+            {{ $t('m.Announcements') }}
           </VerticalMenu-item>
         </template>
 
         <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission" :route="submissionRoute">
           <Icon type="navicon-round"></Icon>
-           {{$t('m.Submissions')}}
+          {{ $t('m.Submissions') }}
         </VerticalMenu-item>
 
         <template v-if="this.contestID">
           <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission"
-                             :route="{name: 'contest-rank', params: {contestID: contestID}}">
+            :route="{ name: 'contest-rank', params: { contestID: contestID } }">
             <Icon type="stats-bars"></Icon>
-            {{$t('m.Rankings')}}
+            {{ $t('m.Rankings') }}
           </VerticalMenu-item>
           <VerticalMenu-item @click.native="goContestQnA">
             <Icon type="help"></Icon>
-             {{$t('m.qa')}}
+            {{ $t('m.qa') }}
           </VerticalMenu-item>
-          <VerticalMenu-item :route="{name: 'contest-details', params: {contestID: contestID}}">
+          <VerticalMenu-item :route="{ name: 'contest-details', params: { contestID: contestID } }">
             <Icon type="home"></Icon>
-            {{$t('m.View_Contest')}}
+            {{ $t('m.View_Contest') }}
           </VerticalMenu-item>
         </template>
       </VerticalMenu>
@@ -161,39 +257,45 @@
       <Card id="info">
         <div slot="title" class="header">
           <Icon type="information-circled"></Icon>
-          <span class="card-title">{{$t('m.Information')}}</span>
+          <span class="card-title">{{ $t('m.Information') }}</span>
         </div>
         <ul>
-          <li><p>ID</p>
-            <p>{{problem._id}}</p></li>
           <li>
-            <p>{{$t('m.Time_Limit')}}</p>
-            <p>{{problem.time_limit}}MS</p></li>
-          <li>
-            <p>{{$t('m.Memory_Limit')}}</p>
-            <p>{{problem.memory_limit}}MB</p></li>
-          <li>
-          <li>
-            <p>{{$t('m.IOMode')}}</p>
-            <p>{{problem.io_mode.io_mode}}</p>
+            <p>ID</p>
+            <p>{{ problem._id }}</p>
           </li>
           <li>
-            <p>{{$t('m.Created')}}</p>
-            <p>{{problem.created_by.username}}</p></li>
+            <p>{{ $t('m.Time_Limit') }}</p>
+            <p>{{ problem.time_limit }}MS</p>
+          </li>
+          <li>
+            <p>{{ $t('m.Memory_Limit') }}</p>
+            <p>{{ problem.memory_limit }}MB</p>
+          </li>
+
+          <li>
+            <p>{{ $t('m.IOMode') }}</p>
+            <p>{{ problem.io_mode.io_mode }}</p>
+          </li>
+          <li>
+            <p>{{ $t('m.Created') }}</p>
+            <p>{{ problem.created_by.username }}</p>
+          </li>
           <li v-if="problem.difficulty">
-            <p>{{$t('m.Level')}}</p>
-            <p>{{$t('m.' + problem.difficulty)}}</p></li>
+            <p>{{ $t('m.Level') }}</p>
+            <p>{{ $t('m.' + problem.difficulty) }}</p>
+          </li>
           <li v-if="problem.total_score">
-            <p>{{$t('m.Score')}}</p>
-            <p>{{problem.total_score}}</p>
+            <p>{{ $t('m.Score') }}</p>
+            <p>{{ problem.total_score }}</p>
           </li>
           <li>
-            <p>{{$t('m.Tags')}}</p>
+            <p>{{ $t('m.Tags') }}</p>
             <p>
               <Poptip trigger="hover" placement="left-end">
-                <a>{{$t('m.Show')}}</a>
+                <a>{{ $t('m.Show') }}</a>
                 <div slot="content">
-                  <Tag v-for="tag in problem.tags" :key="tag">{{tag}}</Tag>
+                  <Tag v-for="tag in problem.tags" :key="tag">{{ tag }}</Tag>
                 </div>
               </Poptip>
             </p>
@@ -204,22 +306,24 @@
       <Card id="pieChart" :padding="0" v-if="!this.contestID || OIContestRealTimePermission">
         <div slot="title">
           <Icon type="ios-analytics"></Icon>
-          <span class="card-title">{{$t('m.Statistic')}}</span>
+          <span class="card-title">{{ $t('m.Statistic') }}</span>
           <Button type="ghost" size="small" id="detail" @click="graphVisible = !graphVisible">Details</Button>
         </div>
         <div class="echarts">
           <ECharts :options="pie"></ECharts>
         </div>
       </Card>
-    </div>
+    </el-col>
+
+
 
     <b-sidebar id="sidebar-right" title="Sidebar" width="500px" no-header right shadow>
       <div class="sidebar" id="wrapper">
         <el-button class="sidebar-margin" v-b-toggle.sidebar-right icon="el-icon-close" circle></el-button>
-        <h2 class="sidebar-header">{{$t('m.qna')}}</h2>
-        <hr/>
+        <h2 class="sidebar-header">{{ $t('m.qna') }}</h2>
+        <hr />
         <div class="sidebar-content">
-          <br/>
+          <br />
           <span>내용</span>
           <el-input class="sidebar-content-margin" placeholder="제목을 입력해주세요." v-model="qnaContent.title"></el-input>
           <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
@@ -227,29 +331,12 @@
         </div>
       </div>
     </b-sidebar>
-
-    <b-sidebar id="sidebar-airight" title="Sidebar" width="500px"no-header right shadow v-bind:visible="sidebarVisible">
-      <div class="sidebar" id="wrapper">
-        <el-button class="sidebar-margin" v-on:click="toggleSidebar" icon="el-icon-close" circle></el-button>
-        <h2 class="sidebar-header">{{$t('m.aianswer')}}</h2>
-        <hr/>
-        <div class="sidebar-content" top="50%" left="50%">
-          <br/>
-          <p style= "font-size:18px">{{AIrespone}}</p>
-        </div>
-        <br/>
-        <p style="font-weight: bold" align="right">commented by chatGPT </p>
-<!--        <el-button type="primary" b-sidebar id="close" v-on:click="toggleSidebar"-->
-<!--                   style="margin: auto; display: block">닫기</el-button>-->
-      </div>
-    </b-sidebar>
-
     <Modal v-model="graphVisible">
       <div id="pieChart-detail">
         <ECharts :options="largePie" :initOptions="largePieInitOpts"></ECharts>
       </div>
       <div slot="footer">
-        <Button type="ghost" @click="graphVisible=false">{{$t('m.Close')}}</Button>
+        <Button type="ghost" @click="graphVisible = false">{{ $t('m.Close') }}</Button>
       </div>
     </Modal>
   </div>
@@ -259,6 +346,7 @@
   import {mapGetters, mapActions} from 'vuex'
   import {types} from '../../../../store'
   import CodeMirror from '@oj/components/CodeMirror.vue'
+
   import storage from '@/utils/storage'
   import {FormMixin} from '@oj/components/mixins'
   import {JUDGE_STATUS, CONTEST_STATUS, buildProblemCodeKey} from '@/utils/constants'
@@ -270,6 +358,7 @@
   import Vue from 'vue'
   import Simditor from '../../components/Simditor.vue'
   import axios from 'axios'
+  
   Vue.use(SidebarPlugin)
 
   // 只显示这些状态的图形占用
@@ -284,6 +373,7 @@
     mixins: [FormMixin],
     data () {
       return {
+        toggleValue: false, // 가로 세로 모드 토글 버튼
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -333,9 +423,11 @@
           height: '480'
         },
         contestEndtime: '',  // working by soojung
-        contestExitStatus: false // working by soojung
+        contestExitStatus: false, // working by soojung
+        dynamicHeight: window.innerHeight
       }
     },
+
     beforeRouteEnter (to, from, next) {
       let problemCode = storage.get(buildProblemCodeKey(to.params.problemID, to.params.contestID))
       if (problemCode) {
@@ -351,8 +443,22 @@
     mounted () {
       this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
       this.init()
+      window.addEventListener('resize', this.handleResize)
+    },
+    beforeDestroy () {
+      window.removeEventListener('resize', this.handleResize)
     },
     methods: {
+      handleResize () {
+        this.dynamicHeight = window.innerHeight
+      },
+      toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
+        this.toggleValue = newToggleValue
+        if (!newToggleValue) {
+          window.scrollTo(0, 0)
+        }
+        console.log(newToggleValue)
+      },
       ...mapActions(['changeDomTitle']),
       getLectureID () {
         if (this.lectureID === undefined) {
@@ -687,8 +793,24 @@
   }
 
   .flex-container {
-    #problem-main {
+    display: flex;
+    #view-mode {
+      flex: 1; /* 부모가 자식 요소를 꽉 채울 수 있도록 설정 */
+      display: flex; /* 내부 요소를 가로로 정렬 */
+    }
+    #problem-main-width {
+      flex: 5; /* 5:7 비율로 나누기 위해 5로 설정 */
+      margin-right: 9px;
+      overflow: scroll;
+ 
+    }
+    #problem-main-height {
       flex: auto;
+      margin-right: 18px;
+    }
+    #problem-source {
+      flex: 7; /* 5:7 비율로 나누기 위해 7로 설정 */
+      height: 100%;
       margin-right: 18px;
     }
     #right-column {
@@ -732,8 +854,6 @@
   }
 
   #submit-code {
-    margin-top: 20px;
-    margin-bottom: 20px;
     .status {
       float: left;
       span {
