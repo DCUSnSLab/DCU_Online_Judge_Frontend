@@ -203,6 +203,7 @@
           limit: this.pageSize,
           offset: (page - 1) * this.pageSize,
           keyword: this.keyword,
+          showPublic: this.routeName === 'problem-list' ? 'true' : 'false',
           contest_id: this.contestId
         }
         api[funcName](params).then(res => {
