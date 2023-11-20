@@ -2,7 +2,9 @@
   <div class="flex-container" v-if="isAdmin">
     <div id="manage">
       <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
-        <div slot="title"><b>사용자 퇴실 관리</b></div>
+        <div slot="title"><b>사용자 퇴실 관리</b>
+          <Button @click.native="ExitStudent()" style="float:right">전체 퇴실 처리</Button>
+        </div>
         <template>
           <el-table
             v-loading="loadingTable"
@@ -34,11 +36,11 @@
 <!--            <el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
             <el-table-column prop="exit_status" label="퇴실 유무" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
-                <span v-if="scope.row.exit_status" style="background-color:green; color:white">
-                    {{ scope.row.exit_status }}
+                <span v-if="scope.row.exit_status" style="color:green"> <!--true인 경우-->
+                    <b>퇴실 완료</b>
                   </span>
-                <span v-else style="background-color:red; color:white">
-                    {{ scope.row.exit_status }}
+                <span v-else style="color:red"> <!--false인 경우-->
+                    <b>미완료</b>
                   </span>
               </template>
             </el-table-column>
@@ -182,10 +184,14 @@ export default {
     },
     // 퇴실 철회 (수정 필요)
     ExitStudent (userid) {
+      if (userid === undefined) {
+        userid = null
+      }
       let data = {
         contest_id: this.contestID,
         user_id: userid
       }
+      console.log(data)
       api.exitStudent(data).then(res => {
         this.getUserList(this.page)
         this.$success('Success')
@@ -287,7 +293,7 @@ export default {
     }
   }
 }
-.import-user-icon {
+.leftBtn {
   color: #555555;
   margin-left: 4px;
 }

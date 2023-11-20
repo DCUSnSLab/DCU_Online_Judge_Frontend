@@ -103,7 +103,6 @@
             <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
               <span>{{ $t('m.calltara') }}</span>
             </Button>
-
             </Col>
           </Row>
         </Card>
@@ -631,7 +630,7 @@
         let params = {
           id: this.submissionId,
           code: this.code,
-          status: this.status}
+          result: this.result.result}
         // let data = { 'id': this.submission.id, 'code': this.submission.code,
         //   'contestID': this.submission.contest, 'problemID': this.submission.problem, 'content': this.qnaContent }
         console.log('askAI called')
