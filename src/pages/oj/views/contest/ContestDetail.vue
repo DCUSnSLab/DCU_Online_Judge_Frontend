@@ -99,6 +99,7 @@
         lectureID: '',
         contestPassword: '',
         isvisible: false,
+        isSubmit: false,
         columns: [
           {
             title: this.$i18n.t('m.Id'),
