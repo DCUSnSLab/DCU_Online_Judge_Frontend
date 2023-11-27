@@ -90,7 +90,7 @@
       <span slot="title">{{$t('m.Import_Student')}}
         <el-popover placement="right" trigger="hover">
           <p><img src="./example.png"/></p>
-          <span>위 이미지와 동일한 형태로 존재하는 엑셀 학생 리스트를 가져올 수 있습니다.</span></br>
+          <span>위 이미지와 동일한 형태로 존재하는 엑셀 학생 리스트를 가져올 수 있습니다.</span>
           <span>학생 이름이 ?와 같이 표시되는 경우, 인코딩 방식을 utf-8로 변경하여야 합니다.</span>
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
         </el-popover>

@@ -1,5 +1,19 @@
 export const m = {
+  // addLectureCopy.vue
+  First_Semester: '1학기',
+  Second_Semester: '2학기',
+  Semester_Before: '입학 전',
+  Lecture_Search: '과목 검색',
+  See_All_Lecture: '전체 과목 보기',
+  Search: '검색',
+  Add: '추가하기',
+  Maker: '생성자',
   Save: '저장',
+  // AddPublicContest.vue
+  Make_Date: '생성일자',
+  InCourses: '소속 수강과목',
+  PublicTitle: '실습, 과제, 대회명',
+  DetailSet: '세부 설정',
   // SideMenu.vue
   Dashboard: '대시보드',
   General: '기본설정',
@@ -148,6 +162,7 @@ export const m = {
   Lecture_Start_Time: '개설과목 시작일',
   Lecture_End_Time: '개설과목 종료일',
   LectureStatus: '개설과목 상태',
+  AI_helper_flag: 'AI 코딩 도우미 설정',
   Lecture_Password: '개설과목 비밀번호',
   Lecture_ContestList: '개설과목 강의 목록',
   Contest_id: '실습, 과제, 대회 id',

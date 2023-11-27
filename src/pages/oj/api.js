@@ -13,6 +13,11 @@ export default {
       data
     })
   },
+  getAIhelperflag (data) {
+    return ajax('lecture/aihelperflag', 'post', {
+      data
+    })
+  },
   deleteComment (id) {
     return ajax('comment', 'delete', {
       params: {
@@ -73,6 +78,21 @@ export default {
       data
     })
   },
+  askQuAAI (params) {
+    return ajax('aihelper', 'get', {
+      params
+    })
+  },
+  // askAI (data) {
+  //   return ajax('aihelper', 'post', {
+  //     data
+  //   })
+  // },
+  // getAIresponse (data) {
+  //   return ajax('aihelper', 'get', {
+  //     data
+  //   })
+  // },
   getWebsiteConf (params) {
     return ajax('website', 'get', {
       params
@@ -410,6 +430,12 @@ export default {
       data
     })
   },
+  // 수강신청한 학생들에 대한 함수
+  acceptStudent (data) {
+    return ajax('admin/signupstudent', 'post', {
+      data
+    })
+  },
   getContestExit (contestId) {  // working by soojung
     return ajax('contest/exit', 'get', {
       params: {
@@ -417,11 +443,53 @@ export default {
       }
     })
   },
-  checkContestExit (contestId) {  // working by soojung
-    return ajax('problem/contest_exit_access', 'get', {
+  // getContestTimeOverExit (contestId) {  // working by soojung
+  //   return ajax('contest/time_over_exit', 'get', {
+  //     params: {
+  //       contest_id: contestId
+  //     }
+  //   })
+  // },
+  checkContestExitManage (contestId, userId) {    // working by soojung
+    return ajax('lecture/contest_exit_manage', 'get', {
+      params: {
+        contest_id: contestId,
+        user_id: userId
+      }
+    })
+  },
+  exitStudent (data) {  // working by soojung
+    return ajax('contest/exit_student', 'post', {
+      data
+    })
+  },
+  checkContestExit (contestId) {    // working by soojung
+    return ajax('problem/contest_exit_info', 'get', {
       params: {
         contest_id: contestId
       }
+    })
+  },
+  checkContestScore (contestId) {    // working by soojung
+    return ajax('contest/score_info', 'get', {
+      params: {
+        contest_id: contestId
+      }
+    })
+  },
+  getLectureUserList (offset, limit, keyword, lectureid, contestid) {  // working by soojung
+    let params = {paging: true, offset, limit}
+    if (keyword) {
+      params.keyword = keyword
+    }
+    if (lectureid) {
+      params.lectureid = lectureid
+    }
+    if (contestid) {
+      params.contestid = contestid
+    }
+    return ajax('contest/user', 'get', {
+      params: params
     })
   }
 }

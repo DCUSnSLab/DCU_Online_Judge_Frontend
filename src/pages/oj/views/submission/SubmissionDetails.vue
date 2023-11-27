@@ -53,10 +53,28 @@
             </div>
           </div>
         </b-sidebar>
+
+        <b-sidebar id="sidebar-airight" title="Sidebar" width="100%" no-header right shadow v-bind:visible="sidebarVisible">
+          <div class="sidebar" id="wrapper">
+            <p class="float-right">commented by chatGPT</p>
+            <h2 class="sidebar-header">{{$t('m.aianswer')}}</h2>
+            <hr/>
+            <div class="sidebar-content">
+              <br/>
+              {{AIrespone}}
+            </div>
+            <el-button class="fl-right" type="primary" b-sidebar id="close" v-on:click="toggleSidebar"
+                    style="margin: auto; display: block">닫기</el-button>
+          </div>
+        </b-sidebar>
+
         <!--
-        <Button type="primary" size="large" @click.native="QnAWrite">
-          {{$t('m.qna')}}
-        </Button>
+        <el-Button
+                   v-on:click="toggleSidebar"
+                @click.native="askAI"
+                type="primary">
+          <span>{{$t('m.callai')}}</span>
+        </el-Button>
         -->
       </div>
     </Col>
@@ -87,7 +105,9 @@
 
     data () {
       return {
+        sidebarVisible: false,
         qna: false,
+        aiaskbutton: true,
         input: '',
         lectureID: '',
         qnaContent: {
@@ -141,7 +161,8 @@
           }
         },
         isConcat: false,
-        loading: false
+        loading: false,
+        AIrespone: '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
       }
     },
     mounted () {
@@ -172,6 +193,31 @@
         api.writeQnAPost(data).then(res => { })
         this.goContestQnA()
       },
+      askAI () {
+        let params = {contestID: this.contestID,
+          LectureID: this.LectureID,
+          problemID: this.$route.params.problemID,
+          id: this.submission.id,
+          code: this.submission.code,
+          content: this.qnaContent,
+          submission: this.submission.info,
+          status: this.status}
+        // let data = { 'id': this.submission.id, 'code': this.submission.code,
+        //   'contestID': this.submission.contest, 'problemID': this.submission.problem, 'content': this.qnaContent }
+        console.log('askAI called')
+        api.askQuAAI(params).then(res => {
+          console.log(params)
+          this.AIrespone = res.data.data
+          console.log(res)
+        })
+      },
+      // getAIresponse () {
+      //   let data = { 'id': this.submission.id, 'contestID': this.submission.contest, 'problemID': this.submission.problem }
+      //   api.getAIresponse(data).then(res => {
+      //     this.AIrespone = res.data.data
+      //   })
+      //   console.log(this.AIrespone)
+      // },
       getSubmission () {
         this.loading = true
         api.getSubmission(this.$route.params.id).then(res => {
@@ -221,7 +267,12 @@
           this.$success(this.$i18n.t('m.Succeeded'))
         }, () => {
         })
+      },
+      toggleSidebar () {
+        this.sidebarVisible = !this.sidebarVisible
+        this.AIrespone = '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
       }
+
     },
     computed: {
       status () {

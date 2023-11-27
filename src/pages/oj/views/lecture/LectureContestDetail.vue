@@ -77,12 +77,12 @@
 
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
-        <VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회'"
-                           :disabled="contestExitStatus"
+        <!--<VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회'"
+                           :disabled="contestMenuDisabled"
                            :route="{name: 'lecture-contest-exit'}">
-          <Icon type="android-exit"></Icon>   <!--menu icon-->
-          {{$t('m.Exit')}}      <!--menu name-->
-        </VerticalMenu-item>
+          <Icon type="android-exit"></Icon>
+          {{$t('m.Exit')}}
+        </VerticalMenu-item>-->
       </VerticalMenu>
     </div>
   </div>
@@ -106,9 +106,9 @@
         btnLoading: false,
         contestID: '',
         lectureID: '',
-        contestType: '',  // working by soojung
-        contestEndtime: '',  // working by soojung
-        contestExitStatus: false, // working by soojung
+        // contestType: '',  // working by soojung
+        // contestEndtime: '',  // working by soojung
+        // contestExitStatus: false, // working by soojung
         contestPassword: '',
         isvisible: false,
         dialogFormVisible: false,
@@ -153,7 +153,6 @@
       }
     },
     mounted () {
-      this.CheckContestAccess()
       this.contestID = this.$route.params.contestID
       this.lectureID = this.$route.params.lectureID
       this.route_name = this.$route.name
@@ -192,18 +191,15 @@
         }, (res) => {
           this.btnLoading = false
         })
-      },
-      CheckContestAccess () {  // working by soojung
-        api.checkContestExit(this.$route.params.contestID).then(res => {
-          this.contestEndtime = res.data.data.end_time
-          console.log('What is state')
-          console.log(this.contestEndtime)
-          if (this.contestEndtime) {
-            this.contestExitStatus = true
-          }
-        }).catch(() => {
-        })
       }
+      // ,
+      // ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
+      //   api.getContestTimeOverExit(this.$route.params.contestID).then(res => {
+      //     console.log(this.contestID)
+      //     console.log(this.lectureID)
+      //   }).catch(() => {
+      //   })
+      // }
     },
     computed: {
       ...mapState({
@@ -218,6 +214,9 @@
       ),
       countdownColor () {
         if (this.contestStatus) {
+          // if (this.contestStatus === CONTEST_STATUS.ENDED) {  // working by soojung
+          //   this.ContestTimeOverExit()
+          // }
           return CONTEST_STATUS_REVERSE[this.contestStatus].color
         }
       },

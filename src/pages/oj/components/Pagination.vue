@@ -44,6 +44,7 @@
         this.$emit('update:pageSize', pageSize)
         this.$emit('on-page-size-change', pageSize)
       }
+
     }
   }
 </script>

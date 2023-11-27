@@ -32,6 +32,9 @@ import 'echarts/lib/component/legend'
 import 'echarts/lib/component/tooltip'
 import 'echarts/lib/component/toolbox'
 import 'echarts/lib/component/markPoint'
+import IconBtn from './components/btn/IconBtn.vue'  // working by soojung
+import Save from './components/btn/Save.vue'  // working by soojung
+import Cancel from './components/btn/Cancel.vue'  // working by soojung
 
 // register global utility filters.
 Object.keys(filters).forEach(key => {
@@ -53,6 +56,9 @@ Vue.component('ECharts', ECharts)
 Vue.component(VerticalMenu.name, VerticalMenu)
 Vue.component(VerticalMenuItem.name, VerticalMenuItem)
 Vue.component(Panel.name, Panel)
+Vue.component(IconBtn.name, IconBtn)  // working by soojung
+Vue.component(Save.name, Save)  // working by soojung
+Vue.component(Cancel.name, Cancel)  // working by soojung
 
 // 注册全局消息提示
 Vue.prototype.$Message.config({

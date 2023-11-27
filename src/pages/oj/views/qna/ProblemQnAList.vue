@@ -7,7 +7,7 @@
           <span slot="close">{{$t('m.Solved')}}</span>
         </i-switch>
       </div>
-      
+
       <el-row>
         <el-col>
           <el-card class="box-card" v-for="qna in qnaList">
@@ -34,7 +34,7 @@
             <div class="article-content" v-html="qna.content" v-if="!(qna.author.realname === '관리자')" @click="handleRoute(qna.id)"></div>
             <div class="article-content" v-html="qna.content" v-else></div>
           </el-card>
-  
+
           <el-row :gutter="24">
             <el-col :span="21">
               <div class="panel-options">
@@ -66,6 +66,27 @@
             <el-input class="sidebar-content-margin" placeholder="제목을 입력해주세요." v-model="qnaContent.title"></el-input>
             <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
             <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">저장하기</el-button>
+          </div>
+        </div>
+      </b-sidebar>
+
+      <b-sidebar id="sidebar-airight" title="Sidebar" width="500px" no-header right shadow>
+        <div class="sidebar" id="wrapper">
+          <el-button class="sidebar-margin" v-b-toggle.sidebar-right icon="el-icon-close" circle></el-button>
+          <h2 class="sidebar-header">{{$t('m.aianswer')}}</h2>
+          <hr/>
+          <div class="sidebar-content">
+            <br/>
+            <span>chat GPT 3.5 Turbo</span>
+            <br/>
+            <span> 여기에 GPT의 답변을 출력 <br/></span>
+            <span> ... <br/></span>
+            <span> ... <br/></span>
+            <span> ... <br/></span>
+            <span> ... <br/></span>
+            <span> ... <br/></span>
+            <span> ... <br/></span>
+            <span> ... <br/></span>
           </div>
         </div>
       </b-sidebar>
