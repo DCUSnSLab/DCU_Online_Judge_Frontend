@@ -21,8 +21,14 @@ node {
     //docker.withRegistry에 dockerhub는 앞서 설정한 dockerhub credentials의 ID이다.
     stage('Push image') {
         docker.withRegistry("https://harbor.cu.ac.kr", "harbor") {
-            app.push("test")
+            app.push("latest")
+            app.push("${env.BUILD_NUMBER}")
         }
+    }
+
+    stage('Kubernetes deploy') {
+        sh "kubectl delete -f /services/dcucode/oj-frontend_only_con.yaml -n dcucode"
+        sh "kubectl apply -f /services/dcucode/oj-frontend_only_con.yaml -n dcucode"
     }
 
     stage('Complete') {
