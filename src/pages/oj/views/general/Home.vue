@@ -4,7 +4,7 @@
       <panel v-if="(month == 3) || (month == 4)">
         <div slot="title">
           <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
-          <h2>[신입생 개인정보 변경 안내]</h2><br/>
+          <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
           DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
           반드시 개인정보를 수정해주시기 바랍니다.<br/>
         </div>
