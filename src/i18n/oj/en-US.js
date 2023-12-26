@@ -259,5 +259,14 @@ export const m = {
   UserHomeserSubmissions: 'Submissions',
   UserHomeScore: 'Score',
   List_Solved_Problems: 'List of solved problems',
-  UserHomeIntro: 'The guy is so lazy that has not solved any problem yet.'
+  UserHomeIntro: 'The guy is so lazy that has not solved any problem yet.',
+
+  // Temp translations
+  Signup_Lectures: 'Lectures in progress',
+  Lectures: 'Lectures',
+  Public_Contests: 'Public Contest',
+  Public_Questions: 'Public Questions',
+  No_lecture: 'No Lecture',
+  AuthorRealname: 'Realname',
+  Lecture_id: 'Lecture id'
 }
