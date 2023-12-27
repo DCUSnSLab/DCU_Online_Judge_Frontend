@@ -15,22 +15,22 @@
         <li><!--표시될 개설과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="2" style="text-align: center">
-                <span>{{ yearsort }} 년도</span>
+                <span>{{ yearsort }} {{$t('m.Year')}}</span>
             </Col>
             <Col v-if="semestersort < 3" :span="1" style="text-align: center">
-                <span>{{ semestersort }} 학기</span>
+                <span>{{ semestersort }} {{$t('m.Semester')}}</span>
             </Col>
             <Col v-else :span="1" style="text-align: center">
               <span style="font-size: 15px">입학 전 <br>프로그램</span>
             </Col>
             <Col :span="12">
-              <p>과목명</p>
+              <p>{{$t('m.Subject')}}</p>
             </Col>
             <Col :span="1">
-              <p>담당교수</p>
+              <p>{{$t('m.Professors')}}</p>
 			      </Col>
             <Col :span="4" style="text-align: center">
-              수강신청 상태
+              {{$t('m.Lecture_registration_status')}}
 			      </Col>
           </Row>
         </li>

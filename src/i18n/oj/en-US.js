@@ -153,6 +153,7 @@ export const m = {
   Rank: 'Rank',
   ACM_Rank: 'ACM Rank',
   OI_Rank: 'OI Rank',
+  publicQA: 'Public Q&A',
   About: 'About',
   Judger: 'Judger',
   FAQ: 'FAQ',
@@ -268,5 +269,7 @@ export const m = {
   Public_Questions: 'Public Questions',
   No_lecture: 'No Lecture',
   AuthorRealname: 'Realname',
-  Lecture_id: 'Lecture id'
+  Lecture_id: 'Lecture id',
+
+  DCU_Code_Usage_manual_student: 'DCU Code Usage Manual(Student)'
 }

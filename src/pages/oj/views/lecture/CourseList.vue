@@ -16,7 +16,7 @@
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="2" style="text-align: center">
               <Dropdown @on-click="sortYear">
-                <span>{{ yearsort }} 년도 <Icon type="arrow-down-b"></Icon>
+                <span>{{ yearsort }} {{$t('m.Year')}} <Icon type="arrow-down-b"></Icon>
                 </span>
                 <!-- 구현 예정 -->
                 <Dropdown-menu slot="list">
@@ -30,7 +30,7 @@
             <Col :span="1" style="text-align: center">
               <Dropdown @on-click="sortSemester">
                 <div v-if="semestersort < 3">
-                    <span>{{ semestersort }} 학기 <Icon type="arrow-down-b"></Icon>
+                    <span>{{ semestersort }} {{$t('m.Semester')}} <Icon type="arrow-down-b"></Icon>
                     </span>
                 </div>
                 <div v-else>
@@ -45,13 +45,13 @@
               </Dropdown>
             </Col>
             <Col :span="12">
-              <p>과목명</p>
+              <p>{{$t('m.Subject')}}</p>
             </Col>
             <Col :span="2">
-              <p>담당교수</p>
+              <p>{{$t('m.Professors')}}</p>
 			      </Col>
             <Col :span="4" style="text-align: center">
-              수강신청 상태
+              {{$t('m.Lecture_registration_status')}}
 			      </Col>
           </Row>
         </li>

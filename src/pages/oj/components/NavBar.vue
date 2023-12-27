@@ -28,7 +28,7 @@
   </el-menu-item>
   <el-menu-item index="/question">
    <Icon type="help"></Icon>
-   공개 질문
+    {{$t('m.publicQA')}}
   </el-menu-item>
   <el-submenu index="8" name="rank">
     <template slot="title"><Icon type="podium"></Icon>{{$t('m.Rank')}}</template>
