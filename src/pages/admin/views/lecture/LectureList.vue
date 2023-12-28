@@ -30,12 +30,12 @@
         <el-table-column
           prop="year"
           width="70"
-          label="년도">
+          :label="$t('m.Year')">
         </el-table-column>
         <el-table-column
           width="90"
           align="center"
-          label="학기">
+          :label="$t('m.Semester')">
           <template slot-scope="scope">
             <p v-if="scope.row.semester < 3">{{scope.row.semester}}</p>
             <p v-else>입학 전</p>
@@ -45,15 +45,15 @@
           prop="created_by.realname"
           width="80"
           align="center"
-          label="담당교수">
+          :label="$t('m.Professor')">
         </el-table-column>
         <el-table-column
           prop="title"
-          label="과목명">
+          :label="$t('m.Lecture_title')">
         </el-table-column>
 		<el-table-column
 		  width="100"
-		  label="상태">
+		  :label="$t('m.Lecture_status')">
 		  <template slot-scope="scope">
 		    <el-switch v-model="scope.row.status"
 			           active-text=""

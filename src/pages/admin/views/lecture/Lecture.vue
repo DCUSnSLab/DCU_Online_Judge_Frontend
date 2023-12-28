@@ -99,7 +99,8 @@
     },
     data () {
       return {
-        title: '수강과목 생성',
+        // title: this.$i18n.t('m.Lecture_create'),
+        title: 'Title',
         disableRuleType: false,
         professor_list: {},
         lecture: {

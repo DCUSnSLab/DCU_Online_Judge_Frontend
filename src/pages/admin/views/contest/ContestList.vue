@@ -1,11 +1,11 @@
 <template>
   <div class="view">
     <Panel :title="$t('m.WeeklyContest_List')">
-      <div>
-        강의명 : {{ this.lectureTitle }}
+      <div v-if=this.lectureTitle>
+        {{ $t('m.Lecture_title') }} : {{ this.lectureTitle }}
       </div>
-      <div>
-        담당교수 : {{ this.lectureCreator }}
+      <div v-if=this.lectureCreator>
+        {{ $t('m.Assigned_professor') }} : {{ this.lectureCreator }}
       </div>
       <div slot="header">
         <el-input
@@ -36,21 +36,21 @@
         <el-table-column
           v-if="!this.lectureId"
           prop="lecture_title"
-          label="소속된 수강과목">
+          :label="$t('m.Assigned_lecture')">
         </el-table-column>
         <el-table-column
           prop="title"
-          label="제목">
+          :label="$t('m.Assigned_lecture_title')">
         </el-table-column>
         <el-table-column
-          label="규칙"
+          :label="$t('m.Contest_rule_type')"
           width="100">
           <template slot-scope="scope">
             <el-tag type="gray">{{scope.row.rule_type}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column
-          label="유형"
+          :label="$t('m.Contest_type')"
           width="120">
           <template slot-scope="scope">
             <el-tag :type="scope.row.contest_type === 'Public' ? 'success' : 'primary'">
@@ -59,7 +59,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="현재 상태"
+          :label="$t('m.Contest_status')"
           width="130">
           <template slot-scope="scope">
             <el-tag
@@ -70,7 +70,7 @@
         </el-table-column>
         <el-table-column
           width="80"
-          label="공개 유무">
+          :label="$t('m.Visible')">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.visible"
                        active-text=""
