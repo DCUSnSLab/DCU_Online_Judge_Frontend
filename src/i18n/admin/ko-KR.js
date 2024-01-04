@@ -150,6 +150,11 @@ export const m = {
   Level: '수준',
   Disabled: '비활성화',
   Enabled: '활성화',
+  Access_time: '접속 시간',
+  IP_address: 'IP 주소',
+  OS: '운영체제',
+  Browser: '브라우저',
+  Not_used: '사용하지 않음',
   // 수강과목
   Lecture: '개설과목',
   Lecture_Year: '개설과목 년도',

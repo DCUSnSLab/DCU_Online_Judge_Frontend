@@ -14,17 +14,17 @@
         <hr/>
         <div class="last-info">
           <p class="last-info-title">{{$t('m.Last_Login')}}</p>
-          <el-form label-width="80px" class="last-info-body">
-            <el-form-item label="접속시간:">
+          <el-form label-width="140px" class="last-info-body">
+            <el-form-item :label="$t('m.Access_time')">
               <span>{{session.last_activity | localtime}}</span>
             </el-form-item>
-            <el-form-item label="IP주소:">
+            <el-form-item :label="$t('m.IP_address')">
               <span>{{session.ip}}</span>
             </el-form-item>
-            <el-form-item label="운영체제:">
+            <el-form-item :label="$t('m.OS')">
               <span>{{os}}</span>
             </el-form-item>
-            <el-form-item label="브라우저:">
+            <el-form-item :label="$t('m.Browser')">
               <span>{{browser}}</span>
             </el-form-item>
           </el-form>
@@ -34,17 +34,17 @@
         <p>{{$t('m.DashBoardJudge_Server')}}:  {{infoData.judge_server_count}}</p>
         <p>{{$t('m.HTTPS_Status')}}:
           <el-tag :type="https ? 'success' : 'danger'" size="small">
-            {{ https ? '활성화' : '비활성화'}}
+            {{ https ? $t('m.Enable') : $t('m.Disabled')}}
           </el-tag>
         </p>
         <p>{{$t('m.Force_HTTPS')}}:
           <el-tag :type="forceHttps ? 'success' : 'danger'" size="small">
-            {{forceHttps ? '활성화' : '비활성화'}}
+            {{forceHttps ? $t('m.Enable') : $t('m.Disabled')}}
           </el-tag>
         </p>
         <p>{{$t('m.CDN_HOST')}}:
           <el-tag :type="cdn ? 'success' : 'warning'" size="small">
-            {{cdn ? cdn : '사용하지 않음'}}
+            {{cdn ? cdn : $t('m.Not_used')}}
           </el-tag>
         </p>
       </panel>
