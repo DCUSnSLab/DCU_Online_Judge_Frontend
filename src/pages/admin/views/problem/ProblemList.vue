@@ -14,7 +14,7 @@
         <el-inputD
           v-model="keyword"
           prefix-icon="el-icon-search"
-          placeholder="Keywords">
+          :placeholder="$t('m.ProblemList_Keywords_Placeholder')">
         </el-inputD>
       </div>
       <el-table
@@ -27,11 +27,11 @@
         <el-table-column
           width="100"
           prop="id"
-          label="ID">
+          :label="$t('m.ProblemList_ID')">
         </el-table-column>
         <el-table-column
           width="150"
-          label="문제 ID">
+          :label="$t('m.ProblemList_Problem_ID')">
           <template slot-scope="{row}">
             <span v-show="!row.isEditing">{{row._id}}</span>
             <el-input v-show="row.isEditing" v-model="row._id"
@@ -42,7 +42,7 @@
         </el-table-column>
         <el-table-column
           prop="title"
-          label="타이틀">
+          :label="$t('m.ProblemList_Title')">
           <template slot-scope="{row}">
             <span v-show="!row.isEditing">{{row.title}}</span>
             <el-input v-show="row.isEditing" v-model="row.title"
@@ -52,12 +52,12 @@
         </el-table-column>
         <el-table-column
           prop="created_by.username"
-          label="작성자">
+          :label="$t('m.ProblemList_Title')">
         </el-table-column>
         <el-table-column
           width="200"
           prop="create_time"
-          label="생성일자">
+          :label="$t('m.ProblemList_Creation_Date')">
           <template slot-scope="scope">
             {{scope.row.create_time | localtime }}
           </template>
@@ -65,7 +65,7 @@
         <el-table-column
           width="100"
           prop="visible"
-          label="공개여부">
+          :label="$t('m.ProblemList_Visibility')">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.visible"
                        active-text=""
@@ -76,29 +76,29 @@
         </el-table-column>
         <el-table-column
           fixed="right"
-          label="추가선택"
+          :label="$t('m.ProblemList_Additional_Options')"
           width="250">
           <div slot-scope="scope">
-            <icon-btn name="편집" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
-            <icon-btn v-if="contestId" name="공개 문제화 하기" icon="clone"
+            <icon-btn :name="$t('m.ProblemList_Edit')" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
+            <icon-btn v-if="contestId" :name="$t('m.ProblemList_Make_Public')" icon="clone"
                       @click.native="makeContestProblemPublic(scope.row.id)"></icon-btn>
-            <icon-btn icon="download" name="테스트케이스 다운로드"
+            <icon-btn icon="download" :name="$t('m.ProblemList_Download_Test_Cases')"
                       @click.native="downloadTestCase(scope.row.id)"></icon-btn>
-            <icon-btn icon="trash" name="문제 삭제"
+            <icon-btn icon="trash" :name="$t('m.ProblemList_Delete')"
                       @click.native="deleteProblem(scope.row.id)"></icon-btn>
-            <el-tooltip v-if="routeName === 'contest-problem-list'" class="item" effect="dark" content="유사도 검사" placement="top">
-              <el-button name="코드 유사도 검사" size="mini" @click.native="copyKiller(scope.row.id)" icon="el-icon-user"></el-button>
+            <el-tooltip v-if="routeName === 'contest-problem-list'" class="item" effect="dark" :content="$t('m.ProblemList_Similarity_Check')" placement="top">
+              <el-button :name="$t('m.ProblemList_Similarity_Check')" size="mini" @click.native="copyKiller(scope.row.id)" icon="el-icon-user"></el-button>
             </el-tooltip>
           </div>
         </el-table-column>
       </el-table>
       <div class="panel-options">
         <el-button v-if="contestId" type="primary" size="small"
-                   @click="goCreateProblem" icon="el-icon-plus">문제 만들기
+                   @click="goCreateProblem" icon="el-icon-plus"> {{ $t('m.ProblemList_Create_Problem') }}
         </el-button>
         <el-button v-if="contestId" type="primary"
                    size="small" icon="el-icon-plus"
-                   @click="addProblemDialogVisible = true">문제 가져오기
+                   @click="addProblemDialogVisible = true"> {{ $t('m.ProblemList_Import_Problem') }}
         </el-button>
         <el-pagination
           class="page"
@@ -218,7 +218,7 @@
         })
       },
       deleteProblem (id) {
-        this.$confirm('이 문제를 삭제 하시겠습니까? 관련 제출물도 삭제됩니다.', '문제 삭제', {
+        this.$confirm(this.$t('m.ProblemList_Delete_Alert_Msg'), this.$t('m.ProblemList_Delete_Alert_Title'), {
           type: 'warning'
         }).then(() => {
           let funcName = this.routeName === 'problem-list' ? 'deleteProblem' : 'deleteContestProblem'
@@ -230,7 +230,7 @@
         })
       },
       makeContestProblemPublic (problemID) {
-        this.$prompt('공개 문제의 문제 ID를 입력하십시오', '확인').then(({value}) => {
+        this.$prompt(this.$t('m.ProblemList_Make_Public_Alert_Msg'), this.$t('m.ProblemList_Make_Public_Alert_Confirm')).then(({value}) => {
           api.makeContestProblemPublic({id: problemID, display_id: value}).catch()
         }, () => {
         })

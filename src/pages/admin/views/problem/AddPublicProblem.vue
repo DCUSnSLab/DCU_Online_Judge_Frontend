@@ -3,8 +3,8 @@
     <el-row>
       <el-col :span="4">
         <el-select v-model="searchType">
-          <el-option value="과목">과목</el-option>
-          <el-option value="문제">문제</el-option>
+          <el-option :value="$t('m.ImportProblem_Lecture')"></el-option>
+          <el-option :value="$t('m.ImportProblem_Problem')"></el-option>
         </el-select>
       </el-col>
       <el-col :span="16">
@@ -16,42 +16,42 @@
         </el-input>
       </el-col>
       <el-col :span="4">
-        <el-checkbox v-model="showPublic" label="공개 문제 보기" border></el-checkbox>
+        <el-checkbox v-model="showPublic" :label="$t('m.ImportProblem_Show_Public')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
       </el-col>
     </el-row>
     <el-table :data="problems" v-loading="loading">
       <el-table-column
-        label="ID"
+       :label="$t('m.ImportProblem_ID')"
         width="80"
         prop="id">
       </el-table-column>
       <el-table-column
-        label="생성자"
+      :label="$t('m.ImportProblem_Creator')"
         width="80"
         prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="과목명"
+      :label="$t('m.ImportProblem_Lecture_Name')"
         width="150"
         prop="contest.lecture_title">
       </el-table-column>
       <el-table-column
-        label="실습/과제/시험"
+      :label="$t('m.ImportProblem_Practice_Assignment_Test')"
         width="150"
         prop="contest.title">
       </el-table-column>
       <el-table-column
-        label="문제이름"
+      :label="$t('m.ImportProblem_Problem_Name')"
         prop="title">
       </el-table-column>
       <el-table-column
-        label="option"
+      :label="$t('m.ImportProblem_Option')"
         align="center"
         width="100"
         fixed="right">
         <template slot-scope="{row}">
-          <icon-btn icon="plus" name="Add the problem"
+          <icon-btn icon="plus" :name="$t('m.ImportProblem_Add_Problem')"
                     @click.native="handleAddProblem(row.id)"></icon-btn>
         </template>
       </el-table-column>
@@ -82,7 +82,7 @@
         contest: {},
         keyword: '',
         showPublic: false,
-        searchType: '문제'
+        searchType: this.$t('m.ImportProblem_Problem')
       }
     },
     mounted () {
