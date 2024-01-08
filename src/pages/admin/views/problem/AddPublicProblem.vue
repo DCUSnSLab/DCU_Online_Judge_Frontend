@@ -3,8 +3,8 @@
     <el-row>
       <el-col :span="4">
         <el-select v-model="searchType">
-          <el-option :value="$t('m.ImportProblem_Lecture')"></el-option>
-          <el-option :value="$t('m.ImportProblem_Problem')"></el-option>
+          <el-option value="과목">{{ $t('m.ImportProblem_Lecture') }}</el-option>
+          <el-option value="문제">{{ $t('m.ImportProblem_Problem') }}</el-option>
         </el-select>
       </el-col>
       <el-col :span="16">
@@ -82,7 +82,7 @@
         contest: {},
         keyword: '',
         showPublic: false,
-        searchType: this.$t('m.ImportProblem_Problem')
+        searchType: '문제'
       }
     },
     mounted () {

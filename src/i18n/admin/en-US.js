@@ -1,4 +1,5 @@
 export const m = {
+
   // SideMenu.vue
   Dashboard: 'Dashboard',
   General: 'General',
@@ -217,9 +218,13 @@ export const m = {
   ImportProblem_Option: 'option',
   ImportProblem_Add_Problem: 'Add the problem',
   // Contest.vue
+  Contest_Create_Title: 'Create Practice, Assignment, Contest',
+  Contest_Edit_Title: 'Edit Practice, Assignment, Contest',
   ContestTitle: 'Title',
   ContestDescription: 'Description',
   Contest_Start_Time: 'Start Time',
+  Contest_Create_Time: 'Create Time',
+  Contest_Ccreator: 'Creator',
   Contest_End_Time: 'End Time',
   Contest_Password: 'Password',
   Contest_Rule_Type: 'Contest Rule Type',
@@ -227,6 +232,28 @@ export const m = {
   Contest_Status: 'Status',
   Allowed_IP_Ranges: 'Allowed IP Ranges',
   CIDR_Network: 'CIDR Network',
+  Contest_Assigned_lecture: 'Assigned Course',
+  Contest_Assigned_lecture_title: 'Title',
+  Contest_Contest_rule_type: 'Rule Type',
+  Contest_Type: 'Type',
+  Contest_status: 'Current Status',
+  Contest_Visible: 'Visibility',
+  // ContestList.vue
+  ContestList_Edit_Contest: 'Edit Contest',
+  ContestList_Problem_List: 'Problem List',
+  ContestList_Contest_Announcement: 'Contest Announcement',
+  ContestList_Download_Pass_Submissions: 'Download Passed Submissions',
+  ContestList_Delete_Contest: 'Delete Contest',
+  ContestList_Contest_Access: 'Contest Access Permissions',
+  ContestList_Create_Lecture: 'Create Lecture',
+  ContestList_Import_Contest: 'Import Contest',
+  ContestList_Copy_Lecture: 'Copy Entire Course',
+  ContestList_Download_Contest_Submissions: 'Download Contest Submissions',
+  ContestList_Exclude_Admin_Submissions: 'Exclude Admin Submissions',
+  ContestList_Confirm: 'Confirm',
+  ContestList_Lecture_Copy: 'Copy Entire Lecture',
+  ContestList_Delete_Msg: 'Are you sure you want to delete this contest?',
+  ContestList_Delete_Title: 'Delete Contest',
   // Dashboard.vue
   Last_Login: 'Last Login',
   System_Overview: 'System Overview',
