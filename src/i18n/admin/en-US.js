@@ -1,9 +1,14 @@
 export const m = {
 
   // SideMenu.vue
+  First_Semester: 'First Semester',
+  Second_Semester: 'Second Semester',
+  Semester_Before: 'Before Semester',
   Dashboard: 'Dashboard',
   General: 'General',
   User: 'User',
+  Add: 'Add',
+  Lecture_Search: 'Lecture Search',
   Announcement: 'Announcement',
   System_Config: 'System Config',
   Judge_Server: 'Judge Server',
@@ -157,7 +162,8 @@ export const m = {
   Low: 'Low',
   Tag: 'Tag',
   New_Tag: 'New Tag',
-   // ProblemList.vue
+  // ProblemList.vue
+  DetailSet: 'Detailset',
   Contest_Problem_List: 'Contest Problem List',
   Lecture_title: 'Lecture Title',
   Contest_title: 'Contest Title',
@@ -195,6 +201,43 @@ export const m = {
   ImportOrExport_Import_FPS: 'Import FPS Problems (beta)',
   ImportOrExport_Select_File: 'Select File',
   ImportOrExport_Upload: 'Upload',
+  // StudentList.vue
+  StudentList_Creator: 'Creator',
+  StudentList_Lecture_UserList: 'Lecture User List',
+  StudentList_Total_Students: 'Total Students/Registered/Unregistered',
+  StudentList_Synthesis: 'Synthesis',
+  StudentList_Name: 'Name',
+  StudentList_Student_ID: 'Student ID',
+  StudentList_Enrollment_Status: 'Enrollment Status',
+  StudentList_Total_Practice: 'Total Practice/Attempts/Solved',
+  StudentList_Total_Assignment: 'Total Assignment/Attempts/Solved',
+  StudentList_Total_Problem: 'Total Problem/Attempts/Solved',
+  StudentList_Perfect_Score: 'Perfect Score',
+  StudentList_Total_Score: 'Total Score',
+  StudentList_Average: 'Average',
+  StudentList_Progress: 'Progress',
+  StudentList_Practice: 'Practice',
+  StudentList_Assignment: 'Assignment',
+  StudentList_Exam: 'Exam',
+  StudentList_Week: 'Weeks',
+  StudentList_Accept: 'Accept',
+  StudentList_Deny: 'Deny',
+  StudentList_Include_Final_Submission_Date: 'Include Final Submission Date',
+  StudentList_TA_RA_Student_Add: 'Add TA/RA Student',
+  StudentList_Problem_Access_Permission: 'Problem Access Permission',
+  StudentList_TA_RA_Name_Search: 'Search TA/RA Name',
+  StudentList_Import_Student: 'Import Student',
+  StudentList_Select_Excel_File: 'Select Excel File (.csv extension)',
+  StudentList_Import_All: 'Import All',
+  StudentList_Reset_Data: 'Reset Data',
+  StudentList_Edit_Problem: 'Edit Problem',
+  StudentList_Answer_Access_Permission: 'Answer Access Permission',
+  StudentList_Check_Answer: 'Check Answer',
+  StudentList_Score_Check_Permission: 'Score Check Permission',
+  StudentList_Check_Score: 'Check Score',
+  StudentList_Delete: 'Delete',
+  StudentList_Excel_Format_Instruction: 'You can import a student list in Excel format similar to the image above.',
+  StudentList_Encoding_Instruction: 'If student names appear with ?, change the encoding to utf-8.',
   // CopyKiller.vue
   CopyKiller_Title: 'CopyKiller based on JPlag',
   CopyKiller_Single_Lecture_Tab: 'Single Lecture',
@@ -215,8 +258,11 @@ export const m = {
   ImportProblem_Lecture_Name: 'Lecture Name',
   ImportProblem_Practice_Assignment_Test: 'Practice/Assignment/Test',
   ImportProblem_Problem_Name: 'Problem Name',
-  ImportProblem_Option: 'option',
+  ImportProblem_Option: 'Add',
   ImportProblem_Add_Problem: 'Add the problem',
+  // AddPublicContest.vue
+  AddPublickContest_All_Practice: 'View All Practices',
+  CopyPublickContest_All_Lecture: 'View All Lecture',
   // Contest.vue
   Contest_Create_Title: 'Create Practice, Assignment, Contest',
   Contest_Edit_Title: 'Edit Practice, Assignment, Contest',
@@ -286,6 +332,7 @@ export const m = {
   password: 'password',
 
   // Temporary translations
+  Lecture_Status: 'Lecture Status',
   AI_helper_flag: 'AI Assistants',
   Contests_List: 'Contests List',
   Create_Contests: 'Create Contests',
@@ -301,5 +348,11 @@ export const m = {
   LectureContestType: 'Contest Type',
   Private_Contest: 'Private Contest',
   WeeklyContest_List: 'Weekly Contest List',
-  Alert_Warning: 'warning'
+  Alert_Warning: 'warning',
+  LectureList_Edit_Lecture: 'Edit Lecture',
+  LectureList_Practice_Assignment_List: 'Practice/Assignment List',
+  LectureList_Student_List: 'Student List',
+  LectureList_Delete_Lecture: 'Delete Lecture',
+  LectureList_Delete_Alert_Msg: 'Are you sure you want to delete this course?',
+  LectureList_Delete_Alert_Confirm: 'Delete Course'
 }
