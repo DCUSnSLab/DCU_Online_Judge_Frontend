@@ -28,8 +28,7 @@ ENV TARGET backendurl
 
 RUN source $NVM_DIR/nvm.sh && npm install
 RUN source $NVM_DIR/nvm.sh && npm run build:dll
+RUN source $NVM_DIR/nvm.sh && npm run build
 
-# ENTRYPOINT ["/bin/bash", "/oj_frontend/start.sh"]
-# ENTRYPOINT /oj_frontend/start.sh
-ENTRYPOINT ["/bin/bash", "start.sh"]
-# CMD sh start.sh
+
+# ENTRYPOINT ["/bin/bash", "start.sh"]
