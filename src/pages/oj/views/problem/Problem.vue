@@ -444,9 +444,6 @@
       this.init()
       window.addEventListener('resize', this.handleResize)
     },
-    updated () {
-      window.scrollTo(0, 0)
-    },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
     },
