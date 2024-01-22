@@ -1,8 +1,8 @@
 <template>
   <div class="view">
-    <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
+    <Panel :title="this.lectureTitle + ' ' + $t('m.StudentList_Lecture_UserList')">
       <div>
-        <strong>개설자 : {{ this.lectureCreator }}</strong>
+        <strong>{{ $t('m.StudentList_Creator') }} : {{ this.lectureCreator }}</strong>
       </div>
       <div slot="header">
         <el-row :gutter="20">
@@ -14,13 +14,13 @@
           </el-tooltip>
         </el-row>
       </div>
-      <strong>총 수강 학생/등록/미등록 : {{ userList.length }}명 / {{ RegistUser }}명 / {{ noRegistUser }}명</strong>
+      <strong>{{ $t('m.StudentList_Total_Students') }} : {{ userList.length }} / {{ RegistUser }} / {{ noRegistUser }}</strong>
       <!--<div style="padding-top:10px">
         <el-checkbox v-model="persentage">실습, 과제, 시험 점수 진행도(%)로 보기</el-checkbox>
       </div>-->
       <template>
         <el-tabs v-model="activeName">
-          <el-tab-pane label="종합" name="synthesis">
+          <el-tab-pane :label="$t('m.StudentList_Synthesis')" name="synthesis">
             <el-table
               v-loading="loadingTable"
               element-loading-text="loading"
@@ -28,7 +28,7 @@
               ref="table"
               :data="userList"
               style="width: 100%">
-              <el-table-column prop="realname" label="이름" align="center">
+              <el-table-column prop="realname" :label="$t('m.StudentList_Name')" align="center">
                 <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
                   <span v-if="scope.row.realname"><!--해당 값을 출력하고-->
                     {{ scope.row.realname }}
@@ -38,7 +38,7 @@
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column prop="schoolssn" label="학번" align="center">
+              <el-table-column prop="schoolssn" :label="$t('m.StudentList_Student_ID')" align="center">
                 <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
                   <span v-if="scope.row.schoolssn"><!--해당 값을 출력하고-->
                     {{ scope.row.schoolssn }}
@@ -48,7 +48,7 @@
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column prop="isallow" label="수강 유무" align="center">
+              <el-table-column prop="isallow" :label="$t('m.StudentList_Enrollment_Status')" align="center">
                 <template slot-scope="scope"> <!--true 일 때 출력하는 템플릿-->
                   <span v-if="scope.row.isallow" style="background-color:green; color:white">
                     {{ scope.row.isallow }}
@@ -58,21 +58,21 @@
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column label="총실습/도전/해결" align="center">
+              <el-table-column :label="$t('m.StudentList_Total_Practice')" align="center">
                 <template slot-scope="scope">
                   <span style="text-align:center">
                     {{ scope.row.totalPractice }}/{{ scope.row.subPractice }}/{{ scope.row.solvePractice }}
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column label="총과제/도전/해결" align="center">
+              <el-table-column :label="$t('m.StudentList_Total_Assignment')" align="center">
                 <template slot-scope="scope">
                   <span style="text-align:center">
                     {{ scope.row.totalAssign }}/{{ scope.row.subAssign }}/{{ scope.row.solveAssign }}
                   </span>
                 </template>
               </el-table-column>
-              <el-table-column label="총문제/도전/해결" align="center">
+              <el-table-column :label="$t('m.StudentList_Total_Problem')" align="center">
                 <template slot-scope="scope">
                   <span style="text-align:center">
                     {{ scope.row.totalProblem }}/{{ scope.row.tryProblem }}/{{ scope.row.solveProblem }}
@@ -80,10 +80,10 @@
                 </template>
               </el-table-column>
 
-              <el-table-column prop="maxScore" label="만점" width="90" align="center"></el-table-column>
-              <el-table-column prop="totalScore" label="총점" width="90" align="center"></el-table-column>
-              <el-table-column prop="avgScore" label="평균" width="90" align="center"></el-table-column>
-              <el-table-column prop="progress" label="진행율" width="90" align="center"></el-table-column>
+              <el-table-column prop="maxScore" :label="$t('m.StudentList_Perfect_Score')" width="90" align="center"></el-table-column>
+              <el-table-column prop="totalScore" :label="$t('m.StudentList_Total_Score')" width="90" align="center"></el-table-column>
+              <el-table-column prop="avgScore" :label="$t('m.StudentList_Average')" width="90" align="center"></el-table-column>
+              <el-table-column prop="progress" :label="$t('m.StudentList_Progress')" width="90" align="center"></el-table-column>
 
               <el-table-column fixed="right" label="" width="200">
                 <template slot-scope="{row}">
@@ -94,28 +94,28 @@
             </el-table>
           </el-tab-pane>
           <!---->
-          <el-tab-pane label="실습" name="train">
+          <el-tab-pane :label="$t('m.StudentList_Practice')" name="train">
             <table>
               <thead>
                 <tr>
                   <th>
-                    이름
+                    {{ $t('m.StudentList_Name') }}
                   </th>
                   <th>
-                    학번
+                    {{ $t('m.StudentList_Student_ID') }}
                   </th>
                   <template v-if="scoreListTable[0] !== undefined">
                     <template v-for="(contests, index) in scoreListTable['0'].score.traincolumnscore.contests">
                       <th>
-                        {{ index + 1 }}주차
+                        {{ index + 1 }}{{ $t('m.StudentList_Week') }}
                       </th>
                     </template>
                   </template>
                   <th>
-                    총점
+                    {{ $t('m.StudentList_Total_Score') }}
                   </th>
                   <th>
-                    평균
+                    {{ $t('m.StudentList_Average') }}
                   </th>
                 </tr>
               </thead>
@@ -147,28 +147,28 @@
             </table>
           </el-tab-pane>
           <!---->
-          <el-tab-pane label="과제" name="assign">
+          <el-tab-pane :label="$t('m.StudentList_Assignment')" name="assign">
             <table>
               <thead>
                 <tr>
                   <th>
-                    이름
+                    {{ $t('m.StudentList_Name') }}
                   </th>
                   <th>
-                    학번
+                    {{ $t('m.StudentList_Student_ID') }}
                   </th>
                   <template v-if="scoreListTable[0] !== undefined">
                     <template v-for="(contests, index) in scoreListTable['0'].score.assigncolumnscore.contests">
                       <th>
-                        {{ index + 1 }}주차
+                        {{ index + 1 }}{{ $t('m.StudentList_Week') }}
                       </th>
                     </template>
                   </template>
                   <th>
-                    총점
+                    {{ $t('m.StudentList_Total_Score') }}
                   </th>
                   <th>
-                    평균
+                    {{ $t('m.StudentList_Average') }}
                   </th>
                 </tr>
               </thead>
@@ -200,28 +200,28 @@
             </table>
           </el-tab-pane>
           <!---->
-          <el-tab-pane label="시험" name="contest">
+          <el-tab-pane :label="$t('m.StudentList_Exam')" name="contest">
             <table>
               <thead>
                 <tr>
                   <th>
-                    이름
+                    {{ $t('m.StudentList_Name') }}
                   </th>
                   <th>
-                    학번
+                    {{ $t('m.StudentList_Student_ID') }}
                   </th>
                   <template v-if="scoreListTable[0] !== undefined">
                     <template v-for="(contests, index) in scoreListTable['0'].score.contestcolumnscore.contests">
                       <th>
-                        {{ index + 1 }}주차
+                        {{ index + 1 }}{{ $t('m.StudentList_Week') }}
                       </th>
                     </template>
                   </template>
                   <th>
-                    총점
+                    {{ $t('m.StudentList_Total_Score') }}
                   </th>
                   <th>
-                    평균
+                    {{ $t('m.StudentList_Average') }}
                   </th>
                 </tr>
               </thead>
@@ -255,12 +255,12 @@
           <!---->
           <el-tab-pane label="Excel export" name="export">
             <el-checkbox-group v-model="checkList">
-              <el-checkbox label="실습"></el-checkbox>
-              <el-checkbox label="과제"></el-checkbox>
-              <el-checkbox label="시험"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Practice')"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Assignment')"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Exam')"></el-checkbox>
             </el-checkbox-group>
             <el-checkbox-group v-model="exceloption">
-              <el-checkbox label="최종 제출일 포함"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Include_Final_Submission_Date')"></el-checkbox>
             </el-checkbox-group>
             <template>
               <button type="button" @click="exportToExcel">Excel download</button>
@@ -280,7 +280,7 @@
         </el-pagination>
       </div>
     </Panel>
-    <Panel :title="$t('TA/RA 학생 추가')" v-if="isAdmin">
+    <Panel :title="$t('m.StudentList_TA_RA_Student_Add')" v-if="isAdmin">
       <div slot="header">
         <el-row :gutter="20">
           <el-col :span="selectedUsers.length ? 16: 24">
@@ -290,42 +290,42 @@
       </div>
       <el-table :data="talist" v-loading="loading">
         <el-table-column
-          label="이름"
+          :label="$t('m.StudentList_Name')"
           prop="realname">
         </el-table-column>
         <el-table-column
-          label="학번"
+          :label="$t('m.StudentList_Student_ID')"
           prop="schoolssn">
         </el-table-column>
         <el-table-column
-          label="문제 접근 권한"
+          :label="$t('m.StudentList_Problem_Access_Permission')"
           align="center">
           <template slot-scope="props">
             <el-checkbox-group @change="checkboxChange(props.row.checklist, props.row.schoolssn)" v-bind:style="checkboxstyle" v-model="props.row.checklist">
-              <el-checkbox label="문제 수정"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Edit_Problem')"></el-checkbox>
             </el-checkbox-group>
           </template>
         </el-table-column>
         <el-table-column
-          label="답안 접근 권한"
+          :label="$t('m.StudentList_Answer_Access_Permission')"
           align="center">
           <template slot-scope="props">
             <el-checkbox-group @change="checkboxChange(props.row.checklist, props.row.schoolssn)" v-bind:style="checkboxstyle" v-model="props.row.checklist">
-              <el-checkbox label="답안 확인"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Check_Answer')"></el-checkbox>
             </el-checkbox-group>
           </template>
         </el-table-column>
         <el-table-column
-          label="점수 확인 권한"
+          :label="$t('m.StudentList_Score_Check_Permission')"
           align="center">
           <template slot-scope="props">
             <el-checkbox-group @change="checkboxChange(props.row.checklist, props.row.schoolssn)" v-bind:style="checkboxstyle" v-model="props.row.checklist">
-              <el-checkbox label="점수 확인"></el-checkbox>
+              <el-checkbox :label="$t('m.StudentList_Check_Score')"></el-checkbox>
             </el-checkbox-group>
           </template>
         </el-table-column>
         <el-table-column
-        label="삭제하기"
+        :label="$t('m.StudentList_Delete')"
         align="center">
         <template slot-scope="{row}">
           <icon-btn icon="close" name="Delete the TA User"
@@ -334,7 +334,7 @@
       </el-table-column>
       </el-table>
     </Panel>
-    <el-dialog title="TA/RA 이름 검색 결과"
+    <el-dialog :title="$t('m.StudentList_TA_RA_Name_Search')"
                v-if="lectureId"
                width="80%"
                :modal-append-to-body='true'
@@ -343,11 +343,11 @@
                 <add-t-a-user :lectureId.sync="lectureId" :studentName.sync="ta_name" @on-change="updateTAList"></add-t-a-user>
     </el-dialog>
     <Panel>
-      <span slot="title">{{$t('m.Import_Student')}}
+      <span slot="title">{{$t('m.StudentList_Import_Student')}}
         <el-popover placement="right" trigger="hover">
           <p><img src="./example.png"/></p>
-          <span>위 이미지와 동일한 형태로 존재하는 엑셀 학생 리스트를 가져올 수 있습니다.</span></br>
-          <span>학생 이름이 ?와 같이 표시되는 경우, 인코딩 방식을 utf-8로 변경하여야 합니다.</span>
+          <span> {{ $t('m.StudentList_Excel_Format_Instruction') }} </span>
+          <span> {{ $t('m.StudentList_Encoding_Instruction') }} </span>
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
         </el-popover>
       </span>
@@ -356,16 +356,16 @@
                  :show-file-list="false"
                  accept=".csv"
                  :before-upload="handleUsersCSV">
-        <el-button size="small" icon="el-icon-fa-upload" type="primary">엑셀 파일 선택 (.csv 확장자)</el-button><!--엑셀 형태의 사용자 정보 파일 가져오는 기능-->
+        <el-button size="small" icon="el-icon-fa-upload" type="primary"> {{ $t('m.StudentList_Select_Excel_File') }} </el-button><!--엑셀 형태의 사용자 정보 파일 가져오는 기능-->
       </el-upload>
       <template v-else>
         <el-table :data="uploadUsersPage">
-          <el-table-column label="학번">
+          <el-table-column :label="$t('m.StudentList_Student_ID')">
             <template slot-scope="{row}">
               {{ row[0] }}
             </template>
           </el-table-column>
-          <el-table-column label="이름">
+          <el-table-column :label="$t('m.StudentList_Name')">
             <template slot-scope="{row}">
               {{ row[1] }}
             </template>

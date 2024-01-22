@@ -25,47 +25,47 @@
 
         <el-table-column prop="id" label="ID"></el-table-column>
 
-        <el-table-column prop="realname" :label="$t('m.Realname')"></el-table-column>
+        <el-table-column prop="realname" :label="$t('m.User_Real_Name')"></el-table-column>
 
-        <el-table-column prop="username" label="t('m.Username')"></el-table-column>
+        <el-table-column prop="username" :label="$t('m.User_Username')"></el-table-column>
 
-        <el-table-column prop="schoolssn" label="t('m.Schoolssn')"></el-table-column>
+        <el-table-column prop="schoolssn" :label="$t('m.User_Schoolssn')"></el-table-column>
 
-        <el-table-column prop="create_time" :label="$t('m.Create_time')">
+        <el-table-column prop="create_time" :label="$t('m.User_Create_Date')">
           <template slot-scope="scope">
             {{scope.row.create_time | localtime }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="last_login" :label="$t('m.Last_Login')">
+        <el-table-column prop="last_login" :label="$t('m.User_Last_Login_Date')">
           <template slot-scope="scope">
             {{scope.row.last_login | localtime }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="email" label="Email"></el-table-column>
+        <el-table-column prop="email" :label="$t('m.User_Email')"></el-table-column>
 
-        <el-table-column prop="admin_type" :label="$t('m.Admin_type')">
+        <el-table-column prop="admin_type" :label="$t('m.User_Permissions')">
           <template slot-scope="scope">
             <span v-if="scope.row.admin_type === 'Regular User'">
-              학생
+              {{ $t('m.User_Type_Student') }}
             </span>
             <span v-else-if="scope.row.admin_type === 'TA_Admin'">
               TA/RA
             </span>
             <span v-else-if="scope.row.admin_type === 'Admin'">
-              교수
+              {{ $t('m.User_Type_Professor') }}
             </span>
             <span v-else>
-              관리자
+              {{ $t('m.User_Type_Admin') }}
             </span>
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" :label="$t('m.Options')" width="200">
+        <el-table-column fixed="right" :label="$t('m.User_Options')" width="200">
           <template slot-scope="{row}">
-            <icon-btn name="편집" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
-            <icon-btn name="삭제" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
+            <icon-btn :name="$t('m.User_Options_Edit')" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
+            <icon-btn :name="$t('m.User_Options_Delete')" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
           </template>
         </el-table-column>
       </el-table>
@@ -83,8 +83,8 @@
     <Panel>
       <span slot="title">{{$t('m.Import_User')}}
         <el-popover placement="right" trigger="hover">
-          <p>헤더가없는 CSV 파일 만 선택하십시오. 자세한 내용은 <a
-            href="http://docs.onlinejudge.me/#/onlinejudge/guide/import_users">링크</a> 를 확인 하십시오</p>
+          <p> {{ $t('m.Alert_Import_User') }} <a
+            href="http://docs.onlinejudge.me/#/onlinejudge/guide/import_users">{{ $t('m.Alert_Import_User_Link') }}</a></p>
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
         </el-popover>
       </span>
@@ -93,7 +93,7 @@
                  :show-file-list="false"
                  accept=".csv"
                  :before-upload="handleUsersCSV">
-        <el-button size="small" icon="el-icon-fa-upload" type="primary">파일 선택</el-button><!--엑셀 형태의 사용자 정보 파일 가져오는 기능-->
+        <el-button size="small" icon="el-icon-fa-upload" type="primary">{{ $t('m.Select_File') }}</el-button><!--엑셀 형태의 사용자 정보 파일 가져오는 기능-->
       </el-upload>
       <template v-else>
         <el-table :data="uploadUsersPage">
@@ -138,12 +138,12 @@
         <el-row type="flex" justify="space-between">
           <el-col :span="4">
             <el-form-item :label="$t('m.Usergenerate_prefix')" prop="prefix">
-              <el-input v-model="formGenerateUser.prefix" placeholder="접두어"></el-input>
+              <el-input v-model="formGenerateUser.prefix" :placeholder="$t('m.Usergenerate_prefix')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
             <el-form-item :label="$t('m.Usergenerate_suffix')" prop="suffix">
-              <el-input v-model="formGenerateUser.suffix" placeholder="접미어"></el-input>
+              <el-input v-model="formGenerateUser.suffix" :placeholder="$t('m.Usergenerate_suffix')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
@@ -165,7 +165,7 @@
         </el-row>
 
         <el-form-item>
-          <el-button type="primary" @click="generateUser" icon="el-icon-fa-users" :loading="loadingGenerate">생성 및 내보내기
+          <el-button type="primary" @click="generateUser" icon="el-icon-fa-users" :loading="loadingGenerate"> {{ $t('m.Usergenerate_and_export') }}
           </el-button>
           <span class="userPreview" v-if="formGenerateUser.number_from && formGenerateUser.number_to &&
                                           formGenerateUser.number_from <= formGenerateUser.number_to">

@@ -30,12 +30,12 @@
         <el-table-column
           prop="year"
           width="70"
-          :label="$t('m.Year')">
+          :label="$t('m.Lecture_Year')">
         </el-table-column>
         <el-table-column
           width="90"
           align="center"
-          :label="$t('m.Semester')">
+          :label="$t('m.Lecture_Semester')">
           <template slot-scope="scope">
             <p v-if="scope.row.semester < 3">{{scope.row.semester}}</p>
             <p v-else>입학 전</p>
@@ -45,7 +45,7 @@
           prop="created_by.realname"
           width="80"
           align="center"
-          :label="$t('m.Professor')">
+          :label="$t('m.Assigned_professor')">
         </el-table-column>
         <el-table-column
           prop="title"
@@ -53,7 +53,7 @@
         </el-table-column>
 		<el-table-column
 		  width="100"
-		  :label="$t('m.Lecture_status')">
+		  :label="$t('m.Lecture_Status')">
 		  <template slot-scope="scope">
 		    <el-switch v-model="scope.row.status"
 			           active-text=""
@@ -67,13 +67,13 @@
           width="250"
           label="">
           <div slot-scope="scope">
-            <icon-btn name="과목 수정" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
-            <icon-btn name="실습, 과제 목록" icon="list-ol" @click.native="goLectureContestList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></icon-btn>
+            <icon-btn :name="$t('m.LectureList_Edit_Lecture')" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
+            <icon-btn :name="$t('m.LectureList_Practice_Assignment_List')" icon="list-ol" @click.native="goLectureContestList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></icon-btn>
             <!--<icon-btn name="Student List" icon="list-ol" @click.native="goLectureStudentList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></icon-btn>-->
-            <el-tooltip class="item" effect="dark" content="학생 목록" placement="top">
-              <el-button name="Student List" size="mini" icon="el-icon-user" @click.native="goLectureStudentList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></el-button>
+            <el-tooltip class="item" effect="dark" :content="$t('m.LectureList_Student_List')" placement="top">
+              <el-button :name="$t('m.LectureList_Student_List')" size="mini" icon="el-icon-user" @click.native="goLectureStudentList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></el-button>
             </el-tooltip>
-            <icon-btn name="과목 삭제" icon="trash" @click.native="deleteLecture(scope.row.id)"></icon-btn>
+            <icon-btn :name="$t('m.LectureList_Delete_Lecture')" icon="trash" @click.native="deleteLecture(scope.row.id)"></icon-btn>
           </div>
         </el-table-column>
       </el-table>
@@ -140,7 +140,7 @@
         this.$router.push({name: 'lecture-student-list', params: {lectureId}})
       },
       deleteLecture (lectureId) {
-        this.$confirm('정말로 이 수강과목을 삭제하시겠습니까?', 'confirm', {
+        this.$confirm(this.$t('m.LectureList_Delete_Alert_Msg'), this.$t('m.LectureList_Delete_Alert_Confirm'), {
           type: 'warning'
         }).then(() => {
           api.deleteLecture(lectureId).then(res => {
