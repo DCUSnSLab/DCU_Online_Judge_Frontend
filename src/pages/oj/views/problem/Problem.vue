@@ -200,12 +200,13 @@
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-
+            <Button v-on:click="toggleSidebar" v-if="aihelperflag" :disabled=askbutton @click.native="askAI"
+              class="fl-right">
+              <span>{{ $t('m.callai') }}</span>
+            </Button>
             <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
               <span>{{ $t('m.calltara') }}</span>
-
             </Button>
-
             </Col>
           </Row>
         </Card>
@@ -471,6 +472,7 @@
       checkAllowedAIhelper () {
         let data = { contestID: this.contestID }
         api.getAIhelperflag(data).then(res => {
+          console.log(res.data.data)
           this.aihelperflag = res.data.data
         })
       },
