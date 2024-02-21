@@ -200,13 +200,18 @@
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <Button v-on:click="toggleSidebar" v-if="aihelperflag" :disabled=askbutton @click.native="askAI"
-              class="fl-right">
-              <span>{{ $t('m.callai') }}</span>
-            </Button>
-            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
-              <span>{{ $t('m.calltara') }}</span>
-            </Button>
+            <Button v-on:click="toggleSidebar"
+                      v-if="aihelperflag"
+                      :enabled=aiaskbutton
+                      @click.native="askAI"
+                      class="fl-right">
+                <span>{{$t('m.callai')}}</span>
+              </Button>
+              <Button v-b-toggle.sidebar-right
+                      :enabled="askbutton"
+                      class="fl-right">
+                <span>{{$t('m.calltara')}}</span>
+              </Button>
             </Col>
           </Row>
         </Card>
@@ -331,6 +336,21 @@
         </div>
       </div>
     </b-sidebar>
+
+    <b-sidebar id="sidebar-airight" title="Sidebar" width="500px"no-header right shadow v-bind:visible="sidebarVisible">
+          <div class="sidebar" id="wrapper">
+            <el-button class="sidebar-margin" v-on:click="toggleSidebar" icon="el-icon-close" circle></el-button>
+            <h2 class="sidebar-header">{{$t('m.aianswer')}}</h2>
+            <hr/>
+            <div class="sidebar-content" top="50%" left="50%">
+              <br/>
+              <p style= "font-size:18px">{{AIrespone}}</p>
+            </div>
+            <br/>
+            <p style="font-weight: bold" align="right">commented by chatGPT </p>
+          </div>
+        </b-sidebar>
+
     <Modal v-model="graphVisible">
       <div id="pieChart-detail">
         <ECharts :options="largePie" :initOptions="largePieInitOpts"></ECharts>
