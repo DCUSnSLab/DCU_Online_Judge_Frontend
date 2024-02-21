@@ -4,9 +4,17 @@ export const m = {
   Download: '다운로드',
   // 404.vue
   Go_Home: '홈으로',
-  DCU_Code_Usage_manual_student: 'DCU Code 사용 매뉴얼 (학생용)',
-  DCU_Code_Intro_video: 'DCU Code 소개 영상',
+  DCU_Code_Usage_Manual_Student: 'DCU Code 사용 매뉴얼 (학생용)',
+  DCU_Code_Intro_Video: 'DCU Code 소개 영상',
+  Detail: '자세히 보기',
+  Minimization: '페이지 최소화',
   My_Course_Progress:'나의 수강과목 진행 현황',
+  Ongoing_Practice_Assignments: '진행중인 실습 및 과제',
+  Practice_Assignment: '실습/과제',
+  EndDate: '종료일',
+  Remaining_Day: '남은 기간',
+  Num_of_Problem_Remaining: '남은 문제 수',
+  No_Ongoing: '진행중인 실습이 없습니다.',
   // ContestList.vue
   All: '모두',
   Rule: '대회 진행 방식',
@@ -203,5 +211,5 @@ export const m = {
   Mine: '내 제출',
   Search_Author: '코드 작성자 검색',
   // Save.vue
-  save: '저장'
+  Save: '저장'
 }
