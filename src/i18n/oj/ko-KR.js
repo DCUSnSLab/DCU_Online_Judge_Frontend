@@ -1,7 +1,12 @@
 export const m = {
   // Test
+  // home.vue
+  Download: '다운로드',
   // 404.vue
   Go_Home: '홈으로',
+  DCU_Code_Usage_manual_student: 'DCU Code 사용 매뉴얼 (학생용)',
+  DCU_Code_Intro_video: 'DCU Code 소개 영상',
+  My_Course_Progress:'나의 수강과목 진행 현황',
   // ContestList.vue
   All: '모두',
   Rule: '대회 진행 방식',

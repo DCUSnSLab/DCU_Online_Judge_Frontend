@@ -1,6 +1,11 @@
 export const m = {
   // 404.vue
   Go_Home: 'Go Home',
+  // home.vue
+  Download: 'Download',
+  DCU_Code_Usage_manual_student: 'DCU Code Manual (For Student)',
+  DCU_Code_Intro_video: 'DCU Code Promotional video',
+  My_Course_Progress:'My Course Progress',
   // Problem.vue
   Description: 'Description',
   Input: 'Input',
