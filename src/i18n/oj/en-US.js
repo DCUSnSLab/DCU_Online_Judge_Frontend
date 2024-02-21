@@ -114,6 +114,7 @@ export const m = {
   Problems: 'Problems',
   Announcements: 'Announcements',
   Submissions: 'Submissions',
+  qa: 'Q&A',
   Rankings: 'Rankings',
   Overview: 'Overview',
   Admin_Helper: 'Admin Helper',
@@ -123,6 +124,7 @@ export const m = {
   Creator: 'Creator',
   Public: 'Public',
   Password_Protected: 'Password Protected',
+  Exit: 'Exit',
   // ContestList.vue
   Rule: 'Rule',
   OI: 'OI',

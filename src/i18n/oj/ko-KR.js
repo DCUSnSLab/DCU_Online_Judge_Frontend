@@ -1,5 +1,34 @@
 export const m = {
   // Test
+  // 404.vue
+  Go_Home: '홈으로',
+  // ContestList.vue
+  All: '모두',
+  Rule: '대회 진행 방식',
+  OI: 'OI',
+  ACM: 'ACM',
+  Underway: '진행중',
+  Not_Started: '시작전',
+  Ended: '종료됨',
+  No_contest: '없음',
+  // ACMContestRank.vue
+  Menu: '메뉴',
+  Chart: '차트',
+  Auto_Refresh: '자동 새로고침',
+  Force_Update: '강제 업데이트',
+  download_csv: 'csv 내려받기',
+  TotalTime: 'TotalTime',
+  Top_10_Teams: 'Top 10 Teams',
+  save_as_image: '사진으로 저장',
+  // ACMHelper.vue
+  ACM_Helper: 'ACM Helper',
+  AC_Time: 'AC 시간',
+  ProblemID: '문제 ID',
+  First_Blood: '선취점',
+  Username: '아이디',
+  Checked: 'Checked',
+  Not_Checked: 'Not Checked',
+  Check_It: 'Check It',
   // Problem.vue
   Problem_Submissions: '문제 제출 현황',
   Display_ID: '문제 ID',
@@ -64,6 +93,7 @@ export const m = {
   Exit: '종료',   // working by soojung
   // ContestProblemList
   Problems_List: '문제 목록',
+  No_Problems: '데이터가 없습니다.',
   // OIRank.vue
   OI_Ranklist: 'OI 순위표',
   // OIContestRank.vue
