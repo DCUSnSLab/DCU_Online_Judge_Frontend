@@ -203,6 +203,7 @@ export const m = {
   When: '제출 일자',
   Time: '소요 시간',
   Memory: '메모리',
+  Lang: '언어',
   Language: '언어',
   Author: '코드 작성자 id',
   Lecture_id: '소속 수강 과목',

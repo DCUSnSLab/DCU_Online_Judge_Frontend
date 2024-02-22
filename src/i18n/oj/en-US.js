@@ -252,6 +252,7 @@ export const m = {
   Succeeded: 'Succeeded',
   Real_Time: 'Real Time',
   Singal: 'Singal',
+  qna: 'Ask a question to the TA(teaching assistant)',
   // SubmissionList.vue
   When: 'When',
   ID: 'ID',
