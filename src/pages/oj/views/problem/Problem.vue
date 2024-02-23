@@ -107,6 +107,7 @@
             <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
             <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
                     :disabled="aiaskbutton"
+                    @click.native="askAI"
                     class="fl-right">
               <span>{{$t('m.callai')}}</span>
             </Button>
@@ -233,6 +234,7 @@
             <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
             <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
                     :disabled="aiaskbutton"
+                    @click.native="askAI"
                     class="fl-right">
               <span>{{$t('m.callai')}}</span>
             </Button>
