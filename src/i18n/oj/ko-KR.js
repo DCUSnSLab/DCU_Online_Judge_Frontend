@@ -192,7 +192,7 @@ export const m = {
   List_Solved_Problems: '푼 문제들',
   UserHomeIntro: '아직 어떠한 문제도 풀지 않았습니다.',
   Test: '테스트',
-  Regenerate: 'regenerate',
+  Regenerate: '갱신',
   // Lecture
   Signup_Lectures: '수강 과목',
   Lectures: '개설 과목',
