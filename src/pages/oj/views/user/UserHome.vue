@@ -34,7 +34,7 @@
               <Icon type="ios-help-outline"></Icon>
               <div slot="content">
                 <p>If you find the following problem id does not exist,<br> try to click the button.</p>
-                <Button type="info" @click="freshProblemDisplayID">regenerate</Button>
+                <Button type="info" @click="freshProblemDisplayID">{{$t('m.regenerate')}}</Button>
               </div>
             </Poptip>
           </div>
