@@ -96,18 +96,35 @@
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <Button v-on:click="toggleSidebar"
+            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button @click="toggleSidebar"
                       v-if="aihelperflag"
-                      :enabled=aiaskbutton
-                      @click.native="askAI"
+                      :disabled="aiaskbutton"
                       class="fl-right">
                 <span>{{$t('m.callai')}}</span>
               </Button>
+            </el-tooltip>
+            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
+                    :disabled="aiaskbutton"
+                    class="fl-right">
+              <span>{{$t('m.callai')}}</span>
+            </Button>
+
+            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
+            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
               <Button v-b-toggle.sidebar-right
-                      :enabled="askbutton"
+                      :disabled="askbutton"
                       class="fl-right">
                 <span>{{$t('m.calltara')}}</span>
               </Button>
+            </el-tooltip>
+            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="!askbutton" v-b-toggle.sidebar-right
+                    :disabled="askbutton"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
+            </Button>
             </Col>
           </Row>
         </Card>
@@ -205,18 +222,35 @@
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <Button v-on:click="toggleSidebar"
+            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button @click="toggleSidebar"
                       v-if="aihelperflag"
-                      :enabled=aiaskbutton
-                      @click.native="askAI"
+                      :disabled="aiaskbutton"
                       class="fl-right">
                 <span>{{$t('m.callai')}}</span>
               </Button>
+            </el-tooltip>
+            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
+                    :disabled="aiaskbutton"
+                    class="fl-right">
+              <span>{{$t('m.callai')}}</span>
+            </Button>
+
+            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
+            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
               <Button v-b-toggle.sidebar-right
-                      :enabled="askbutton"
+                      :disabled="askbutton"
                       class="fl-right">
                 <span>{{$t('m.calltara')}}</span>
               </Button>
+            </el-tooltip>
+            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="!askbutton" v-b-toggle.sidebar-right
+                    :disabled="askbutton"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
+            </Button>
             </Col>
           </Row>
         </Card>
@@ -408,8 +442,8 @@
         contestID: '',
         problemID: '',
         lectureID: '',
-        askbutton: false,
-        aiaskbutton: false,
+        askbutton: true,
+        aiaskbutton: true,
         aihelperflag: false,
         submitting: false,
         AIrespone: '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.',
@@ -550,8 +584,6 @@
           this.code = res.data.data.code
           this.submissionId = res.data.data.id
         }).catch(() => {
-          this.askbutton = true
-          this.aiaskbutton = true
         })
       },
       CheckContestExit () {  // working by soojung
