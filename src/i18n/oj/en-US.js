@@ -3,13 +3,13 @@ export const m = {
   Go_Home: 'Go Home',
   // home.vue
   Download: 'Download',
-  DCU_Code_Usage_manual_student: 'DCU Code Manual (For Student)',
+  DCU_Code_Usage_manual_student: 'DCU Code Manual (Student)',
   DCU_Code_Intro_video: 'DCU Code Promotional video',
   Detail: 'Detail',
   Minimization: 'Minimization',
-  My_Course_Progress:'My Course Progress',
+  My_Course_Progress: 'My Course Progress',
   Ongoing_practice_assignments: 'Ongoing practice and assignments',
-  Practice_assignment:'Practice/Assignment',
+  Practice_assignment: 'Practice/Assignment',
   EndDate: 'End Date',
   Remaining_Day: 'Remaining day',
   Num_of_Problem_Remaining: 'Number of remaining problems',
@@ -89,7 +89,7 @@ export const m = {
   // ApplyResetPassword.vue
   The_email_doesnt_exist: 'The email doesn\'t exist',
   Success: 'Success',
-  Password_reset_mail_sent: 'Password reset mail has been sent to your email，',
+  Password_reset_mail_sent: 'Password reset mail has been sent to your email.',
   // FAQ.vue
   Frequently_Asked_Questions: 'Frequently Asked Questions',
   Where_is_the_input_and_the_output: 'Where is the input and the output?',
@@ -199,13 +199,13 @@ export const m = {
   Sessions: 'Sessions',
   Two_Factor_Authentication: 'Two Factor Authentication',
   // Login.vue
-  LoginUsername: 'Username',
+  LoginUsername: 'ID',
   LoginPassword: 'Password',
   TFA_Code: 'Code from your TFA app',
   No_Account: 'No account? Register now!',
   Forget_Password: 'Forget Password',
   UserLogin: 'Login',
-  Welcome_back: 'Welcome back to OJ',
+  Welcome_back: 'Welcome back to DCU Code',
   // OIRank.vue
   OI_Ranklist: 'OI Ranklist',
   // OIContestRank.vue
@@ -222,15 +222,22 @@ export const m = {
   Total: 'Total',
   AC_Rate: 'AC Rate',
   // Register.vue
-  RegisterUsername: 'Username',
+  RegisterUsername: 'ID',
+  RegisterRealname: 'Name',
   Email_Address: 'Email Address',
   RegisterPassword: 'Password',
   Password_Again: 'Password Again',
+  schoolssn: 'Student/Professor Number (8 digits for student, 5 digits for professor)',
+  schoolssn_Again: 'Student/Professor Num Again',
   Captcha: 'Captcha',
+  Click_to_Refresh: 'Click to Refresh',
   UserRegister: 'Register',
   Already_Registed: 'Already registed? Login now!',
-  The_username_already_exists: 'The username already exists.',
+  schoolssn_least_5char_no_more_than8: 'Please enter Student/Professor number with at least 5 characters and no more than 8 characters.',
+  The_username_already_exists: 'ID already exists.',
   The_email_already_exists: 'The email already exists',
+  The_schoolssn_already_exists: 'Student/Professor Number already exists.',
+  schoolssn_does_not_match: 'Student/Professor Number does not match',
   password_does_not_match: 'password does not match',
   Thanks_for_registering: 'Thanks for your registering, you can login now',
   // ResetPassword.vue and ApplyResetPassword.vue
@@ -285,7 +292,5 @@ export const m = {
   Public_Questions: 'Public Questions',
   No_lecture: 'No Lecture',
   AuthorRealname: 'Realname',
-  Lecture_id: 'Lecture id',
-
-  DCU_Code_Usage_manual_student: 'DCU Code Usage Manual(Student)'
+  Lecture_id: 'Lecture id'
 }

@@ -2,7 +2,7 @@
 <div>
     <Form ref="formRegister" :model="formRegister" :rules="ruleRegister" autocomplete="on">
       <FormItem prop="username">
-        <Input type="text" v-model="formRegister.username" :placeholder="$t('아이디를 입력해주세요.')" size="large" @on-enter="handleRegister" name="username">
+        <Input type="text" v-model="formRegister.username" :placeholder="$t('m.RegisterUsername')" size="large" @on-enter="handleRegister" name="username">
         <Icon type="ios-person-outline" slot="prepend"></Icon>
         </Input>
       </FormItem>
@@ -44,7 +44,7 @@
             </Input>
           </div>
           <div class="oj-captcha-img">
-            <Tooltip content="클릭하여 새로고침" placement="top">
+            <Tooltip :content="$t('m.Click_to_Refresh')" placement="top">
               <img :src="captchaSrc" @click="getCaptchaSrc"/>
             </Tooltip>
           </div>
@@ -83,7 +83,7 @@
       const CheckUsernameNotExist = (rule, value, callback) => {
         api.checkUsernameOrEmail(value, undefined, undefined).then(res => {
           if (res.data.data.username === true) {
-            callback(new Error(this.$i18n.t('아이디가 이미 존재합니다.')))
+            callback(new Error(this.$i18n.t('m.The_username_already_exists')))
           } else {
             callback()
           }
@@ -92,7 +92,7 @@
       const CheckEmailNotExist = (rule, value, callback) => {
         api.checkUsernameOrEmail(undefined, value, undefined).then(res => {
           if (res.data.data.email === true) {
-            callback(new Error(this.$i18n.t('이메일 주소가 이미 존재합니다.')))
+            callback(new Error(this.$i18n.t('m.The_email_already_exists')))
           } else {
             callback()
           }
@@ -101,9 +101,9 @@
       const CheckSchoolssnNotExist = (rule, value, callback) => {
         api.checkUsernameOrEmail(undefined, undefined, value).then(res => {
           if (this.formRegister.schoolssn.length < 5 || this.formRegister.schoolssn.length > 8) {
-            callback(new Error(this.$i18n.t('학번/교직번호는 5자 이상, 8자 이하로 입력하세요.')))
+            callback(new Error(this.$i18n.t('m.schoolssn_least_5char_no_more_than8')))
           } else if (res.data.data.schoolssn === true) {
-            callback(new Error(this.$i18n.t('학번/교직번호가 이미 입력되었습니다.')))
+            callback(new Error(this.$i18n.t('m.The_schoolssn_already_exists')))
           } else {
             callback()
           }
@@ -118,13 +118,13 @@
       }
       const CheckAgainPassword = (rule, value, callback) => {
         if (value !== this.formRegister.password) {
-          callback(new Error(this.$i18n.t('패스워드가 일치하지 않습니다.')))
+          callback(new Error(this.$i18n.t('m.password_does_not_match')))
         }
         callback()
       }
       const CheckAgainSchoolssn = (rule, value, callback) => {
         if (value !== this.formRegister.schoolssn) {
-          callback(new Error(this.$i18n.t('학번이 일치하지 않습니다.')))
+          callback(new Error(this.$i18n.t('m.schoolssn_does_not_match')))
         }
         callback()
       }
@@ -189,7 +189,7 @@
           delete formData['passwordAgain']
           this.btnRegisterLoading = true
           api.register(formData).then(res => {
-            this.$success(this.$i18n.t('가입해주셔서 감사합니다.'))
+            this.$success(this.$i18n.t('m.Thanks_for_registering'))
             this.switchMode('login')
             this.btnRegisterLoading = false
           }, _ => {
