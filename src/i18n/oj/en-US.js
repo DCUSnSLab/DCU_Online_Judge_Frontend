@@ -19,6 +19,7 @@ export const m = {
   Hour: 'Hour',
   Minute: 'Minute',
   // Problem.vue
+  Please_enter_subject: 'Please enter the subject',
   Description: 'Description',
   Input: 'Input',
   Output: 'Output',
@@ -30,6 +31,7 @@ export const m = {
   Information: 'Information',
   Time_Limit: 'Time Limit',
   Memory_Limit: 'Memory Limit',
+  IOMode: 'IOMode',
   Created: 'Created By',
   Level: 'Level',
   Solved: 'Solved',
@@ -308,5 +310,7 @@ export const m = {
   StartDate: 'Start Date',
   PublicType: 'Public Type',
   WrongPath: 'You came in by the wrong route.',
-  No_empty_Password: 'Password can\'t be empty'
+  No_empty_Password: 'Password can\'t be empty',
+  callai: 'AI Coding Helper',
+  calltara: 'Ask question to TA'
 }
