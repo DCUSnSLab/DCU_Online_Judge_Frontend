@@ -24,6 +24,7 @@
                   <Dropdown-item name="2021">2021</Dropdown-item>
                   <Dropdown-item name="2022">2022</Dropdown-item>
                   <Dropdown-item name="2023">2023</Dropdown-item>
+                  <Dropdown-item name="2024">2024</Dropdown-item>
                 </Dropdown-menu>
               </Dropdown>
             </Col>
@@ -75,8 +76,8 @@
               {{ lecture.lecture.created_by.realname }}
 			      </Col>
             <Col :span="4" style="text-align: center">
-              <Button @click="goLecture(lecture.lecture)" v-if="lecture.isallow">수강하기</Button>
-              <Button v-else disabled>수강대기</Button>
+              <Button @click="goLecture(lecture.lecture)" v-if="lecture.isallow">{{$t('m.Lecture_Take')}}</Button>
+              <Button v-else disabled>{{$t('m.Waiting_lecture')}}</Button>
 			      </Col>
           </Row>
         </li>
@@ -199,7 +200,7 @@
       },
       applylecture (lecture) {
         if (!this.user.username) {
-          this.$error('로그인 후 가능합니다.')
+          this.$error(this.$i18n.t('m.Please_login_first'))
         } else {
           let data = {
             lecture_id: lecture.lecture.id,
@@ -208,7 +209,7 @@
           }
           api.applyLecture(data).then(res => {
             this.getLectureList(this.page)
-            this.$success('Success')
+            this.$success(this.$i18n.t('m.Succeeded'))
           })
         }
       },

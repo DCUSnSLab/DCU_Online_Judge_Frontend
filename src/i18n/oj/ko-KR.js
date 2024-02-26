@@ -13,6 +13,7 @@ export const m = {
   Practice_Assignment: '실습/과제',
   EndDate: '종료일',
   Remaining_Day: '남은 기간',
+  Remaining_Time: '남은 시간',
   Num_of_Problem_Remaining: '남은 문제 수',
   No_Ongoing: '진행중인 실습이 없습니다.',
   // ContestList.vue
@@ -24,6 +25,9 @@ export const m = {
   Not_Started: '시작전',
   Ended: '종료됨',
   No_contest: '없음',
+  Day: '일',
+  Hour: '시간',
+  Minute: '분',
   // ACMContestRank.vue
   Menu: '메뉴',
   Chart: '차트',
@@ -104,6 +108,7 @@ export const m = {
   Admin_Helper: '관리자 도우미',
   Contest_Announcements: '실습 및 과제 공지사항',
   Exit: '종료',   // working by soojung
+  Total_Score: '최종 점수',
   // ContestProblemList
   Problems_List: '문제 목록',
   No_Problems: '데이터가 없습니다.',
@@ -204,6 +209,18 @@ export const m = {
   Lectures: '개설 과목',
   Lecture_Contests: '문제',
   No_lecture: '수강 과목 없음',
+  Year: '년도',
+  Semester: '학기',
+  Subject: '과목명',
+  Professors: '담당교수',
+  Lecture_registration_status: '수강신청 상태',
+  Lecture_Apply: '수강신청',
+  Lecture_Take: '수강하기',
+  Waiting_lecture: '수강대기',
+  Please_login_first: '로그인 후 가능합니다.',
+  StartDate: '시작일',
+  PublicType: '공개유형',
+  way_competition: '대회 진행 방식',
   // Submission
   Signal: 'Signal',
   AuthorRealname: '코드 작성자',
@@ -218,6 +235,8 @@ export const m = {
   Rejudge: '재검사',
   Mine: '내 제출',
   Search_Author: '코드 작성자 검색',
+  Succeeded: '성공',
+  No_empty_Password: '비밀번호는 비워둘 수 없습니다.',
   // Save.vue
   Save: '저장'
 }

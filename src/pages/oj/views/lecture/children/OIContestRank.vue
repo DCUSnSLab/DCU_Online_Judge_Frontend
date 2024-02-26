@@ -102,7 +102,7 @@
             }
           },
           {
-            title: this.$i18n.t('m.Realname'),
+            title: this.$i18n.t('m.RealName'),
             align: 'center',
             render: (h, params) => {
               return h('a', {

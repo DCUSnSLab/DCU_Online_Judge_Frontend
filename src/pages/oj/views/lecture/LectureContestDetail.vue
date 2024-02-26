@@ -120,31 +120,31 @@
           //   }
           // },
           {
-            title: this.$i18n.t('시작일'),
+            title: this.$i18n.t('m.StartDate'),
             render: (h, params) => {
               return h('span', time.utcToLocal(params.row.start_time))
             }
           },
           {
-            title: this.$i18n.t('종료일'),
+            title: this.$i18n.t('m.EndDate'),
             render: (h, params) => {
               return h('span', time.utcToLocal(params.row.end_time))
             }
           },
           {
-            title: this.$i18n.t('공개유형'),
+            title: this.$i18n.t('m.PublicType'),
             render: (h, params) => {
               return h('span', this.$i18n.t('m.' + params.row.contest_type))
             }
           },
           {
-            title: this.$i18n.t('대회 진행 방식'),
+            title: this.$i18n.t('m.Rule'),
             render: (h, params) => {
               return h('span', this.$i18n.t('m.' + params.row.rule_type))
             }
           },
           {
-            title: this.$i18n.t('출제자'),
+            title: this.$i18n.t('m.Created'),
             render: (h, data) => {
               return h('span', data.row.created_by.username)
             }
@@ -161,7 +161,7 @@
         let data = res.data.data
         this.isvisible = res.data.data.visible
         if (this.isvisible === false) {
-          this.$error('잘못된 경로로 진입했습니다.')
+          this.$error(this.$i18n.t('m.WrongPath'))
         }
         this.lectureID = res.data.data.lecture
         this.contestType = res.data.data.lecture_contest_type // working by soojung
@@ -180,12 +180,12 @@
       },
       checkPassword () {
         if (this.contestPassword === '') {
-          this.$error('Password can\'t be empty')
+          this.$error(this.$i18n.t('m.No_empty_Password'))
           return
         }
         this.btnLoading = true
         api.checkContestPassword(this.contestID, this.contestPassword).then((res) => {
-          this.$success('Succeeded')
+          this.$success(this.$i18n.t('m.Succeeded'))
           this.$store.commit(types.CONTEST_ACCESS, {access: true})
           this.btnLoading = false
         }, (res) => {

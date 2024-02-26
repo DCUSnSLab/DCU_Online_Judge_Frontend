@@ -53,7 +53,7 @@
               {{ lecture.created_by.realname }}
 			      </Col>
             <Col :span="4" style="text-align: center">
-              <Button @click="applylecture(lecture)">수강신청</Button>
+              <Button @click="applylecture(lecture)">{{$t('m.Lecture_Apply')}}</Button>
 			      </Col>
           </Row>
         </li>
@@ -153,7 +153,7 @@
       },
       applylecture (lecture) {
         if (!this.user.username) {
-          this.$error('로그인 후 가능합니다.')
+          this.$error(this.$i18n.t('m.Please_login_first'))
         } else {
           let data = {
             lecture_id: lecture.id,
@@ -165,7 +165,7 @@
           console.log(data)
           api.applyLecture(data).then(res => {
             this.getLectureList(this.page)
-            this.$success('Success')
+            this.$success(this.$i18n.t('m.Succeeded'))
           })
         }
       },
