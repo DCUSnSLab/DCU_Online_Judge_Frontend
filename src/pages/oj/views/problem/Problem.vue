@@ -324,7 +324,7 @@
         <hr />
         <div class="sidebar-content">
           <br />
-          <span>{{ $t('m.Detail') }}</span>
+          <span>{{ $t('m.Contents') }}</span>
           <el-input class="sidebar-content-margin" :placeholder="$t('m.Please_enter_subject')" v-model="qnaContent.title"></el-input>
           <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
           <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">{{ $t('m.Save') }}</el-button>

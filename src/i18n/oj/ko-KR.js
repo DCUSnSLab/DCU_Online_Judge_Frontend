@@ -7,6 +7,7 @@ export const m = {
   DCU_Code_Usage_Manual_Student: 'DCU Code 사용 매뉴얼 (학생용)',
   DCU_Code_Intro_Video: 'DCU Code 소개 영상',
   Detail: '자세히 보기',
+  Contents: '내용',
   Minimization: '페이지 최소화',
   My_Course_Progress: '나의 수강과목 진행 현황',
   Ongoing_Practice_Assignments: '진행중인 실습 및 과제',
@@ -256,5 +257,10 @@ export const m = {
   Succeeded: '성공',
   No_empty_Password: '비밀번호는 비워둘 수 없습니다.',
   // Save.vue
-  Save: '저장'
+  Save: '저장',
+  DCUCode_qna: 'DCU Code 질문/답변',
+  qna_solved: '해결 완료',
+  qna_delete: '삭제 하기',
+  Enable_public_questions: '공개 질문 활성화',
+  Disable_public_questions: '공개 질문 비활성화'
 }

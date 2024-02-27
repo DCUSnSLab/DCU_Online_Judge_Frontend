@@ -6,6 +6,7 @@ export const m = {
   DCU_Code_Usage_manual_student: 'DCU Code Manual (Student)',
   DCU_Code_Intro_video: 'DCU Code Promotional video',
   Detail: 'Detail',
+  Contents: 'Contents',
   Minimization: 'Minimization',
   My_Course_Progress: 'My Course Progress',
   Ongoing_practice_assignments: 'Ongoing practice and assignments',
@@ -314,5 +315,10 @@ export const m = {
   WrongPath: 'You came in by the wrong route.',
   No_empty_Password: 'Password can\'t be empty',
   callai: 'AI Coding Helper',
-  calltara: 'Ask question to TA'
+  calltara: 'Ask question to TA',
+  DCUCode_qna: 'DCU Code Question/Answer',
+  qna_solved: 'Solved',
+  qna_delete: 'Delete',
+  Enable_public_questions: 'Enable public questions',
+  Disable_public_questions: 'Disable public questions'
 }

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Panel id="lecture-card" shadow>
-      <div slot="title"><b>DCU Code 질문/답변</b></div>
+      <div slot="title"><b>{{$t('m.DCUCode_qna') }}</b></div>
 			<el-row>
         <el-col>
           <el-card class="box-card">
@@ -19,8 +19,8 @@
                     <el-switch
                       v-model="openQnA"
                       @change="changeQnA2OpenQnA"
-                      active-text="공개 질문 활성화"
-                      inactive-text="공개 질문 비활성화"
+                      :active-text="$t('m.Enable_public_questions')"
+                      :inactive-text="$t('m.Disable_public_questions')"
                       active-color="#13ce66"
                       inactive-color="#ff4949">
                     </el-switch>
@@ -41,8 +41,8 @@
             </div>
 	          <hr/>
             <div class="d-block mr-0 ml-auto">
-              <el-button @click="deletePost()">삭제 하기</el-button>
-              <el-button @click="solvedQnA" v-if="!isSemiAdmin">해결 완료</el-button>
+              <el-button @click="deletePost()">{{$t('m.qna_delete') }}</el-button>
+              <el-button @click="solvedQnA" v-if="!isSemiAdmin">{{$t('m.qna_solved') }}</el-button>
               <!--
               <el-button v-if=isAdmin @click="solvedQnA">해결 완료</el-button>
               <el-button v-else disabled @click="solvedQnA">해결 완료</el-button>
