@@ -54,6 +54,8 @@ export const m = {
   Contest_has_ended: 'Contest has ended',
   Already_Submitted: 'Already submitted',  // working by soojung
   You_have_submission_in_this_problem_sure_to_cover_it: 'You have submission in this problem, sure to cover it?',
+  Code_Copied: 'Code copied.',
+  Failed_to_copy: 'Failed to copy code',
   // About.vue
   Compiler: 'Compiler',
   Result_Explanation: 'Result Explanation',
@@ -217,7 +219,6 @@ export const m = {
   // OIContestRank.vue
   Total_Score: 'Total Score',
   // ProblemList.vue
-  Problem_List: 'Problem List',
   High: 'High',
   Mid: 'Mid',
   Low: 'Low',
@@ -227,6 +228,7 @@ export const m = {
   Difficulty: 'Difficulty',
   Total: 'Total',
   AC_Rate: 'AC Rate',
+  GoodLuck: 'Good Luck',
   // Register.vue
   RegisterUsername: 'ID',
   RegisterRealname: 'Name',

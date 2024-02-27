@@ -2,7 +2,7 @@
   <Row type="flex" :gutter="18">
     <Col :span=19>
     <Panel shadow>
-      <div slot="title">{{$t('m.Problem_List')}}</div>
+      <div slot="title">{{$t('m.Problems_List')}}</div>
       <div slot="extra">
         <ul class="filter">
           <li>
@@ -261,7 +261,7 @@
       },
       pickone () {
         api.pickone().then(res => {
-          this.$success('Good Luck')
+          this.$success(this.$i18n.t('m.GoodLuck'))
           this.$router.push({name: 'problem-details', params: {problemID: res.data.data}})
         })
       }
