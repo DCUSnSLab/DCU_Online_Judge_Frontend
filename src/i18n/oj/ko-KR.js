@@ -273,5 +273,19 @@ export const m = {
   Question_delete_ask: '정말로 이 질문을 삭제하시겠습니까?',
   Cancel: '취소',
   Comment_delete_ask: '정말로 이 댓글을 삭제하시겠습니까?',
-  Enter_answer: '답변을 입력 해주세요.'
+  Enter_answer: '답변을 입력 해주세요.',
+  Password_use: '사용중인 비밀번호',
+  New_password: '새 비밀번호',
+  New_password_Again: '새 비밀번호 확인',
+  Password_Change_ment: '비밀번호 변경이 완료되었습니다. 5초 후에 다시 로그인해주세요.',
+  Email_use: '사용중인 이메일 주소',
+  Email_change: '변경할 이메일 주소',
+  New_password_not_change: '새 패스워드가 변경되지 않았습니다.',
+  Success_password_change: '비밀번호가 성공적으로 변경되었습니다.',
+  Success_email_change: '이메일이 성공적으로 변경되었습니다.',
+  StudnetNumber: '학번',
+  Now: '현재',
+  OS: '운영체제',
+  Browser: '브라우저',
+  Last_activity: '마지막 활동'
 }

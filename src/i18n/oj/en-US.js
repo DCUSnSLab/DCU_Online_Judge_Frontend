@@ -330,5 +330,19 @@ export const m = {
   ok: 'Ok',
   Comment_delete_ask: 'Are you sure you want to delete this comment?',
   Enter_answer: 'Please enter your answer.',
-  Signal: 'Signal'
+  Signal: 'Signal',
+  Password_use: 'Old Password',
+  New_password: 'New password',
+  New_password_Again: 'New Password Again',
+  Password_Change_ment: 'Password change has been completed. Please login again in 5 seconds.',
+  Email_use: 'Email address in use',
+  Email_change: 'Email address to change',
+  New_password_not_change: 'New password has not been changed.',
+  Success_password_change: 'Your password has been changed successfully.',
+  Success_email_change: 'Your Email has been changed successfully.',
+  StudnetNumber: 'Studnet Number',
+  Now: 'Now',
+  OS: 'OS',
+  Browser: 'Browser',
+  Last_activity: 'Last Activity'
 }

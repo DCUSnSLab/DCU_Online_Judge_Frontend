@@ -4,20 +4,20 @@
       <div class="left">
         <p class="section-title">{{$t('m.ChangePassword')}}</p>
         <Form class="setting-content" ref="formPassword" :model="formPassword" :rules="rulePassword">
-          <FormItem label="사용중인 비밀번호" prop="old_password">
+          <FormItem :label="$t('m.Password_use')" prop="old_password">
             <Input v-model="formPassword.old_password" type="password"/>
           </FormItem>
-          <FormItem label="새 비밀번호" prop="new_password">
+          <FormItem :label="$t('m.New_password')" prop="new_password">
             <Input v-model="formPassword.new_password" type="password"/>
           </FormItem>
-          <FormItem label="새 비밀번호 확인" prop="again_password">
+          <FormItem :label="$t('m.New_password_Again')" prop="again_password">
             <Input v-model="formPassword.again_password" type="password"/>
           </FormItem>
           <FormItem v-if="visible.tfaRequired" label="Two Factor Auth" prop="tfa_code">
             <Input v-model="formPassword.tfa_code"/>
           </FormItem>
           <FormItem v-if="visible.passwordAlert">
-            <Alert type="success">비밀번호 변경이 완료되었습니다. 5초 후에 다시 로그인해주세요.</Alert>
+            <Alert type="success">{{$t('m.Password_Change_ment') }}</Alert>
           </FormItem>
           <Button type="primary" @click="changePassword">{{$t('m.Update_Password')}}</Button>
         </Form>
@@ -28,16 +28,16 @@
       <div class="right">
         <p class="section-title">{{$t('m.ChangeEmail')}}</p>
         <Form class="setting-content" ref="formEmail" :model="formEmail" :rules="ruleEmail">
-          <FormItem label="사용중인 비밀번호" prop="password">
+          <FormItem :label="$t('m.Password_use')" prop="password">
             <Input v-model="formEmail.password" type="password"/>
           </FormItem>
-          <FormItem label="사용중인 이메일 주소">
+          <FormItem :label="$t('m.Email_use')">
             <Input v-model="formEmail.old_email" disabled/>
           </FormItem>
-          <FormItem label="변경할 이메일 주소" prop="new_email">
+          <FormItem :label="$t('m.Email_change')" prop="new_email">
             <Input v-model="formEmail.new_email"/>
           </FormItem>
-          <FormItem v-if="visible.tfaRequired" label="이중 인증" prop="tfa_code">
+          <FormItem v-if="visible.tfaRequired" :label="$t('m.Two_Factor_Authentication')" prop="tfa_code">
             <Input v-model="formEmail.tfa_code"/>
           </FormItem>
           <Button type="primary" @click="changeEmail">{{$t('m.ChangeEmail')}}</Button>
@@ -58,14 +58,14 @@
       const tfaCheck = [{required: true, trigger: 'change'}]
       const CheckAgainPassword = (rule, value, callback) => {
         if (value !== this.formPassword.new_password) {
-          callback(new Error('비밀번호가 일치하지 않습니다.'))
+          callback(new Error(this.$i18n.t('m.password_does_not_match')))
         }
         callback()
       }
       const CheckNewPassword = (rule, value, callback) => {
         if (this.formPassword.old_password !== '') {
           if (this.formPassword.old_password === this.formPassword.new_password) {
-            callback(new Error('새 패스워드가 변경되지 않았습니다.'))
+            callback(new Error(this.$i18n.t('m.New_password_not_change')))
           } else {
             // 对第二个密码框再次验证
             this.$refs.formPassword.validateField('again_password')
@@ -128,7 +128,7 @@
           api.changePassword(data).then(res => {
             this.loading.btnPassword = false
             this.visible.passwordAlert = true
-            this.$success('비밀번호가 성공적으로 변경되었습니다.')
+            this.$success(this.$i18n.t('m.Success_password_change'))
             setTimeout(() => {
               this.visible.passwordAlert = false
               this.$router.push({name: 'logout'})
@@ -151,7 +151,7 @@
           api.changeEmail(data).then(res => {
             this.loading.btnEmail = false
             this.visible.emailAlert = true
-            this.$success('이메일이 성공적으로 변경되었습니다.')
+            this.$success(this.$i18n.t('m.Success_email_change'))
             this.$refs.formEmail.resetFields()
           }, res => {
             if (res.data.data === 'tfa_required') {

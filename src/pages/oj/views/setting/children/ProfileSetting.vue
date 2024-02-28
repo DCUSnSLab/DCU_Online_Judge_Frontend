@@ -65,7 +65,7 @@
     <Form ref="formProfile" :model="formProfile">
       <Row type="flex" :gutter="30" justify="space-around">
         <Col :span="11">
-          <FormItem label="실명">
+          <FormItem :label="$t('m.RegisterRealname')">
             <Input v-model="formProfile.realname"/>
           </FormItem>
           <FormItem label="언어/Language/語言/语言">
@@ -74,12 +74,12 @@
             </Select>
           </FormItem>
           <Form-item>
-            <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">저장하기</Button>
+            <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">{{$t('m.Save') }}</Button>
           </Form-item>
         </Col>
 
         <Col :span="11">
-          <Form-item label="학번">
+          <Form-item :label="$t('m.StudnetNumber')">
             <Input v-model="formProfile.schoolssn"/>
           </Form-item>
         </Col>
