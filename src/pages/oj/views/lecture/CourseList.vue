@@ -16,21 +16,20 @@
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="2" style="text-align: center">
               <Dropdown @on-click="sortYear">
-                <span>{{ yearsort }} 년도 <Icon type="arrow-down-b"></Icon>
+                <span>{{ yearsort }} {{$t('m.Year')}} <Icon type="arrow-down-b"></Icon>
                 </span>
                 <!-- 구현 예정 -->
-                <Dropdown-menu slot="list">
-                  <Dropdown-item name="2020">2020</Dropdown-item>
-                  <Dropdown-item name="2021">2021</Dropdown-item>
-                  <Dropdown-item name="2022">2022</Dropdown-item>
-                  <Dropdown-item name="2023">2023</Dropdown-item>
+                <Dropdown-menu slot="list"> <!-- 년도 자동추가 (5년전~현재년도) -->
+                  <Dropdown-item v-for="year in selectableYears" :key="year" :name="year">
+                    {{ year }}
+                  </Dropdown-item>
                 </Dropdown-menu>
               </Dropdown>
             </Col>
             <Col :span="1" style="text-align: center">
               <Dropdown @on-click="sortSemester">
                 <div v-if="semestersort < 3">
-                    <span>{{ semestersort }} 학기 <Icon type="arrow-down-b"></Icon>
+                    <span>{{ semestersort }} {{$t('m.Semester')}} <Icon type="arrow-down-b"></Icon>
                     </span>
                 </div>
                 <div v-else>
@@ -45,13 +44,13 @@
               </Dropdown>
             </Col>
             <Col :span="12">
-              <p>과목명</p>
+              <p>{{$t('m.Subject')}}</p>
             </Col>
             <Col :span="2">
-              <p>담당교수</p>
+              <p>{{$t('m.Professors')}}</p>
 			      </Col>
             <Col :span="4" style="text-align: center">
-              수강신청 상태
+              {{$t('m.Lecture_registration_status')}}
 			      </Col>
           </Row>
         </li>
@@ -75,8 +74,8 @@
               {{ lecture.lecture.created_by.realname }}
 			      </Col>
             <Col :span="4" style="text-align: center">
-              <Button @click="goLecture(lecture.lecture)" v-if="lecture.isallow">수강하기</Button>
-              <Button v-else disabled>수강대기</Button>
+              <Button @click="goLecture(lecture.lecture)" v-if="lecture.isallow">{{$t('m.Lecture_Take')}}</Button>
+              <Button v-else disabled>{{$t('m.Waiting_lecture')}}</Button>
 			      </Col>
           </Row>
         </li>
@@ -108,6 +107,7 @@
         page: 1,
         yearsort: 2020,
         semestersort: 1,
+        selectableYears: [],
         profsort: 0,
         query: {
           status: '',
@@ -141,6 +141,7 @@
       this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
       console.log(this.semestersort)
       this.yearsort = d.getFullYear()
+      this.initSelectableYears()
     },
     methods: {
       init () {
@@ -199,7 +200,7 @@
       },
       applylecture (lecture) {
         if (!this.user.username) {
-          this.$error('로그인 후 가능합니다.')
+          this.$error(this.$i18n.t('m.Please_login_first'))
         } else {
           let data = {
             lecture_id: lecture.lecture.id,
@@ -208,12 +209,18 @@
           }
           api.applyLecture(data).then(res => {
             this.getLectureList(this.page)
-            this.$success('Success')
+            this.$success(this.$i18n.t('m.Succeeded'))
           })
         }
       },
       getDuration (startTime, endTime) {
         return time.duration(startTime, endTime)
+      },
+      initSelectableYears () { // 년도 자동추가 (5년전~현재년도)
+        const currentYear = new Date().getFullYear()
+        for (let year = currentYear; year >= currentYear - 5; year--) {
+          this.selectableYears.push(year.toString())
+        }
       }
     },
     computed: {
@@ -290,5 +297,4 @@
       }
     }
   }
-
 </style>
