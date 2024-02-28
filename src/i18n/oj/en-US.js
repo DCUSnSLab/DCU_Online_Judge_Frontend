@@ -320,5 +320,15 @@ export const m = {
   qna_solved: 'Solved',
   qna_delete: 'Delete',
   Enable_public_questions: 'Enable public questions',
-  Disable_public_questions: 'Disable public questions'
+  Disable_public_questions: 'Disable public questions',
+  View_Problem_detail: 'View the problem in detail',
+  View_submit_code: 'View submitted code',
+  Answer: 'Answer',
+  Each: 'each',
+  Write: 'Write',
+  Question_delete_ask: 'Are you sure you want to delete this question?',
+  ok: 'Ok',
+  Comment_delete_ask: 'Are you sure you want to delete this comment?',
+  Enter_answer: 'Please enter your answer.',
+  Signal: 'Signal'
 }

@@ -33,8 +33,8 @@
             <div class="article-content" v-html="qnaList.content"></div>
             <br/>
             <div v-if="qnaList.submission">
-              <a @click="dialogVisible = true">문제 자세히 보기</a><br/> <br/>
-              <a @click="showDetailCode">제출한 소스코드 보기</a>
+              <a @click="dialogVisible = true">{{$t('m.View_Problem_detail') }}</a><br/> <br/>
+              <a @click="showDetailCode">{{$t('m.View_submit_code') }}</a>
               <div v-if="detailCode">
                 <submission-details :submissionID.sync="qnaList.submission.id"></submission-details>
               </div>
@@ -53,18 +53,18 @@
       </el-row>
       <el-row :gutter="24">
         <el-col :span="21">
-          <h3 class="box-card">답변</h3>
+          <h3 class="box-card">{{$t('m.Answer') }}</h3>
           <el-input
             type="textarea"
             :autosize="{ minRows: 5, maxRows: 10}"
             class="box-card"
             v-model="answer"
-            placeholder="답변을 입력 해주세요."
+            :placeholder= "$t('m.Enter_answer')"
             ></el-input>
         </el-col>
         <el-col :span="3">
           <Dropdown @on-click="onStatusChange">
-            <h3 class="show_comment">{{ numOfCommentShow }}개씩
+            <h3 class="show_comment">{{ numOfCommentShow }}{{$t('m.Each') }}
               <Icon type="arrow-down-b"></Icon>
             </h3>
             <Dropdown-menu slot="list">
@@ -73,7 +73,7 @@
               <Dropdown-item name="10">10</Dropdown-item>
             </Dropdown-menu>
           </Dropdown>
-          <el-button class="bottom-align-text" @click="writeComment">작성</el-button>
+          <el-button class="bottom-align-text" @click="writeComment">{{$t('m.Write') }}</el-button>
         </el-col>
       </el-row>
       <!-- comment area -->
@@ -227,14 +227,14 @@
       deletePost () {
         if (this.total > 0) {
           this.$alert('댓글이 작성되어 있어 삭제가 불가능 합니다.<br/>관리자에게 문의해주세요.', '삭제 불가', {
-            confirmButtonText: '확인',
+            confirmButtonText: this.$i18n.t('m.ok'),
             dangerouslyUseHTMLString: true
           })
         } else {
-          this.$confirm('정말로 이 질문을 삭제하시겠습니까?', 'confirm', {
+          this.$confirm(this.$i18n.t('m.Question_delete_ask'), 'confirm', {
             type: 'warning',
-            confirmButtonText: '확인',
-            cancelButtonText: '취소'
+            confirmButtonText: this.$i18n.t('m.ok'),
+            cancelButtonText: this.$i18n.t('m.Cancel')
           }).then(() => {
             api.deletePost(this.qnaList.id).then(res => {
               this.$router.go(-1)
@@ -245,10 +245,10 @@
         }
       },
       deleteComment (lectureId) {
-        this.$confirm('정말로 이 댓글을 삭제하시겠습니까?', 'confirm', {
+        this.$confirm(this.$i18n.t('m.Comment_delete_ask'), 'confirm', {
           type: 'warning',
-          confirmButtonText: '확인',
-          cancelButtonText: '취소'
+          confirmButtonText: this.$i18n.t('m.ok'),
+          cancelButtonText: this.$i18n.t('m.Cancel')
         }).then(() => {
           api.deleteComment(lectureId).then(res => {
             this.getCommentListPage(this.currentPage, this.limit)

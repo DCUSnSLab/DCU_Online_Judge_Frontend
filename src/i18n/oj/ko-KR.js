@@ -241,7 +241,9 @@ export const m = {
   PublicType: '공개유형',
   way_competition: '대회 진행 방식',
   // Submission
+  ID: 'ID',
   Signal: 'Signal',
+  Real_Time: 'Real Time',
   AuthorRealname: '코드 작성자',
   When: '제출 일자',
   Time: '소요 시간',
@@ -262,5 +264,14 @@ export const m = {
   qna_solved: '해결 완료',
   qna_delete: '삭제 하기',
   Enable_public_questions: '공개 질문 활성화',
-  Disable_public_questions: '공개 질문 비활성화'
+  Disable_public_questions: '공개 질문 비활성화',
+  View_Problem_detail: '문제 자세히 보기',
+  View_submit_code: '제출한 소스코드 보기',
+  Answer: '답변',
+  Each: '개씩',
+  Write: '작성',
+  Question_delete_ask: '정말로 이 질문을 삭제하시겠습니까?',
+  Cancel: '취소',
+  Comment_delete_ask: '정말로 이 댓글을 삭제하시겠습니까?',
+  Enter_answer: '답변을 입력 해주세요.'
 }
