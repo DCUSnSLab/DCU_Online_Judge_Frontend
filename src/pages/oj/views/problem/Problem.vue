@@ -96,12 +96,35 @@
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <Button v-on:click="toggleSidebar" v-if="aihelperflag" :disabled=askbutton @click.native="askAI"
-              class="fl-right">
-              <span>{{ $t('m.callai') }}</span>
+            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button @click="toggleSidebar"
+                      v-if="aihelperflag"
+                      :disabled="aiaskbutton"
+                      class="fl-right">
+                <span>{{$t('m.callai')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
+                    :disabled="aiaskbutton"
+                    @click.native="askAI"
+                    class="fl-right">
+              <span>{{$t('m.callai')}}</span>
             </Button>
-            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
-              <span>{{ $t('m.calltara') }}</span>
+
+            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
+            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button v-b-toggle.sidebar-right
+                      :disabled="askbutton"
+                      class="fl-right">
+                <span>{{$t('m.calltara')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="!askbutton" v-b-toggle.sidebar-right
+                    :disabled="askbutton"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
             </Button>
             </Col>
           </Row>
@@ -200,12 +223,36 @@
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-
-            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
-              <span>{{ $t('m.calltara') }}</span>
-
+            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button @click="toggleSidebar"
+                      v-if="aihelperflag"
+                      :disabled="aiaskbutton"
+                      class="fl-right">
+                <span>{{$t('m.callai')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
+                    :disabled="aiaskbutton"
+                    @click.native="askAI"
+                    class="fl-right">
+              <span>{{$t('m.callai')}}</span>
             </Button>
 
+            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
+            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button v-b-toggle.sidebar-right
+                      :disabled="askbutton"
+                      class="fl-right">
+                <span>{{$t('m.calltara')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="!askbutton" v-b-toggle.sidebar-right
+                    :disabled="askbutton"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
+            </Button>
             </Col>
           </Row>
         </Card>
@@ -314,8 +361,6 @@
       </Card>
     </el-col>
 
-
-
     <b-sidebar id="sidebar-right" title="Sidebar" width="500px" no-header right shadow>
       <div class="sidebar" id="wrapper">
         <el-button class="sidebar-margin" v-b-toggle.sidebar-right icon="el-icon-close" circle></el-button>
@@ -330,6 +375,21 @@
         </div>
       </div>
     </b-sidebar>
+
+    <b-sidebar id="sidebar-airight" title="Sidebar" width="500px"no-header right shadow v-bind:visible="sidebarVisible">
+          <div class="sidebar" id="wrapper">
+            <el-button class="sidebar-margin" v-on:click="toggleSidebar" icon="el-icon-close" circle></el-button>
+            <h2 class="sidebar-header">{{$t('m.aianswer')}}</h2>
+            <hr/>
+            <div class="sidebar-content" top="50%" left="50%">
+              <br/>
+              <p style= "font-size:18px">{{AIrespone}}</p>
+            </div>
+            <br/>
+            <p style="font-weight: bold">commented by chatGPT </p>
+          </div>
+        </b-sidebar>
+
     <Modal v-model="graphVisible">
       <div id="pieChart-detail">
         <ECharts :options="largePie" :initOptions="largePieInitOpts"></ECharts>
@@ -384,8 +444,8 @@
         contestID: '',
         problemID: '',
         lectureID: '',
-        askbutton: false,
-        aiaskbutton: false,
+        askbutton: true,
+        aiaskbutton: true,
         aihelperflag: false,
         submitting: false,
         AIrespone: '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.',
@@ -526,8 +586,6 @@
           this.code = res.data.data.code
           this.submissionId = res.data.data.id
         }).catch(() => {
-          this.askbutton = true
-          this.aiaskbutton = true
         })
       },
       CheckContestExit () {  // working by soojung

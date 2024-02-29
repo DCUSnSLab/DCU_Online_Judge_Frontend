@@ -19,12 +19,10 @@
                 <span>{{ yearsort }} {{$t('m.Year')}} <Icon type="arrow-down-b"></Icon>
                 </span>
                 <!-- 구현 예정 -->
-                <Dropdown-menu slot="list">
-                  <Dropdown-item name="2020">2020</Dropdown-item>
-                  <Dropdown-item name="2021">2021</Dropdown-item>
-                  <Dropdown-item name="2022">2022</Dropdown-item>
-                  <Dropdown-item name="2023">2023</Dropdown-item>
-                  <Dropdown-item name="2024">2024</Dropdown-item>
+                <Dropdown-menu slot="list"> <!-- 년도 자동추가 (5년전~현재년도) -->
+                  <Dropdown-item v-for="year in selectableYears" :key="year" :name="year">
+                    {{ year }}
+                  </Dropdown-item>
                 </Dropdown-menu>
               </Dropdown>
             </Col>
@@ -109,6 +107,7 @@
         page: 1,
         yearsort: 2020,
         semestersort: 1,
+        selectableYears: [],
         profsort: 0,
         query: {
           status: '',
@@ -142,6 +141,7 @@
       this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
       console.log(this.semestersort)
       this.yearsort = d.getFullYear()
+      this.initSelectableYears()
     },
     methods: {
       init () {
@@ -215,6 +215,12 @@
       },
       getDuration (startTime, endTime) {
         return time.duration(startTime, endTime)
+      },
+      initSelectableYears () { // 년도 자동추가 (5년전~현재년도)
+        const currentYear = new Date().getFullYear()
+        for (let year = currentYear; year >= currentYear - 5; year--) {
+          this.selectableYears.push(year.toString())
+        }
       }
     },
     computed: {
@@ -291,5 +297,4 @@
       }
     }
   }
-
 </style>
