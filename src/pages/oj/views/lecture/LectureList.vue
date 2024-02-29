@@ -15,22 +15,22 @@
         <li><!--표시될 개설과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="2" style="text-align: center">
-                <span>{{ yearsort }} 년도</span>
+                <span>{{ yearsort }} {{$t('m.Year')}}</span>
             </Col>
             <Col v-if="semestersort < 3" :span="1" style="text-align: center">
-                <span>{{ semestersort }} 학기</span>
+                <span>{{ semestersort }} {{$t('m.Semester')}}</span>
             </Col>
             <Col v-else :span="1" style="text-align: center">
               <span style="font-size: 15px">입학 전 <br>프로그램</span>
             </Col>
             <Col :span="12">
-              <p>과목명</p>
+              <p>{{$t('m.Subject')}}</p>
             </Col>
             <Col :span="1">
-              <p>담당교수</p>
+              <p>{{$t('m.Professors')}}</p>
 			      </Col>
             <Col :span="4" style="text-align: center">
-              수강신청 상태
+              {{$t('m.Lecture_registration_status')}}
 			      </Col>
           </Row>
         </li>
@@ -53,7 +53,7 @@
               {{ lecture.created_by.realname }}
 			      </Col>
             <Col :span="4" style="text-align: center">
-              <Button @click="applylecture(lecture)">수강신청</Button>
+              <Button @click="applylecture(lecture)">{{$t('m.Lecture_Apply')}}</Button>
 			      </Col>
           </Row>
         </li>
@@ -153,7 +153,7 @@
       },
       applylecture (lecture) {
         if (!this.user.username) {
-          this.$error('로그인 후 가능합니다.')
+          this.$error(this.$i18n.t('m.Please_login_first'))
         } else {
           let data = {
             lecture_id: lecture.id,
@@ -165,7 +165,7 @@
           console.log(data)
           api.applyLecture(data).then(res => {
             this.getLectureList(this.page)
-            this.$success('Success')
+            this.$success(this.$i18n.t('m.Succeeded'))
           })
         }
       },

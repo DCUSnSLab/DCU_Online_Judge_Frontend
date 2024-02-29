@@ -2,7 +2,7 @@
   <Row type="flex">
     <Col :span="24">
     <Panel id="contest-card" shadow>
-      <div slot="title">{{ this.lecture_title }} <p>개설자 : {{ this.lecture_creator }}</p></div><!--LectureList.vue에서 보낸 수강과목 title 값-->
+      <div slot="title">{{ this.lecture_title }} <p>{{$t('m.Created')}} : {{ this.lecture_creator }}</p></div><!--LectureList.vue에서 보낸 수강과목 title 값-->
       <div slot="extra">
         <ul class="filter">
           <li>
@@ -54,15 +54,15 @@
             <ul class="detail">
               <li>
                 <Icon type="calendar" color="#3091f2"></Icon>
-                시작일 : {{ contest.start_time | localtime('YYYY-M-D HH:mm') }}
+                {{$t('m.StartDate')}} : {{ contest.start_time | localtime('YYYY-M-D HH:mm') }}
               </li>
               <li>
                 <Icon type="calendar" color="#3091f2"></Icon>
-                종료일 : {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
+                {{$t('m.EndDate')}} : {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
               </li>
               <li>
                 <Icon type="android-time" color="#3091f2"></Icon>
-                남은시간 : {{ remainDuration(contest.end_time) }}
+                {{$t('m.Remaining_Time')}} : {{ remainDuration(contest.end_time) }}
               </li>
               <!--<li>
                 <Icon type="android-time" color="#3091f2"></Icon>
@@ -193,7 +193,7 @@
       remainDuration (endTime) {
         let remain
         if (new Date() - new Date(endTime) > 0) {
-          remain = '종료됨'
+          remain = (this.$i18n.t('m.Ended'))
           // console.log('이미 지남')
         } else {
           remain = time.duration(new Date(), endTime)
@@ -204,7 +204,7 @@
           let diffDay = Math.floor(dateGap / (1000 * 60 * 60 * 24))
           let diffHour = timeGap.getHours()
           let diffMin = timeGap.getMinutes()
-          return diffDay + '일' + diffHour + '시간' + diffMin + '분'
+          return diffDay + (this.$i18n.t('m.Day')) + diffHour + (this.$i18n.t('m.Hour')) + diffMin + (this.$i18n.t('m.Minute'))
           // console.log('안 지남')
         }
         return remain

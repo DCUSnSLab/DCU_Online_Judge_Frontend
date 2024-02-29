@@ -120,5 +120,22 @@ export const m = {
   Welcome_to_Login: 'Welcome to Login',
   GO: 'GO',
   username: 'username',
-  password: 'password'
+  password: 'password',
+
+  // Temporary translations
+  AI_helper_flag: 'AI Assistants',
+  Contests_List: 'Contests List',
+  Create_Contests: 'Create Contests',
+  Create_Lecture: 'Create Lecture',
+  Lecture: 'Lecture',
+  Lecture_List: 'Lecture List',
+  Lecture_Year: 'Lecture Year',
+  Lecture_Semester: 'Lecture Semester',
+  Lecture_Founder: 'Lecture Creator',
+  LectureTitle: 'Lecture Title',
+  LectureDescription: 'Lecture Description',
+  LectureStatus: 'Lecture Status(Visibility)',
+  LectureContestType: 'Contest Type',
+  Private_Contest: 'Private Contest',
+  WeeklyContest_List: 'Weekly Contest List'
 }

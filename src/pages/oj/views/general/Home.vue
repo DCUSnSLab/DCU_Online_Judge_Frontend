@@ -13,17 +13,19 @@
     <Col :span="22">
       <panel>
         <div slot="title">
-          DCU Code 사용 메뉴얼 (학생용)
-          <Button style="float: right" type="info"><a href="/static/manual.pdf" download>다운로드</a></Button>
+          {{$t('m.DCU_Code_Usage_manual_student')}}
+          <!-- DCU Code 사용 메뉴얼 (학생용) -->
+          <Button style="float: right" type="info"><a href="/static/manual.pdf" download>{{$t('m.Download')}}</a></Button>
         </div>
       </panel>
     </Col>
     <Col :span="22">
       <panel>
         <div slot="title">
-          DCU Code 소개 영상
-          <Button style="float: right" type="info" v-if="!detail" @click="showDetail">자세히 보기</Button>
-          <Button style="float: right" type="info" v-else @click="showDetail">페이지 최소화</Button>
+          {{$t('m.DCU_Code_Intro_video')}}
+          <!-- DCU Code 소개 영상 -->
+          <Button style="float: right" type="info" v-if="!detail" @click="showDetail">{{$t('m.Detail')}}</Button>
+          <Button style="float: right" type="info" v-else @click="showDetail">{{$t('m.Minimization')}}</Button>
         </div>
         <p v-if="detail" align="middle">
           <iframe width="789" height="444" src="https://www.youtube.com/embed/6kaNUXN951c" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -33,7 +35,8 @@
     <Col :span="22">
       <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
         <div slot="title">
-          나의 수강과목 진행 현황
+          {{$t('m.My_Course_Progress')}}
+          <!-- 나의 수강과목 진행 현황 -->
         </div>
         <!-- DivTable.com -->
         <!-- <template v-for="pie in pielist"> -->
@@ -53,24 +56,24 @@
                       </el-card>
                     </el-col>
                     <el-col :span="12">
-                      <h2 style="padding-bottom:10px">진행중인 실습 및 과제</h2>
+                      <h2 style="padding-bottom:10px">{{$t('m.Ongoing_practice_assignments')}}</h2>
                       <el-card v-if="clsize > 0" shadow="always">
                         <ul class="announcements-container" key="list">
                           <li>
                             <div class="flex-container">
                               <div class="title">
                                 <div class="entry">
-                                  <strong>실습/과제</strong>
+                                  <strong>{{$t('m.Practice_assignment')}}</strong>
                                 </div>
                               </div>
                               <div class="date">
-                                <strong>종료일</strong>
+                                <strong>{{$t('m.EndDate')}}</strong>
                               </div>
                               <div class="creator">
-                                <strong>남은 기간</strong>
+                                <strong>{{$t('m.Remaining_Day')}}</strong>
                               </div>
                               <div class="problem">
-                                <strong>남은 문제 수</strong>
+                                <strong>{{$t('m.Num_of_Problem_Remaining')}}</strong>
                               </div>
                             </div>
                           </li>
@@ -95,7 +98,7 @@
                         </ul>
                       </el-card>
                       <el-card v-else style="text-align:center">
-                        <strong>없음</strong>
+                        <strong>{{$t('m.No_Ongoing')}}</strong>
                       </el-card>
                     </el-col>
                   </el-row>
@@ -116,7 +119,7 @@
                 <Input v-model="formProfile.schoolssn"/>
               </Form-item>
               <Form-item>
-                <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">저장하기</Button>
+                <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">{{$t('m.Save')}}</Button>
               </Form-item>
             </Col>
           </Row>

@@ -25,19 +25,19 @@
 
         <el-table-column prop="id" label="ID"></el-table-column>
 
-        <el-table-column prop="realname" label="이름"></el-table-column>
+        <el-table-column prop="realname" :label="$t('m.Realname')"></el-table-column>
 
-        <el-table-column prop="username" label="ID"></el-table-column>
+        <el-table-column prop="username" label="t('m.Username')"></el-table-column>
 
-        <el-table-column prop="schoolssn" label="학번 / 교직번호"></el-table-column>
+        <el-table-column prop="schoolssn" label="t('m.Schoolssn')"></el-table-column>
 
-        <el-table-column prop="create_time" label="계정 생성일">
+        <el-table-column prop="create_time" :label="$t('m.Create_time')">
           <template slot-scope="scope">
             {{scope.row.create_time | localtime }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="last_login" label="마지막 접속일">
+        <el-table-column prop="last_login" :label="$t('m.Last_Login')">
           <template slot-scope="scope">
             {{scope.row.last_login | localtime }}
           </template>
@@ -45,7 +45,7 @@
 
         <el-table-column prop="email" label="Email"></el-table-column>
 
-        <el-table-column prop="admin_type" label="사용자 권한">
+        <el-table-column prop="admin_type" :label="$t('m.Admin_type')">
           <template slot-scope="scope">
             <span v-if="scope.row.admin_type === 'Regular User'">
               학생
@@ -62,7 +62,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="선택사항" width="200">
+        <el-table-column fixed="right" :label="$t('m.Options')" width="200">
           <template slot-scope="{row}">
             <icon-btn name="편집" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
             <icon-btn name="삭제" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
@@ -137,29 +137,29 @@
       <el-form :model="formGenerateUser" ref="formGenerateUser">
         <el-row type="flex" justify="space-between">
           <el-col :span="4">
-            <el-form-item label="접두어" prop="prefix">
+            <el-form-item :label="$t('m.Usergenerate_prefix')" prop="prefix">
               <el-input v-model="formGenerateUser.prefix" placeholder="접두어"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="접미어" prop="suffix">
+            <el-form-item :label="$t('m.Usergenerate_suffix')" prop="suffix">
               <el-input v-model="formGenerateUser.suffix" placeholder="접미어"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="시작 번호" prop="number_from" required>
+            <el-form-item :label="$t('m.Usergenerate_number_from')" prop="number_from" required>
               <el-input-number v-model="formGenerateUser.number_from" style="width: 100%"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="끝 번호" prop="number_to" required>
+            <el-form-item :label="$t('m.Usergenerate_number_to')" prop="number_to" required>
               <el-input-number v-model="formGenerateUser.number_to" style="width: 100%"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="비밀번호 길이" prop="password_length" required>
+            <el-form-item :label="$t('m.Usergenerate_passwd_len')" prop="password_length" required>
               <el-input v-model="formGenerateUser.password_length"
-                        placeholder="비밀번호 길이"></el-input>
+                        :placeholder="$t('m.Usergenerate_passwd_len')"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -207,19 +207,19 @@
           <el-col :span="12">
             <el-form-item :label="$t('m.User_Type')">
               <el-select v-model="user.admin_type">
-                <el-option label="학생" value="Regular User"></el-option>
-                <el-option label="TA/RA" value="TA_Admin"></el-option>
-                <el-option label="교수" value="Admin"></el-option>
-                <el-option label="관리자" value="Super Admin"></el-option>
+                <el-option :label="$t('m.Student')" value="Regular User"></el-option>
+                <el-option :label="$t('m.TA/RA')" value="TA_Admin"></el-option>
+                <el-option :label="$t('m.Professor')" value="Admin"></el-option>
+                <el-option :label="$t('m.Admin')" value="Super Admin"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('m.Problem_Permission')">
               <el-select v-model="user.problem_permission" :disabled="user.admin_type!=='Admin|TA_Admin'">
-                <el-option label="승인불가" value="None"></el-option>
-                <el-option label="자신만" value="Own"></el-option>
-                <el-option label="모든사람" value="All"></el-option>
+                <el-option :label="$t('m.Permission_None')" value="None"></el-option>
+                <el-option :label="$t('m.Own')" value="Own"></el-option>
+                <el-option :label="$t('m.Permission_All')" value="All"></el-option>
               </el-select>
             </el-form-item>
           </el-col>

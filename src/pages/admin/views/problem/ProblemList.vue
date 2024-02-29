@@ -1,14 +1,14 @@
 <template>
   <div class="view">
     <Panel :title="contestId ? this.$i18n.t('m.Contest_Problem_List') : this.$i18n.t('m.Problem_List')">
-      <div>
-        강의명 : {{ this.lectureTitle }}
+      <div v-if=this.lectureTitle>
+        {{ $t('m.Lecture_title') }} : {{ this.lectureTitle }}
       </div>
-      <div>
-        실습, 과제 : {{ this.contestTitle }}
+      <div v-if=this.contestTitle>
+        {{ $t('m.Contest_title') }} : {{ this.contestTitle }}
       </div>
-      <div>
-        담당교수 : {{ this.lectureCreator }}
+      <div v-if=this.lectureCreator>
+        {{ $t('m.Assigned_professor') }} : {{ this.lectureCreator }}
       </div>
       <div slot="header">
         <el-inputD
