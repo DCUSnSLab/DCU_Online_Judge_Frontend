@@ -124,7 +124,8 @@
         this.mode = mode
         this.editor.setOption('mode', this.mode[this.language])
       })
-      this.editor.focus()
+      // this.editor.focus()
+      // 문제 페이지에서 세로 모드 시에 자동으로 code mirror 컴포넌트에 포커스가 잡혀 페이지가 내려가는 문제로 인해 주석 처리 - 한백
     },
     methods: {
       initializeHeight () { // 초기화

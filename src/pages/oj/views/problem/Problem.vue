@@ -302,7 +302,6 @@
           </li>
         </ul>
       </Card>
-
       <Card id="pieChart" :padding="0" v-if="!this.contestID || OIContestRealTimePermission">
         <div slot="title">
           <Icon type="ios-analytics"></Icon>
@@ -373,7 +372,7 @@
     mixins: [FormMixin],
     data () {
       return {
-        toggleValue: false, // 가로 세로 모드 토글 버튼
+        toggleValue: window.localStorage.getItem('viewMode') ? JSON.parse(window.localStorage.getItem('viewMode')) : false, // 가로 세로 모드 토글 버튼
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -454,10 +453,11 @@
       },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
-        if (!newToggleValue) {
-          window.scrollTo(0, 0)
+        if (this.toggleValue) {
+          window.localStorage.setItem('viewMode', true)
+        } else {
+          window.localStorage.setItem('viewMode', false)
         }
-        console.log(newToggleValue)
       },
       ...mapActions(['changeDomTitle']),
       getLectureID () {
