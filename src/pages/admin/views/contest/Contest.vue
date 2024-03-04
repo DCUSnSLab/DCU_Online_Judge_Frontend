@@ -111,7 +111,7 @@
     },
     data () {
       return {
-        title: '실습, 과제, 대회 생성',
+        title: this.$t('m.Contest_Create_Title'),
         disableRuleType: false,
         disableLectureContestType: false,
         contest: {
@@ -174,7 +174,7 @@
     },
     mounted () {
       if (this.$route.name === 'edit-contest') {
-        this.title = '실습, 과제, 대회 수정'
+        this.title = this.$t('m.Contest_Edit_Title')
         this.disableRuleType = true
         this.disableLectureContestType = true
         api.getContest(this.$route.params.contestId).then(res => {
@@ -195,7 +195,7 @@
       } else if (this.$route.name === 'create-lecture-contest') {
         this.lecture_id = this.$route.params.lectureId
         console.log(this.lecture_id)
-        this.title = '실습, 과제, 대회 생성'
+        this.title = this.$t('m.Contest_Create_Title')
       }
     }
   }

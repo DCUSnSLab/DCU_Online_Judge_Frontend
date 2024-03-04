@@ -20,15 +20,15 @@
       <el-col :span="12">
         <el-input
           v-model="keyword"
-          placeholder="$t('m.Lecture_Search')"
+          :placeholder="$t('m.Lecture_Search')"
           width="100">
         </el-input>
       </el-col>
       <el-col :span="2">
-        <el-button @click="searchLecture">{{$t('m.Search')}}</el-button>
+        <el-button @click="searchLecture">{{$t('m.Lecture_Search')}}</el-button>
       </el-col>
       <el-col :span="4">
-        <el-checkbox v-model="showPublic" label="$t('m.See_All_Lecture')" border></el-checkbox>
+        <el-checkbox v-model="showPublic" :label="$t('m.CopyPublickContest_All_Lecture')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
       </el-col>
     </el-row>
@@ -39,16 +39,16 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="$t('m.Maker')"
+        :label="$t('m.StudentList_Creator')"
         width="70"
         prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="$t('m.LectureTitle')"
+        :label="$t('m.Lecture_title')"
         prop="title">
       </el-table-column>
       <el-table-column
-        label="$t('m.Add')"
+        :label="$t('m.Add')"
         align="center"
         width="100"
         fixed="right">

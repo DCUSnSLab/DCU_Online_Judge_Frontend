@@ -20,15 +20,15 @@
       <el-col :span="12">
         <el-input
           v-model="keyword"
-          placeholder="$t('m.Lecture_Search')"
+          :placeholder="$t('m.Lecture_Search')"
           width="100">
         </el-input>
       </el-col>
       <el-col :span="2">
-        <el-button @click="searchLecture">{{$t('m.Search')}}</el-button>
+        <el-button @click="searchLecture">{{$t('m.Lecture_Search')}}</el-button>
       </el-col>
       <el-col :span="4">
-        <el-checkbox @change="handleVisibleSwitch" v-model="showPublic" label="전체 실습 보기" border></el-checkbox>
+        <el-checkbox @change="handleVisibleSwitch" v-model="showPublic" :label="$t('m.AddPublickContest_All_Practice')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
       </el-col>
     </el-row>
@@ -39,28 +39,28 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="$t('m.Maker')"
+        :label="$t('m.StudentList_Creator')"
         width="70"
         prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="$t('m.Make_Date')"
+        :label="$t('m.ProblemList_Creation_Date')"
         width="150">
         <template slot-scope="props">
           {{ props.row.create_time | localtime }}
         </template>
       </el-table-column>
       <el-table-column
-        label="$t('m.InCourses')"
+        :label="$t('m.Lecture_title')"
         width="200"
         prop="lecture_title">
       </el-table-column>
       <el-table-column
-        label="$t('m.PublicTitle')"
+        :label="$t('m.Contest_title')"
         prop="title">
       </el-table-column>
       <el-table-column
-        label="$t('m.DetailSet')"
+        :label="$t('m.DetailSet')"
         align="center"
         width="200"
         fixed="right">
@@ -84,7 +84,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="$t('m.Add')"
+        :label="$t('m.Add')"
         align="center"
         width="100"
         fixed="right">

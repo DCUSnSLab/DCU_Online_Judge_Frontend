@@ -14,17 +14,17 @@
         <hr/>
         <div class="last-info">
           <p class="last-info-title">{{$t('m.Last_Login')}}</p>
-          <el-form label-width="80px" class="last-info-body">
-            <el-form-item label="접속시간:">
+          <el-form label-width="140px" class="last-info-body">
+            <el-form-item :label="$t('m.Access_time')">
               <span>{{session.last_activity | localtime}}</span>
             </el-form-item>
-            <el-form-item label="IP주소:">
+            <el-form-item :label="$t('m.IP_address')">
               <span>{{session.ip}}</span>
             </el-form-item>
-            <el-form-item label="운영체제:">
+            <el-form-item :label="$t('m.OS')">
               <span>{{os}}</span>
             </el-form-item>
-            <el-form-item label="브라우저:">
+            <el-form-item :label="$t('m.Browser')">
               <span>{{browser}}</span>
             </el-form-item>
           </el-form>
@@ -34,17 +34,17 @@
         <p>{{$t('m.DashBoardJudge_Server')}}:  {{infoData.judge_server_count}}</p>
         <p>{{$t('m.HTTPS_Status')}}:
           <el-tag :type="https ? 'success' : 'danger'" size="small">
-            {{ https ? '활성화' : '비활성화'}}
+            {{ https ? $t('m.Enable') : $t('m.Disabled')}}
           </el-tag>
         </p>
         <p>{{$t('m.Force_HTTPS')}}:
           <el-tag :type="forceHttps ? 'success' : 'danger'" size="small">
-            {{forceHttps ? '활성화' : '비활성화'}}
+            {{forceHttps ? $t('m.Enable') : $t('m.Disabled')}}
           </el-tag>
         </p>
         <p>{{$t('m.CDN_HOST')}}:
           <el-tag :type="cdn ? 'success' : 'warning'" size="small">
-            {{cdn ? cdn : '사용하지 않음'}}
+            {{cdn ? cdn : $t('m.Not_used')}}
           </el-tag>
         </p>
       </panel>
@@ -52,19 +52,20 @@
 
     <el-col :md="14" :lg="16" v-if="isSuperAdmin">
       <div class="info-container">
-        <info-card color="#909399" icon="el-icon-fa-users" message="전체 사용자 수" iconSize="30px" class="info-item"
+        <info-card color="#909399" icon="el-icon-fa-users" :message=" $t('m.Total_users')" iconSize="30px" class="info-item"
                    :value="infoData.user_count"></info-card>
-        <info-card color="#67C23A" icon="el-icon-fa-list" message="오늘 제출한 소스코드 수" class="info-item"
+        <info-card color="#67C23A" icon="el-icon-fa-list" :message=" $t('m.Today_submit_source_num')" class="info-item" 
                    :value="infoData.today_submission_count"></info-card>
-        <info-card color="#409EFF" icon="el-icon-fa-trophy" message="최근 과제 및 실습" class="info-item"
+        <info-card color="#409EFF" icon="el-icon-fa-trophy" :message=" $t('m.Recent_assignments_and_labs')" class="info-item"
                    :value="infoData.recent_contest_count"></info-card>
       </div>
       <panel style="margin-top: 5px">
-        <span slot="title" v-loading="loadingReleases">릴리스 노트(release note)
+        <span slot="title" v-loading="loadingReleases">{{ $t('m.Release_note') }}
+
         <el-popover placement="right" trigger="hover">
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
-          <p>새로운 기능을 이용하려면 최신 버전으로 업그레이드하십시오. </p>
-          <p>참고: <a href="http://docs.onlinejudge.me/#/onlinejudge/guide/upgrade" target="_blank">
+          <p>{{ $t('m.upgradePrompt') }}</p>
+          <p>{{ $t('m.note') }} <a href="http://docs.onlinejudge.me/#/onlinejudge/guide/upgrade" target="_blank">
           http://docs.onlinejudge.me/#/onlinejudge/guide/upgrade</a>
           </p>
         </el-popover>
@@ -74,12 +75,12 @@
           <el-collapse-item :name="index+1">
             <template slot="title">
               <div v-if="release.new_version">{{release.title}}
-                <el-tag size="mini" type="success">최신 버전</el-tag>
+                <el-tag size="mini" type="success">{{$t('m.latestVersion')}}</el-tag>
               </div>
               <span v-else>{{release.title}}</span>
             </template>
-            <p>권장 수준: {{release.level}}</p>
-            <p>세부사항: </p>
+            <p>{{$t('m.recommendedLevel')}} {{release.level}}</p>
+            <p>{{$t('m.details')}}</p>
             <div class="release-body">
               <ul v-for="detail in release.details" :key="detail">
                 <li v-html="detail"></li>

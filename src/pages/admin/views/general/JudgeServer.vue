@@ -23,7 +23,7 @@
         </el-table-column>
         <el-table-column
           prop="status"
-          label="상태">
+          :label="$t('m.JudgeServer_Status')">
           <template slot-scope="scope">
             <el-tag
               :type="scope.row.status === 'normal' ? 'success' : 'danger'">
@@ -33,36 +33,36 @@
         </el-table-column>
         <el-table-column
           prop="hostname"
-          label="사용자명">
+          :label="$t('m.JudgeServer_Username')">
         </el-table-column>
         <el-table-column
           prop="task_number"
-          label="작업 번호">
+          :label="$t('m.JudgeServer_Task_Number')">
         </el-table-column>
         <el-table-column
           prop="cpu_core"
-          label="CPU 코어">
+          :label="$t('m.JudgeServer_CPU_Core')">
         </el-table-column>
         <el-table-column
           prop="cpu_usage"
-          label="CPU 사용률">
+          :label="$t('m.JudgeServer_CPU_Usage')">
           <template slot-scope="scope">{{ scope.row.cpu_usage }}%</template>
         </el-table-column>
         <el-table-column
           prop="memory_usage"
-          label="메모리 사용률">
+          :label="$t('m.JudgeServer_Memory_Usage')">
           <template slot-scope="scope">{{ scope.row.memory_usage }}%</template>
         </el-table-column>
-        <el-table-column label="비활성화">
+        <el-table-column :label="$t('m.JudgeServer_Disabled')">
           <template slot-scope="{row}">
             <el-switch v-model="row.is_disabled" @change="handleDisabledSwitch(row.id, row.is_disabled)"></el-switch>
           </template>
         </el-table-column>
         <el-table-column
           fixed="right"
-          label="선택사항">
+          :label="$t('m.JudgeServer_Options')">
           <template slot-scope="scope">
-            <icon-btn name="삭제" icon="trash" @click.native="deleteJudgeServer(scope.row.hostname)"></icon-btn>
+            <icon-btn :name="$t('m.JudgeServer_Delete')" icon="trash" @click.native="deleteJudgeServer(scope.row.hostname)"></icon-btn>
           </template>
         </el-table-column>
       </el-table>
@@ -96,9 +96,9 @@
         })
       },
       deleteJudgeServer (hostname) {
-        this.$confirm('이 채점 서버를 삭제하면 다음 하트 비트까지 사용할 수 없습니다.', '경고', {
-          confirmButtonText: '삭제',
-          cancelButtonText: '취소',
+        this.$confirm(this.$t('m.JudgeServer_Delete_Alert'), this.$t('m.Alert_Warning'), {
+          confirmButtonText: this.$t('m.JudgeServer_Delete'),
+          cancelButtonText: this.$t('m.JudgeServer_Delete_Cancel'),
           type: 'warning'
         }).then(() => {
           api.deleteJudgeServer(hostname).then(res =>

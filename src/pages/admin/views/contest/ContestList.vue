@@ -22,10 +22,10 @@
         style="width: 100%">
         <el-table-column type="expand">
           <template slot-scope="props">
-            <p>Start Time: {{props.row.start_time | localtime }}</p>
-            <p>End Time: {{props.row.end_time | localtime }}</p>
-            <p>Create Time: {{props.row.create_time | localtime}}</p>
-            <p>Creator: {{props.row.created_by.username}}</p>
+            <p>{{ $t('m.Contest_Start_Time')}} : {{props.row.start_time | localtime }}</p>
+            <p>{{ $t('m.Contest_End_Time')}}: {{props.row.end_time | localtime }}</p>
+            <p>{{ $t('m.Contest_Create_Time')}}: {{props.row.create_time | localtime}}</p>
+            <p>{{ $t('m.Contest_Ccreator')}}: {{props.row.created_by.username}}</p>
           </template>
         </el-table-column>
         <el-table-column
@@ -36,21 +36,21 @@
         <el-table-column
           v-if="!this.lectureId"
           prop="lecture_title"
-          :label="$t('m.Assigned_lecture')">
+          :label="$t('m.Contest_Assigned_lecture')">
         </el-table-column>
         <el-table-column
           prop="title"
-          :label="$t('m.Assigned_lecture_title')">
+          :label="$t('m.Contest_Assigned_lecture_title')">
         </el-table-column>
         <el-table-column
-          :label="$t('m.Contest_rule_type')"
+          :label="$t('m.Contest_Contest_rule_type')"
           width="100">
           <template slot-scope="scope">
             <el-tag type="gray">{{scope.row.rule_type}}</el-tag>
           </template>
         </el-table-column>
         <el-table-column
-          :label="$t('m.Contest_type')"
+          :label="$t('m.Contest_Type')"
           width="120">
           <template slot-scope="scope">
             <el-tag :type="scope.row.contest_type === 'Public' ? 'success' : 'primary'">
@@ -70,7 +70,7 @@
         </el-table-column>
         <el-table-column
           width="80"
-          :label="$t('m.Visible')">
+          :label="$t('m.Contest_Visible')">
           <template slot-scope="scope">
             <el-switch v-model="scope.row.visible"
                        active-text=""
@@ -84,15 +84,15 @@
           width="280"
           label="">
           <div slot-scope="scope">
-            <icon-btn name="실습, 과제, 대회 수정" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
-            <icon-btn name="문제 목록" icon="list-ol" @click.native="goContestProblemList(scope.row.id)"></icon-btn>
-            <icon-btn name="실습, 과제 공지사항" icon="info-circle"
+            <icon-btn :name="$t('m.ContestList_Edit_Contest')" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
+            <icon-btn :name="$t('m.ContestList_Problem_List')" icon="list-ol" @click.native="goContestProblemList(scope.row.id)"></icon-btn>
+            <icon-btn :name="$t('m.ContestList_Contest_Announcement')" icon="info-circle"
                       @click.native="goContestAnnouncement(scope.row.id)"></icon-btn>
-            <icon-btn name="통과한 제출 목록 내려받기" icon="download"
+            <icon-btn :name="$t('m.ContestList_Download_Pass_Submissions')" icon="download"
                       @click.native="openDownloadOptions(scope.row.id)"></icon-btn>
-            <icon-btn name="실습, 과제 삭제" icon="trash" @click.native="deleteContest(scope.row.id)"></icon-btn>
-            <el-tooltip v-if="scope.row.private" class="item" effect="dark" content="대회 접근 권한" placement="top">
-              <el-button name="대회 접근 권한" size="mini" icon="el-icon-user" @click.native="goContestStudentList(scope.row.id, scope.row.title)"></el-button>
+            <icon-btn :name="$t('m.ContestList_Delete_Contest')" icon="trash" @click.native="deleteContest(scope.row.id)"></icon-btn>
+            <el-tooltip v-if="scope.row.private" class="item" effect="dark" :content="$t('m.ContestList_Contest_Access')" placement="top">
+              <el-button :name="$t('m.ContestList_Contest_Access')" size="mini" icon="el-icon-user" @click.native="goContestStudentList(scope.row.id, scope.row.title)"></el-button>
             </el-tooltip>
             <!--<icon-btn name="대회 접근 권한" icon="el-icon-user" @click.native="deleteContest(scope.row.id)"></icon-btn>-->
           </div>
@@ -101,15 +101,15 @@
       <div class="panel-options">
         <el-button v-if="lectureId"
                    type="primary" size="small"
-                   @click="goCreateContest" icon="el-icon-plus">강의 생성
+                   @click="goCreateContest" icon="el-icon-plus"> {{ $t('m.ContestList_Create_Lecture') }}
         </el-button>
         <el-button v-if="lectureId" type="primary"
                    size="small" icon="el-icon-plus"
-                   @click="addContestDialogVisible = true">실습, 과제 가져오기
+                   @click="addContestDialogVisible = true"> {{ $t('m.ContestList_Import_Contest') }}
         </el-button>
         <el-button v-if="lectureId" type="primary"
                    size="small" icon="el-icon-plus"
-                   @click="addLectureDialogVisible = true">과목 전체 복사
+                   @click="addLectureDialogVisible = true"> {{ $t('m.ContestList_Copy_Lecture') }}
         </el-button>
         <el-pagination
           class="page"
@@ -120,7 +120,7 @@
         </el-pagination>
       </div>
     </Panel>
-    <el-dialog title="Download Contest Submissions"
+    <el-dialog :title="$t('m.ContestList_Download_Contest_Submissions')"
                width="30%"
                :visible.sync="downloadDialogVisible">
       <el-switch v-model="excludeAdmin" active-text="Exclude admin submissions"></el-switch>
@@ -136,7 +136,7 @@
                @close-on-click-modal="false">
       <add-contest-component :lectureID="lectureId" @on-change="getContestList"></add-contest-component>
     </el-dialog>
-    <el-dialog title="과목 전체 복사"
+    <el-dialog :title="$t('m.ContestList_Copy_Lecture')"
                v-if="lectureId"
                width="80%"
                :modal-append-to-body='true'
@@ -226,7 +226,7 @@
         })
       },
       deleteContest (id) {
-        this.$confirm('정말로 이 강의를 삭제하시겠습니까?', 'confirm', {
+        this.$confirm(this.$t('m.ContestList_Delete_Msg'), this.$t('m.ContestList_Delete_Title'), {
           type: 'warning'
         }).then(() => {
           api.deleteContest(id).then(res => {

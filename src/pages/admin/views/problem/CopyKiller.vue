@@ -1,28 +1,28 @@
 <template>
     <div>
-        <Panel title="CopyKiller based on JPlag">
+        <Panel :title="$t('m.CopyKiller_Title')">
             <el-tabs v-model="activeName" @tab-click="handleClick">
-                <el-tab-pane label="Single Lecture" name="first">
+                <el-tab-pane :label="$t('m.CopyKiller_Single_Lecture_Tab')" name="first">
                     <div v-loading="loading">
-                        선택 과목 CopyKiller 수행 <el-button type="primary" icon="el-icon-download" @click.native="single_download"></el-button>
+                      {{$t('m.CopyKiller_Perform_Single')}} <el-button type="primary" icon="el-icon-download" @click.native="single_download"></el-button>
                     </div>
                 </el-tab-pane>
-                <el-tab-pane label="Multiple Lecture" name="second" :disable=check>
+                <el-tab-pane :label="$t('m.CopyKiller_Multiple_Lecture_Tab')" name="second" :disable=check>
                     <br/>
                     <el-row>
                         <el-col :span="4">
-                            <h3 style="margin: 10px">다중 과목 CopyKiller 수행</h3>
+                            <h3 style="margin: 10px">{{$t('m.CopyKiller_Perform_Multiple')}}</h3>
                         </el-col>
                         <el-col :span="4">
                             <el-input v-model="keyword"
                               prefix-icon="el-icon-search"
                                @keyup.enter.native="searchProblem"
-                              placeholder="유사과목 키워드 검색">
+                               :placeholder="$t('m.CopyKiller_Search_Keyword')">
                             </el-input>
                         </el-col>
                         <el-col :span="2">
                             <el-button type="primary" size="small" style="margin: 4px"
-                                       @click="searchProblem" icon="el-icon-search">검색
+                                       @click="searchProblem" icon="el-icon-search">{{$t('m.CopyKiller_Search')}}
                             </el-button>
                         </el-col>
                     </el-row>
@@ -35,14 +35,14 @@
                           key: 'value',
                           label: 'desc'
                         }"
-                        :titles="['검색 리스트', 'CopyKiller 대상']"
+                        :titles="[$t('m.CopyKiller_Search_List'), $t('m.CopyKiller_Target')]"
                         @change="handleChange"
                         :format="{
                           noChecked: '${total}',
                           hasChecked: '${checked}/${total}'
                         }"
                         :data="data">
-                        <el-button class="transfer-footer" slot="right-footer" @click="multiple_download" size="small">CopyKiller 실행</el-button>
+                        <el-button class="transfer-footer" slot="right-footer" @click="multiple_download" size="small">{{$t('m.CopyKiller_Execute')}}</el-button>
                     </el-transfer>
                 </el-tab-pane>
               </el-tabs>
