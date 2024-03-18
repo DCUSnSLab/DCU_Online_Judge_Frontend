@@ -218,7 +218,7 @@
       },
       initSelectableYears () { // 년도 자동추가 (5년전~현재년도)
         const currentYear = new Date().getFullYear()
-        for (let year = currentYear; year >= currentYear - 5; year--) {
+        for (let year = currentYear; year >= 2019; year--) {
           this.selectableYears.push(year.toString())
         }
       }
