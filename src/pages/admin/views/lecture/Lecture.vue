@@ -118,10 +118,10 @@ export default {
       }
     }
   },
-  computed: { // 현재 년도를 기준으로 6년 범위의 년도 계산
+  computed: { // 현재 년도를 기준으로 년도 계산
     years () {
-      const startYear = curYear - 3 // 현재 년도에서 3년 전부터 시작
-      const endYear = curYear + 2 // 현재 년도에서 2년 후까지
+      const startYear = curYear - 1 // 현재 년도에서 1년 전부터 시작
+      const endYear = curYear + 1 // 현재 년도에서 1년 후까지
       const yearArray = []
       for (let i = startYear; i <= endYear; i++) {
         yearArray.push(i)
