@@ -184,7 +184,7 @@
           const scrollElement = editor.getWrapperElement().getElementsByClassName('CodeMirror-scroll')[0]
 
           // 동적으로 설정할 max-height 및 min-height 계산
-          const newHeightWithMargin = newVal - 300 + 'px'
+          const newHeightWithMargin = newVal - 480 + 'px'
           // .CodeMirror-scroll 요소에 직접 스타일을 적용
           scrollElement.style.minHeight = newHeightWithMargin
           scrollElement.style.maxHeight = newHeightWithMargin
@@ -212,7 +212,7 @@
     height: auto !important;
   }
   .CodeMirror-scroll {
-    max-height: 660px;
-    min-height: 660px;
+    max-height: 330px;
+    min-height: 330px;
   }
 </style>

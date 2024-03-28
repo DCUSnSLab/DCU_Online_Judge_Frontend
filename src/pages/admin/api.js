@@ -204,6 +204,14 @@ export default {
       }
     })
   },
+  getTestcase (problemId, sampleCount) {
+    return ajax('admin/test_case_data', 'get', {
+      params: {
+        problem_id: problemId,
+        sample_count: sampleCount
+      }
+    })
+  },
 
   // TA/RA 인원 추가를 위한 함수
   getUserInfo (data) {

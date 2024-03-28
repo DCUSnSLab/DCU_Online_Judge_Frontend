@@ -115,9 +115,6 @@
         <div>
           <el-form-item v-for="(sample, index) in problem.samples" :key="'sample'+index">
             <Accordion :title="'Sample' + (index + 1)">
-              <el-button type="warning" size="small" icon="el-icon-delete" slot="header" @click="deleteSample(index)">
-                Delete
-              </el-button>
               <el-row :gutter="20">
                 <el-col :span="12">
                   <el-form-item :label="$t('m.Input_Samples')" required>
@@ -125,7 +122,8 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Input_Samples')"
-                      v-model="sample.input">
+                      v-model="sample.input"
+                      :disabled="true">
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -135,17 +133,14 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Output_Samples')"
-                      v-model="sample.output">
+                      v-model="sample.output"
+                      :disabled="true">
                     </el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
             </Accordion>
           </el-form-item>
-        </div>
-        <div class="add-sample-btn">
-          <button type="button" class="add-samples" @click="addSample()"><i class="el-icon-plus"></i>{{$t('m.Add_Sample')}}
-          </button>
         </div>
         <el-form-item style="margin-top: 20px" :label="$t('m.Hint')">
           <Simditor v-model="problem.hint" placeholder=""></Simditor>
@@ -227,7 +222,18 @@
               <el-input type="text" v-model="problem.io_mode.output"></el-input>
             </el-form-item>
           </el-col>
-
+          <el-col :span="8">
+            <el-form-item :label="$t('예시 갯수')">
+              <el-select @change="addSample" size="small" :placeholder="sampleCount" v-model="selectSampleCount">
+                <el-option
+                  v-for="number in testcaseCount"
+                  :key="number"
+                  :label="number"
+                  :value="number">
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
           <el-col :span="24">
             <el-table
               :data="problem.test_case_score"
@@ -306,6 +312,9 @@
         spjMode: '',
         disableRuleType: false,
         routeName: '',
+        testcaseCount: 0,
+        testcaseInputOutput: [],
+        selectSampleCount: 0,
         error: {
           tags: '',
           spj: '',
@@ -336,7 +345,7 @@
           tags: [],
           languages: [],
           template: {},
-          samples: [{input: '', output: ''}],
+          samples: [],
           spj: false,
           spj_language: '',
           spj_code: '',
@@ -368,6 +377,7 @@
           this.title = this.$i18n.t('m.Edit_Problem')
           let funcName = {'edit-problem': 'getProblem', 'edit-contest-problem': 'getContestProblem'}[this.routeName]
           api[funcName](this.$route.params.problemId).then(problemRes => {
+            console.log(problemRes)
             let data = problemRes.data.data
             if (!data.spj_code) {
               data.spj_code = ''
@@ -375,6 +385,12 @@
             data.spj_language = data.spj_language || 'C'
             this.problem = data
             this.testCaseUploaded = true
+            this.selectSampleCount = data.samples.length
+            this.testcaseCount = data.test_case_score.length
+            console.log(this.$route.params.problemId)
+            api.getTestcase(this.$route.params.problemId, data.samples.length).then(res =>
+              console.log(res)
+            )
           })
         } else {
           this.title = this.$i18n.t('m.Add_Problem')
@@ -458,10 +474,14 @@
         this.problem.tags.splice(this.problem.tags.indexOf(tag), 1)
       },
       addSample () {
-        this.problem.samples.push({input: '', output: ''})
+        this.problem.samples = []
+        console.log(this.selectSampleCount)
+        for (let i = 0; i < this.selectSampleCount; i++) {
+          this.problem.samples.push({input: this.testcaseInputOutput[i].input, output: this.testcaseInputOutput[i].output})
+        }
       },
       deleteSample (index) {
-        this.problem.samples.splice(index, 1)
+        this.problem.samples = []
       },
       uploadSucceeded (response) {
         if (response.error) {
@@ -469,6 +489,15 @@
           return
         }
         let fileList = response.data.info
+        console.log(fileList)
+        this.deleteSample()
+        this.selectSampleCount = 0
+        this.testcaseCount = fileList.length
+        this.testcaseInputOutput = []
+        for (let i = 0; i < this.testcaseCount; i++) {
+          this.testcaseInputOutput.push({input: fileList[i].inputData, output: fileList[i].outputData})
+        }
+        console.log(response.data.info)
         for (let file of fileList) {
           file.score = (100 / fileList.length).toFixed(0)
           if (!file.output_name && this.problem.spj) {

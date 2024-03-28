@@ -95,6 +95,12 @@
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
+            <Button v-if="problemRes" type="warning" icon="play" :loading="running" @click="runCode"
+                    :disabled="problemSubmitDisabled || submitted"
+                    class="fl-right">
+              <span v-if="running">실행중</span>
+              <span v-else>실행</span>
+            </Button>
             <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
             <Button v-on:click="toggleSidebar" v-if="aihelperflag" :disabled=askbutton @click.native="askAI"
               class="fl-right">
@@ -105,6 +111,37 @@
             </Button>
             </Col>
           </Row>
+          <div style="overflow: auto;">
+          </div>
+          <div>
+            <Card :padding="20" id="run-code" dis-hover>
+              <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+                <div class="sample">
+                  <p class="title">{{$t('테스트')}} {{index + 1}}</p>
+                  <div class="input-output-container">
+                    <div class="input-container">
+                      <p class="sub-title">{{$t('입력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.input}}</pre>
+                      </div>
+                    </div>
+                    <div class="output-container">
+                      <p class="sub-title">{{$t('출력')}}</p>
+                      <div class="text-box">
+                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="result-container">
+                      <p class="sub-title">{{$t('결과')}}</p>
+                      <div class="text-box">
+                        <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
+                      </div>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
         </Card>
       </el-col>
       <div v-else id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
@@ -199,6 +236,12 @@
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
+            <Button v-if="problemRes" type="warning" icon="play" :loading="running" @click="runCode"
+                    :disabled="problemSubmitDisabled || submitted"
+                    class="fl-right">
+              <span v-if="running">실행중</span>
+              <span v-else>실행</span>
+            </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
 
             <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
@@ -208,6 +251,33 @@
 
             </Col>
           </Row>
+        </Card>
+        <Card :padding="20" id="run-code" dis-hover>
+          <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+            <div class="sample">
+              <p class="title">{{$t('테스트')}} {{index + 1}}</p>
+              <div class="input-output-container">
+                <div class="input-container">
+                  <p class="sub-title">{{$t('입력')}}</p>
+                  <div class="text-box">
+                    <pre>{{sample.input}}</pre>
+                  </div>
+                </div>
+                <div class="output-container">
+                  <p class="sub-title">{{$t('출력')}}</p>
+                  <div class="text-box">
+                    <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                  </div>
+                </div>
+              </div>
+              <div class="result-container">
+                  <p class="sub-title">{{$t('결과')}}</p>
+                  <div class="text-box">
+                    <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
+                  </div>
+              </div>
+            </div>
+          </div>
         </Card>
       </div>
     </el-col>
@@ -374,6 +444,8 @@
     data () {
       return {
         toggleValue: false, // 가로 세로 모드 토글 버튼
+        outputdata: [],
+        runResultData: {},
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -731,6 +803,35 @@
         this.askbutton = false
         this.aiaskbutton = false
       },
+      // 코드 실행버튼
+      runCode () {
+        console.log('run 버튼 실행')
+        if (this.code.trim() === '') {
+          this.$error(this.$i18n.t('m.Code_can_not_be_empty'))
+          return
+        }
+        this.submissionId = ''
+        this.result = {result: 9}
+        this.runResultData = []
+        let data = {
+          problem_id: this.problem.id,
+          sample_test: true,
+          sample_count: this.problem.samples.length,
+          language: this.language,
+          code: this.code,
+          contest_id: this.contestID
+        }
+        console.log(data)
+        api.submitCode(data).then(res => {
+          console.log(res)
+          this.outputdata = res.data.data.outputResultData.map(item => item.output)
+          let resultData = res.data.data.outputResultData.map(item => item.result)
+          for (let i = 0; i < resultData.length; i++) {
+            this.runResultData.push(JUDGE_STATUS[resultData[i]]['name'])
+          }
+          console.log(this.outputdata)
+        })
+      },
       onCopy (event) {
         this.$success('Code copied')
       },
@@ -975,5 +1076,45 @@
     float: right;
     margin-top: 5px;
     margin-right: 10px;
+  }
+  #run-code{
+    align-items: stretch;
+    .sample-container {
+      margin-bottom: 20px;
+    }
+    .sample {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .title {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .sub-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .input-output-container {
+      display: flex;
+    }
+    .input-container,
+    .output-container,
+    .result-container {
+      width: 50%;
+      padding: 10px;
+    }
+    .text-box {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: auto;
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 0;
+    }
   }
 </style>
