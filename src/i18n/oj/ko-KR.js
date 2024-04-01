@@ -287,5 +287,6 @@ export const m = {
   Now: '현재',
   OS: '운영체제',
   Browser: '브라우저',
-  Last_activity: '마지막 활동'
+  Last_activity: '마지막 활동',
+  PushGithub: 'Github에 업로드'
 }
