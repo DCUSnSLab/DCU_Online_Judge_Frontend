@@ -698,7 +698,7 @@
       checkSubmissionStatus () {
         // 使用setTimeout避免一些问题
         if (this.refreshStatus) {
-          // 如果之前的提交状态检查还没有停止,则停止,否则将会失去timeout的引用造成无限请求
+          // 如果之前的提交状态检查还没有停止, 则停止,否则将会失去timeout的引用造成无限请求
           clearTimeout(this.refreshStatus)
         }
         const checkStatus = () => {
