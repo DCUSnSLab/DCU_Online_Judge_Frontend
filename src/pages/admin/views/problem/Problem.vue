@@ -223,7 +223,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item :label="$t('예시 갯수')">
+            <el-form-item :label="$t('예시 수')">
               <el-select @change="addSample" size="small" :placeholder="sampleCount" v-model="selectSampleCount">
                 <el-option
                   v-for="number in testcaseCount"
@@ -237,7 +237,14 @@
           <el-col :span="24">
             <el-table
               :data="problem.test_case_score"
-              style="width: 100%">
+              style="width: 100%"
+              ref="multipleTable">
+              <el-table-column type="selection"
+                width="55"
+                prop="Sample"
+                :label="$t('sample')"
+                :selectable="testCaseSelect">
+              </el-table-column>
               <el-table-column
                 prop="input_name"
                 :label="$t('m.Input')">
@@ -432,6 +439,23 @@
       }
     },
     methods: {
+      testCaseSelect (row, index) {
+        const maxSelections = 4
+        const selectedRows = this.$refs.multipleTable.selection
+        console.log(row)
+        if (selectedRows.includes(row)) {
+          return true
+        } else {
+          if (selectedRows.length === maxSelections) {
+            this.$message({
+              message: `최대 ${maxSelections}개의 항목만 선택할 수 있습니다.`,
+              type: 'warning'
+            })
+            return false
+          }
+        }
+        return true
+      },
       switchSpj () {
         if (this.testCaseUploaded) {
           this.$confirm('If you change problem judge method, you need to re-upload test cases', 'Warning', {

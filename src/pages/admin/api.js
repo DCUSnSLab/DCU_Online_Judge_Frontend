@@ -208,7 +208,7 @@ export default {
     return ajax('admin/test_case_data', 'get', {
       params: {
         problem_id: problemId,
-        sample_count: sampleCount
+        test: sampleCount
       }
     })
   },
