@@ -115,9 +115,6 @@
         <div>
           <el-form-item v-for="(sample, index) in problem.samples" :key="'sample'+index">
             <Accordion :title="'Sample' + (index + 1)">
-              <el-button type="warning" size="small" icon="el-icon-delete" slot="header" @click="deleteSample(index)">
-                Delete
-              </el-button>
               <el-row :gutter="20">
                 <el-col :span="12">
                   <el-form-item :label="$t('m.Input_Samples')" required>
@@ -125,7 +122,8 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Input_Samples')"
-                      v-model="sample.input">
+                      v-model="sample.input"
+                      :disabled="true">
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -135,17 +133,14 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Output_Samples')"
-                      v-model="sample.output">
+                      v-model="sample.output"
+                      :disabled="true">
                     </el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
             </Accordion>
           </el-form-item>
-        </div>
-        <div class="add-sample-btn">
-          <button type="button" class="add-samples" @click="addSample()"><i class="el-icon-plus"></i>{{$t('m.Add_Sample')}}
-          </button>
         </div>
         <el-form-item style="margin-top: 20px" :label="$t('m.Hint')">
           <Simditor v-model="problem.hint" placeholder=""></Simditor>
@@ -216,7 +211,14 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-
+          <el-col :span="8">
+            <el-form-item :label="$t('예시 선택')">
+              <el-button
+                class="sample-button"
+                @click="sampleButtonClick">
+              </el-button>
+            </el-form-item>
+          </el-col>
           <el-col :span="4" v-if="problem.io_mode.io_mode == 'File IO'">
             <el-form-item :label="$t('m.InputFileName')" required>
               <el-input type="text" v-model="problem.io_mode.input"></el-input>
@@ -227,11 +229,17 @@
               <el-input type="text" v-model="problem.io_mode.output"></el-input>
             </el-form-item>
           </el-col>
-
           <el-col :span="24">
             <el-table
               :data="problem.test_case_score"
-              style="width: 100%">
+              style="width: 100%"
+              ref="multipleTable">
+              <el-table-column type="selection"
+                width="55"
+                prop="sample"
+                :label="$t('sample')"
+                :selectable="sampleSelect">
+              </el-table-column>
               <el-table-column
                 prop="input_name"
                 :label="$t('m.Input')">
@@ -306,6 +314,7 @@
         spjMode: '',
         disableRuleType: false,
         routeName: '',
+        inputName: [],
         error: {
           tags: '',
           spj: '',
@@ -336,7 +345,7 @@
           tags: [],
           languages: [],
           template: {},
-          samples: [{input: '', output: ''}],
+          samples: [],
           spj: false,
           spj_language: '',
           spj_code: '',
@@ -431,6 +440,28 @@
           this.problem.spj = !this.problem.spj
         }
       },
+      sampleButtonClick () {
+        const selectedItems = this.$refs.multipleTable.selection
+        if (selectedItems.length === 0) {
+          this.$message({
+            message: '예시가 선택 안됨',
+            type: 'warning'
+          })
+          return false
+        }
+        this.inputName = selectedItems.map(item => item.input_name).join(',')
+        api.getTestcase(this.problem.test_case_id, this.inputName).then(res => {
+          let testCaseData = res.data.data.testCaseData
+          this.problem.samples = []
+          for (let i = 0; i < testCaseData.length; i++) {
+            this.problem.samples.push({
+              input: testCaseData[i].inData,
+              output: testCaseData[i].outData
+            })
+          }
+        })
+        console.log(this.inputName)
+      },
       querySearch (queryString, cb) {
         api.getProblemTagList().then(res => {
           let tagList = []
@@ -507,6 +538,22 @@
           })
         })
       },
+      sampleSelect (row, index) {
+        const maxSelections = 5
+        const selectedRows = this.$refs.multipleTable.selection
+        if (selectedRows.includes(row)) {
+          return true
+        } else {
+          if (selectedRows.length === maxSelections) {
+            this.$message({
+              message: `최대 ${maxSelections}개의 항목만 선택할 수 있습니다.`,
+              type: 'warning'
+            })
+            return false
+          }
+        }
+        return true
+      },
       submit () {
         if (!this.problem.samples.length) {
           this.$error('Sample is required')
@@ -575,6 +622,7 @@
         if (funcName === 'editContestProblem') {
           this.problem.contest_id = this.contest.id
         }
+        api.renameTestcaseFile(this.problem.test_case_id, this.inputName)
         api[funcName](this.problem).then(res => {
           if (this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem') {
             this.$router.push({name: 'contest-problem-list', params: {contestId: this.$route.params.contestId}})
@@ -635,7 +683,13 @@
     .add-sample-btn {
       margin-bottom: 10px;
     }
-
+    .sample-button {
+      font-size: 30px; /* 크기 키우기 */
+      background-color: #409EFF; /* 배경색 */
+      color: #FFFFFF; /* 글자색 */
+      border-radius: 5px; /* 모서리 둥글게 */
+      padding: 12px 24px; /* 안쪽 여백 */
+    }
   }
 </style>
 

@@ -478,6 +478,22 @@ export default {
     return ajax('export_problem', 'post', {
       data
     })
+  },
+  getTestcase (testcaseId, inputName) {
+    return ajax('admin/test_case_data', 'get', {
+      params: {
+        test_case_id: testcaseId,
+        input_name: inputName
+      }
+    })
+  },
+  renameTestcaseFile (testcaseId, inputName) {
+    return ajax('admin/test_case/rename', 'put', {
+      params: {
+        test_case_id: testcaseId,
+        input_name: inputName
+      }
+    })
   }
 }
 
