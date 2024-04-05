@@ -117,6 +117,9 @@
         aiaskbutton: true,
         input: '',
         lectureID: '',
+        Githubtoken: '',
+        GithubID: '',
+        GithubRepo: '',
         qnaContent: {
           title: '',
           content: ''
