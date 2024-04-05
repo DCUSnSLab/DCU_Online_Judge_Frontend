@@ -232,6 +232,7 @@
           <el-col :span="24">
             <el-table
               :data="problem.test_case_score"
+              :default-selection="sampleTestcasedata"
               style="width: 100%"
               ref="multipleTable">
               <el-table-column type="selection"
@@ -315,12 +316,18 @@
         disableRuleType: false,
         routeName: '',
         inputName: [],
+        selectedRows: [],
         error: {
           tags: '',
           spj: '',
           languages: '',
           testCase: ''
         }
+      }
+    },
+    beforeUpdate () {
+      if (this.mode === 'edit') {
+        console.log('gg')
       }
     },
     mounted () {
@@ -384,6 +391,11 @@
             data.spj_language = data.spj_language || 'C'
             this.problem = data
             this.testCaseUploaded = true
+            this.$nextTick(() => {
+              for (let i = 0; i < this.problem.samples.length; i++) {
+                this.$refs.multipleTable.toggleRowSelection(this.problem.test_case_score[i], true)
+              }
+            })
           })
         } else {
           this.title = this.$i18n.t('m.Add_Problem')
@@ -440,6 +452,10 @@
           this.problem.spj = !this.problem.spj
         }
       },
+      sampleTestcasedata () {
+        console.log('test')
+        return this.test_case_score[this.problem.samples.length]
+      },
       sampleButtonClick () {
         const selectedItems = this.$refs.multipleTable.selection
         if (selectedItems.length === 0) {
@@ -460,7 +476,7 @@
             })
           }
         })
-        console.log(this.inputName)
+        console.log(this.$refs.multipleTable.selection)
       },
       querySearch (queryString, cb) {
         api.getProblemTagList().then(res => {

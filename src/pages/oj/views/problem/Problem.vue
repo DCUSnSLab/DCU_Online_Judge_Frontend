@@ -1131,9 +1131,6 @@
   }
   #run-code{
     align-items: stretch;
-    .sample-container {
-      background-color: #f0f8ff; /* 배경색 추가 */
-    }
     .sample {
       display: flex;
       flex-direction: column;
@@ -1143,10 +1140,12 @@
     .title {
       font-weight: bold;
       margin-bottom: 10px;
+      color: #3091f2;
     }
     .sub-title {
       font-weight: bold;
       margin-bottom: 5px;
+      color: #3091f2;
     }
     .input-output-container {
       display: flex;
@@ -1155,27 +1154,31 @@
     .output-container,
     .result-container {
       width: 50%;
+      height: 55%;
       padding: 10px;
+      background-color: black;
     }
     .result-container {
-      width: 100%;
       display: flex; /* 가로로 배치 */
+      width: auto;
+      height: auto;
       flex-wrap: wrap;
+      background-color: white;
     }
-    .result-container .text-box {
-      border: none; /* 테두리 없애기 */
-      background-color: #f0f0f0; /* 배경색 입히기 */
-      overflow: auto;
-      flex: 1; /* 균일한 너비로 설정 */
-      margin-right: 5px; /* 각 결과 사이 간격 설정 */
-      margin-bottom: 5px; /* 결과 아래 여백 설정 */
-      display: inline-block; /* 텍스트 크기에 맞게 자동 조정 */
-      vertical-align: top; /* 텍스트 상단 정렬 */
-    }
-    .text-box {
+    .output-container .text-box,
+    .input-container .text-box {
+      height: 50%;
       border: 1px solid #ccc;
       border-radius: 4px;
       overflow: auto;
+    }
+    .result-container .text-box {
+      border: none; /* 테두리 없애기 */
+      overflow: auto;
+      margin-left: 5px;
+      margin-bottom: 5px;
+      background-color: #e2e4ff;
+      display: inline-block;
     }
     pre {
       white-space: pre-wrap;
