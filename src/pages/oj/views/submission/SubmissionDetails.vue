@@ -41,7 +41,7 @@
         <el-input class="sidebar-content-margin" placeholder="토큰을 입력해주세요." v-model="Githubtoken"></el-input>
         <el-input class="sidebar-content-margin" placeholder="GithubID를 입력해주세요." v-model="GithubID"></el-input>
         <el-input class="sidebar-content-margin" placeholder="저장소 이름을 입력해주세요." v-model="GithubRepo"></el-input>
-        <el-button type="success" size="large" @click="githubpush">
+        <el-button type="primary" size="large" @click="githubpush">
           <i class="fab fa-github"></i>
           <span>{{$t('m.PushGithub')}}</span>
         </el-button>
