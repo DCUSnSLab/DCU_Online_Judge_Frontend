@@ -1132,6 +1132,7 @@
   #run-code{
     align-items: stretch;
     .sample {
+      height: 50%;
       display: flex;
       flex-direction: column;
       padding: 10px;
@@ -1156,7 +1157,6 @@
       width: 50%;
       height: 55%;
       padding: 10px;
-      background-color: black;
     }
     .result-container {
       display: flex; /* 가로로 배치 */
