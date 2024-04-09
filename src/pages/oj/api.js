@@ -78,6 +78,11 @@ export default {
       data
     })
   },
+  pushgithub (params) {
+    return ajax('githubpush', 'get', {
+      params
+    })
+  },
   askQuAAI (params) {
     return ajax('aihelper', 'get', {
       params

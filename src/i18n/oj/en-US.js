@@ -344,5 +344,6 @@ export const m = {
   Now: 'Now',
   OS: 'OS',
   Browser: 'Browser',
-  Last_activity: 'Last Activity'
+  Last_activity: 'Last Activity',
+  PushGithub: 'Upload to Github'
 }
