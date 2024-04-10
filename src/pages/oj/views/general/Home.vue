@@ -3,7 +3,7 @@
     <!-- 1열 -->
     <Col :span="14">
       <Row>
-        <panel v-if="(month == 3) || (month == 4)">
+        <panel v-if="(month == 3)">
           <div slot="title">
             <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
             <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
@@ -117,10 +117,10 @@
       </Row>
     </Col>
     <!-- 2열 포스터 -->
-    <Col :span="10" align="center">
-      <panel style="min-width: 705px; min-height: 955px; max-width: 100%; max-height: 100%;">
+    <Col :span="10" align="center" style="padding-left: 10px;">
+      <panel style="min-width: 665px; min-height: 902px; max-width: 100%; max-height: 100%;">
           <div slot="title" >
-            <img src="../../../../assets/ad_image.jpeg" style="height: 100%; width: 100%; max-width: 1200px; max-height: 1510px;"/>
+            <img src="../../../../assets/ad_image.jpeg" style="height: 100%; width: 100%; max-width: 657px; max-height: 930px;"/>
           </div>
       </panel>
     </Col>
