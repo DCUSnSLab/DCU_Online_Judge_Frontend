@@ -121,7 +121,7 @@
       <panel style="min-width: 665px; min-height: 902px; max-width: 100%; max-height: 100%;">
           <div slot="title" >
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSfuZs5yV9IHX4a3vJYb2WIQfuxS64vIP8ruRk5lIHsA4kfG_g/viewform?pli=1">
-              <img src="../../../../assets/ad_image.jpeg" style="height: 100%; width: 100%; max-width: 657px; max-height: 930px;" @click="redirectToLink"/>
+              <img src="../../../../assets/ad_image.jpeg" style="height: 100%; width: 100%; max-width: 657px; max-height: 930px;"/>
             </a>
           </div>
       </panel>
