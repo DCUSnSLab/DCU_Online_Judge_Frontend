@@ -476,7 +476,7 @@
             })
           }
         })
-        console.log(this.$refs.multipleTable.selection)
+        console.log(this.inputName)
       },
       querySearch (queryString, cb) {
         api.getProblemTagList().then(res => {

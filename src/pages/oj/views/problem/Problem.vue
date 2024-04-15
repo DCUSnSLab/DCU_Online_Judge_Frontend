@@ -135,31 +135,32 @@
             </Col>
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
-            <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-              <div class="sample">
-                <p class="title">{{$t('테스트')}} {{index + 1}}</p>
-                <div class="input-output-container">
-                  <div class="input-container">
-                    <p class="sub-title">{{$t('입력')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.input}}</pre>
+            <el-collapse v-model="activeNames">
+              <el-collapse-item v-for="(sample, index) of problem.samples" :key="index" :title="$t('테스트') + ' ' + (index + 1)" :name="'test-' + index">
+                <div class="sample">
+                  <div class="input-output-container">
+                    <div class="input-container">
+                      <p class="sub-title">{{$t('입력 >')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.input}}</pre>
+                      </div>
+                    </div>
+                    <div class="output-container">
+                      <p class="sub-title">{{$t('출력 >')}}</p>
+                      <div class="text-box">
+                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                      </div>
                     </div>
                   </div>
-                  <div class="output-container">
-                    <p class="sub-title">{{$t('출력')}}</p>
-                    <div class="text-box">
-                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
-                    </div>
+                  <div class="result-container">
+                      <p class="sub-title">{{$t('결과 >')}}</p>
+                      <div class="text-box">
+                        <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
+                      </div>
                   </div>
                 </div>
-                <div class="result-container">
-                    <p class="sub-title">{{$t('결과 >')}}</p>
-                    <div class="text-box">
-                      <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
-                    </div>
-                </div>
-              </div>
-            </div>
+              </el-collapse-item>
+            </el-collapse>
           </Card>
         </Card>
       </el-col>
@@ -295,31 +296,32 @@
           </Row>
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
-          <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-            <div class="sample">
-              <p class="title">{{$t('테스트')}} {{index + 1}}</p>
-              <div class="input-output-container">
-                <div class="input-container">
-                  <p class="sub-title">{{$t('입력 >')}}</p>
-                  <div class="text-box">
-                    <pre>{{sample.input}}</pre>
+          <el-collapse v-model="activeNames">
+            <el-collapse-item v-for="(sample, index) of problem.samples" :key="index" :title="$t('테스트') + ' ' + (index + 1)" :name="'test-' + index">
+              <div class="sample">
+                <div class="input-output-container">
+                  <div class="input-container">
+                    <p class="sub-title">{{$t('입력 >')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.input}}</pre>
+                    </div>
+                  </div>
+                  <div class="output-container">
+                    <p class="sub-title">{{$t('출력 >')}}</p>
+                    <div class="text-box">
+                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
                   </div>
                 </div>
-                <div class="output-container">
-                  <p class="sub-title">{{$t('출력 >')}}</p>
-                  <div class="text-box">
-                    <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
-                  </div>
+                <div class="result-container">
+                    <p class="sub-title">{{$t('결과 >')}}</p>
+                    <div class="text-box">
+                      <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
+                    </div>
                 </div>
               </div>
-              <div class="result-container">
-                  <p class="sub-title">{{$t('결과 >')}}</p>
-                  <div class="text-box">
-                    <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
-                  </div>
-              </div>
-            </div>
-          </div>
+            </el-collapse-item>
+          </el-collapse>
         </Card>
       </div>
     </el-col>
@@ -570,13 +572,20 @@
       this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
       this.init()
       window.addEventListener('resize', this.handleResize)
+      window.addEventListener('keydown', this.handleKeyDown)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('keydown', this.handleKeyDown)
     },
     methods: {
       handleResize () {
         this.dynamicHeight = window.innerHeight
+      },
+      handleKeyDown (event) {
+        if (event.ctrlKey && event.key === 'Enter') {
+          this.runCode()
+        }
       },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
@@ -879,7 +888,13 @@
           this.outputdata = res.data.data.outputResultData.map(item => item.output)
           let resultData = res.data.data.outputResultData.map(item => item.result)
           for (let i = 0; i < resultData.length; i++) {
-            this.runResultData.push(JUDGE_STATUS[resultData[i]]['name'])
+            if (resultData[i] === -1) {
+              this.runResultData.push('오답')
+            } else if (resultData[i] === 0) {
+              this.runResultData.push('정답')
+            } else {
+              this.runResultData.push('컴파일 오류')
+            }
           }
           console.log(this.outputdata)
         })
