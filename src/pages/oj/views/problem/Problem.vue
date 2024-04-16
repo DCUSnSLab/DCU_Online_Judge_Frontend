@@ -136,7 +136,10 @@
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
             <el-collapse v-model="activeNames">
-              <el-collapse-item v-for="(sample, index) of problem.samples" :key="index" :title="$t('테스트') + ' ' + (index + 1)" :name="'test-' + index">
+              <el-collapse-item v-for="(sample, index) of problem.samples"
+                :key="index"
+                :title="$t('테스트') + ' ' + (index + 1) + ' 결과 > ' + ($t((runResultData[index] ? runResultData[index].replace(/ /g, '_') : '')))"
+                :name="'test-' + index">
                 <div class="sample">
                   <div class="input-output-container">
                     <div class="input-container">
@@ -297,7 +300,10 @@
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
           <el-collapse v-model="activeNames">
-            <el-collapse-item v-for="(sample, index) of problem.samples" :key="index" :title="$t('테스트') + ' ' + (index + 1)" :name="'test-' + index">
+            <el-collapse-item v-for="(sample, index) of problem.samples"
+            :key="index"
+            :title="$t('테스트') + ' ' + (index + 1) + ' 결과 > ' + ($t((runResultData[index] ? runResultData[index].replace(/ /g, '_') : '')))"
+            :name="'test-' + index">
               <div class="sample">
                 <div class="input-output-container">
                   <div class="input-container">
@@ -316,7 +322,7 @@
                 <div class="result-container">
                     <p class="sub-title">{{$t('결과 >')}}</p>
                     <div class="text-box">
-                      <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
+                      <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
                     </div>
                 </div>
               </div>
