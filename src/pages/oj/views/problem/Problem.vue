@@ -135,35 +135,31 @@
             </Col>
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
-            <el-collapse v-model="activeNames">
-              <el-collapse-item v-for="(sample, index) of problem.samples"
-                :key="index"
-                :title="$t('테스트') + ' ' + (index + 1) + ' 결과 > ' + ($t((runResultData[index] ? runResultData[index].replace(/ /g, '_') : '')))"
-                :name="'test-' + index">
-                <div class="sample">
-                  <div class="input-output-container">
-                    <div class="input-container">
-                      <p class="sub-title">{{$t('입력 >')}}</p>
-                      <div class="text-box">
-                        <pre>{{sample.input}}</pre>
-                      </div>
+            <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+              <div class="sample" @click="toggleDetails(index)">
+                <p class="title">{{$t('테스트')}} {{index + 1}}</p>
+                <div class="result-container">
+                    <p class="sub-title">{{$t('결과 >')}}</p>
+                    <div class="text-box">
+                      <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
                     </div>
-                    <div class="output-container">
-                      <p class="sub-title">{{$t('출력 >')}}</p>
-                      <div class="text-box">
-                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
-                      </div>
+                </div>
+                <div v-if="selectedTestcase === index" class="input-output-container">
+                  <div class="input-container">
+                    <p class="sub-title">{{$t('입력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.input}}</pre>
                     </div>
                   </div>
-                  <div class="result-container">
-                      <p class="sub-title">{{$t('결과 >')}}</p>
-                      <div class="text-box">
-                        <pre v-if="runResultData[index]">{{$t('m.' + runResultData[index].replace(/ /g, "_"))}}</pre>
-                      </div>
+                  <div class="output-container">
+                    <p class="sub-title">{{$t('출력')}}</p>
+                    <div class="text-box">
+                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
                   </div>
                 </div>
-              </el-collapse-item>
-            </el-collapse>
+              </div>
+            </div>
           </Card>
         </Card>
       </el-col>
@@ -253,14 +249,14 @@
                 <Input v-model="captchaCode" class="captcha-code" />
               </div>
             </template>
-            <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
+            <Button v-if="problemRes" type="success" icon="edit" :loading="submitting" @click="submitCode"
               :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
-            <Button v-if="problemRes" type="warning" icon="play" :loading="running" @click="runCode"
+            <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
-                    class="fl-right">
+                    class="run-btn">
               <span v-if="running">실행중</span>
               <span v-else>실행</span>
             </Button>
@@ -299,35 +295,32 @@
           </Row>
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
-          <el-collapse v-model="activeNames">
-            <el-collapse-item v-for="(sample, index) of problem.samples"
-            :key="index"
-            :title="$t('테스트') + ' ' + (index + 1) + ' 결과 > ' + ($t((runResultData[index] ? runResultData[index].replace(/ /g, '_') : '')))"
-            :name="'test-' + index">
-              <div class="sample">
-                <div class="input-output-container">
-                  <div class="input-container">
-                    <p class="sub-title">{{$t('입력 >')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.input}}</pre>
-                    </div>
+          <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+            <div class="sample" @click="toggleDetails(index)">
+              <p class="title">{{$t('테스트')}} {{index + 1}}</p>
+              <div class="result-container">
+                  <p class="sub-title">{{$t('결과 >')}}</p>
+                  <div class="text-box"
+                  :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'blue' : 'red')}">
+                    <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
                   </div>
-                  <div class="output-container">
-                    <p class="sub-title">{{$t('출력 >')}}</p>
-                    <div class="text-box">
-                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
-                    </div>
+              </div>
+              <div v-if="selectedTestcase === index" class="input-output-container">
+                <div class="input-container">
+                  <p class="sub-title">{{$t('입력')}}</p>
+                  <div class="text-box">
+                    <pre>{{sample.input}}</pre>
                   </div>
                 </div>
-                <div class="result-container">
-                    <p class="sub-title">{{$t('결과 >')}}</p>
-                    <div class="text-box">
-                      <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
-                    </div>
+                <div class="output-container">
+                  <p class="sub-title">{{$t('출력')}}</p>
+                  <div class="text-box">
+                    <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                  </div>
                 </div>
               </div>
-            </el-collapse-item>
-          </el-collapse>
+            </div>
+          </div>
         </Card>
       </div>
     </el-col>
@@ -506,6 +499,7 @@
     data () {
       return {
         toggleValue: window.localStorage.getItem('viewMode') ? JSON.parse(window.localStorage.getItem('viewMode')) : false, // 가로 세로 모드 토글 버튼
+        selectedTestcase: {},
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -592,6 +586,10 @@
         if (event.ctrlKey && event.key === 'Enter') {
           this.runCode()
         }
+      },
+      toggleDetails (index) {
+        this.selectedTestcase = this.selectedTestcase === index ? null : index
+        console.log(index)
       },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
@@ -899,7 +897,7 @@
             } else if (resultData[i] === 0) {
               this.runResultData.push('정답')
             } else {
-              this.runResultData.push('컴파일 오류')
+              this.runResultData.push('오류')
             }
           }
           console.log(this.outputdata)
@@ -1034,6 +1032,13 @@
         margin-right: 10px;
         margin-left: 10px;
       }
+    }
+    .run-btn {
+      background-color: #5DB85B;
+      float: right;
+      color: white;
+      margin-left: 5px;
+      margin-right: 5px;
     }
     .captcha-container {
       display: inline-block;
@@ -1173,8 +1178,7 @@
       display: flex;
     }
     .input-container,
-    .output-container,
-    .result-container {
+    .output-container{
       width: 50%;
       height: 55%;
       padding: 10px;
@@ -1198,8 +1202,8 @@
       overflow: auto;
       margin-left: 5px;
       margin-bottom: 5px;
-      background-color: #e2e4ff;
       display: inline-block;
+      font-weight: 'bold';
     }
     pre {
       white-space: pre-wrap;
