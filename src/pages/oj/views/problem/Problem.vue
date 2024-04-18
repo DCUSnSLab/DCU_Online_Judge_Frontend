@@ -552,7 +552,8 @@
         contestExitStatus: false, // working by soojung
         dynamicHeight: window.innerHeight,
         outputdata: [],
-        runResultData: {}
+        runResultData: {},
+        running: false
       }
     },
 
@@ -871,6 +872,7 @@
       },
       runCode () {
         console.log('run 버튼 실행')
+        this.running = true
         if (this.code.trim() === '') {
           this.$error(this.$i18n.t('m.Code_can_not_be_empty'))
           return
@@ -902,6 +904,7 @@
           }
           console.log(this.outputdata)
         })
+        this.running = false
       },
       onCopy (event) {
         this.$success(this.$i18n.t('m.Code_Copied'))
