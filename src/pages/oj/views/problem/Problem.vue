@@ -90,14 +90,14 @@
               </div>
             </template>
 
-            <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
+            <Button v-if="problemRes" type="success" icon="edit" :loading="submitting" @click="submitCode"
               :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
-            <Button v-if="problemRes" type="warning" icon="play" :loading="running" @click="runCode"
+            <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
-                    class="fl-right">
+                    class="run-btn">
               <span v-if="running">실행중</span>
               <span v-else>실행</span>
             </Button>
