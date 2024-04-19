@@ -888,9 +888,7 @@
           code: this.code,
           contest_id: this.contestID
         }
-        console.log(data)
         api.submitCode(data).then(res => {
-          console.log(res)
           this.outputdata = res.data.data.outputResultData.map(item => item.output)
           let resultData = res.data.data.outputResultData.map(item => item.result)
           for (let i = 0; i < resultData.length; i++) {

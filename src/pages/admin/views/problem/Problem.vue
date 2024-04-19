@@ -323,11 +323,6 @@
         }
       }
     },
-    beforeUpdate () {
-      if (this.mode === 'edit') {
-        console.log('gg')
-      }
-    },
     mounted () {
       this.routeName = this.$route.name
       if (this.routeName === 'edit-problem' || this.routeName === 'edit-contest-problem') {
