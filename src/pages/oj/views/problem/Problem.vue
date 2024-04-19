@@ -904,6 +904,7 @@
           }
           console.log(this.outputdata)
           this.running = false
+          this.statusVisible = false
         })
       },
       onCopy (event) {
