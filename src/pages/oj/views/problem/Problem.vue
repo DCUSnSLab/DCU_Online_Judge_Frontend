@@ -903,8 +903,8 @@
             }
           }
           console.log(this.outputdata)
+          this.running = false
         })
-        this.running = false
       },
       onCopy (event) {
         this.$success(this.$i18n.t('m.Code_Copied'))
