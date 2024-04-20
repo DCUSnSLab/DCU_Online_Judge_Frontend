@@ -211,14 +211,6 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-          <el-col :span="8">
-            <el-form-item :label="$t('예시 선택')">
-              <el-button
-                class="sample-button"
-                @click="sampleButtonClick">
-              </el-button>
-            </el-form-item>
-          </el-col>
           <el-col :span="4" v-if="problem.io_mode.io_mode == 'File IO'">
             <el-form-item :label="$t('m.InputFileName')" required>
               <el-input type="text" v-model="problem.io_mode.input"></el-input>
@@ -262,6 +254,12 @@
                 </template>
               </el-table-column>
             </el-table>
+            <el-button
+                class="sample-button"
+                size="small"
+                @click="sampleButtonClick">
+                <span>예시 선택</span>
+            </el-button>
           </el-col>
         </el-row>
 
@@ -323,11 +321,6 @@
           languages: '',
           testCase: ''
         }
-      }
-    },
-    beforeUpdate () {
-      if (this.mode === 'edit') {
-        console.log('gg')
       }
     },
     mounted () {
@@ -561,10 +554,6 @@
           return true
         } else {
           if (selectedRows.length === maxSelections) {
-            this.$message({
-              message: `최대 ${maxSelections}개의 항목만 선택할 수 있습니다.`,
-              type: 'warning'
-            })
             return false
           }
         }
@@ -700,11 +689,11 @@
       margin-bottom: 10px;
     }
     .sample-button {
-      font-size: 30px; /* 크기 키우기 */
-      background-color: #409EFF; /* 배경색 */
-      color: #FFFFFF; /* 글자색 */
-      border-radius: 5px; /* 모서리 둥글게 */
-      padding: 12px 24px; /* 안쪽 여백 */
+      background-color: #409EFF;
+      color: #FFFFFF;
+      border-radius: 5px;
+      padding: 12px 24px;
+      margin-top: 10px;
     }
   }
 </style>

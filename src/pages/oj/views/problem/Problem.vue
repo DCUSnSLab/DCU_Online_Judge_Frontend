@@ -90,14 +90,14 @@
               </div>
             </template>
 
-            <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
+            <Button v-if="problemRes" type="success" icon="edit" :loading="submitting" @click="submitCode"
               :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
-            <Button v-if="problemRes" type="warning" icon="play" :loading="running" @click="runCode"
+            <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
-                    class="fl-right">
+                    class="run-btn">
               <span v-if="running">실행중</span>
               <span v-else>실행</span>
             </Button>
@@ -552,7 +552,8 @@
         contestExitStatus: false, // working by soojung
         dynamicHeight: window.innerHeight,
         outputdata: [],
-        runResultData: {}
+        runResultData: {},
+        running: false
       }
     },
 
@@ -871,6 +872,7 @@
       },
       runCode () {
         console.log('run 버튼 실행')
+        this.running = true
         if (this.code.trim() === '') {
           this.$error(this.$i18n.t('m.Code_can_not_be_empty'))
           return
@@ -886,9 +888,7 @@
           code: this.code,
           contest_id: this.contestID
         }
-        console.log(data)
         api.submitCode(data).then(res => {
-          console.log(res)
           this.outputdata = res.data.data.outputResultData.map(item => item.output)
           let resultData = res.data.data.outputResultData.map(item => item.result)
           for (let i = 0; i < resultData.length; i++) {
@@ -901,6 +901,8 @@
             }
           }
           console.log(this.outputdata)
+          this.running = false
+          this.statusVisible = false
         })
       },
       onCopy (event) {
