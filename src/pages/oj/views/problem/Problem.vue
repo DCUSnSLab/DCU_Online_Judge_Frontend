@@ -95,14 +95,18 @@
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
-            <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
+            <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
+            <el-tooltip
+              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다."
+              placement="top">
+              <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-              <span v-if="running">실행중</span>
-              <span v-else>실행</span>
-            </Button>
-            <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+                <span v-if="running">실행중</span>
+                <span v-else>실행</span>
+              </Button>
+            </el-tooltip>
+            <el-tooltip v-if="aiaskbutton" >
               <Button @click="toggleSidebar"
                       v-if="aihelperflag"
                       :disabled="aiaskbutton"
@@ -254,13 +258,17 @@
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
-            <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
+            <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
+            <el-tooltip
+              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다."
+              placement="top">
+              <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-              <span v-if="running">실행중</span>
-              <span v-else>실행</span>
-            </Button>
-            <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
+                <span v-if="running">실행중</span>
+                <span v-else>실행</span>
+              </Button>
+            </el-tooltip>
             <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
               <Button @click="toggleSidebar"
                       v-if="aihelperflag"
