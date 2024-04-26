@@ -97,7 +97,7 @@
             </Button>
             <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
             <el-tooltip
-              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다."
+              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다. (ctrl + enter)"
               placement="top">
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
@@ -260,7 +260,7 @@
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
             <el-tooltip
-              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다."
+              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다. (ctrl + enter)"
               placement="top">
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"

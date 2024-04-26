@@ -470,6 +470,7 @@
         }
         this.inputName = selectedItems.map(item => item.input_name).join(',')
         api.getTestcase(this.problem.test_case_id, this.inputName).then(res => {
+          console.log(res)
           let testCaseData = res.data.data.testCaseData
           this.problem.samples = []
           for (let i = 0; i < testCaseData.length; i++) {
