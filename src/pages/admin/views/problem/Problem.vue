@@ -256,7 +256,7 @@
             </el-table>
             <el-tooltip
               class="sample-select-tooltip"
-              content="예제는 최대 5개 선택 가능하며 버튼 클릭시 테스트케이스가 예시문제로 등록됩니다."
+              content="예시는 최대 5개 선택 가능하며 버튼 클릭시 테스트케이스가 예시로 등록됩니다."
               placement="top-start">
               <el-button
                   class="sample-button"
