@@ -32,7 +32,24 @@
                   </span>
               </template>
             </el-table-column>
-
+            <el-table-column prop="startTime" label="입실시간" align="center">
+              <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
+                <span v-if="scope.row.start_time"> <!--해당 값을 출력하고-->
+                    {{ formatDate(scope.row.start_time) }}
+                  </span>
+                <span v-else><!--아닌 경우에는 User 테이블에 있는 schoolssn 값을 출력한다.-->
+                  </span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="endTime" label="퇴실시간" align="center">
+              <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
+                <span v-if="scope.row.end_time"> <!--해당 값을 출력하고-->
+                    {{ formatDate(scope.row.end_time) }}
+                  </span>
+                <span v-else><!--아닌 경우에는 User 테이블에 있는 schoolssn 값을 출력한다.-->
+                  </span>
+              </template>
+            </el-table-column>
 <!--            <el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
             <el-table-column prop="exit_status" label="퇴실 유무" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
@@ -90,6 +107,7 @@
 <script>
 import api from '../../api.js'
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 
 export default {
   name: 'lecturecontestExit',
@@ -205,25 +223,27 @@ export default {
       this.loadingTable = true
       api.getLectureUserList((page - 1) * this.pageSize, this.pageSize, this.keyword, this.lectureID, this.contestID).then(res => {
         console.log(res)
-        // this.loadingTable = false
-        // this.total = res.data.data.total  // 인스턴스 개수
-        // this.userList = res.data.data.results
-        // if (this.userList.length === 0) {
-        //   console.log('null')
-        // } else {
-        //   // let k = 0
-        //   this.userList.forEach(user => {
-        //     this.userID = user.user.id
-        //     if (user.score !== null) {
-        //       if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
-        //         console.log('empty object')
-        //       } else {
-        //         var userinfo = {}
-        //         userinfo['realname'] = user.realname
-        //         userinfo['schoolssn'] = user.schoolssn
-        //         // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
-        //       }
-        //     }
+        this.loadingTable = false
+        this.total = res.data.data.total  // 인스턴스 개수
+        this.userList = res.data.data.results
+        if (this.userList.length === 0) {
+          console.log('null')
+        } else {
+          // let k = 0
+          this.userList.forEach(user => {
+            this.userID = user.user.id
+            if (user.score !== null) {
+              if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
+                console.log('empty object')
+              } else {
+                var userinfo = {}
+                userinfo['realname'] = user.realname
+                userinfo['schoolssn'] = user.schoolssn
+                userinfo['startTime'] = user.start_time
+                userinfo['endTime'] = user.end_time
+                // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
+              }
+            }
             // api.checkContestExitManage(this.$route.params.contestID, this.userID).then(res => {
             //   // this.contestStartTime = res.data.data.start_time
             //   this.contestEndtime = res.data.data.end_time
@@ -237,16 +257,18 @@ export default {
             // })
             // // this.userList[k].push({userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
             // // this.userList[k] = Object.assign({}, this.userList[k], {userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
-          // })
-      }
-      //   console.log(this.userList)
-      // }, res => {
-      //   this.loadingTable = false
-      // })
-      )
+          })
+        }
+        console.log(this.userList)
+      }, res => {
+        this.loadingTable = false
+      })
     },
     handleSelectionChange (val) {
       this.selectedUsers = val
+    },
+    formatDate (datetime) {
+      return moment(datetime).format('YY년 MM월 DD일 HH시 mm분')
     }
   },
   computed: {
