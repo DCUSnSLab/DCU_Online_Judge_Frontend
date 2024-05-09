@@ -166,9 +166,10 @@ export default {
       api.getContestExit(this.$route.params.contestID).then(res => {
         console.log(this.contestID)
         console.log(this.lectureID)
+        console.log(res.data)
+        window.location.reload()
       }).catch(() => {
       })
-      this.$router.push({name: 'home'})
     },
     contestScore () {
       api.checkContestScore(this.$route.params.contestID).then(res => {
@@ -200,27 +201,29 @@ export default {
     // 사용자 목록 가져오기
     getUserList (page) {
       console.log('getLectureUserList Called')
+      console.log(this.lectureID, this.contestID)
       this.loadingTable = true
       api.getLectureUserList((page - 1) * this.pageSize, this.pageSize, this.keyword, this.lectureID, this.contestID).then(res => {
-        this.loadingTable = false
-        this.total = res.data.data.total  // 인스턴스 개수
-        this.userList = res.data.data.results
-        if (this.userList.length === 0) {
-          console.log('null')
-        } else {
-          // let k = 0
-          this.userList.forEach(user => {
-            this.userID = user.user.id
-            if (user.score !== null) {
-              if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
-                console.log('empty object')
-              } else {
-                var userinfo = {}
-                userinfo['realname'] = user.realname
-                userinfo['schoolssn'] = user.schoolssn
-                // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
-              }
-            }
+        console.log(res)
+        // this.loadingTable = false
+        // this.total = res.data.data.total  // 인스턴스 개수
+        // this.userList = res.data.data.results
+        // if (this.userList.length === 0) {
+        //   console.log('null')
+        // } else {
+        //   // let k = 0
+        //   this.userList.forEach(user => {
+        //     this.userID = user.user.id
+        //     if (user.score !== null) {
+        //       if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
+        //         console.log('empty object')
+        //       } else {
+        //         var userinfo = {}
+        //         userinfo['realname'] = user.realname
+        //         userinfo['schoolssn'] = user.schoolssn
+        //         // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
+        //       }
+        //     }
             // api.checkContestExitManage(this.$route.params.contestID, this.userID).then(res => {
             //   // this.contestStartTime = res.data.data.start_time
             //   this.contestEndtime = res.data.data.end_time
@@ -234,12 +237,13 @@ export default {
             // })
             // // this.userList[k].push({userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
             // // this.userList[k] = Object.assign({}, this.userList[k], {userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
-          })
-        }
-        console.log(this.userList)
-      }, res => {
-        this.loadingTable = false
-      })
+          // })
+      }
+      //   console.log(this.userList)
+      // }, res => {
+      //   this.loadingTable = false
+      // })
+      )
     },
     handleSelectionChange (val) {
       this.selectedUsers = val

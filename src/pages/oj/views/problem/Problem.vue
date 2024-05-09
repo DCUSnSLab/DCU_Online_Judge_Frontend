@@ -584,7 +584,7 @@
         this.dynamicHeight = window.innerHeight
       },
       handleKeyDown (event) {
-        if (event.ctrlKey && event.key === 'Enter') {
+        if (!this.submitted && event.ctrlKey && event.key === 'Enter') {
           this.runCode()
         }
       },
@@ -628,12 +628,12 @@
       },
       init () {
         this.$Loading.start()
-        this.CheckContestExit()
         this.contestID = this.$route.params.contestID // 실제 문제에 대한 정보를 얻기 위해서는 Contest의 id값과
         this.problemID_ = this.$route.params.problemID // Contest에 포함된 problem의 id값이 필요
         this.lectureID = this.$route.params.lectureID
         this.getLectureID()
         this.checkAllowedAIhelper()
+        this.checkContestExit()
         let func = this.$route.name === 'problem-details' ? 'getProblem' : 'getContestProblem'
         api[func](this.problemID_, this.contestID).then(res => {
           this.$Loading.finish()
@@ -669,21 +669,23 @@
         }).catch(() => {
         })
       },
-      CheckContestExit () {  // working by soojung
-        api.checkContestExit(this.$route.params.contestID).then(res => {
-          this.contestEndtime = res.data.data.end_time
-          console.log('What is state')
-          console.log(this.contestEndtime)
-          if (this.contestEndtime) {
-            this.submitted = true
-            this.contestExitStatus = true
-          }
-          console.log(this.contestExitStatus)
-          if (this.contestExitStatus) {
-            this.$error('이미 퇴실하셨습니다.')
-          }
-        }).catch(() => {
-        })
+      checkContestExit () {  // working by soojung
+        if (this.lectureID && this.contestID) {
+          console.log(this.lectureID, this.contestID)
+          api.checkContestExit(this.contestID).then(res => {
+            console.log('What is state')
+            this.contestEndtime = res.data.data.end_time
+            console.log(this.contestEndtime)
+            if (this.contestEndtime) {
+              this.submitted = true
+              this.contestExitStatus = true
+            }
+            console.log(this.contestExitStatus)
+            if (this.contestExitStatus) {
+              this.$error('이미 퇴실하셨습니다.')
+            }
+          })
+        }
       },
       // ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
       //   api.getContestTimeOverExit(this.$route.params.contestID).then(res => {
