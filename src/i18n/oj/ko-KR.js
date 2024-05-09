@@ -2,16 +2,17 @@ export const m = {
   // Test
   // home.vue
   Download: '다운로드',
+  By: 'by',
   // 404.vue
   Go_Home: '홈으로',
-  DCU_Code_Usage_Manual_Student: 'DCU Code 사용 매뉴얼 (학생용)',
-  DCU_Code_Intro_Video: 'DCU Code 소개 영상',
+  DCU_Code_Usage_manual_student: 'DCU Code 사용 매뉴얼 (학생용)',
+  DCU_Code_Intro_video: 'DCU Code 소개 영상',
   Detail: '자세히 보기',
   Contents: '내용',
   Minimization: '페이지 최소화',
   My_Course_Progress: '나의 수강과목 진행 현황',
-  Ongoing_Practice_Assignments: '진행중인 실습 및 과제',
-  Practice_Assignment: '실습/과제',
+  Ongoing_practice_assignments: '진행중인 실습 및 과제',
+  Practice_assignment: '실습/과제',
   EndDate: '종료일',
   Remaining_Day: '남은 기간',
   Remaining_Time: '남은 시간',
