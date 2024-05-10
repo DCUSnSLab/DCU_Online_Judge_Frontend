@@ -140,8 +140,15 @@
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
             <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-              <div class="sample" @click="toggleDetails(index)">
-                <p class="title">{{$t('테스트')}} {{index + 1}}</p>
+              <div class="sample">
+                <p class="title">
+                    {{$t('테스트')}} {{index + 1}}
+                    <el-switch v-model="selectedTestcase"
+                          :active-value="index"
+                          :inactive-value="null"
+                          class="fl-right">
+                    </el-switch>
+                </p>
                 <div class="result-container">
                     <p class="sub-title">{{$t('결과 >')}}</p>
                     <div class="text-box">
@@ -159,6 +166,12 @@
                     <p class="sub-title">{{$t('출력')}}</p>
                     <div class="text-box">
                       <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
+                  </div>
+                  <div class="sample-output-container">
+                    <p class="sub-title">{{$t('기대값')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.output}}</pre>
                     </div>
                   </div>
                 </div>
@@ -304,8 +317,15 @@
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
           <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-            <div class="sample" @click="toggleDetails(index)">
-              <p class="title">{{$t('테스트')}} {{index + 1}}</p>
+            <div class="sample">
+              <p class="title">
+                  {{$t('테스트')}} {{index + 1}}
+                  <el-switch v-model="selectedTestcase"
+                        :active-value="index"
+                        :inactive-value="null"
+                        class="fl-right">
+                  </el-switch>
+              </p>
               <div class="result-container">
                   <p class="sub-title">{{$t('결과 >')}}</p>
                   <div class="text-box"
@@ -324,6 +344,12 @@
                   <p class="sub-title">{{$t('출력')}}</p>
                   <div class="text-box">
                     <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                  </div>
+                </div>
+                <div class="sample-output-container">
+                  <p class="sub-title">{{$t('기대값')}}</p>
+                  <div class="text-box">
+                    <pre>{{sample.output}}</pre>
                   </div>
                 </div>
               </div>
@@ -506,8 +532,8 @@
     mixins: [FormMixin],
     data () {
       return {
+        selectedTestcase: [],
         toggleValue: window.localStorage.getItem('viewMode') ? JSON.parse(window.localStorage.getItem('viewMode')) : false, // 가로 세로 모드 토글 버튼
-        selectedTestcase: {},
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -596,10 +622,10 @@
           this.runCode()
         }
       },
-      toggleDetails (index) {
-        this.selectedTestcase = this.selectedTestcase === index ? null : index
-        console.log(index)
-      },
+      // toggleDetails (index) {
+      //   this.selectedTestcase = this.selectedTestcase === index ? null : index
+      //   console.log(index)
+      // },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
         if (this.toggleValue) {
@@ -880,11 +906,11 @@
       },
       runCode () {
         console.log('run 버튼 실행')
-        this.running = true
         if (this.code.trim() === '') {
           this.$error(this.$i18n.t('m.Code_can_not_be_empty'))
           return
         }
+        this.running = true
         this.submissionId = ''
         this.result = {result: 9}
         this.runResultData = []
@@ -1188,7 +1214,8 @@
       display: flex;
     }
     .input-container,
-    .output-container{
+    .output-container,
+    .sample-output-container {
       width: 50%;
       height: 55%;
       padding: 10px;
@@ -1201,7 +1228,8 @@
       background-color: white;
     }
     .output-container .text-box,
-    .input-container .text-box {
+    .input-container .text-box,
+    .sample-output-container .text-box {
       height: 50%;
       border: 1px solid #ccc;
       border-radius: 4px;
