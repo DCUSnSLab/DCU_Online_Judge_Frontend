@@ -1,9 +1,9 @@
 <template>
-  <div class="flex-container" v-if="isAdmin">
+  <div class="flex-container" v-if="isAdminRole">
     <div id="manage">
       <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
-          <Button @click.native="ExitStudent()" style="float:right">전체 퇴실 처리</Button>
+          <Button @click.native="exitAllStudent()" style="float:right">전체 퇴실 처리</Button>
         </div>
         <template>
           <el-table
@@ -88,8 +88,10 @@
         <Panel shadow>
           <div slot="title">퇴실 완료 안내</div>
           <div slot="title" align="center"><br/><h1><b>퇴실 완료</b></h1></div>
-          <div align="center"><h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2><h3>가채점 결과이므로 변경될 수 있습니다.<br/>
-            실습실을 나가기 전 조교에게 확인을 받으시기 바랍니다.<br/></h3><br/></div>
+          <div align="center">
+            <h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2>
+            <h3>가채점 결과이므로 변경될 수 있습니다.<br/></h3><br/>
+          </div>
         </Panel>
       </div>
       <div v-else>
@@ -216,6 +218,17 @@ export default {
         this.$success('Success')
       })
     },
+    exitAllStudent () {
+      let data = {
+        lec_stu_userID: this.userList.map(item => item.user.id).join(','),
+        contest_id: this.contestID
+      }
+      console.log(data)
+      api.exitStudent(data).then(res => {
+        this.getUserList(this.page)
+        this.$success('Success')
+      })
+    },
     // 사용자 목록 가져오기
     getUserList (page) {
       console.log('getLectureUserList Called')
@@ -259,7 +272,6 @@ export default {
             // // this.userList[k] = Object.assign({}, this.userList[k], {userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
           })
         }
-        console.log(this.userList)
       }, res => {
         this.loadingTable = false
       })
