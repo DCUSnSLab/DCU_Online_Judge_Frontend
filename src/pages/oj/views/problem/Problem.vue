@@ -151,7 +151,8 @@
                 </p>
                 <div class="result-container">
                     <p class="sub-title">{{$t('결과 >')}}</p>
-                    <div class="text-box">
+                    <div class="text-box"
+                    :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'blue' : 'red')}">
                       <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
                     </div>
                 </div>
@@ -923,6 +924,7 @@
           contest_id: this.contestID
         }
         api.submitCode(data).then(res => {
+          console.log(res)
           this.outputdata = res.data.data.outputResultData.map(item => item.output)
           let resultData = res.data.data.outputResultData.map(item => item.result)
           for (let i = 0; i < resultData.length; i++) {
