@@ -730,7 +730,7 @@
       //   api.getContestTimeOverExit(this.$route.params.contestID).then(res => {
       //     console.log(this.contestID)
       //     console.log(this.lectureID)
-      //   }).catch(() => {
+      //   }).catch(() => {this.$error('이미 퇴실하셨습니다.')
       //   })
       // },
       QnAWrite () {
@@ -943,6 +943,10 @@
             }
           }
           console.log(this.outputdata)
+          this.running = false
+          this.statusVisible = false
+        }).catch(() => {
+          this.$error('error')
           this.running = false
           this.statusVisible = false
         })
