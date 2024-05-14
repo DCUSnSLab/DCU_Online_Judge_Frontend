@@ -319,22 +319,21 @@
         <Card :padding="20" id="run-code" dis-hover>
           <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
             <div class="sample">
-              <p class="title">
-                  {{$t('테스트')}} {{index + 1}}
-                  <el-switch v-model="selectedTestcase"
-                        :active-value="index"
-                        :inactive-value="null"
-                        class="fl-right">
-                  </el-switch>
-              </p>
-              <div class="result-container">
-                  <p class="sub-title">{{$t('결과 >')}}</p>
-                  <div class="text-box"
-                  :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'blue' : 'red')}">
-                    <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
-                  </div>
+              <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
+                <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
+                <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
+                <p class="title">
+                    {{$t('테스트')}} {{index + 1}}
+                </p>
+                <div class="result-container">
+                    <p class="sub-title">{{$t('결과 >')}}</p>
+                    <div class="text-box"
+                    :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                      <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                    </div>
+                </div>
               </div>
-              <div v-if="selectedTestcase === index" class="input-output-container">
+              <div v-if="isTestcaseSelected(index)" class="input-output-container">
                 <div class="input-container">
                   <p class="sub-title">{{$t('입력')}}</p>
                   <div class="text-box">
@@ -342,13 +341,13 @@
                   </div>
                 </div>
                 <div class="output-container">
-                  <p class="sub-title">{{$t('출력')}}</p>
+                  <p class="sub-title">{{$t('당신의 출력')}}</p>
                   <div class="text-box">
                     <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                   </div>
                 </div>
                 <div class="sample-output-container">
-                  <p class="sub-title">{{$t('기대값')}}</p>
+                  <p class="sub-title">{{$t('올바른 출력')}}</p>
                   <div class="text-box">
                     <pre>{{sample.output}}</pre>
                   </div>
@@ -623,10 +622,17 @@
           this.runCode()
         }
       },
-      // toggleDetails (index) {
-      //   this.selectedTestcase = this.selectedTestcase === index ? null : index
-      //   console.log(index)
-      // },
+      toggleDetails (index) {
+        const idx = this.selectedTestcase.indexOf(index)
+        if (idx > -1) {
+          this.selectedTestcase.splice(idx, 1)
+        } else {
+          this.selectedTestcase.push(index)
+        }
+      },
+      isTestcaseSelected (index) {
+        return this.selectedTestcase.includes(index)
+      },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
         if (this.toggleValue) {
@@ -1202,15 +1208,22 @@
       padding: 10px;
       border: 1px solid #ccc;
     }
+    .samples {
+      cursor: pointer;
+    }
+    .toggle-icon{
+      color: #3091f2;
+      margin-bottom: 1px;
+    }
     .title {
       font-weight: bold;
-      margin-bottom: 10px;
       color: #3091f2;
+      margin-left: 8px;
     }
     .sub-title {
       font-weight: bold;
-      margin-bottom: 5px;
       color: #3091f2;
+      margin-left: 3px;
     }
     .input-output-container {
       display: flex;
@@ -1238,10 +1251,9 @@
       overflow: auto;
     }
     .result-container .text-box {
-      border: none; /* 테두리 없애기 */
+      border: none;
       overflow: auto;
       margin-left: 5px;
-      margin-bottom: 5px;
       display: inline-block;
       font-weight: 'bold';
     }
