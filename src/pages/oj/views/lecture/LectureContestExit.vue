@@ -62,7 +62,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column fixed="right" label="퇴실 철회" width="200" align="center">
+            <el-table-column fixed="right" label="퇴실 상태 전환" width="200" align="center">
               <template slot-scope="{row}">
                 <icon-btn name="철회" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
               </template>

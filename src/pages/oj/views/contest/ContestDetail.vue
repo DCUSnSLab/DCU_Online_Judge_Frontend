@@ -74,6 +74,11 @@
           <Icon type="ios-paw"></Icon>
           {{$t('m.Admin_Helper')}}
         </VerticalMenu-item>
+        <VerticalMenu-item v-if="contestType === '대회'"
+                           :route="{name: 'lecture-contest-exit', params: {contestID: contestID, lectureID: lectureID}}">
+          <Icon type="android-exit"></Icon>
+          {{$t('m.Exit')}}
+        </VerticalMenu-item>
       </VerticalMenu>
     </div>
   </div>
@@ -100,6 +105,7 @@
         contestPassword: '',
         isvisible: false,
         isSubmit: false,
+        contestType: '',
         columns: [
           {
             title: this.$i18n.t('m.Id'),
@@ -144,6 +150,10 @@
       this.contestID = this.$route.params.contestID
       this.lectureID = this.$route.params.lectureID
       this.route_name = this.$route.name
+      this.$store.dispatch('getContest').then(res => {
+        this.contestType = res.data.data.lecture_contest_type
+      }).catch(() => {
+      })
       this.$store.dispatch('getContest').then(res => {
         this.changeDomTitle({title: res.data.data.title})
         let data = res.data.data

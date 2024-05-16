@@ -364,6 +364,11 @@
             <Icon type="home"></Icon>
             {{ $t('m.View_Contest') }}
           </VerticalMenu-item>
+          <VerticalMenu-item v-if="contestType === '대회'"
+                             :route="{name: 'lecture-contest-exit'}">
+            <Icon type="android-exit"></Icon>
+            {{$t('m.Exit')}}
+          </VerticalMenu-item>
         </template>
       </VerticalMenu>
 
@@ -553,7 +558,8 @@
         dynamicHeight: window.innerHeight,
         outputdata: [],
         runResultData: {},
-        running: false
+        running: false,
+        contestType: ''
       }
     },
 
@@ -635,6 +641,12 @@
         this.checkAllowedAIhelper()
         this.checkContestExit()
         let func = this.$route.name === 'problem-details' ? 'getProblem' : 'getContestProblem'
+        if (func === 'getContestProblem') {
+          this.$store.dispatch('getContest').then(res => {
+            this.contestType = res.data.data.lecture_contest_type
+          }).catch(() => {
+          })
+        }
         api[func](this.problemID_, this.contestID).then(res => {
           this.$Loading.finish()
           let problem = res.data.data
