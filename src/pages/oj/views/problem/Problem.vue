@@ -53,7 +53,7 @@
       </iframe>-->  
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
-            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight" :ToggleValue="toggleValue"></CodeMirror>
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight*0.9" :ToggleValue="toggleValue"></CodeMirror>
           <Row type="flex" justify="space-between">
             <Col :span="10">
             <div class="status" v-if="statusVisible">
@@ -141,22 +141,21 @@
           <Card :padding="20" id="run-code" dis-hover>
             <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
               <div class="sample">
-                <p class="title">
-                    {{$t('테스트')}} {{index + 1}}
-                    <el-switch v-model="selectedTestcase"
-                          :active-value="index"
-                          :inactive-value="null"
-                          class="fl-right">
-                    </el-switch>
-                </p>
-                <div class="result-container">
-                    <p class="sub-title">{{$t('결과 >')}}</p>
-                    <div class="text-box"
-                    :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'blue' : 'red')}">
-                      <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
-                    </div>
+                <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
+                  <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
+                  <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
+                  <p class="title">
+                      {{$t('테스트')}} {{index + 1}}
+                  </p>
+                  <div class="result-container">
+                      <p class="sub-title">{{$t('결과 >')}}</p>
+                      <div class="text-box"
+                      :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                        <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                      </div>
+                  </div>
                 </div>
-                <div v-if="selectedTestcase === index" class="input-output-container">
+                <div v-if="isTestcaseSelected(index)" class="input-output-container">
                   <div class="input-container">
                     <p class="sub-title">{{$t('입력')}}</p>
                     <div class="text-box">
@@ -164,13 +163,13 @@
                     </div>
                   </div>
                   <div class="output-container">
-                    <p class="sub-title">{{$t('출력')}}</p>
+                    <p class="sub-title">{{$t('당신의 출력')}}</p>
                     <div class="text-box">
                       <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                     </div>
                   </div>
                   <div class="sample-output-container">
-                    <p class="sub-title">{{$t('기대값')}}</p>
+                    <p class="sub-title">{{$t('올바른 출력')}}</p>
                     <div class="text-box">
                       <pre>{{sample.output}}</pre>
                     </div>
