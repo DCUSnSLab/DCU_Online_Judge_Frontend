@@ -617,7 +617,7 @@
         this.dynamicHeight = window.innerHeight
       },
       handleKeyDown (event) {
-        if (event.ctrlKey && event.key === 'Enter') {
+        if (event.ctrlKey && event.key === 'Enter' && this.problemSubmitDisabled && this.submitted) {
           this.runCode()
         }
       },
@@ -1087,6 +1087,10 @@
       margin-left: 5px;
       margin-right: 5px;
     }
+    .run-btn:disabled {
+      background-color: #f7f7f7;
+      color: #bbbec4;
+    }
     .captcha-container {
       display: inline-block;
       .captcha-code {
@@ -1239,7 +1243,7 @@
       padding: 10px;
     }
     .result-container {
-      display: flex; /* 가로로 배치 */
+      display: flex;
       width: auto;
       height: auto;
       flex-wrap: wrap;
