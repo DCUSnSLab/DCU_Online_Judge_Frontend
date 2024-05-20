@@ -87,10 +87,10 @@
       <div v-if="contestExitStatus">
         <Panel shadow>
           <div slot="title">퇴실 완료 안내</div>
-          <div slot="title" align="center"><br/><h1><b>퇴실 완료</b></h1></div>
+          <div slot="title"><br/>{{formatDate(contestEndtime)}} 퇴실 하였습니다.</div>
           <div align="center">
-            <h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2>
-            <h3>가채점 결과이므로 변경될 수 있습니다.<br/></h3><br/>
+            <!-- <h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2>
+            <h3>가채점 결과이므로 변경될 수 있습니다.<br/></h3><br/> -->
           </div>
         </Panel>
       </div>
@@ -191,13 +191,13 @@ export default {
       }).catch(() => {
       })
     },
-    contestScore () {
-      api.checkContestScore(this.$route.params.contestID).then(res => {
-        this.userTotalScore = res.data.data.total_score
-        console.log(this.userTotalScore)
-      }).catch(() => {
-      })
-    },
+    // contestScore () {
+    //   api.checkContestScore(this.$route.params.contestID).then(res => {
+    //     this.userTotalScore = res.data.data.total_score
+    //     console.log(this.userTotalScore)
+    //   }).catch(() => {
+    //   })
+    // },
     /* 관리 전용 (교수, 관리자) */
     currentChange (page) {
       this.currentPage = page
