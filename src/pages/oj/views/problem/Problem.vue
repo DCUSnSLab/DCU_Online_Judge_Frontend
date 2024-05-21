@@ -139,39 +139,84 @@
             </Col>
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
-            <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-              <div class="sample">
-                <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
-                  <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
-                  <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
-                  <p class="title">
-                      {{$t('테스트')}} {{index + 1}}
-                  </p>
-                  <div class="result-container">
-                      <p class="sub-title">{{$t('결과 >')}}</p>
-                      <div class="text-box"
-                      :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
-                        <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+            <div class="result-tap">
+              <p class="title">{{$t('실행 결과')}}</p>
+              <div class="input-output-container">
+                <p class="sub-title">{{$t('타입')}}</p>
+                <el-switch
+                  v-model="showResultType"
+                  inline-prompt
+                  size="large"
+                  active-text="2"
+                  inactive-text="1"
+                />
+              </div>
+            </div>
+            <div v-if="showResultType">
+              <el-tabs type="border-card">
+                <el-tab-pane 
+                  v-for="(sample, index) of problem.samples"
+                  :key="index"
+                  :label="getRunResultLable(index)"
+                >
+                  <div class="input-output-container">
+                    <div class="input-container">
+                      <p class="sub-title">{{$t('입력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.input}}</pre>
                       </div>
-                  </div>
-                </div>
-                <div v-if="isTestcaseSelected(index)" class="input-output-container">
-                  <div class="input-container">
-                    <p class="sub-title">{{$t('입력')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.input}}</pre>
+                    </div>
+                    <div class="output-container">
+                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <div class="text-box">
+                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                      </div>
+                    </div>
+                    <div class="sample-output-container">
+                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.output}}</pre>
+                      </div>
                     </div>
                   </div>
-                  <div class="output-container">
-                    <p class="sub-title">{{$t('당신의 출력')}}</p>
-                    <div class="text-box">
-                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+            <div v-else>
+              <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+                <div class="sample">
+                  <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
+                    <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
+                    <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
+                    <p class="title">
+                        {{$t('테스트')}} {{index + 1}}
+                    </p>
+                    <div class="result-container">
+                        <p class="sub-title">{{$t('결과 >')}}</p>
+                        <div class="text-box"
+                        :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                          <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                        </div>
                     </div>
                   </div>
-                  <div class="sample-output-container">
-                    <p class="sub-title">{{$t('올바른 출력')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.output}}</pre>
+                  <div v-if="isTestcaseSelected(index)" class="input-output-container">
+                    <div class="input-container">
+                      <p class="sub-title">{{$t('입력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.input}}</pre>
+                      </div>
+                    </div>
+                    <div class="output-container">
+                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <div class="text-box">
+                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                      </div>
+                    </div>
+                    <div class="sample-output-container">
+                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.output}}</pre>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -316,39 +361,84 @@
           </Row>
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
-          <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-            <div class="sample">
-              <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
-                <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
-                <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
-                <p class="title">
-                    {{$t('테스트')}} {{index + 1}}
-                </p>
-                <div class="result-container">
-                    <p class="sub-title">{{$t('결과 >')}}</p>
-                    <div class="text-box"
-                    :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
-                      <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+          <div class="result-tap">
+            <p class="title">{{$t('실행 결과')}}</p>
+            <div class="input-output-container">
+              <p class="sub-title">{{$t('타입')}}</p>
+              <el-switch
+                v-model="showResultType"
+                inline-prompt
+                size="large"
+                active-text="2"
+                inactive-text="1"
+              />
+            </div>
+          </div>
+          <div v-if="showResultType">
+            <el-tabs type="border-card">
+              <el-tab-pane 
+                v-for="(sample, index) of problem.samples"
+                :key="index"
+                :label="getRunResultLable(index)"
+              >
+                <div class="input-output-container">
+                  <div class="input-container">
+                    <p class="sub-title">{{$t('입력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.input}}</pre>
                     </div>
-                </div>
-              </div>
-              <div v-if="isTestcaseSelected(index)" class="input-output-container">
-                <div class="input-container">
-                  <p class="sub-title">{{$t('입력')}}</p>
-                  <div class="text-box">
-                    <pre>{{sample.input}}</pre>
+                  </div>
+                  <div class="output-container">
+                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <div class="text-box">
+                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
+                  </div>
+                  <div class="sample-output-container">
+                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.output}}</pre>
+                    </div>
                   </div>
                 </div>
-                <div class="output-container">
-                  <p class="sub-title">{{$t('당신의 출력')}}</p>
-                  <div class="text-box">
-                    <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+          <div v-else>
+            <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+              <div class="sample">
+                <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
+                  <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
+                  <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
+                  <p class="title">
+                      {{$t('테스트')}} {{index + 1}}
+                  </p>
+                  <div class="result-container">
+                      <p class="sub-title">{{$t('결과 >')}}</p>
+                      <div class="text-box"
+                      :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                        <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                      </div>
                   </div>
                 </div>
-                <div class="sample-output-container">
-                  <p class="sub-title">{{$t('올바른 출력')}}</p>
-                  <div class="text-box">
-                    <pre>{{sample.output}}</pre>
+                <div v-if="isTestcaseSelected(index)" class="input-output-container">
+                  <div class="input-container">
+                    <p class="sub-title">{{$t('입력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.input}}</pre>
+                    </div>
+                  </div>
+                  <div class="output-container">
+                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <div class="text-box">
+                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
+                  </div>
+                  <div class="sample-output-container">
+                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.output}}</pre>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -532,6 +622,7 @@
     data () {
       return {
         selectedTestcase: [],
+        showResultType: false,
         toggleValue: window.localStorage.getItem('viewMode') ? JSON.parse(window.localStorage.getItem('viewMode')) : false, // 가로 세로 모드 토글 버튼
         sidebarVisible: false,
         statusVisible: false,
@@ -617,7 +708,7 @@
         this.dynamicHeight = window.innerHeight
       },
       handleKeyDown (event) {
-        if (event.ctrlKey && event.key === 'Enter' && this.problemSubmitDisabled && this.submitted) {
+        if (event.ctrlKey && event.key === 'Enter' && !this.problemSubmitDisabled && !this.submitted) {
           this.runCode()
         }
       },
@@ -631,6 +722,9 @@
       },
       isTestcaseSelected (index) {
         return this.selectedTestcase.includes(index)
+      },
+      showResultTypeSwithch (swithchValue) {
+        console.log(this.showResultType)
       },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
@@ -950,6 +1044,13 @@
           this.statusVisible = false
         })
       },
+      getRunResultLable (index) {
+        if (this.runResultData[index]) {
+          return '테스트 ' + (index + 1) + ' > ' + this.runResultData[index]
+        } else {
+          return '테스트 ' + (index + 1) + ' > '
+        }
+      },
       onCopy (event) {
         this.$success(this.$i18n.t('m.Code_Copied'))
       },
@@ -1214,6 +1315,7 @@
       flex-direction: column;
       padding: 10px;
       border: 1px solid #ccc;
+      margin: -1px;
     }
     .samples {
       cursor: pointer;
@@ -1231,6 +1333,16 @@
       font-weight: bold;
       color: #3091f2;
       margin-left: 3px;
+    }
+    .result-tap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .result-tap .sub-title {
+      margin-bottom: 3px;
+      margin-right: 5px;
     }
     .input-output-container {
       display: flex;
