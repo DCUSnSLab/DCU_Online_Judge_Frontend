@@ -254,12 +254,17 @@
                 </template>
               </el-table-column>
             </el-table>
-            <el-button
-                class="sample-button"
-                size="small"
-                @click="sampleButtonClick">
-                <span>예시 선택</span>
-            </el-button>
+            <el-tooltip
+              class="sample-select-tooltip"
+              content="예시는 최대 5개 선택 가능하며 버튼 클릭시 테스트케이스가 예시로 등록됩니다."
+              placement="top-start">
+              <el-button
+                  class="sample-button"
+                  size="small"
+                  @click="sampleButtonClick">
+                  <span>예시 선택</span>
+              </el-button>
+            </el-tooltip>
           </el-col>
         </el-row>
 
@@ -457,9 +462,15 @@
             type: 'warning'
           })
           return false
+        } else {
+          this.$message({
+            message: '예시가 선택되었습니다',
+            type: 'success'
+          })
         }
         this.inputName = selectedItems.map(item => item.input_name).join(',')
         api.getTestcase(this.problem.test_case_id, this.inputName).then(res => {
+          console.log(res)
           let testCaseData = res.data.data.testCaseData
           this.problem.samples = []
           for (let i = 0; i < testCaseData.length; i++) {
