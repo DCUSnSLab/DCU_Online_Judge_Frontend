@@ -25,8 +25,14 @@
                        @on-enter="checkPassword"/>
                 <Button type="info" @click="checkPassword">Enter</Button>
               </div>
+            
+              <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 40px;"></Table>
+              <div class="checkIn">
+                  <button type="success" icon="edit" class="fl-right">
+                    <span>{{$t('시험 시작')}}</span>
+                  </button>
+              </div>
             </Panel>
-            <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 40px;"></Table>
           </div>
         </template>
       </div>
@@ -191,6 +197,11 @@
         }, (res) => {
           this.btnLoading = false
         })
+      },
+      contestCheckInOutStatus () {
+        api.checkContestExit(this.contestID).then(res => {
+          console.log(res)
+        })
       }
       // ,
       // ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
@@ -267,5 +278,8 @@
         margin-right: 10px;
       }
     }
+  }
+  .fl-right {
+    float: right;
   }
 </style>
