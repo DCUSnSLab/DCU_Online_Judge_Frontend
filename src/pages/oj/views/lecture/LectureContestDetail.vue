@@ -26,11 +26,15 @@
                 <Button type="info" @click="checkPassword">Enter</Button>
               </div>
             
-              <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 40px;"></Table>
-              <div class="checkIn">
-                  <button type="success" icon="edit" class="fl-right">
-                    <span>{{$t('시험 시작')}}</span>
-                  </button>
+              <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
+              <div class="check-in">
+                <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
+                <button
+                  @click="checkInContest" 
+                  :disabled="contestCheckInOutStatus!=='notCheck' || contestMenuDisabled"
+                >
+                  <span>{{$t('시험 시작')}}</span>
+                </button>
               </div>
             </Panel>
           </div>
@@ -44,20 +48,20 @@
           {{$t('m.Overview')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled"
+        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
                            :route="{name: 'lecture-contest-announcement-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="chatbubble-working"></Icon>
           {{$t('m.Announcements')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled"
+        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
                            :route="{name: 'lecture-contest-problem-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="ios-photos"></Icon>
           {{$t('m.Problems')}}
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
                            :route="{name: 'lecture-contest-submission-list'}">
           <Icon type="navicon-round"></Icon>
           {{$t('m.Submissions')}}
@@ -69,7 +73,7 @@
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
                            :route="{name: 'lecture-contest-rank', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="stats-bars"></Icon>
           {{$t('m.Rankings')}}
@@ -84,7 +88,7 @@
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
         <VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회'"
-                           :disabled="contestMenuDisabled"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
                            :route="{name: 'lecture-contest-exit'}">
           <Icon type="android-exit"></Icon>
           {{$t('m.Exit')}}
@@ -101,6 +105,7 @@
   import { types } from '@/store'
   import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
+  import { compareIdentifiers } from 'semver'
 
   export default {
     name: 'ContestDetail',
@@ -118,6 +123,8 @@
         contestPassword: '',
         isvisible: false,
         dialogFormVisible: false,
+        contestcheckInOutStatusWord: '',
+        contestcheckInOutStatus: '',
         columns: [ // 수강과목 세부 페이지의 내부 항목 제목
           // {
           //   title: this.$i18n.t('Id'),
@@ -178,6 +185,7 @@
           }, 1000)
         }
       })
+      this.contestCheckInOutStatus()
     },
     methods: {
       ...mapActions(['changeDomTitle']),
@@ -200,7 +208,25 @@
       },
       contestCheckInOutStatus () {
         api.checkContestExit(this.contestID).then(res => {
-          console.log(res)
+          console.log(this.isContestAdmin)
+          if (res.data.data.end_time) {
+            this.contestCheckInOutStatus = 'checkOut'
+            this.contestcheckInOutStatusWord = '퇴실완료'
+          } else if (res.data.data.start_time) {
+            this.contestCheckInOutStatus = 'checkIn'
+            this.contestcheckInOutStatusWord = '입실완료'
+          } else {
+            this.contestCheckInOutStatus = 'notCheck'
+            this.contestcheckInOutStatusWord = '입실 전'
+          }
+        })
+      },
+      checkInContest () {
+        let data = {
+          contest_id: this.contestID
+        }
+        api.checkInContest(data).then(res => {
+          window.location.reload()
         })
       }
       // ,
@@ -278,8 +304,16 @@
         margin-right: 10px;
       }
     }
+    .check-in {
+      flex: auto;
+      display: flex;
+      float: right;
+    }
+    .sub-title {
+      font-weight: bold;
+      margin-top: 2px;
+      margin-right: 10px;
+    }
   }
-  .fl-right {
-    float: right;
-  }
+  
 </style>

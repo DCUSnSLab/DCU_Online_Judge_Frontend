@@ -468,6 +468,11 @@ export default {
       data
     })
   },
+  checkInContest (data) {
+    return ajax('contest/check_in', 'post', {
+      data
+    })
+  },
   checkContestExit (contestId) {    // working by soojung
     return ajax('problem/contest_exit_info', 'get', {
       params: {
