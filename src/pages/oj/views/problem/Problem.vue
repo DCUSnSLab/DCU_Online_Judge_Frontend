@@ -682,22 +682,18 @@
         })
       },
       checkContestExit () {  // working by soojung
-        if (this.lectureID && this.contestID) {
-          console.log(this.lectureID, this.contestID)
-          api.checkContestExit(this.contestID).then(res => {
-            console.log('What is state')
-            this.contestEndtime = res.data.data.end_time
-            console.log(this.contestEndtime)
-            if (this.contestEndtime) {
-              this.submitted = true
-              this.contestExitStatus = true
-            }
-            console.log(this.contestExitStatus)
-            if (this.contestExitStatus) {
-              this.$error('이미 퇴실하셨습니다.')
-            }
-          })
-        }
+        console.log('contest check' + this.contestID)
+        api.checkContestExit(this.contestID).then(res => {
+          console.log(res)
+          this.contestEndtime = res.data.data.end_time
+          if (this.contestEndtime) {
+            this.submitted = true
+            this.contestExitStatus = true
+          }
+          if (this.contestExitStatus) {
+            this.$error('이미 퇴실하셨습니다.')
+          }
+        })
       },
       // ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
       //   api.getContestTimeOverExit(this.$route.params.contestID).then(res => {
@@ -1200,7 +1196,7 @@
       padding: 10px;
     }
     .result-container {
-      display: flex; /* 가로로 배치 */
+      display: flex;
       width: auto;
       height: auto;
       flex-wrap: wrap;
@@ -1214,7 +1210,7 @@
       overflow: auto;
     }
     .result-container .text-box {
-      border: none; /* 테두리 없애기 */
+      border: none;
       overflow: auto;
       margin-left: 5px;
       margin-bottom: 5px;

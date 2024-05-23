@@ -9,7 +9,7 @@
       <div class="flex-container" v-if="route_name === 'lecture-contest-details'">
         <template>
           <div v-if="isvisible" id="contest-desc">
-            <Panel :padding="20" shadow>
+            <Panel :padding="50" shadow>
               <div slot="title">
                 {{contest.title}}
               </div>
@@ -27,14 +27,16 @@
               </div>
             
               <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
-              <div class="check-in">
+              <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
                 <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
-                <button
+                <el-button
+                  type="info"
+                  size="small"
                   @click="checkInContest" 
                   :disabled="contestCheckInOutStatus!=='notCheck' || contestMenuDisabled"
                 >
                   <span>{{$t('시험 시작')}}</span>
-                </button>
+                </el-button>
               </div>
             </Panel>
           </div>
@@ -48,20 +50,20 @@
           {{$t('m.Overview')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
+        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-announcement-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="chatbubble-working"></Icon>
           {{$t('m.Announcements')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
+        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-problem-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="ios-photos"></Icon>
           {{$t('m.Problems')}}
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-submission-list'}">
           <Icon type="navicon-round"></Icon>
           {{$t('m.Submissions')}}
@@ -73,7 +75,7 @@
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-rank', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="stats-bars"></Icon>
           {{$t('m.Rankings')}}
@@ -88,7 +90,7 @@
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
         <VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회'"
-                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn'"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn' && contestCheckInOutStatus !== 'notStudent'"
                            :route="{name: 'lecture-contest-exit'}">
           <Icon type="android-exit"></Icon>
           {{$t('m.Exit')}}
@@ -184,8 +186,10 @@
             this.$store.commit(types.NOW_ADD_1S)
           }, 1000)
         }
+        if (this.contestType === '대회') {
+          this.contestCheckInOutStatus()
+        }
       })
-      this.contestCheckInOutStatus()
     },
     methods: {
       ...mapActions(['changeDomTitle']),
@@ -208,8 +212,10 @@
       },
       contestCheckInOutStatus () {
         api.checkContestExit(this.contestID).then(res => {
-          console.log(this.isContestAdmin)
-          if (res.data.data.end_time) {
+          if (res.data.data.data === 'notStudent') {
+            this.contestCheckInOutStatus = 'notStudent'
+            this.contestcheckInOutStatusWord = '관리자'
+          } else if (res.data.data.end_time) {
             this.contestCheckInOutStatus = 'checkOut'
             this.contestcheckInOutStatusWord = '퇴실완료'
           } else if (res.data.data.start_time) {
@@ -219,6 +225,7 @@
             this.contestCheckInOutStatus = 'notCheck'
             this.contestcheckInOutStatusWord = '입실 전'
           }
+          console.log(this.contestCheckInOutStatus)
         })
       },
       checkInContest () {
@@ -311,7 +318,7 @@
     }
     .sub-title {
       font-weight: bold;
-      margin-top: 2px;
+      margin-top: 7px;
       margin-right: 10px;
     }
   }
