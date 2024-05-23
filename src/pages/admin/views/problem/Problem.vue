@@ -474,13 +474,18 @@
           let testCaseData = res.data.data.testCaseData
           this.problem.samples = []
           for (let i = 0; i < testCaseData.length; i++) {
+            if (!testCaseData[i].inData) {
+              testCaseData[i].inData = '없음'
+            }
+            if (!testCaseData[i].outData) {
+              testCaseData[i].outData = '없음'
+            }
             this.problem.samples.push({
               input: testCaseData[i].inData,
               output: testCaseData[i].outData
             })
           }
         })
-        console.log(this.inputName)
       },
       querySearch (queryString, cb) {
         api.getProblemTagList().then(res => {
