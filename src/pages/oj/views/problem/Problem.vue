@@ -590,7 +590,7 @@
         this.dynamicHeight = window.innerHeight
       },
       handleKeyDown (event) {
-        if (!this.submitted && event.ctrlKey && event.key === 'Enter') {
+        if (event.ctrlKey && event.key === 'Enter' && !this.submitted) {
           this.runCode()
         }
       },
