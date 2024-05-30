@@ -94,7 +94,7 @@ export const m = {
   Rating: 'Rating',
   // Announcements.vue
   Contest_Announcements: 'Contest Announcements',
-  By: 'By',
+  By: 'by',
   // ApplyResetPassword.vue
   The_email_doesnt_exist: 'The email doesn\'t exist',
   Success: 'Success',
