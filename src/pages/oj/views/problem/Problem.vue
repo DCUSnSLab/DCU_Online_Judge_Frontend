@@ -682,9 +682,7 @@
         })
       },
       checkContestExit () {  // working by soojung
-        console.log('contest check' + this.contestID)
         api.checkContestExit(this.contestID).then(res => {
-          console.log(res)
           this.contestEndtime = res.data.data.end_time
           if (this.contestEndtime) {
             this.submitted = true

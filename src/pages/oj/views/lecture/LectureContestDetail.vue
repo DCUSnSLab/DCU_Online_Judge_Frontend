@@ -225,7 +225,6 @@
             this.contestCheckInOutStatus = 'notCheck'
             this.contestcheckInOutStatusWord = '입실 전'
           }
-          console.log(this.contestCheckInOutStatus)
         })
       },
       checkInContest () {
