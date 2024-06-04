@@ -51,20 +51,22 @@
               </template>
             </el-table-column>
 <!--            <el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
-            <el-table-column prop="exit_status" label="퇴실 유무" align="center">
+            <el-table-column prop="exit_status" label="시험 상태" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
-                <span v-if="scope.row.exit_status" style="color:green"> <!--true인 경우-->
-                    <b>퇴실 완료</b>
-                  </span>
-                <span v-else style="color:red"> <!--false인 경우-->
-                    <b>미완료</b>
-                  </span>
+                <span v-if="scope.row.exit_status" style="color:green">
+                  <b>응시완료</b>
+                </span>
+                <span v-else-if="scope.row.start_time" style="color:blue">
+                  <b>응시중</b>
+                </span>
+                <span v-else style="color:red">
+                  <b>미응시</b>
+                </span>
               </template>
             </el-table-column>
-
-            <el-table-column fixed="right" label="퇴실 상태 전환" width="200" align="center">
+            <el-table-column fixed="right" label="응시 상태 변경" width="200" align="center">
               <template slot-scope="{row}">
-                <icon-btn name="철회" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
+                <icon-btn name="변경" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
               </template>
             </el-table-column>
           </el-table>
@@ -235,10 +237,10 @@ export default {
       console.log(this.lectureID, this.contestID)
       this.loadingTable = true
       api.getLectureUserList((page - 1) * this.pageSize, this.pageSize, this.keyword, this.lectureID, this.contestID).then(res => {
-        console.log(res)
         this.loadingTable = false
         this.total = res.data.data.total  // 인스턴스 개수
         this.userList = res.data.data.results
+        console.log(this.userList)
         if (this.userList.length === 0) {
           console.log('null')
         } else {
