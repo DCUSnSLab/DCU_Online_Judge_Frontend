@@ -102,8 +102,7 @@
             title: this.$i18n.t('m.Title'),
             key: 'title'
           }
-        ],
-        checkInStatus: ''
+        ]
       }
     },
     mounted () {
@@ -112,34 +111,30 @@
     methods: {
       init () {
         this.checkExitstatus()
-        this.getContestProblems()
       },
       checkExitstatus () {
         api.checkContestExit(this.$route.params.contestID).then(res => {
-          if (res.data.data.data === 'notStudent') {
-            this.checkInStatus = true
-          } else if (res.data.data.end_time || !res.data.data.start_time) {
+          console.log(!res.data.data.start_time)
+          if (res.data.data.data) { // notStudent, notTest, notContest
+            this.getContestProblems()
+          } else if (res.data.data.end_time || !res.data.data.start_time) { // not check-in or check-out
             this.$error('Error')
-            this.checkInStatus = false
+          } else { // check-in
+            this.getContestProblems()
           }
-          console.log(this.checkInStatus)
         })
       },
       getContestProblems () {
-        console.log(this.checkInStatus)
-        if (this.checkInStatus === true) {
-          this.$store.dispatch('getContestProblems').then(res => {
-            this.lectureData = res.data.data
-            if (this.isAuthenticated) {
-              if (this.contestRuleType === 'ACM') {
-                this.addStatusColumn(this.ACMTableColumns, res.data.data)
-              } else if (this.OIContestRealTimePermission) {
-                this.addStatusColumn(this.ACMTableColumns, res.data.data)
-              }
+        this.$store.dispatch('getContestProblems').then(res => {
+          if (this.isAuthenticated) {
+            if (this.contestRuleType === 'ACM') {
+              this.addStatusColumn(this.ACMTableColumns, res.data.data)
+            } else if (this.OIContestRealTimePermission) {
+              this.addStatusColumn(this.ACMTableColumns, res.data.data)
             }
-            this.panelStyle = {display: 'block'}
-          })
-        }
+          }
+          this.panelStyle = {display: 'block'}
+        })
       },
       goQnA (row) {
         this.$router.push({

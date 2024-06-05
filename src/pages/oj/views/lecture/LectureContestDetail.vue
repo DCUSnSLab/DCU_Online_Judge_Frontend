@@ -30,6 +30,7 @@
               <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
                 <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
                 <el-button
+                  v-if="contestCheckInOutStatus==='notCheck'"
                   type="info"
                   size="small"
                   @click="checkInContest" 
