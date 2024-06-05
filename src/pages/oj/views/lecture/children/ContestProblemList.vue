@@ -106,12 +106,26 @@
       }
     },
     mounted () {
-      this.getContestProblems()
+      this.init()
     },
     methods: {
+      init () {
+        this.checkExitstatus()
+      },
+      checkExitstatus () {
+        api.checkContestExit(this.$route.params.contestID).then(res => {
+          console.log(!res.data.data.start_time)
+          if (res.data.data.data) { // notStudent, notTest, notContest
+            this.getContestProblems()
+          } else if (res.data.data.end_time || !res.data.data.start_time) { // not check-in or check-out
+            this.$error('Error')
+          } else { // check-in
+            this.getContestProblems()
+          }
+        })
+      },
       getContestProblems () {
         this.$store.dispatch('getContestProblems').then(res => {
-          this.lectureData = res.data.data
           if (this.isAuthenticated) {
             if (this.contestRuleType === 'ACM') {
               this.addStatusColumn(this.ACMTableColumns, res.data.data)

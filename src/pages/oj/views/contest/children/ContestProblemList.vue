@@ -19,7 +19,7 @@
 <script>
   import {mapState, mapGetters} from 'vuex'
   import {ProblemMixin} from '@oj/components/mixins'
-
+  import api from '@oj/api'
   export default {
     name: 'ContestProblemList',
     mixins: [ProblemMixin],
