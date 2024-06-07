@@ -90,7 +90,7 @@
 
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
-        <VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회'"
+        <VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회' && this.lectureID"
                            :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn' && contestCheckInOutStatus !== 'notStudent'"
                            :route="{name: 'lecture-contest-exit'}">
           <Icon type="android-exit"></Icon>
