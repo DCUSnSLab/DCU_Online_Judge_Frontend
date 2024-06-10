@@ -29,7 +29,7 @@ const getters = {
   isSemiAdmin: (state, getters) => {
     return getters.user.admin_type === USER_TYPE.TA_ADMIN
   },
-  isSemiAdminRole: (state, getters) => {
+  Role: (state, getters) => {
     return getters.user.admin_type === USER_TYPE.TA_ADMIN ||
       getters.user.admin_type === USER_TYPE.SUPER_ADMIN
   },
