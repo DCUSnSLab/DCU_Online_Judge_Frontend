@@ -26,8 +26,8 @@
                   <el-col :span="4">
                     <el-form-item :label="$t('m.Lecture_Founder')">
                       <el-select v-model="lecture.created_by_id">
-                        <el-option v-for="(professor, id) in this.professor_list" v-bind:value="id" v-bind:label="professor" :key="id">
-                          {{ professor }}
+                        <el-option v-for="professor in this.professor_list" v-bind:value="professor.id" v-bind:label="professor.realname" :key="professor.id">
+                          {{ professor.realname }}
                         </el-option>
                       </el-select>
                     </el-form-item>
@@ -81,7 +81,8 @@ export default {
   mounted () {
     api.getProfessorList().then(res => {
       for (var key in res.data.data.results) {
-        this.professor_list[res.data.data.results[key].id] = res.data.data.results[key].realname
+        this.professor_list.push({'id': res.data.data.results[key].id, 'realname': res.data.data.results[key].realname})
+        // this.professor_list[res.data.data.results[key].id] = res.data.data.results[key].realname
       }
       this.$forceUpdate() // Vue에서는 시스템의 모든 변화를 감지하지 못합니다. 해당 코드가 있어야 불러온 교수님 리스트를 현재 화면에 적용할 수 있습니다.
     })
@@ -102,7 +103,7 @@ export default {
       // title: this.$i18n.t('m.Lecture_create'),
       title: 'Title',
       disableRuleType: false,
-      professor_list: {},
+      professor_list: [],
       lecture: {
         title: '',
         description: '',
