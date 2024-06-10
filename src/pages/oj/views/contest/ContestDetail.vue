@@ -74,7 +74,7 @@
           <Icon type="ios-paw"></Icon>
           {{$t('m.Admin_Helper')}}
         </VerticalMenu-item>
-        <VerticalMenu-item v-if="contestType === '대회'"
+        <VerticalMenu-item v-if="contestType === '대회' && this.lectureID"
                            :route="{name: 'lecture-contest-exit', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="android-exit"></Icon>
           {{$t('m.Exit')}}
