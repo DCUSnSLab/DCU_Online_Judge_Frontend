@@ -126,7 +126,7 @@
     },
     beforeRouteEnter (to, from, next) {
       let d = new Date()
-      let semester = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
+      let semester = (d.getMonth() + 1 >= 3 && d.getMonth() + 1 <= 7) ? 1 : (d.getMonth() + 1 >= 8 && d.getMonth() + 1 <= 12) ? 2 : (d.getMonth() + 1 === 2 && d.getDate() + 1 >= 20) ? 1 : 3
       api.getTakingLectureList(0, limit, undefined, d.getFullYear(), semester).then((res) => {
         next((vm) => {
           vm.lectures = res.data.data.results
@@ -138,7 +138,8 @@
     },
     mounted () {
       let d = new Date()
-      this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
+      console.log(d)
+      this.semestersort = (d.getMonth() + 1 >= 3 && d.getMonth() + 1 <= 7) ? 1 : (d.getMonth() + 1 >= 8 && d.getMonth() + 1 <= 12) ? 2 : (d.getMonth() + 1 === 2 && d.getDate() >= 20) ? 1 : 3
       console.log(this.semestersort)
       this.yearsort = d.getFullYear()
       this.initSelectableYears()
