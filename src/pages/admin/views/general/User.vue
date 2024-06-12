@@ -270,7 +270,7 @@
     data () {
       return {
         // 一页显示的用户数
-        pageSize: 5,
+        pageSize: 100,
         // 用户总数
         total: 0,
         // 用户列表
