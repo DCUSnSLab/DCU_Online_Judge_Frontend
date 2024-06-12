@@ -191,7 +191,7 @@
       },
       pushRouter () {
         this.$router.push({
-          name: 'problem-list',
+          name: this.routeName,
           query: utils.filterEmptyValue(this.query)
         })
       },
