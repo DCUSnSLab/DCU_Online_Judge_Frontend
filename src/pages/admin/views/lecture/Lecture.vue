@@ -134,7 +134,8 @@ export default {
       let funcName = this.$route.name === 'edit-lecture' ? 'editLecture' : 'createLecture'
       let data = Object.assign({}, this.lecture)
       api[funcName](data).then(res => {
-        this.$router.push({name: 'lecture-list', query: {refresh: 'true'}})
+        // this.$router.push({name: 'lecture-list', query: {refresh: 'true'}})
+        this.$router.go(-1)
       }).catch(() => {
       })
       console.log(data)
