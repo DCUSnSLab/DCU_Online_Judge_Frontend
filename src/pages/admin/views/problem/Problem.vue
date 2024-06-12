@@ -645,11 +645,12 @@
         }
         api.renameTestcaseFile(this.problem.test_case_id, this.inputName)
         api[funcName](this.problem).then(res => {
-          if (this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem') {
-            this.$router.push({name: 'contest-problem-list', params: {contestId: this.$route.params.contestId}})
-          } else {
-            this.$router.push({name: 'problem-list'})
-          }
+          // if (this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem') {
+          //   this.$router.push({name: 'contest-problem-list', params: {contestId: this.$route.params.contestId}})
+          // } else {
+          //   this.$router.push({name: 'problem-list'})
+          // }
+          this.$router.go(-1)
         }).catch(() => {
         })
       }
