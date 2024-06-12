@@ -103,9 +103,10 @@
         <el-pagination
           class="page"
           layout="prev, pager, next"
-          @current-change="currentChange"
+          @current-change="pushRouter"
           :page-size="pageSize"
-          :total="total">
+          :total="total"
+          :current-page.sync="query.page">
         </el-pagination>
       </div>
     </Panel>
@@ -161,11 +162,18 @@
         currentRow: {},
         InlineEditDialogVisible: false,
         makePublicDialogVisible: false,
-        addProblemDialogVisible: false
+        addProblemDialogVisible: false,
+        query: {
+          page: 1
+        }
       }
     },
     mounted () {
       this.routeName = this.$route.name
+      this.query.page = parseInt(this.$route.query.page) || 1
+      if (this.query.page < 1) {
+        this.query.page = 1
+      }
       this.contestId = this.$route.params.contestId
       this.currentContestInfo(this.contestId)
       this.getProblemList(this.currentPage)
@@ -180,6 +188,12 @@
         } else if (this.routeName === 'contest-problem-list') {
           this.$router.push({name: 'edit-contest-problem', params: {problemId: problemId, contestId: this.contestId}})
         }
+      },
+      pushRouter () {
+        this.$router.push({
+          name: 'problem-list',
+          query: utils.filterEmptyValue(this.query)
+        })
       },
       goCreateProblem () {
         if (this.routeName === 'problem-list') {
@@ -196,12 +210,12 @@
       copyKiller (id) {
         this.$router.push({name: 'copyKiller', params: {problemID: id}})
       },
-      getProblemList (page = 1) {
+      getProblemList () {
         this.loading = true
         let funcName = this.routeName === 'problem-list' ? 'getProblemList' : 'getContestProblemList'
         let params = {
           limit: this.pageSize,
-          offset: (page - 1) * this.pageSize,
+          offset: (this.query.page - 1) * this.pageSize,
           keyword: this.keyword,
           showPublic: this.routeName === 'problem-list' ? 'true' : 'false',
           contest_id: this.contestId
