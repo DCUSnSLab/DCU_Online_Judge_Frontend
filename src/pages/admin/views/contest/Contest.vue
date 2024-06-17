@@ -154,11 +154,12 @@
         console.log(this.contest.lecture_id)
         console.log(data)
         api[funcName](data).then(res => {
-          if (this.contest.lecture_id === null) {
-            this.$router.push({name: 'contest-list', query: {refresh: 'true'}})
-          } else {
-            this.$router.push({name: 'lecture-contest-list', params: {lectureId}, query: {refresh: 'true'}})
-          }
+          // if (this.contest.lecture_id === null) {
+          //   this.$router.push({name: 'contest-list', query: {refresh: 'true'}})
+          // } else {
+          //   this.$router.push({name: 'lecture-contest-list', params: {lectureId}, query: {refresh: 'true'}})
+          // }
+          this.$router.go(-1)
         }).catch(() => {
         })
       },

@@ -73,9 +73,10 @@
         <el-pagination
           class="page"
           layout="prev, pager, next"
-          @current-change="currentChange"
+          @current-change="pushRouter"
           :page-size="pageSize"
-          :total="total">
+          :total="total"
+          :current-page.sync="query.page">
         </el-pagination>
       </div>
     </Panel>
@@ -295,17 +296,32 @@
           number_from: 0,
           number_to: 0,
           password_length: 8
+        },
+        query: {
+          page: 1
         }
       }
     },
     mounted () {
-      this.getUserList(1)
+      // this.getUserList(1)
+      this.query.page = parseInt(this.$route.query.page) || 1
+      if (this.query.page < 1) {
+        this.query.page = 1
+      }
+      this.getUserList(this.query.page)
     },
     methods: {
       // 切换页码回调
       currentChange (page) {
         this.currentPage = page
         this.getUserList(page)
+      },
+      pushRouter () {
+        this.$router.push({
+          name: 'student-list',
+          query: utils.filterEmptyValue(this.query)
+        })
+        this.getUserList()
       },
       // 提交修改用户的信息
       saveUser () {
@@ -329,7 +345,7 @@
       // 获取用户列表
       getUserList (page) {
         this.loadingTable = true
-        api.getUserList((page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
+        api.getUserList((this.query.page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
           this.loadingTable = false
           this.total = res.data.data.total
           this.userList = res.data.data.results

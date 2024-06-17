@@ -60,7 +60,7 @@
       </ol>
       <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
     </Panel>
-    <Pagination :total="total" :pageSize="limit" @on-change="getLectureList" :current.sync="page"></Pagination>
+    <Pagination :total="total" :pageSize="limit" @on-change="pushRouter" :current.sync="query.page"></Pagination>
     </Col>
   </Row>
 
@@ -88,7 +88,8 @@
         query: {
           status: '',
           keyword: '',
-          rule_type: ''
+          rule_type: '',
+          page: 1
         },
         limit: limit,
         total: 0,
@@ -119,16 +120,20 @@
     methods: {
       init () {
         let route = this.$route.query
+        let query = this.$route.query
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
-        this.page = parseInt(route.page) || 1
+        this.query.page = parseInt(query.page) || 1
+        if (this.query.page < 1) {
+          this.query.page = 1
+        }
         let d = new Date()
         this.yearsort = d.getFullYear()
         this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
         this.getLectureList()
       },
-      getLectureList (page = 1) {
-        let offset = (page - 1) * this.limit
+      getLectureList () {
+        let offset = (this.query.page - 1) * this.limit
         api.getLectureList(offset, this.limit, this.query).then((res) => {
           this.lectures = res.data.data.results
           this.total = res.data.data.total
@@ -140,6 +145,12 @@
         this.$router.push({
           name: 'contest-list',
           query: utils.filterEmptyValue(query)
+        })
+      },
+      pushRouter () {
+        this.$router.push({
+          name: 'lecture-list',
+          query: utils.filterEmptyValue(this.query)
         })
       },
       onStatusChange (status) {

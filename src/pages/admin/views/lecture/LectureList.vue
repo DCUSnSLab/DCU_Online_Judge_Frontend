@@ -81,9 +81,10 @@
         <el-pagination
           class="page"
           layout="prev, pager, next"
-          @current-change="currentChange"
+          @current-change="pushRouter"
           :page-size="pageSize"
-          :total="total">
+          :total="total"
+          :current-page.sync="query.page">
         </el-pagination>
       </div>
     </Panel>
@@ -92,7 +93,7 @@
 
 <script>
   import api from '../../api.js'
-
+  import utils from '@/utils/utils'
   export default {
     name: '',
     data () {
@@ -105,10 +106,17 @@
         excludeAdmin: true,
         currentPage: 1,
         currentId: 1,
-        downloadDialogVisible: false
+        downloadDialogVisible: false,
+        query: {
+          page: 1
+        }
       }
     },
     mounted () {
+      this.query.page = parseInt(this.$route.query.page) || 1
+      if (this.query.page < 1) {
+        this.query.page = 1
+      }
       this.getLectureList(this.currentPage)
     },
     methods: {
@@ -116,9 +124,16 @@
         this.currentPage = page
         this.getLectureList(page)
       },
-      getLectureList (page) {
+      pushRouter () {
+        this.$router.push({
+          name: 'lecture-list',
+          query: utils.filterEmptyValue(this.query)
+        })
+        this.getLectureList()
+      },
+      getLectureList () {
         this.loading = true
-        api.getLectureList((page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
+        api.getLectureList((this.query.page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
           this.loading = false
           this.total = res.data.data.total
           this.lectureList = res.data.data.results

@@ -41,8 +41,10 @@
                 <el-pagination
                   class="page"
                   layout="prev, pager, next"
-                  @current-change="currentChange"
-                  :total="total" :pageSize="limit">
+                  @current-change="pushRouter"
+                  :page-size="pageSize"
+                  :total="total"
+                  :current-page.sync="query.page">
                 </el-pagination>
               </div>
             </el-col>
@@ -101,6 +103,7 @@
   import 'bootstrap-vue/dist/bootstrap-vue.css'
   import Vue from 'vue'
   import Simditor from '../../components/Simditor.vue'
+  import utils from '@/utils/utils'
   Vue.use(SidebarPlugin)
 
   export default {
@@ -123,7 +126,10 @@
         contestID: '',
         isEmpty: false,
         limit: 5,
-        total: 0
+        total: 0,
+        query: {
+          page: 1
+        }
       }
     },
     mounted () {
@@ -135,6 +141,10 @@
         let params = ''
         this.contestID = this.$route.params.contestID
         this.LectureID = this.$route.params.lectureID
+        this.query.page = parseInt(this.$route.query.page) || 1
+        if (this.query.page < 1) {
+          this.query.page = 1
+        }
         console.log(this.LectureID)
         if (this.$route.name === 'constest-problem-qna') {
           // this.routeName = true
@@ -187,6 +197,12 @@
         })
         this.$Loading.finish()
       },
+      pushRouter () {
+        this.$router.push({
+          name: this.$route.name,
+          query: utils.filterEmptyValue(this.query)
+        })
+      },
       handleTagsVisible (value) {
         let params = {}
         if (this.$route.name === 'constest-problem-qna') {
@@ -229,13 +245,13 @@
         this.currentPage = page
         this.getLectureList(page)
       },
-      getLectureList (page) {
+      getLectureList () {
         let params = {}
         this.loading = true
         if (this.$route.name === 'constest-problem-qna') {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
-          params = {offset: (page - 1) * this.limit,
+          params = {offset: (this.query.page - 1) * this.limit,
             LectureID: this.LectureID,
             contestID: this.contestID,
             limit: this.limit,
@@ -244,7 +260,7 @@
           params = {all: 'all',
             visible: false,
             limit: this.limit,
-            offset: (page - 1) * this.limit}
+            offset: (this.query.page - 1) * this.limit}
         }
         api.getQnAPost(params).then(res => {
           this.loading = false
