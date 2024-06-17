@@ -82,7 +82,7 @@
       </ol>
       <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
     </Panel>
-    <Pagination :total="total" :pageSize="limit" @on-change="getLectureList" :current.sync="page"></Pagination>
+    <Pagination :total="total" :pageSize="limit" @on-change="pushRouter" :current.sync="query.page"></Pagination>
     </Col>
   </Row>
 
@@ -112,7 +112,8 @@
         query: {
           status: '',
           keyword: '',
-          rule_type: ''
+          rule_type: '',
+          page: 1
         },
         limit: limit,
         total: 0,
@@ -126,7 +127,7 @@
     },
     beforeRouteEnter (to, from, next) {
       let d = new Date()
-      let semester = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
+      let semester = (d.getMonth() + 1 >= 3 && d.getMonth() + 1 <= 7) ? 1 : (d.getMonth() + 1 >= 8 && d.getMonth() + 1 <= 12) ? 2 : (d.getMonth() + 1 === 2 && d.getDate() + 1 >= 20) ? 1 : 3
       api.getTakingLectureList(0, limit, undefined, d.getFullYear(), semester).then((res) => {
         next((vm) => {
           vm.lectures = res.data.data.results
@@ -138,7 +139,8 @@
     },
     mounted () {
       let d = new Date()
-      this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
+      console.log(d)
+      this.semestersort = (d.getMonth() + 1 >= 3 && d.getMonth() + 1 <= 7) ? 1 : (d.getMonth() + 1 >= 8 && d.getMonth() + 1 <= 12) ? 2 : (d.getMonth() + 1 === 2 && d.getDate() >= 20) ? 1 : 3
       console.log(this.semestersort)
       this.yearsort = d.getFullYear()
       this.initSelectableYears()
@@ -148,8 +150,17 @@
         let route = this.$route.query
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
-        this.page = parseInt(route.page) || 1
+        this.query.page = parseInt(route.page) || 1
+        if (this.query.page < 1) {
+          this.query.page = 1
+        }
         this.getLectureList()
+      },
+      pushRouter () {
+        this.$router.push({
+          name: 'course-list',
+          query: utils.filterEmptyValue(this.query)
+        })
       },
       sortYear (year) {
         this.yearsort = year
@@ -167,15 +178,15 @@
         this.page = 1
         this.getSortedLectureList(this.page)
       },
-      getSortedLectureList (page = 1) {
-        let offset = (page - 1) * this.limit
+      getSortedLectureList () {
+        let offset = (this.query.page - 1) * this.limit
         api.getTakingLectureList(offset, this.limit, this.query, this.yearsort, this.semestersort, undefined).then((res) => {
           this.lectures = res.data.data.results
           this.total = res.data.data.total
         })
       },
-      getLectureList (page = 1) {
-        let offset = (page - 1) * this.limit
+      getLectureList () {
+        let offset = (this.query.page - 1) * this.limit
         api.getTakingLectureList(offset, this.limit, this.query, this.yearsort, this.semestersort, undefined).then((res) => {
           this.lectures = res.data.data.results
           this.total = res.data.data.total

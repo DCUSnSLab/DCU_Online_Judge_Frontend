@@ -114,9 +114,10 @@
         <el-pagination
           class="page"
           layout="prev, pager, next"
-          @current-change="currentChange"
+          @current-change="pushRouter"
           :page-size="pageSize"
-          :total="total">
+          :total="total"
+          :current-page.sync="query.page">
         </el-pagination>
       </div>
     </Panel>
@@ -177,12 +178,19 @@
         lectureCreator: '',
         downloadDialogVisible: false,
         addContestDialogVisible: false,
-        addLectureDialogVisible: false
+        addLectureDialogVisible: false,
+        query: {
+          page: 1
+        }
       }
     },
     mounted () {
       this.routeName = this.$route.name
       this.lectureId = this.$route.params.lectureId
+      this.query.page = parseInt(this.$route.query.page) || 1
+      if (this.query.page < 1) {
+        this.query.page = 1
+      }
       this.currentLectureInfo(this.lectureId)
       this.getContestList(this.currentPage)
     },
@@ -197,6 +205,13 @@
         this.currentPage = page
         this.getContestList(page)
       },
+      pushRouter () {
+        this.$router.push({
+          name: this.routeName,
+          query: utils.filterEmptyValue(this.query)
+        })
+        this.getContestList()
+      },
       goContestStudentList (contestId, ContestTitle) {
         this.$router.push({name: 'contest-student-list', params: {contestId, ContestTitle}})
       },
@@ -207,12 +222,12 @@
           this.$router.push({name: 'create-lecture-contest', params: {contestId: this.contestId}})
         }
       },
-      getContestList (page) {
+      getContestList () {
         this.loading = true
         let funcName = this.routeName === 'contest-list' ? 'getContestList' : 'getLectureContestList'
         let params = {
           limit: this.pageSize,
-          offset: (page - 1) * this.pageSize,
+          offset: (this.query.page - 1) * this.pageSize,
           keyword: this.keyword,
           lecture_id: this.lectureId
         }
