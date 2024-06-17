@@ -459,10 +459,9 @@ export default {
       params
     })
   },
-  LectureCopy (params) {
-    params = utils.filterEmptyValue(params)
+  LectureCopy (data) {
     return ajax('admin/lecture/add_lecture_copy', 'post', {
-      params
+      data
     })
   },
   getReleaseNotes () {
