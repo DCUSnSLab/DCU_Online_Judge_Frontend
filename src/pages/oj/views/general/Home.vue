@@ -1,130 +1,117 @@
 <template>
   <Row type="flex" justify="space-around">
     <!-- 1열 -->
-    <Col :span="14">
-      <Row>
-        <panel v-if="(month == 3)">
-          <div slot="title">
-            <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
-            <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
-            DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
-            반드시 개인정보를 수정해주시기 바랍니다.<br/>
-          </div>
-        </panel>
-      </Row>
-      <Row>
-        <panel>
-          <div slot="title">
-            {{$t('m.DCU_Code_Usage_manual_student')}}
-            <!-- DCU Code 사용 메뉴얼 (학생용) -->
-            <Button style="float: right" type="info"><a href="/static/manual.pdf" download>{{$t('m.Download')}}</a></Button>
-          </div>
-        </panel>
-      </Row>
-      <Row>
-        <panel>
-          <div slot="title">
-            {{$t('m.DCU_Code_Intro_video')}}
-            <!-- DCU Code 소개 영상 -->
-            <Button style="float: right" type="info" v-if="!detail" @click="showDetail">{{$t('m.Detail')}}</Button>
-            <Button style="float: right" type="info" v-else @click="showDetail">{{$t('m.Minimization')}}</Button>
-          </div>
-          <p v-if="detail" align="middle">
-            <iframe width="789" height="444" src="https://www.youtube.com/embed/6kaNUXN951c" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-          </p>
-        </panel>
-      </Row>
-      <Row>
-        <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
-          <div slot="title">
-            {{$t('m.My_Course_Progress')}}
-            <!-- 나의 수강과목 진행 현황 -->
-          </div>
-          <!-- DivTable.com -->
-          <!-- <template v-for="pie in pielist"> -->
-          <el-tabs v-model="activeName" tab-position="left" @tab-click="handleClick">
-            <template v-for="pie in pielist">
-              <el-tab-pane :label="pie.title" :name="pie.title">
-                <el-Card class="lecture-card">
-                  <h2 style="margin-bottom:10px">{{ pie.title }}</h2>
-                  <el-table-column
-                    align="center">
-                    <el-row :gutter="12">
-                      <el-col :span="12">
-                        <el-card shadow="always">
-                          <div class="echarts">
-                            <ECharts :options="pie.pie" autoresize></ECharts>
-                          </div>
-                        </el-card>
-                      </el-col>
-                      <el-col :span="12">
-                        <h2 style="padding-bottom:10px">{{$t('m.Ongoing_practice_assignments')}}</h2>
-                        <el-card v-if="clsize > 0" shadow="always">
-                          <ul class="announcements-container" key="list">
-                            <li>
-                              <div class="flex-container">
-                                <div class="title">
-                                  <div class="entry">
-                                    <strong>{{$t('m.Practice_assignment')}}</strong>
-                                  </div>
-                                </div>
-                                <div class="date">
-                                  <strong>{{$t('m.EndDate')}}</strong>
-                                </div>
-                                <div class="creator">
-                                  <strong>{{$t('m.Remaining_Day')}}</strong>
-                                </div>
-                                <div class="problem">
-                                  <strong>{{$t('m.Num_of_Problem_Remaining')}}</strong>
-                                </div>
-                              </div>
-                            </li>
-                            <li v-for="contest in pie.contestlist">
-                              <div class="flex-container">
-                                <div class="title">
-                                  <a class="entry" v-bind:href="'/CourseList/' + pie.lecture_id + '/' + contest.id">
-                                    {{ contest.title }}
-                                  </a>
-                                </div>
-                                <div class="date">
-                                  {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
-                                </div>
-                                <div class="creator">
-                                  {{ remainDuration(contest.end_time) }}
-                                </div>
-                                <div class="problem">
-                                  {{ contest.remainproblem }}
-                                </div>
-                              </div>
-                            </li>
-                          </ul>
-                        </el-card>
-                        <el-card v-else style="text-align:center">
-                          <strong>{{$t('m.No_Ongoing')}}</strong>
-                        </el-card>
-                      </el-col>
-                    </el-row>
-                  </el-table-column>
-                </el-Card>
-              </el-tab-pane>
-            </template>
-          </el-tabs>
-          <!-- </template> -->
-        </panel>
-      </Row>
-      <Row>
-        <Announcements class="announcement"></Announcements>
-      </Row>
-    </Col>
-    <!-- 2열 포스터 -->
-    <Col :span="10" align="center" style="padding-left: 10px;">
-      <panel style="min-width: 665px; min-height: 902px; max-width: 100%; max-height: 100%;">
-          <div slot="title" >
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfuZs5yV9IHX4a3vJYb2WIQfuxS64vIP8ruRk5lIHsA4kfG_g/viewform?pli=1">
-              <img src="../../../../assets/ad_image.jpeg" style="height: 100%; width: 100%; max-width: 657px; max-height: 930px;"/>
-            </a>
-          </div>
+    <Col :span="22">
+      <panel v-if="(month == 3)">
+        <div slot="title">
+          <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
+          <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
+          DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
+          반드시 개인정보를 수정해주시기 바랍니다.<br/>
+        </div>
       </panel>
+    </Col>
+    <Col :span="22">
+      <panel>
+        <div slot="title">
+          {{$t('m.DCU_Code_Usage_manual_student')}}
+          <!-- DCU Code 사용 메뉴얼 (학생용) -->
+          <Button style="float: right" type="info"><a href="/static/manual.pdf" download>{{$t('m.Download')}}</a></Button>
+        </div>
+      </panel>
+    </Col>
+    <Col :span="22">
+      <panel>
+        <div slot="title">
+          {{$t('m.DCU_Code_Intro_video')}}
+          <!-- DCU Code 소개 영상 -->
+          <Button style="float: right" type="info" v-if="!detail" @click="showDetail">{{$t('m.Detail')}}</Button>
+          <Button style="float: right" type="info" v-else @click="showDetail">{{$t('m.Minimization')}}</Button>
+        </div>
+        <p v-if="detail" align="middle">
+          <iframe width="789" height="444" src="https://www.youtube.com/embed/6kaNUXN951c" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </p>
+      </panel>
+    </Col>
+    <Col :span="22">
+      <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
+        <div slot="title">
+          {{$t('m.My_Course_Progress')}}
+          <!-- 나의 수강과목 진행 현황 -->
+        </div>
+        <!-- DivTable.com -->
+        <!-- <template v-for="pie in pielist"> -->
+        <el-tabs v-model="activeName" tab-position="left" @tab-click="handleClick">
+          <template v-for="pie in pielist">
+            <el-tab-pane :label="pie.title" :name="pie.title">
+              <el-Card class="lecture-card">
+                <h2 style="margin-bottom:10px">{{ pie.title }}</h2>
+                <el-table-column align="center">
+                  <el-row :gutter="12">
+                    <el-col :span="12">
+                      <el-card shadow="always">
+                        <div class="echarts">
+                          <ECharts :options="pie.pie" autoresize></ECharts>
+                        </div>
+                      </el-card>
+                    </el-col>
+                    <el-col :span="12">
+                      <h2 style="padding-bottom:10px">{{$t('m.Ongoing_practice_assignments')}}</h2>
+                      <el-card v-if="clsize > 0" shadow="always">
+                        <ul class="announcements-container" key="list">
+                          <li>
+                            <div class="flex-container">
+                              <div class="title">
+                                <div class="entry">
+                                  <strong>{{$t('m.Practice_assignment')}}</strong>
+                                </div>
+                              </div>
+                              <div class="date">
+                                <strong>{{$t('m.EndDate')}}</strong>
+                              </div>
+                              <div class="creator">
+                                <strong>{{$t('m.Remaining_Day')}}</strong>
+                              </div>
+                              <div class="problem">
+                                <strong>{{$t('m.Num_of_Problem_Remaining')}}</strong>
+                              </div>
+                            </div>
+                          </li>
+                          <li v-for="contest in pie.contestlist">
+                            <div class="flex-container">
+                              <div class="title">
+                                <a class="entry" v-bind:href="'/CourseList/' + pie.lecture_id + '/' + contest.id">
+                                  {{ contest.title }}
+                                </a>
+                              </div>
+                              <div class="date">
+                                {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
+                              </div>
+                              <div class="creator">
+                                {{ remainDuration(contest.end_time) }}
+                              </div>
+                              <div class="problem">
+                                {{ contest.remainproblem }}
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                      </el-card>
+                      <el-card v-else style="text-align:center">
+                        <strong>{{$t('m.No_Ongoing')}}</strong>
+                      </el-card>
+                    </el-col>
+                  </el-row>
+                </el-table-column>
+              </el-Card>
+            </el-tab-pane>
+          </template>
+        </el-tabs>
+        <!-- </template> -->
+      </panel>
+    </Col>
+    <Col :span="22">
+      <Announcements class="announcement"></Announcements>
     </Col>
   </Row>
 </template>
