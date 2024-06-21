@@ -140,8 +140,8 @@
     mounted () {
       let d = new Date()
       this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
-      console.log(this.semestersort)
       this.yearsort = d.getFullYear()
+      this.init()
       this.initSelectableYears()
     },
     methods: {
