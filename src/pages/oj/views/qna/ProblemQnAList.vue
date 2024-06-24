@@ -42,7 +42,7 @@
                   class="page"
                   layout="prev, pager, next"
                   @current-change="pushRouter"
-                  :page-size="pageSize"
+                  :page-size="limit"
                   :total="total"
                   :current-page.sync="query.page">
                 </el-pagination>
@@ -128,7 +128,7 @@
         limit: 5,
         total: 0,
         query: {
-          page: 1
+          page: parseInt(this.$route.query.page) || 1
         }
       }
     },
@@ -145,32 +145,30 @@
         if (this.query.page < 1) {
           this.query.page = 1
         }
-        console.log(this.LectureID)
         if (this.$route.name === 'constest-problem-qna') {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
           params = {contestID: this.contestID,
             LectureID: this.LectureID,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit,
             visible: false}
         } else if (this.$route.name === 'constest-problem-public-qna') {
           params = {contestID: this.contestID,
             LectureID: this.LectureID,
             problemID: this.$route.params.problemID,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit,
             visible: false}
         } else {
           params = {all: 'all',
             visible: false,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit}
         }
         // this.contestID = this.$route.params.contestID
         // let params = {contestID: this.contestID, visible: false}
         api.getQnAPost(params).then(res => {
-          console.log(res)
           this.qnaList = res.data.data.results
           // if (this.LectureID === undefined) {
           if (this.$route.name === 'constest-problem-qna') {
@@ -192,7 +190,6 @@
               'content': '안녕하세요. DCU Code 관리자 입니다.<br/>본 공개 질문 페이지에서는 프로그래밍 문법 등에 대하여 질문하는 페이지이며, <b>자신이 푼 실습, 과제 코드 공유가 금지되어 있습니다.</b><br/>과제, 실습관련 질문은 해당 과목 페이지 질문을 이용해주세요.<br/><b>코드 공유시 미통보 삭제됩니다.</b><br/>감사합니다.'
             })
           }
-          console.log(this.qnaList)
           this.total = res.data.data.total
         })
         this.$Loading.finish()
@@ -202,6 +199,7 @@
           name: this.$route.name,
           query: utils.filterEmptyValue(this.query)
         })
+        this.getLectureList()
       },
       handleTagsVisible (value) {
         let params = {}
@@ -210,18 +208,17 @@
           // params = {LectureID: this.LectureID, visible: false}
           params = {contestID: this.contestID,
             LectureID: this.LectureID,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit,
             visible: value}
         } else {
           params = {all: 'all',
             visible: value,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit}
         }
         api.getQnAPost(params).then(res => {
           this.qnaList = res.data.data.results
-          console.log(res.data.data.results)
           this.total = res.data.data.total
         })
       },
