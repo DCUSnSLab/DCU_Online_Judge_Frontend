@@ -35,7 +35,7 @@
         <el-date-picker
           v-model="start_time"
           type="datetime"
-          :placeholder="$t('m.Contest_Start_Time')">
+          :placeholder="$t('실습 시작 시간')">
         </el-date-picker>
       </el-col>
     </el-row>
@@ -219,7 +219,7 @@
           selectProb.push(this.data[0].elements_id[this.data[0].elements.indexOf(this.values[val])])
         }
         if (this.start_time === '') {
-          this.$error('시작 시간을 선택 해주세요.')
+          this.$error('실습 시작 시간을 입력해 주세요.(실습 시작 시간 입력 시, 해당 시작 시간 기준으로 실습시간이 변경됩니다.)')
           return
         }
         let data = {
