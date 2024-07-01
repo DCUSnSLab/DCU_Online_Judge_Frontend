@@ -180,7 +180,7 @@
         addContestDialogVisible: false,
         addLectureDialogVisible: false,
         query: {
-          page: 1
+          page: parseInt(this.$route.query.page) || 1
         }
       }
     },

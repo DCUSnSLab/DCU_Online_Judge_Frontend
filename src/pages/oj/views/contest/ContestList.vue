@@ -123,6 +123,9 @@
         next()
       })
     },
+    mounted () {
+      this.init()
+    },
     methods: {
       init () {
         let route = this.$route.query
