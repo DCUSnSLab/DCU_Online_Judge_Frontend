@@ -194,7 +194,7 @@
                     <div class="result-container">
                         <p class="sub-title">{{$t('결과 >')}}</p>
                         <div class="text-box"
-                        :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                        :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
                           <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
                         </div>
                     </div>
@@ -416,7 +416,7 @@
                   <div class="result-container">
                       <p class="sub-title">{{$t('결과 >')}}</p>
                       <div class="text-box"
-                      :style="{color: runResultData[index] === '오류' ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                      :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
                         <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
                       </div>
                   </div>
@@ -1039,6 +1039,8 @@
               this.runResultData.push('오답')
             } else if (resultData[i] === 0) {
               this.runResultData.push('정답')
+            } else if (resultData[i] === 1) {
+              this.runResultData.push('오류(시간초과)')
             } else {
               this.runResultData.push('오류')
             }
