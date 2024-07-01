@@ -298,7 +298,7 @@
           password_length: 8
         },
         query: {
-          page: 1
+          page: parseInt(this.$route.query.page) || 1
         }
       }
     },
