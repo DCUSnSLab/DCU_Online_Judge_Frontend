@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="4">
+      <el-col :span="2">
         <el-select v-model="year">
           <el-option value="2020">2020년도</el-option>
           <el-option value="2021">2021년도</el-option>
@@ -10,7 +10,7 @@
           <el-option value="2024">2024년도</el-option>
         </el-select>
       </el-col>
-      <el-col :span="2">
+      <el-col :span="1">
         <el-select v-model="semester">
           <el-option value="1">{{$t('m.First_Semester')}}</el-option>
           <el-option value="2">{{$t('m.Second_Semester')}}</el-option>
@@ -27,9 +27,16 @@
       <el-col :span="2">
         <el-button @click="searchLecture">{{$t('m.Lecture_Search')}}</el-button>
       </el-col>
-      <el-col :span="4">
+      <el-col :span="3">
         <el-checkbox @change="handleVisibleSwitch" v-model="showPublic" :label="$t('m.AddPublickContest_All_Practice')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
+      </el-col>
+      <el-col :span="3">
+        <el-date-picker
+          v-model="start_time"
+          type="datetime"
+          :placeholder="$t('m.Contest_Start_Time')">
+        </el-date-picker>
       </el-col>
     </el-row>
     <el-table :data="contests" v-loading="loading">
@@ -152,7 +159,8 @@
         contests: [],
         lecture: {},
         keyword: '',
-        dropdown: ''
+        dropdown: '',
+        start_time: ''
       }
     },
     mounted () {
@@ -210,15 +218,21 @@
         for (let val in this.values) {
           selectProb.push(this.data[0].elements_id[this.data[0].elements.indexOf(this.values[val])])
         }
+        if (this.start_time === '') {
+          this.$error('시작 시간을 선택 해주세요.')
+          return
+        }
         let data = {
           prob_id: selectProb,
           contest_id: contestID,
-          lecture_id: this.lectureID
+          lecture_id: this.lectureID,
+          start_time: this.start_time
         }
         // initialize values
         this.data[0].elements = []
         this.data[0].elements_id = []
         // data send to server
+        console.log(data)
         api.addContestFromPublic(data).then(() => {
           this.$emit('on-change')
         }, () => {
