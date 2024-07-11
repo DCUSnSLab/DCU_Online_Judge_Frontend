@@ -112,6 +112,9 @@ export default {
       params
     })
   },
+  getPublicKey () {
+    return ajax('get_public_key', 'get')
+  },
   login (data) {
     return ajax('login', 'post', {
       data
