@@ -126,15 +126,15 @@
           this.loading.btnPassword = true
           const encrypt = new JSEncrypt()
           encrypt.setPublicKey(this.public_key)
-          this.formPassword.new_password = encrypt.encrypt(this.formPassword.new_password)
+          // this.formPassword.new_password = encrypt.encrypt(this.formPassword.new_password)
           let data = Object.assign({}, this.formPassword)
+          data.new_password = encrypt.encrypt(this.formPassword.new_password)
           console.log(data)
           delete data.again_password
           if (!this.visible.tfaRequired) {
             delete data.tfa_code
           }
           api.changePassword(data).then(res => {
-            console.log(res)
             this.loading.btnPassword = false
             this.visible.passwordAlert = true
             this.$success(this.$i18n.t('m.Success_password_change'))

@@ -191,9 +191,9 @@
           this.btnLoginLoading = true
           const encrypt = new JSEncrypt()
           encrypt.setPublicKey(this.public_key)
-          this.formRegister.password = encrypt.encrypt(this.formRegister.password)
+          // this.formRegister.password = encrypt.encrypt(this.formRegister.password)
           let formData = Object.assign({}, this.formRegister)
-          console.log(formData)
+          formData.password = encrypt.encrypt(this.formRegister.password)
           delete formData['passwordAgain']
           this.btnRegisterLoading = true
           api.register(formData).then(res => {

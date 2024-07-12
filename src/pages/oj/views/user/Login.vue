@@ -93,8 +93,9 @@
           this.btnLoginLoading = true
           const encrypt = new JSEncrypt()
           encrypt.setPublicKey(this.public_key)
-          this.formLogin.password = encrypt.encrypt(this.formLogin.password)
+          // this.formLogin.password = encrypt.encrypt(this.formLogin.password)
           let formData = Object.assign({}, this.formLogin)
+          formData.password = encrypt.encrypt(this.formLogin.password)
           if (!this.tfaRequired) {
             delete formData['tfa_code']
           }
