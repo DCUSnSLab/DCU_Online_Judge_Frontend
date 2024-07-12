@@ -73,6 +73,7 @@
   import { mapGetters, mapActions } from 'vuex'
   import api from '@oj/api'
   import { FormMixin } from '@oj/components/mixins'
+  import JSEncrypt from 'jsencrypt'
 
   export default {
     mixins: [FormMixin],
@@ -182,8 +183,15 @@
           visible: true
         })
       },
-      handleRegister () {
+      async handleRegister () {
+        await api.getPublicKey().then(res => {
+          this.public_key = res.data.data.public_key
+        })
         this.validateForm('formRegister').then(valid => {
+          this.btnLoginLoading = true
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
+          this.formRegister.password = encrypt.encrypt(this.formRegister.password)
           let formData = Object.assign({}, this.formRegister)
           console.log(formData)
           delete formData['passwordAgain']
