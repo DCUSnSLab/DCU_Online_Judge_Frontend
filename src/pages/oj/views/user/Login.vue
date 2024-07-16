@@ -36,6 +36,7 @@
   import { mapGetters, mapActions } from 'vuex'
   import api from '@oj/api'
   import { FormMixin } from '@oj/components/mixins'
+  import JSEncrypt from 'jsencrypt'
 
   export default {
     mixins: [FormMixin],
@@ -52,6 +53,7 @@
       return {
         tfaRequired: false,
         btnLoginLoading: false,
+        public_key: '',
         formLogin: {
           username: '',
           password: '',
@@ -76,10 +78,24 @@
           visible: true
         })
       },
-      handleLogin () {
+      // encrypt () {
+      //   const encrypt = new JSEncrypt()
+      //   api.getPublicKey().then(res => {
+      //     encrypt.setPublicKey(publicKey)
+      //   })
+      //   return encrypt.encrypt(this.formLogin.password)
+      // },
+      async handleLogin () {
+        await api.getPublicKey().then(res => {
+          this.public_key = res.data.data.public_key
+        })
         this.validateForm('formLogin').then(valid => {
           this.btnLoginLoading = true
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
+          // this.formLogin.password = encrypt.encrypt(this.formLogin.password)
           let formData = Object.assign({}, this.formLogin)
+          formData.password = encrypt.encrypt(this.formLogin.password)
           if (!this.tfaRequired) {
             delete formData['tfa_code']
           }
@@ -88,7 +104,6 @@
             this.changeModalStatus({visible: false})
             this.getProfile()
             this.$success(this.$i18n.t('m.Welcome_back'))
-            console.log('test')
             this.$router.replace({
               path: '/login'
             })
