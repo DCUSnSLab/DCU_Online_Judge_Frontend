@@ -58,6 +58,8 @@
             <el-form-item :label="$t('m.Contest_Rule_Type')">
               <el-radio class="radio" v-model="contest.rule_type" label="ACM" :disabled="disableRuleType">ACM</el-radio>
               <el-radio class="radio" v-model="contest.rule_type" label="OI" :disabled="disableRuleType">OI</el-radio>
+              <el-radio class="radio" v-model="contest.rule_type" label="Syspro" :disabled="disableRuleType">Syspro</el-radio>
+              <el-radio class="radio" v-model="contest.rule_type" label="Command" :disabled="disableRuleType">Command</el-radio>
             </el-form-item>
           </el-col>
           <el-col :span="8">
