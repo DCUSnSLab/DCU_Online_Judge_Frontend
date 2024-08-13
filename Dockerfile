@@ -13,7 +13,7 @@ RUN apt-get install vim -y
 RUN mkdir -p /usr/local/nvm
 ENV NVM_DIR /usr/local/nvm
 # Nodejs 버전 명시
-ENV NODE_VERSION 8.12.0
+ENV NODE_VERSION 10.24.1
 
 RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 RUN source $NVM_DIR/nvm.sh && nvm install $NODE_VERSION && nvm use --delete-prefix $NODE_VERSION

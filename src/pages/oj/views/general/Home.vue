@@ -127,6 +127,8 @@ import time from '@/utils/time'
 import { CONTEST_STATUS } from '@/utils/constants'
 import utils from '@/utils/utils'
 import {types} from '@/store'
+import { Terminal } from '@xterm/xterm'
+import '@xterm/xterm/css/xterm.css'
 
 Vue.use(Element)
 
