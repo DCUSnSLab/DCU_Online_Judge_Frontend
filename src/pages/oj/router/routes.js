@@ -8,6 +8,7 @@ import {
   Home,
   Login_,
   Logout,
+  Terminal,
   NotFound,
   OIRank,
   Problem,
@@ -288,6 +289,12 @@ export default [
     name: 'about',
     meta: {title: 'About'},
     component: About
+  },
+  {
+    path: '/terminal',
+    name: 'terminal',
+    meta: {title: 'Terminal'},
+    component: Terminal
   },
   {
     path: '/faq',
