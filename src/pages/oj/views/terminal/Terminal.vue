@@ -1,24 +1,38 @@
 <template>
-  <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
+  <div>
+    <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
+      <div>
+        <label for="passwordInput">Password: </label>
+        <input type="password" v-model="password" id="passwordInput" />
+      </div>
+      <button @click="submitForm">Connect</button>
+    </Card>
     <div>
-      <label for="passwordInput">Password: </label>
-      <input type="password" v-model="password" id="passwordInput" />
+      <el-tabs
+        type="border-card">
+        <el-tab-pane 
+          v-for="(container, index) of multiContainer"
+          :key="index"
+          :label="index"
+        >
+          <iframe
+            id="webssh"
+            name="webssh"
+            width="100%"
+            height="800px"
+            src=""
+            frameborder="0"
+            allowfullscreen
+          ></iframe>
+        </el-tab-pane>
+      </el-tabs>
     </div>
-    <button @click="submitForm">Connect</button>
-    <iframe
-      id="webssh"
-      name="webssh"
-      width="100%"
-      height="800px"
-      src=""
-      frameborder="0"
-      allowfullscreen
-    ></iframe>
-  </Card>
+  </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import Vue from 'vue'
 import api from '@oj/api'
 
 export default {
@@ -28,7 +42,8 @@ export default {
       userData: {
         id: '',
         password: ''
-      }
+      },
+      multiContainer: [[1], [2]]
     }
   },
   mounted () {
@@ -55,7 +70,7 @@ export default {
     submitForm () {
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = 'http://localhost:2224/ssh/host'
+      form.action = '/webssh'
       form.target = 'webssh'
 
       this.addFormInput(form, 'username', this.userData.id)
