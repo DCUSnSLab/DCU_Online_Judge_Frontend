@@ -11,13 +11,13 @@
       <el-tabs
         type="border-card">
         <el-tab-pane 
-          v-for="(container, index) of multiContainer"
+          v-for="(containerName, index) of multiContainer"
           :key="index"
-          :label="index"
+          :label="'contanier '+index"
         >
           <iframe
-            id="webssh"
-            name="webssh"
+            id="container"
+            name="container"
             width="100%"
             height="800px"
             src=""
@@ -36,14 +36,14 @@ import Vue from 'vue'
 import api from '@oj/api'
 
 export default {
-  name: 'Terminal',
+  name: 'Container',
   data () {
     return {
       userData: {
         id: '',
         password: ''
       },
-      multiContainer: [[1], [2]]
+      multiContainer: []
     }
   },
   mounted () {
@@ -68,11 +68,11 @@ export default {
       form.appendChild(input)
     },
     submitForm () {
+      this.multiContainer.push('container')
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = '/webssh'
-      form.target = 'webssh'
-
+      form.action = 'http://localhost:2224/ssh/host'
+      form.target = 'container'
       this.addFormInput(form, 'username', this.userData.id)
       this.addFormInput(form, 'userpassword', this.password)
       this.addFormInput(form, 'fontSize', '20')

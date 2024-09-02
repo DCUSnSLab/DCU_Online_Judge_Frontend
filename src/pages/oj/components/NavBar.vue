@@ -10,6 +10,10 @@
     <Icon type="ios-book"></Icon>
     {{$t('m.Signup_Lectures')}}
   </el-menu-item>
+  <el-menu-item index="/container">
+   <Icon type="monitor"></Icon>
+    {{$t('컨테이너')}}
+  </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
     {{$t('m.Lectures')}}
@@ -40,10 +44,6 @@
     <el-menu-item index="/about">{{$t('m.Judger')}}</el-menu-item>
     <el-menu-item index="/FAQ">{{$t('m.FAQ')}}</el-menu-item>
   </el-submenu>
-  <el-menu-item index="/Terminal">
-   <Icon type="monitor"></Icon>
-    {{$t('Terminal')}}
-  </el-menu-item>
   <template v-if="!isAuthenticated" >
     <el-menu-item index="register" style="float:right;">
       <div class="btn-menu">

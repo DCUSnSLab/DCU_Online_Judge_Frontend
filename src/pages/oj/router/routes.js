@@ -8,7 +8,7 @@ import {
   Home,
   Login_,
   Logout,
-  Terminal,
+  Container,
   NotFound,
   OIRank,
   Problem,
@@ -291,10 +291,10 @@ export default [
     component: About
   },
   {
-    path: '/terminal',
-    name: 'terminal',
-    meta: {title: 'Terminal'},
-    component: Terminal
+    path: '/container',
+    name: 'container',
+    meta: {title: 'Container'},
+    component: Container
   },
   {
     path: '/faq',
