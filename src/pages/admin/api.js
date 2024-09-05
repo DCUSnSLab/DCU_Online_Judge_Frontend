@@ -21,6 +21,9 @@ export default {
   logout () {
     return ajax('logout', 'get')
   },
+  getPublicKey () {
+    return ajax('get_public_key', 'get')
+  },
   getProfile () {
     return ajax('profile', 'get')
   },

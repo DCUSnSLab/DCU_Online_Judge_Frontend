@@ -264,7 +264,8 @@
   import papa from 'papaparse'
   import api from '../../api.js'
   import utils from '@/utils/utils'
-
+  import JSEncrypt from 'jsencrypt'
+  
   export default {
     name: 'User',
     data () {
@@ -299,7 +300,8 @@
         },
         query: {
           page: parseInt(this.$route.query.page) || 1
-        }
+        },
+        public_key: ''
       }
     },
     mounted () {
@@ -324,7 +326,15 @@
         this.getUserList()
       },
       // 提交修改用户的信息
-      saveUser () {
+      async saveUser () {
+        if (this.user.password !== '') {
+          await api.getPublicKey().then(res => {
+            this.public_key = res.data.data.public_key
+          })
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
+          this.user.password = encrypt.encrypt(this.user.password)
+        }
         api.editUser(this.user).then(res => {
           // 更新列表
           this.getUserList(this.currentPage)

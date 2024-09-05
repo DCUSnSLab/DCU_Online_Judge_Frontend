@@ -17,7 +17,7 @@
 
 <script>
   import api from '../../api'
-
+  import JSEncrypt from 'jsencrypt'
   export default {
     data () {
       return {
@@ -26,6 +26,7 @@
           account: '',
           password: ''
         },
+        public_key: '',
         rules2: {
           account: [
             {required: true, trigger: 'blur'}
@@ -38,11 +39,16 @@
       }
     },
     methods: {
-      handleLogin (ev) {
+      async handleLogin (ev) {
+        await api.getPublicKey().then(res => {
+          this.public_key = res.data.data.public_key
+        })
         this.$refs.ruleForm2.validate((valid) => {
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
           if (valid) {
             this.logining = true
-            api.login(this.ruleForm2.account, this.ruleForm2.password).then(data => {
+            api.login(this.ruleForm2.account, encrypt.encrypt(this.ruleForm2.password)).then(data => {
               this.logining = false
               this.$router.push({name: 'dashboard'})
             }, () => {

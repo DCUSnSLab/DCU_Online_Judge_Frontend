@@ -50,6 +50,7 @@
 <script>
   import api from '@oj/api'
   import { FormMixin } from '@oj/components/mixins'
+  import JSEncrypt from 'jsencrypt'
 
   export default {
     mixins: [FormMixin],
@@ -117,10 +118,18 @@
       this.formEmail.old_email = this.$store.getters.user.email || ''
     },
     methods: {
-      changePassword () {
+      async changePassword () {
+        await api.getPublicKey().then(res => {
+          this.public_key = res.data.data.public_key
+        })
         this.validateForm('formPassword').then(valid => {
           this.loading.btnPassword = true
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
+          // this.formPassword.new_password = encrypt.encrypt(this.formPassword.new_password)
           let data = Object.assign({}, this.formPassword)
+          data.new_password = encrypt.encrypt(this.formPassword.new_password)
+          console.log(data)
           delete data.again_password
           if (!this.visible.tfaRequired) {
             delete data.tfa_code
