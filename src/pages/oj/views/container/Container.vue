@@ -1,29 +1,40 @@
 <template>
   <div>
     <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
-      <div>
+      <div class="form-container" v-if="!passwordEntered">
         <label for="passwordInput">Password: </label>
         <input type="password" v-model="password" id="passwordInput" />
+        <button @click="setPassword">Connect</button>
       </div>
-      <button @click="submitForm">Connect</button>
+      <div class="form-container" v-else>
+        <button @click="resetPassword">PWreset</button>
+        <button @click="addContainer">addContainer</button>
+      </div>
     </Card>
     <div>
       <el-tabs
-        type="border-card">
+        v-model="editConainer"
+        type="border-card"
+        closable
+        @tab-remove="removeTab"
+      >
         <el-tab-pane 
           v-for="(containerName, index) of multiContainer"
           :key="index"
-          :label="'contanier '+index"
+          :label="'container '+index"
+          :name="index.toString()"
         >
-          <iframe
-            id="container"
-            name="container"
-            width="100%"
-            height="800px"
-            src=""
-            frameborder="0"
-            allowfullscreen
-          ></iframe>
+          <div class="iframe-container">
+            <iframe
+              id="container"
+              :name="'container'+index"
+              width="100%"
+              height="800px"
+              :src="containerName"
+              frameborder="0"
+              allowfullscreen
+            ></iframe>
+          </div>
         </el-tab-pane>
       </el-tabs>
     </div>
@@ -43,7 +54,8 @@ export default {
         id: '',
         password: ''
       },
-      multiContainer: []
+      multiContainer: [],
+      passwordEntered: false
     }
   },
   mounted () {
@@ -67,20 +79,40 @@ export default {
       input.value = value
       form.appendChild(input)
     },
-    submitForm () {
-      this.multiContainer.push('container')
+    settingNewContainer (newContainerUrl) {
       const form = document.createElement('form')
       form.method = 'POST'
-      form.action = 'http://localhost:2224/ssh/host'
-      form.target = 'container'
+      form.action = newContainerUrl
+      form.target = 'container' + (this.multiContainer.length - 1)
+      console.log(form.target)
       this.addFormInput(form, 'username', this.userData.id)
-      this.addFormInput(form, 'userpassword', this.password)
+      this.addFormInput(form, 'userpassword', this.userData.password)
       this.addFormInput(form, 'fontSize', '20')
-
       document.body.appendChild(form)
       form.submit()
-
       document.body.removeChild(form)
+    },
+    addContainer () {
+      const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.multiContainer.length
+      this.multiContainer.push(newContainerUrl)
+      this.$nextTick(() => {
+        this.settingNewContainer(newContainerUrl)
+      })
+    },
+    setPassword () {
+      this.userData.password = this.password
+      this.password = ''
+      this.passwordEntered = true
+    },
+    resetPassword () {
+      this.passwordEntered = false
+    },
+    removeTab (targetIndex) {
+      console.log(targetIndex)
+      this.multiContainer.splice(Number(targetIndex), 1)
+      if (this.editContainer === targetIndex) {
+        this.editContainer = this.multiContainer.length ? '0' : ''
+      }
     }
   },
   computed: {
@@ -97,5 +129,10 @@ export default {
   bottom: 0;
   display: flex;
   flex-direction: column;
+}
+.form-container {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 요소 간 간격 */
 }
 </style>
