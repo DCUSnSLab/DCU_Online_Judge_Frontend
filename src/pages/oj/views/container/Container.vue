@@ -9,6 +9,7 @@
       <div class="form-container" v-else>
         <button @click="resetPassword">PWreset</button>
         <button @click="addContainer">addContainer</button>
+        <button @click="debug">debug</button>
       </div>
     </Card>
     <div>
@@ -19,18 +20,18 @@
         @tab-remove="removeTab"
       >
         <el-tab-pane 
-          v-for="(containerName, index) of multiContainer"
-          :key="index"
+          v-for="(containerURL, index) of multiContainer"
+          :key="containerURL"
           :label="'container '+index"
-          :name="index.toString()"
+          :name="containerURL"
         >
           <div class="iframe-container">
             <iframe
               id="container"
-              :name="'container'+index"
+              :name="containerURL"
               width="100%"
               height="800px"
-              :src="containerName"
+              :src="containerURL"
               frameborder="0"
               allowfullscreen
             ></iframe>
@@ -43,7 +44,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import Vue from 'vue'
 import api from '@oj/api'
 
 export default {
@@ -55,7 +55,8 @@ export default {
         password: ''
       },
       multiContainer: [],
-      passwordEntered: false
+      passwordEntered: false,
+      containerCount: 0
     }
   },
   mounted () {
@@ -83,7 +84,7 @@ export default {
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = newContainerUrl
-      form.target = 'container' + (this.multiContainer.length - 1)
+      form.target = newContainerUrl
       console.log(form.target)
       this.addFormInput(form, 'username', this.userData.id)
       this.addFormInput(form, 'userpassword', this.userData.password)
@@ -93,7 +94,8 @@ export default {
       document.body.removeChild(form)
     },
     addContainer () {
-      const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.multiContainer.length
+      const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount
+      this.containerCount = this.containerCount + 1
       this.multiContainer.push(newContainerUrl)
       this.$nextTick(() => {
         this.settingNewContainer(newContainerUrl)
@@ -107,12 +109,16 @@ export default {
     resetPassword () {
       this.passwordEntered = false
     },
-    removeTab (targetIndex) {
-      console.log(targetIndex)
-      this.multiContainer.splice(Number(targetIndex), 1)
-      if (this.editContainer === targetIndex) {
-        this.editContainer = this.multiContainer.length ? '0' : ''
+    removeTab (targetName) {
+      console.log(targetName)
+      console.log(this.editContainer)
+      this.multiContainer = this.multiContainer.filter(multiContainer => multiContainer !== targetName)
+      if (this.editContainer === targetName) {
+        this.editContainer = this.tabs.length ? this.tabs[0].name : ''
       }
+    },
+    debug () {
+      console.log(this.multiContainer)
     }
   },
   computed: {
@@ -133,6 +139,6 @@ export default {
 .form-container {
   display: flex;
   align-items: center;
-  gap: 10px; /* 요소 간 간격 */
+  gap: 10px;
 }
 </style>
