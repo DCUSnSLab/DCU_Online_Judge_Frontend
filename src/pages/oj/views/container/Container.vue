@@ -9,7 +9,6 @@
       <div class="form-container" v-else>
         <button @click="resetPassword">PWreset</button>
         <button @click="addContainer">addContainer</button>
-        <button @click="debug">debug</button>
       </div>
     </Card>
     <div>
@@ -22,7 +21,7 @@
         <el-tab-pane 
           v-for="(containerURL, index) of multiContainer"
           :key="containerURL"
-          :label="'container '+index"
+          :label="'container '+(index+1)"
           :name="containerURL"
         >
           <div class="iframe-container">
@@ -116,9 +115,6 @@ export default {
       if (this.editContainer === targetName) {
         this.editContainer = this.tabs.length ? this.tabs[0].name : ''
       }
-    },
-    debug () {
-      console.log(this.multiContainer)
     }
   },
   computed: {
