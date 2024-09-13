@@ -405,6 +405,7 @@ export default {
         this.$success('Success')
         this.$store.commit(types.CHANGE_PROFILE, {profile: res.data.data})
         this.loadingSaveBtn = false
+        this.dialogFormVisible = false
       }, _ => {
         this.loadingSaveBtn = false
       })
