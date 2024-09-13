@@ -2,7 +2,7 @@
   <Row type="flex" justify="space-around">
     <!-- 1열 -->
     <Col :span="22">
-      <panel v-if="(month == 3)">
+      <panel>
         <div slot="title">
           <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
           <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
