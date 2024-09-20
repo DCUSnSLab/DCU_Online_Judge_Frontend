@@ -93,7 +93,7 @@ export default {
       document.body.removeChild(form)
     },
     addContainer () {
-      const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount
+      const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
       this.containerCount = this.containerCount + 1
       this.multiContainer.push(newContainerUrl)
       this.$nextTick(() => {
