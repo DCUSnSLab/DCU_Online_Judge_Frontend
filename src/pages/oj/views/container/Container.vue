@@ -55,7 +55,8 @@ export default {
       },
       multiContainer: [],
       passwordEntered: false,
-      containerCount: 0
+      containerCount: 0,
+      sessionId: ''
     }
   },
   mounted () {
@@ -67,10 +68,11 @@ export default {
         this.$error(this.$i18n.t('m.Please_login_first'))
         this.$router.push({ name: 'Home' })
       }
-      this.userData.id = 'dcucodetest'
       api.getUserInfo().then(res => {
         this.userData.id = res.data.data.user.username
       })
+      this.sessionId = this.getCookie('sessionid')
+      console.log(this.sessionId)
     },
     addFormInput (form, name, value) {
       const input = document.createElement('input')
@@ -93,7 +95,8 @@ export default {
       document.body.removeChild(form)
     },
     addContainer () {
-      const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
+      // const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
+      const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount // develop
       this.containerCount = this.containerCount + 1
       this.multiContainer.push(newContainerUrl)
       this.$nextTick(() => {
@@ -115,6 +118,13 @@ export default {
       if (this.editContainer === targetName) {
         this.editContainer = this.tabs.length ? this.tabs[0].name : ''
       }
+    },
+    getCookie (name) {
+      const value = `; ${document.cookie}`
+      const parts = value.split(`; ${name}=`)
+      console.log(parts)
+      if (parts.length === 2) return parts.pop().split(';').shift()
+      return null
     }
   },
   computed: {
