@@ -9,6 +9,7 @@
       <div class="form-container" v-else>
         <button @click="resetPassword">PWreset</button>
         <button @click="addContainer">addContainer</button>
+        <button @click="debug">debug</button>
       </div>
     </Card>
     <div>
@@ -81,12 +82,21 @@ export default {
       input.value = value
       form.appendChild(input)
     },
+    debug () {
+      const accessToken = localStorage.getItem('access_token')
+      let data = {
+        token: accessToken
+      }
+      api.tokenAuth(data).then(res => {
+        console.log(res)
+        console.log('test')
+      })
+    },
     settingNewContainer (newContainerUrl) {
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = newContainerUrl
       form.target = newContainerUrl
-      console.log(form.target)
       this.addFormInput(form, 'username', this.userData.id)
       this.addFormInput(form, 'userpassword', this.userData.password)
       this.addFormInput(form, 'fontSize', '20')
