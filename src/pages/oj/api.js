@@ -481,6 +481,11 @@ export default {
       data
     })
   },
+  tokenRefresh (data) {
+    return ajax('token_refresh', 'post', {
+      data
+    })
+  },
   checkContestExit (contestId) {    // working by soojung
     return ajax('problem/contest_exit_info', 'get', {
       params: {

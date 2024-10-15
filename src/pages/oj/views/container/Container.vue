@@ -72,8 +72,6 @@ export default {
       api.getUserInfo().then(res => {
         this.userData.id = res.data.data.user.username
       })
-      this.sessionId = this.getCookie('sessionid')
-      console.log(this.sessionId)
     },
     addFormInput (form, name, value) {
       const input = document.createElement('input')
@@ -97,11 +95,12 @@ export default {
       form.method = 'POST'
       form.action = newContainerUrl
       form.target = newContainerUrl
-      this.addFormInput(form, 'username', this.userData.id)
-      this.addFormInput(form, 'userpassword', this.userData.password)
+      this.addFormInput(form, 'username', 'jwt' + this.userData.id)
+      this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
       this.addFormInput(form, 'fontSize', '20')
       document.body.appendChild(form)
       form.submit()
+      console.log(form)
       document.body.removeChild(form)
     },
     addContainer () {
@@ -109,6 +108,13 @@ export default {
       const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount // develop
       this.containerCount = this.containerCount + 1
       this.multiContainer.push(newContainerUrl)
+      const refreshToken = localStorage.getItem('refresh_token')
+      let data = {
+        refresh_token: refreshToken
+      }
+      api.tokenRefresh(data).then(res => {
+        localStorage.setItem('access_token', res.data.data.access_token)
+      })
       this.$nextTick(() => {
         this.settingNewContainer(newContainerUrl)
       })
@@ -128,13 +134,6 @@ export default {
       if (this.editContainer === targetName) {
         this.editContainer = this.tabs.length ? this.tabs[0].name : ''
       }
-    },
-    getCookie (name) {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      console.log(parts)
-      if (parts.length === 2) return parts.pop().split(';').shift()
-      return null
     }
   },
   computed: {
