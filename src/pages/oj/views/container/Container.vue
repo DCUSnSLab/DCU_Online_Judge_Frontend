@@ -82,14 +82,6 @@ export default {
       form.appendChild(input)
     },
     debug () {
-      const accessToken = localStorage.getItem('access_token')
-      let data = {
-        token: accessToken
-      }
-      api.tokenAuth(data).then(res => {
-        console.log(res)
-        console.log('test')
-      })
     },
     settingNewContainer (newContainerUrl) {
       const form = document.createElement('form')
@@ -101,12 +93,11 @@ export default {
       this.addFormInput(form, 'fontSize', '20')
       document.body.appendChild(form)
       form.submit()
-      console.log(form)
       document.body.removeChild(form)
     },
     addContainer () {
-      // const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
-      const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount // develop
+      const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
+      // const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount // develop
       this.containerCount = this.containerCount + 1
       this.multiContainer.push(newContainerUrl)
       const refreshToken = localStorage.getItem('refresh_token')
@@ -129,8 +120,6 @@ export default {
       this.passwordEntered = false
     },
     removeTab (targetName) {
-      console.log(targetName)
-      console.log(this.editContainer)
       this.multiContainer = this.multiContainer.filter(multiContainer => multiContainer !== targetName)
       if (this.editContainer === targetName) {
         this.editContainer = this.tabs.length ? this.tabs[0].name : ''
