@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
+    <!-- <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
       <div class="form-container" v-if="!passwordEntered">
         <label for="passwordInput">Password: </label>
         <input type="password" v-model="password" id="passwordInput" />
@@ -11,13 +11,14 @@
         <button @click="addContainer">addContainer</button>
         <button @click="debug">debug</button>
       </div>
-    </Card>
+    </Card> -->
     <div>
       <el-tabs
         v-model="editConainer"
         type="border-card"
-        closable
+        editable
         @tab-remove="removeTab"
+        @tab-add="addContainer"
       >
         <el-tab-pane 
           v-for="(containerURL, index) of multiContainer"
