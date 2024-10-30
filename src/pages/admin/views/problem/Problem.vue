@@ -1,6 +1,5 @@
 <template>
   <div class="problem">
-
     <Panel :title="title">
       <el-form ref="form" :model="problem" :rules="rules" label-position="top" label-width="70px">
         <el-row :gutter="20">
