@@ -101,6 +101,7 @@ export default {
       this.containerCount = this.containerCount + 1
       this.multiContainer.push(newContainerUrl)
       const refreshToken = localStorage.getItem('refresh_token')
+      console.log(refreshToken)
       let data = {
         refresh_token: refreshToken
       }
