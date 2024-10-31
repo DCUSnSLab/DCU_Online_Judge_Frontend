@@ -205,6 +205,8 @@ export const m = {
   The_email_already_exists: '이미 존재하는 이메일입니다.',
   The_schoolssn_already_exists: '학번/교직번호가 이미 있습니다.',
   Thanks_for_registering: '가입해주셔서 감사합니다.',
+  Only_Use_SmallLeter_and_Num_in_ID: '아이디는 소문자와 숫자만 사용할 수 있습니다.',
+  Not_Allow_Num_in_Realname: '이름에는 숫자를 사용할 수 없습니다.',
   // ResetPassword.vue and ApplyResetPassword.vue
   Success: '완료',
   Password_reset_mail_sent: '비밀번호 초기화 메일을 전송했습니다.',

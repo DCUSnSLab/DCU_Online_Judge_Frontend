@@ -249,6 +249,8 @@ export const m = {
   schoolssn_does_not_match: 'Student/Professor Number does not match',
   password_does_not_match: 'password does not match',
   Thanks_for_registering: 'Thanks for your registering, you can login now',
+  Only_Use_SmallLeter_and_Num_in_ID: 'Only lowercase letters and numbers are allowed for the ID.',
+  Not_Allow_Num_in_Realname: 'Numbers are not allowed in the name.',
   // ResetPassword.vue and ApplyResetPassword.vue
   Reset_Password: 'Lost Password',
   RPassword: 'Password',
