@@ -88,7 +88,7 @@ export default {
       form.method = 'POST'
       form.action = newContainerUrl
       form.target = newContainerUrl
-      this.addFormInput(form, 'username', 'jwt' + this.userData.id)
+      this.addFormInput(form, 'username', 'dcucode-' + this.userData.id)
       this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
       this.addFormInput(form, 'fontSize', '20')
       document.body.appendChild(form)
