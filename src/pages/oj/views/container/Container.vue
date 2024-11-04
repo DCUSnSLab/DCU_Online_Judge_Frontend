@@ -63,6 +63,7 @@ export default {
   },
   mounted () {
     this.init()
+    this.addContainer()
   },
   methods: {
     init () {
@@ -108,6 +109,7 @@ export default {
       api.tokenRefresh(data).then(res => {
         localStorage.setItem('access_token', res.data.data.access_token)
       })
+      this.editConainer = newContainerUrl
       this.$nextTick(() => {
         this.settingNewContainer(newContainerUrl)
       })
@@ -134,17 +136,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.terminal-card {
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-}
-.form-container {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+
 </style>
