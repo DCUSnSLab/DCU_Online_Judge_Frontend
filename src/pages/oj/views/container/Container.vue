@@ -12,34 +12,31 @@
         <button @click="debug">debug</button>
       </div>
     </Card> -->
-    <div>
-      <el-tabs
-        v-model="editConainer"
-        type="border-card"
-        editable
-        @tab-remove="removeTab"
-        @tab-add="addContainer"
+    <el-tabs
+      v-model="editConainer"
+      type="border-card"
+      editable
+      @tab-remove="removeTab"
+      @tab-add="addContainer"
+    >
+      <el-tab-pane 
+        v-for="(containerURL, index) of multiContainer"
+        :key="containerURL"
+        :label="'DCU Shell '+(index+1)"
+        :name="containerURL"
       >
-        <el-tab-pane 
-          v-for="(containerURL, index) of multiContainer"
-          :key="containerURL"
-          :label="'container '+(index+1)"
+        <iframe
+          id="container"
           :name="containerURL"
-        >
-          <div class="iframe-container">
-            <iframe
-              id="container"
-              :name="containerURL"
-              width="100%"
-              height="800px"
-              :src="containerURL"
-              frameborder="0"
-              allowfullscreen
-            ></iframe>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
+          width="100%"
+          height="800px"
+          :src="containerURL"
+          frameborder="0"
+          allowfullscreen
+        ></iframe>
+      </el-tab-pane>
+      <el-button @click="addContainer">쉘 추가</el-button>
+    </el-tabs>
   </div>
 </template>
 
@@ -136,5 +133,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
+.no-padding-card {
+  margin: 0;
+  padding: 0;
+}
 </style>
