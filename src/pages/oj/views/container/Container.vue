@@ -1,42 +1,33 @@
 <template>
   <div>
-    <!-- <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
-      <div class="form-container" v-if="!passwordEntered">
-        <label for="passwordInput">Password: </label>
-        <input type="password" v-model="password" id="passwordInput" />
-        <button @click="setPassword">Connect</button>
-      </div>
-      <div class="form-container" v-else>
-        <button @click="resetPassword">PWreset</button>
-        <button @click="addContainer">addContainer</button>
-        <button @click="debug">debug</button>
-      </div>
-    </Card> -->
-    <el-tabs
-      v-model="editConainer"
-      type="border-card"
-      editable
-      @tab-remove="removeTab"
-      @tab-add="addContainer"
-    >
-      <el-tab-pane 
-        v-for="(containerURL, index) of multiContainer"
+    <!-- Tabs Container -->
+    <div class="tabs-container">
+      <!-- Individual Tabs -->
+      <div
+        v-for="(containerURL, index) in multiContainer"
         :key="containerURL"
-        :label="'DCU Shell '+(index+1)"
-        :name="containerURL"
+        :class="['tab', { active: editContainer === containerURL }]"
+        @click="editContainer = containerURL"
       >
-        <iframe
-          id="container"
-          :name="containerURL"
-          width="100%"
-          height="800px"
-          :src="containerURL"
-          frameborder="0"
-          allowfullscreen
-        ></iframe>
-      </el-tab-pane>
-      <el-button @click="addContainer">쉘 추가</el-button>
-    </el-tabs>
+        <span>{{ 'DCU Shell ' + (index + 1) }}</span>
+        <button class="close-btn" @click.stop="removeTab(containerURL)">×</button>
+      </div>
+      <button class="add-tab-btn" @click="addContainer">+</button>
+    </div>
+    
+    <!-- Tab Content -->
+    <div class="content">
+      <iframe
+        v-if="editContainer"
+        id="container"
+        :name="editContainer"
+        width="100%"
+        height="800px"
+        :src="editContainer"
+        frameborder="0"
+        allowfullscreen
+      ></iframe>
+    </div>
   </div>
 </template>
 
@@ -55,7 +46,8 @@ export default {
       multiContainer: [],
       passwordEntered: false,
       containerCount: 0,
-      sessionId: ''
+      sessionId: '',
+      editContainer: null
     }
   },
   mounted () {
@@ -85,28 +77,33 @@ export default {
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = newContainerUrl
-      form.target = newContainerUrl
+
+      const hiddenIframe = document.createElement('iframe')
+      hiddenIframe.style.display = 'none'
+      hiddenIframe.name = 'hidden_iframe'
+      document.body.appendChild(hiddenIframe)
+      form.target = 'hidden_iframe'
+
       this.addFormInput(form, 'username', 'dcucode-' + this.userData.id)
       this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
       this.addFormInput(form, 'fontSize', '20')
       document.body.appendChild(form)
       form.submit()
       document.body.removeChild(form)
+      setTimeout(() => document.body.removeChild(hiddenIframe), 1000)
     },
     addContainer () {
       const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
-      // const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount // develop
-      this.containerCount = this.containerCount + 1
+      this.containerCount += 1
       this.multiContainer.push(newContainerUrl)
+      this.editContainer = newContainerUrl // 새로 추가된 탭으로 활성화
       const refreshToken = localStorage.getItem('refresh_token')
-      console.log(refreshToken)
       let data = {
         refresh_token: refreshToken
       }
       api.tokenRefresh(data).then(res => {
         localStorage.setItem('access_token', res.data.data.access_token)
       })
-      this.editConainer = newContainerUrl
       this.$nextTick(() => {
         this.settingNewContainer(newContainerUrl)
       })
@@ -122,7 +119,7 @@ export default {
     removeTab (targetName) {
       this.multiContainer = this.multiContainer.filter(multiContainer => multiContainer !== targetName)
       if (this.editContainer === targetName) {
-        this.editContainer = this.tabs.length ? this.tabs[0].name : ''
+        this.editContainer = this.multiContainer.length ? this.multiContainer[0] : null
       }
     }
   },
@@ -132,9 +129,79 @@ export default {
 }
 </script>
 
-<style lang="less" scoped>
-.no-padding-card {
-  margin: 0;
+<style scoped>
+.tabs-container {
+  display: flex;
+  align-items: center;
+  gap: 2px;
   padding: 0;
+  background-color: #1e1e1e;
+  border-bottom: 1px solid #333;
+  height: 35px; 
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  background-color: #2d2d2d;
+  color: #cccccc;
+  padding: 6px 12px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  cursor: pointer;
+  position: relative;
+  height: 100%;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.tab.active {
+  background-color: #1e1e1e;
+  color: #ffffff;
+  border-bottom: 2px solid #007acc;
+}
+
+.tab:hover {
+  background-color: #3a3a3a;
+}
+
+.tab span {
+  margin-right: 6px;
+  font-size: 13px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #888888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-btn:hover {
+  color: #ffffff;
+}
+
+.add-tab-btn {
+  background: none;
+  color: #007acc;
+  border: none;
+  padding: 0;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+  transition: color 0.2s;
+}
+
+.add-tab-btn:hover {
+  color: #3399ff;
+}
+
+.content {
+  margin-top: 0;
+  background-color: #1e1e1e;
 }
 </style>
