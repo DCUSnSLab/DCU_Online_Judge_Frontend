@@ -88,13 +88,11 @@ export default {
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = newContainerUrl
-
       const hiddenIframe = document.createElement('iframe')
       hiddenIframe.style.display = 'none'
       hiddenIframe.name = 'hidden_iframe'
       document.body.appendChild(hiddenIframe)
       form.target = 'hidden_iframe'
-
       this.addFormInput(form, 'username', 'dcucode-' + this.userData.id)
       this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
       this.addFormInput(form, 'fontSize', '20')
