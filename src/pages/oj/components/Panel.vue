@@ -1,6 +1,6 @@
 <template>
-  <Card :padding="padding" :shadow="shadow" :dis-hover="disHover" :bordered="bordered">
-    <div slot="title" class="panel-title">
+  <Card :padding="padding" :shadow="shadow" :dis-hover="disHover" :bordered="bordered" :style="{ borderColor: currentTheme.borderColor }">
+    <div slot="title" class="panel-title" >
       <slot name="title"></slot>
     </div>
     <div slot="extra" class="panel-extra">
@@ -13,6 +13,9 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+  import { lightTheme, darkTheme } from '@/theme'
+
   export default {
     name: 'Panel',
     props: {
@@ -35,6 +38,12 @@
         required: false,
         type: Boolean,
         default: true
+      }
+    },
+    computed: {
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
       }
     }
   }

@@ -1,6 +1,6 @@
 <template>
-  <div id="header">
-  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test">
+  <div id="header" :style="{ backgroundColor: currentTheme.background2 }">
+  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test" :style="{ backgroundColor: currentTheme.navBackgound }">
   <a href="/"><div class="logo"><img id="logo" src="../../../assets/logo.jpg" alt="oj logo"/></div></a>
   <el-menu-item index="/">
     <Icon type="home"></Icon>
@@ -44,6 +44,9 @@
     <el-menu-item index="/about">{{$t('m.Judger')}}</el-menu-item>
     <el-menu-item index="/FAQ">{{$t('m.FAQ')}}</el-menu-item>
   </el-submenu>
+  <div style="float: right; margin-right: 15px; margin-top: 15px;">
+    <ThemeToggle />
+  </div>
   <template v-if="!isAuthenticated" >
     <el-menu-item index="register" style="float:right;">
       <div class="btn-menu">
@@ -148,20 +151,23 @@
 </template>
 
 <script>
-  import { mapGetters, mapActions } from 'vuex'
+  import ThemeToggle from '@/pages/oj/components/ThemeToggle.vue'
+  import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
   import login from '@oj/views/user/Login'
   import register from '@oj/views/user/Register'
   import api from '@oj/api'
   import Vue from 'vue'
   import ElementUI from 'element-ui'
   import locale from 'element-ui/lib/locale/lang/en'
+  import { lightTheme, darkTheme } from '@/theme'
   
   Vue.use(ElementUI, { locale })
   
   export default {
     components: {
       login,
-      register
+      register,
+      ThemeToggle
     },
     mounted () {
       this.getProfile()
@@ -217,6 +223,10 @@
         } else {
           window.open('/admin/')
         }
+      },
+      ...mapMutations('theme', ['toggleTheme']),
+      toggleDarkMode () {
+        this.toggleTheme()
       },
       qnapushlist () {
         let params = { offset: 0,
@@ -281,6 +291,10 @@
       }
     },
     computed: {
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      },
       ...mapGetters(['website', 'modalStatus', 'user', 'isAuthenticated', 'isAdminRole']),
       // 跟随路由变化
       activeMenu () {
