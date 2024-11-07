@@ -327,6 +327,7 @@ export const m = {
   // Dashboard.vue
   Last_Login: '최근 로그인',
   System_Overview: '시스템 개요',
+  System_Statistics: '시스템 통계',
   DashBoardJudge_Server: '채점 서버',
   HTTPS_Status: 'HTTPS 상태',
   Force_HTTPS: '강제 HTTPS',

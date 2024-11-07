@@ -48,6 +48,14 @@
           </el-tag>
         </p>
       </panel>
+
+      <panel :title="$t('m.System_Statistics')" v-if="isSuperAdmin">
+        <p>
+          <h2>
+            <!-- This area -->
+          </h2>
+        </p>
+      </panel>
     </el-col>
 
     <el-col :md="14" :lg="16" v-if="isSuperAdmin">
