@@ -84,7 +84,6 @@ export default {
       form.method = 'POST'
       form.action = newContainerUrl
       form.target = newContainerUrl
-      console.log(form.target)
       this.addFormInput(form, 'username', this.userData.id)
       this.addFormInput(form, 'userpassword', this.userData.password)
       this.addFormInput(form, 'fontSize', '20')
@@ -109,8 +108,6 @@ export default {
       this.passwordEntered = false
     },
     removeTab (targetName) {
-      console.log(targetName)
-      console.log(this.editContainer)
       this.multiContainer = this.multiContainer.filter(multiContainer => multiContainer !== targetName)
       if (this.editContainer === targetName) {
         this.editContainer = this.tabs.length ? this.tabs[0].name : ''
