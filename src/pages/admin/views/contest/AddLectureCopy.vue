@@ -1,14 +1,20 @@
 <template>
   <div>
     <el-row>
+      <!--실습, 과제, 대회 목록에서 과목 전체 복사 페이지 -->
       <el-col :span="2">
         <el-select v-model="year">
+          <el-option v-for="year in years" :key="year" :value="year">
+            {{ year }}
+          </el-option>
+        </el-select>
+        <!-- <el-select v-model="year">
           <el-option value="2020">2020년도</el-option>
           <el-option value="2021">2021년도</el-option>
           <el-option value="2022">2022년도</el-option>
           <el-option value="2023">2023년도</el-option>
           <el-option value="2024">2024년도</el-option>
-        </el-select>
+        </el-select> -->
       </el-col>
       <el-col :span="1">
         <el-select v-model="semester">
@@ -92,6 +98,17 @@
         contests: [],
         keyword: '',
         start_time: ''
+      }
+    },
+    computed: {
+      years () {
+        const startYear = 2019 // 2019년도부터
+        const endYear = new Date().getFullYear() // 현재 년도
+        const yearArray = []
+        for (let i = startYear; i <= endYear; i++) {
+          yearArray.push(i)
+        }
+        return yearArray
       }
     },
     mounted () {

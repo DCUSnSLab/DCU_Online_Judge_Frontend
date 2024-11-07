@@ -145,10 +145,12 @@
         ruleRegister: {
           username: [
             {required: true, trigger: 'blur'},
+            {validator: this.validateUsername, trigger: 'blur'},
             {validator: CheckUsernameNotExist, trigger: 'blur'}
           ],
           realname: [
             {required: true, trigger: 'blur'},
+            {validator: this.validateRealname, trigger: 'blur'},
             {trigger: 'blur'}
           ],
           email: [
@@ -182,6 +184,22 @@
           mode,
           visible: true
         })
+      },
+      validateUsername (rule, value, callback) {
+        const regex = /^[a-z0-9]+$/
+        if (!regex.test(value)) {
+          callback(new Error(this.$i18n.t('m.Only_Use_SmallLeter_and_Num_in_ID')))
+        } else {
+          callback()
+        }
+      },
+      validateRealname (rule, value, callback) {
+        const regex = /^[^0-9]*$/
+        if (!regex.test(value)) {
+          callback(new Error(this.$i18n.t('m.Not_Allow_Num_in_Realname')))
+        } else {
+          callback()
+        }
       },
       async handleRegister () {
         await api.getPublicKey().then(res => {
