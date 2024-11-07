@@ -2,7 +2,7 @@
   <Row type="flex" justify="space-around">
     <!-- 1열 -->
     <Col :span="22">
-      <panel v-if="(month == 3)">
+      <panel v-if="(month == 3)" :style="{ backgroundColor: currentTheme.background2 }">
         <div slot="title">
           <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
           <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
@@ -12,7 +12,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <panel>
+      <panel :style="{ backgroundColor: currentTheme.background2 }">
         <div slot="title">
           {{$t('m.DCU_Code_Usage_manual_student')}}
           <!-- DCU Code 사용 메뉴얼 (학생용) -->
@@ -21,7 +21,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <panel>
+      <panel :style="{ backgroundColor: currentTheme.background2 }">
         <div slot="title">
           {{$t('m.DCU_Code_Intro_video')}}
           <!-- DCU Code 소개 영상 -->
@@ -34,7 +34,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
+      <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin" :style="{ backgroundColor: currentTheme.background2 }">
         <div slot="title">
           {{$t('m.My_Course_Progress')}}
           <!-- 나의 수강과목 진행 현황 -->
@@ -111,7 +111,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <Announcements class="announcement"></Announcements>
+      <Announcements class="announcement" :style="{ backgroundColor: currentTheme.background2 }"></Announcements>
     </Col>
   </Row>
 </template>
@@ -122,11 +122,12 @@ import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import Announcements from './Announcements.vue'
 import api from '@oj/api'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import time from '@/utils/time'
 import { CONTEST_STATUS } from '@/utils/constants'
 import utils from '@/utils/utils'
 import {types} from '@/store'
+import { lightTheme, darkTheme } from '@/theme'
 
 Vue.use(Element)
 
@@ -157,6 +158,10 @@ export default {
         return '/' + 'CourseList'
       }
       return '/' + this.$route.path.split('/')[1]
+    },
+    ...mapState('theme', ['isDarkMode']),
+    currentTheme () {
+      return this.isDarkMode ? darkTheme : lightTheme
     },
     modalVisible: {
       get () {

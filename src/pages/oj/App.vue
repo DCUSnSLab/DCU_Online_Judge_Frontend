@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <!-- 현재 테마에 따라 배경색과 글자색을 동적으로 적용 -->
+  <div :style="currentTheme">
     <NavBar ref="navbar"></NavBar>
     <div class="content-app" v-bind:style="navbarmargin">
       <transition name="fadeInUp" mode="out-in">
@@ -30,6 +31,7 @@
   import Vue from 'vue'
   import router from './router'
   import VueAnalytics from 'vue-analytics'
+  import { lightTheme, darkTheme } from '@/theme'
 
   Vue.use(VueAnalytics, {
     id: 'UA-161262014-1',
@@ -98,7 +100,13 @@
       ...mapActions(['getWebsiteConfig', 'changeDomTitle'])
     },
     computed: {
-      ...mapState(['website'])
+      ...mapState(['website']),
+      // Vuex store의 theme 모듈에서 상태를 가져옵니다
+      ...mapState('theme', ['isDarkMode']),
+      // isDarkMode 값에 따라 현재 테마를 선택합니다
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      }
     },
     watch: {
       'website' () {
@@ -112,6 +120,13 @@
 </script>
 
 <style lang="less">
+  html{
+    background-color: var(--background-color);
+  }
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
 
   * {
     -webkit-box-sizing: border-box;
@@ -126,7 +141,6 @@
       outline-width: 0;
     }
   }
-
 
   .content-app {
     padding: 0 2%;
@@ -143,6 +157,4 @@
   .fadeInUp-enter-active {
     animation: fadeInUp .8s;
   }
-
-
 </style>
