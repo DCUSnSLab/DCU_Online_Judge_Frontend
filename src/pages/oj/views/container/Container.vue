@@ -16,17 +16,27 @@
     </div>
     
     <!-- Tab Content -->
-    <div class="content">
+    <!-- <div class="content">
       <iframe
-        v-if="editContainer"
         id="container"
         :name="editContainer"
         width="100%"
         height="800px"
         :src="editContainer"
         frameborder="0"
-        allowfullscreen
       ></iframe>
+    </div> -->
+    <div class="content">
+      <div v-for="(containerURL, index) in multiContainer" :key="containerURL">
+        <iframe
+          v-show="editContainer === containerURL"
+          :name="containerURL"
+          width="100%"
+          height="800px"
+          :src="containerURL"
+          frameborder="0"
+        ></iframe>
+      </div>
     </div>
   </div>
 </template>
@@ -47,7 +57,8 @@ export default {
       passwordEntered: false,
       containerCount: 0,
       sessionId: '',
-      editContainer: null
+      editContainer: null,
+      input: []
     }
   },
   mounted () {
