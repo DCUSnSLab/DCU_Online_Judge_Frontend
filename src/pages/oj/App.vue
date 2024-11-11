@@ -120,9 +120,9 @@
 </script>
 
 <style lang="less">
-  html{
-    background-color: var(--background-color);
-  }
+  // html{
+  //   background-color: var(--background-color);
+  // }
   body {
     background-color: var(--background-color);
     color: var(--text-color);

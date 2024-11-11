@@ -1,7 +1,7 @@
 <template>
   <div id="header" :style="{ backgroundColor: currentTheme.background2 }">
   <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test" :style="{ backgroundColor: currentTheme.navBackgound }">
-  <a href="/"><div class="logo"><img id="logo" src="../../../assets/logo.jpg" alt="oj logo"/></div></a>
+  <a href="/"><div class="logo"><img id="logo" :src="logoSrc" alt="oj logo"/></div></a>
   <el-menu-item index="/">
     <Icon type="home"></Icon>
     {{$t('m.Home')}}
@@ -297,6 +297,12 @@
       },
       ...mapGetters(['website', 'modalStatus', 'user', 'isAuthenticated', 'isAdminRole']),
       // 跟随路由变化
+      logoSrc () {
+        // isDarkMode에 따라 로고 이미지 소스 변경
+        return this.isDarkMode
+          ? require('../../../assets/logo_dark.png')
+          : require('../../../assets/logo.jpg')
+      },
       activeMenu () {
         // 여기서 이전 주소의 [1], [4]가 CourseList, problems 일때 return을 CourseList
         if (this.$route.path.split('/')[1] === 'contest' && parseInt(this.$route.path.split('/')[2]) > 0) {
