@@ -12,6 +12,7 @@
   
 <script>
   import { mapState, mapMutations } from 'vuex'
+  import { lightTheme, darkTheme } from '@/theme'
 
   export default {
     computed: {

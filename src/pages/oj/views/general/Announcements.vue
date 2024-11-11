@@ -30,7 +30,6 @@
                     @on-change="getAnnouncementList">
         </Pagination>
       </template>
-
       <template v-else>
         <div v-katex v-html="announcement.content" key="content" class="content-container markdown-body"></div>
       </template>

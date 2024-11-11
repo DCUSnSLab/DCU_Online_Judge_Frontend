@@ -1,5 +1,5 @@
 <template>
-  <div id="header" :style="{ backgroundColor: currentTheme.background2 }">
+  <div id="header">
   <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test" :style="{ backgroundColor: currentTheme.navBackgound }">
   <a href="/"><div class="logo"><img id="logo" :src="logoSrc" alt="oj logo"/></div></a>
   <el-menu-item index="/">
@@ -151,7 +151,6 @@
 </template>
 
 <script>
-  import ThemeToggle from '@/pages/oj/components/ThemeToggle.vue'
   import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
   import login from '@oj/views/user/Login'
   import register from '@oj/views/user/Register'
@@ -159,7 +158,8 @@
   import Vue from 'vue'
   import ElementUI from 'element-ui'
   import locale from 'element-ui/lib/locale/lang/en'
-  import { lightTheme, darkTheme } from '@/theme'
+  import ThemeToggle from '@/pages/oj/components/ThemeToggle.vue'
+  import { lightTheme, darkTheme } from '../../../theme'
   
   Vue.use(ElementUI, { locale })
   
@@ -291,24 +291,24 @@
       }
     },
     computed: {
-      ...mapState('theme', ['isDarkMode']),
-      currentTheme () {
-        return this.isDarkMode ? darkTheme : lightTheme
-      },
       ...mapGetters(['website', 'modalStatus', 'user', 'isAuthenticated', 'isAdminRole']),
       // 跟随路由变化
-      logoSrc () {
-        // isDarkMode에 따라 로고 이미지 소스 변경
-        return this.isDarkMode
-          ? require('../../../assets/logo_dark.png')
-          : require('../../../assets/logo.jpg')
-      },
       activeMenu () {
         // 여기서 이전 주소의 [1], [4]가 CourseList, problems 일때 return을 CourseList
         if (this.$route.path.split('/')[1] === 'contest' && parseInt(this.$route.path.split('/')[2]) > 0) {
           return '/' + 'CourseList'
         }
         return '/' + this.$route.path.split('/')[1]
+      },
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      },
+      logoSrc () {
+        // isDarkMode에 따라 로고 이미지 소스 변경
+        return this.isDarkMode
+          ? require('../../../assets/logo_dark.png')
+          : require('../../../assets/logo.jpg')
       },
       modalVisible: {
         get () {
@@ -331,9 +331,9 @@
     z-index: 1000;
     background-color: #fff;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
-    .oj-menu {
-      background: #fdfdfd;
-    }
+    // .oj-menu {
+    //   background: #fdfdfd;
+    // }
 
     .logo {
       margin-left: 2%;

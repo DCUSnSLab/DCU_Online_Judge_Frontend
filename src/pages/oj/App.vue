@@ -1,5 +1,4 @@
 <template>
-  <!-- 현재 테마에 따라 배경색과 글자색을 동적으로 적용 -->
   <div :style="currentTheme">
     <NavBar ref="navbar"></NavBar>
     <div class="content-app" v-bind:style="navbarmargin">
@@ -31,7 +30,7 @@
   import Vue from 'vue'
   import router from './router'
   import VueAnalytics from 'vue-analytics'
-  import { lightTheme, darkTheme } from '@/theme'
+  import { lightTheme, darkTheme } from '../../theme'
 
   Vue.use(VueAnalytics, {
     id: 'UA-161262014-1',
@@ -101,7 +100,6 @@
     },
     computed: {
       ...mapState(['website']),
-      // Vuex store의 theme 모듈에서 상태를 가져옵니다
       ...mapState('theme', ['isDarkMode']),
       // isDarkMode 값에 따라 현재 테마를 선택합니다
       currentTheme () {
@@ -114,18 +112,23 @@
       },
       '$route' () {
         this.changeDomTitle()
+      },
+      currentTheme: {
+        immediate: true,
+        handler (newTheme) {
+          Object.keys(newTheme).forEach(key => {
+            document.documentElement.style.setProperty(key, newTheme[key])
+          })
+        }
       }
     }
   }
 </script>
 
 <style lang="less">
-  // html{
-  //   background-color: var(--background-color);
-  // }
-  body {
-    background-color: var(--background-color);
-    color: var(--text-color);
+  html, body {
+    background-color: var(--background-color); /* CSS 변수를 사용하여 배경색 설정 */
+    color: var(--text-color); /* CSS 변수를 사용하여 텍스트 색상 설정 */
   }
 
   * {
