@@ -11,7 +11,7 @@ export const darkTheme = {
   '--background-color': '#222',
   '--background-color2': '#222',
   '--text-color': '#ffffff',
-  background2: '#333',
+  panelBackground: '#333',
   navBackgound: '#424242',
   textcolor: '#fff',
   borderColor: '#222',

@@ -1,5 +1,5 @@
 <template>
-  <Card :padding="padding" :shadow="shadow" :dis-hover="disHover" :bordered="bordered" :style="{ borderColor: currentTheme.borderColor }">
+  <Card :padding="padding" :shadow="shadow" :dis-hover="disHover" :bordered="bordered" :style="{ backgroundColor: currentTheme.panelBackground, borderColor: currentTheme.borderColor }">
     <div slot="title" class="panel-title" >
       <slot name="title"></slot>
     </div>

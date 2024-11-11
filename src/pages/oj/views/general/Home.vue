@@ -2,7 +2,7 @@
   <Row type="flex" justify="space-around">
     <!-- 1열 -->
     <Col :span="22">
-      <panel v-if="(month == 3)" :style="{ backgroundColor: currentTheme.background2 }">
+      <panel v-if="(month == 3)">
         <div slot="title">
           <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
           <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
@@ -12,7 +12,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <panel :style="{ backgroundColor: currentTheme.background2 }">
+      <panel>
         <div slot="title">
           {{$t('m.DCU_Code_Usage_manual_student')}}
           <!-- DCU Code 사용 메뉴얼 (학생용) -->
@@ -21,7 +21,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <panel :style="{ backgroundColor: currentTheme.background2 }">
+      <panel>
         <div slot="title">
           {{$t('m.DCU_Code_Intro_video')}}
           <!-- DCU Code 소개 영상 -->
@@ -34,7 +34,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin" :style="{ backgroundColor: currentTheme.background2 }">
+      <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
         <div slot="title">
           {{$t('m.My_Course_Progress')}}
           <!-- 나의 수강과목 진행 현황 -->
@@ -111,7 +111,7 @@
       </panel>
     </Col>
     <Col :span="22">
-      <Announcements class="announcement" :style="{ backgroundColor: currentTheme.background2 }"></Announcements>
+      <Announcements class="announcement"></Announcements>
     </Col>
   </Row>
 </template>
