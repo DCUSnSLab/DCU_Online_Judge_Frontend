@@ -473,9 +473,6 @@ export default {
   getDashboardInfo () {
     return ajax('admin/dashboard_info', 'get')
   },
-  getSubmissionDateCounts () {
-    return ajax('submission/date_counts', 'get')
-  },
   getSessions () {
     return ajax('sessions', 'get')
   },
