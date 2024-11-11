@@ -10,12 +10,12 @@
       <div v-if=this.lectureCreator>
         {{ $t('m.Assigned_professor') }} : {{ this.lectureCreator }}
       </div>
-      <div slot="header">
-        <el-inputD
+      <div slot="header" v-if="!contestId">
+        <el-input
           v-model="keyword"
           prefix-icon="el-icon-search"
           :placeholder="$t('m.ProblemList_Keywords_Placeholder')">
-        </el-inputD>
+        </el-input>
       </div>
       <el-table
         v-loading="loading"
@@ -36,7 +36,6 @@
             <span v-show="!row.isEditing">{{row._id}}</span>
             <el-input v-show="row.isEditing" v-model="row._id"
                       @keyup.enter.native="handleInlineEdit(row)">
-
             </el-input>
           </template>
         </el-table-column>
@@ -52,7 +51,7 @@
         </el-table-column>
         <el-table-column
           prop="created_by.username"
-          :label="$t('m.ProblemList_Title')">
+          :label="$t('m.ProblemList_Author')">
         </el-table-column>
         <el-table-column
           width="200"

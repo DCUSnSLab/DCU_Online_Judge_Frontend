@@ -12,7 +12,7 @@
   </el-menu-item>
   <el-menu-item index="/container">
    <Icon type="monitor"></Icon>
-    {{$t('컨테이너')}}
+    {{$t('터미널')}}
   </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
