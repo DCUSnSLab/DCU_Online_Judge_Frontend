@@ -109,7 +109,8 @@
   import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
   import { compareIdentifiers } from 'semver'
-
+  import axios from 'axios'
+  
   export default {
     name: 'ContestDetail',
     components: {},
@@ -212,20 +213,23 @@
         })
       },
       contestCheckInOutStatus () {
-        api.checkContestExit(this.contestID).then(res => {
-          if (res.data.data.data === 'notStudent') {
-            this.contestCheckInOutStatus = 'notStudent'
-            this.contestcheckInOutStatusWord = '관리자'
-          } else if (res.data.data.end_time) {
-            this.contestCheckInOutStatus = 'checkOut'
-            this.contestcheckInOutStatusWord = '퇴실완료'
-          } else if (res.data.data.start_time) {
-            this.contestCheckInOutStatus = 'checkIn'
-            this.contestcheckInOutStatusWord = '입실완료'
-          } else {
-            this.contestCheckInOutStatus = 'notCheck'
-            this.contestcheckInOutStatusWord = '입실 전'
-          }
+        axios.get('https://api64.ipify.org?format=json').then(res => {
+          let clientIP = res.data.ip
+          api.checkContestExit(this.contestID, clientIP).then(res => {
+            if (res.data.data.data === 'notStudent') {
+              this.contestCheckInOutStatus = 'notStudent'
+              this.contestcheckInOutStatusWord = '관리자'
+            } else if (res.data.data.end_time) {
+              this.contestCheckInOutStatus = 'checkOut'
+              this.contestcheckInOutStatusWord = '퇴실완료'
+            } else if (res.data.data.start_time) {
+              this.contestCheckInOutStatus = 'checkIn'
+              this.contestcheckInOutStatusWord = '입실완료'
+            } else {
+              this.contestCheckInOutStatus = 'notCheck'
+              this.contestcheckInOutStatusWord = '입실 전'
+            }
+          })
         })
       },
       checkInContest () {
