@@ -1,6 +1,6 @@
 <template>
   <div id="header">
-  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test" :style="{ backgroundColor: currentTheme.navBackgound }">
+  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test" :style="currentTheme">
   <a href="/"><div class="logo"><img id="logo" :src="logoSrc" alt="oj logo"/></div></a>
   <el-menu-item index="/">
     <Icon type="home"></Icon>
@@ -12,7 +12,7 @@
   </el-menu-item>
   <el-menu-item index="/container">
    <Icon type="monitor"></Icon>
-    {{$t('컨테이너')}}
+    {{$t('m.Container')}}
   </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
@@ -76,7 +76,7 @@
       </span>
     </div>
     <el-submenu style="float:right;">
-      <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" ><span style="color: black; font-weight:bold;">{{ user.username }}</span></template>
+      <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" ><span :style="{ color: 'var(--text-color)', fontWeight: 'bold' }">{{ user.username }}</span></template>
         <el-menu-item index="/user-home">
           {{$t('m.MyHome')}}
         </el-menu-item>
@@ -331,9 +331,9 @@
     z-index: 1000;
     background-color: #fff;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
-    // .oj-menu {
-    //   background: #fdfdfd;
-    // }
+    .oj-menu {
+      background-color: var(--nav-backgound);
+    }
 
     .logo {
       margin-left: 2%;

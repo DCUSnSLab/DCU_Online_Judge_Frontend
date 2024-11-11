@@ -1,9 +1,9 @@
 <template>
-  <Card :padding="padding" :shadow="shadow" :dis-hover="disHover" :bordered="bordered" :style="{ backgroundColor: currentTheme.panelBackground, borderColor: currentTheme.borderColor }">
+  <Card :padding="padding" :shadow="shadow" :dis-hover="disHover" :bordered="bordered" :style="{ backgroundColor: 'var(--panelBackground)', borderColor: 'var(--panel-border-color)' }">
     <div slot="title" class="panel-title" >
       <slot name="title"></slot>
     </div>
-    <div slot="extra" class="panel-extra">
+    <div slot="extra" class="panel-extra" :style="currentTheme">
       <slot name="extra"></slot>
     </div>
     <div class="panel-body">
@@ -59,6 +59,14 @@
 
   .panel-extra {
     line-height: 40px;
+    .ivu-input-wrapper:hover .ivu-input {
+      border: 1px solid var(--search-box-hovor-color);
+    }    
+    .ivu-input {
+      background-color: var(--search-box-color); 
+      border: 1px solid var(--search-box-border-color);
+      color: var(--text-color); 
+    }
     .ivu-input-icon {
       line-height: 40px;
     }

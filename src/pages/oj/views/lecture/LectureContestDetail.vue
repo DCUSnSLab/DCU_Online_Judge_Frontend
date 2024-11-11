@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container">
+  <div class="flex-container" :style="currentTheme">
     <div id="contest-main">
       <!--children-->
       <transition name="fadeInUp">
@@ -109,6 +109,7 @@
   import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
   import { compareIdentifiers } from 'semver'
+  import { lightTheme, darkTheme } from '@/theme'
 
   export default {
     name: 'ContestDetail',
@@ -252,6 +253,10 @@
         contest_table: state => [state.contest.contest],
         now: state => state.contest.now
       }),
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      },
       ...mapGetters(
         ['contestMenuDisabled', 'contestRuleType', 'contestStatus', 'countdown', 'isContestAdmin',
           'OIContestRealTimePermission', 'passwordFormVisible']

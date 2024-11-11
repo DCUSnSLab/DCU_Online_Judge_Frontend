@@ -1,7 +1,7 @@
 <template>
   <Row type="flex">
     <Col :span="24">
-    <Panel id="lecture-card" shadow>
+    <Panel id="lecture-card" shadow :style="currentTheme">
       <div slot="title"><b>{{$t('m.Lectures')}}</b></div>
       <div slot="extra">
         <ul class="filter">
@@ -68,10 +68,11 @@
 
 <script>
   import api from '@oj/api'
-  import { mapGetters } from 'vuex'
+  import { mapState, mapGetters } from 'vuex'
   import utils from '@/utils/utils'
   import Pagination from '@/pages/oj/components/Pagination'
   import time from '@/utils/time'
+  import { lightTheme, darkTheme } from '@/theme'
 
   const limit = 8
 
@@ -185,7 +186,11 @@
       }
     },
     computed: {
-      ...mapGetters(['isAuthenticated', 'user'])
+      ...mapGetters(['isAuthenticated', 'user']),
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      }
     },
     watch: {
       '$route' (newVal, oldVal) {
@@ -199,6 +204,7 @@
 </script>
 <style lang="less" scoped>
   #lecture-card {
+    color: var(--text-color);
     #keyword {
       width: 80%;
       margin-right: 30px;
@@ -211,7 +217,7 @@
     #lecture-list {
       > li {
         padding: 20px;
-        border-bottom: 1px solid rgba(187, 187, 187, 0.5);
+        border-bottom: 1px solid var(--list-border-bottom);
         list-style: none;
 
         .trophy {

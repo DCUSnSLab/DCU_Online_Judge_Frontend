@@ -347,5 +347,6 @@ export const m = {
   OS: 'OS',
   Browser: 'Browser',
   Last_activity: 'Last Activity',
-  PushGithub: 'Upload to Github'
+  PushGithub: 'Upload to Github',
+  Container: 'Container'
 }
