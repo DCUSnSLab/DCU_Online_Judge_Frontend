@@ -1,13 +1,12 @@
 <template>
   <Panel shadow :padding="10">
-    <div slot="title">
+    <div slot="title" :style="currentTheme">
       {{title}}
     </div>
     <div slot="extra">
       <Button v-if="listVisible" type="info" @click="init" :loading="btnLoading">{{$t('m.Refresh')}}</Button>
-      <Button v-else type="ghost" icon="ios-undo" @click="goBack">{{$t('m.Back')}}</Button>
+      <Button v-else type="ghost" icon="ios-undo" class="btn-back" @click="goBack">{{$t('m.Back')}}</Button>
     </div>
-
     <transition-group name="announcement-animate" mode="in-out">
       <div class="no-announcement" v-if="!announcements.length" key="no-announcement">
         <p>{{$t('m.No_Announcements')}}</p>
@@ -27,10 +26,9 @@
                     key="page"
                     :total="total"
                     :page-size="limit"
-                    @on-change="getAnnouncementList">
+                    @on-change="">
         </Pagination>
       </template>
-
       <template v-else>
         <div v-katex v-html="announcement.content" key="content" class="content-container markdown-body"></div>
       </template>
@@ -41,6 +39,8 @@
 <script>
   import api from '@oj/api'
   import Pagination from '@oj/components/Pagination'
+  import { mapState } from 'vuex'
+  import { lightTheme, darkTheme } from '@/theme'
 
   export default {
     name: 'Announcement',
@@ -106,6 +106,12 @@
       },
       isContest () {
         return !!this.$route.params.contestID
+      },
+      computed: {
+        ...mapState('theme', ['isDarkMode']),
+        currentTheme () {
+          return this.isDarkMode ? darkTheme : lightTheme
+        }
       }
     }
   }
@@ -121,7 +127,7 @@
       padding-bottom: 15px;
       margin-left: 20px;
       font-size: 16px;
-      border-bottom: 1px solid rgba(187, 187, 187, 0.5);
+      border-bottom: 1px solid var(--list-border-bottom);
       &:last-child {
         border-bottom: none;
       }
@@ -131,10 +137,10 @@
           text-align: left;
           padding-left: 10px;
           a.entry {
-            color: #495060;
+            color: var(--announcement-title-color);
             &:hover {
-              color: #2d8cf0;
-              border-bottom: 1px solid #2d8cf0;
+              color: var(--announcement-title-hover-color);
+              border-bottom: 1px solid var(--announcement-title-hover-color);
             }
           }
         }
@@ -152,6 +158,10 @@
     }
   }
 
+  .btn-back {
+    color: var(--button-text-color);
+  }
+  
   .content-container {
     padding: 0 20px 20px 20px;
   }

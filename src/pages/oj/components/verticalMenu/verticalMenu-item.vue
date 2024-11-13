@@ -1,11 +1,13 @@
 <template>
-  <li @click.stop="handleClick" :class="{disabled: disabled}">
+  <li @click.stop="handleClick" :class="{disabled: disabled}" :style="currentTheme">
     <slot></slot>
   </li>
 </template>
 
 <script>
   import Emitter from '../mixins/emitter'
+  import { mapState } from 'vuex'
+  import { lightTheme, darkTheme } from '@/theme'
 
   export default {
     name: 'VerticalMenu-item',
@@ -24,6 +26,12 @@
         if (this.route) {
           this.dispatch('VerticalMenu', 'on-click', this.route)
         }
+      }
+    },
+    computed: {
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
       }
     }
   }
@@ -44,15 +52,16 @@
   }
 
   li {
-    border-bottom: 1px dashed #e9eaec;
-    color: #495060;
+    border-bottom: 1px dashed var(--list-border-bottom);
+    color: var(--verticalMenu-item-color);
     display: block;
     text-align: left;
     padding: 15px 20px;
+    background-color: var(--verticalMenu-item-backgound);
     &:hover {
-      background: #f8f8f9;
-      border-left: 2px solid #5cadff;
-      color: #2d8cf0;
+      background: var(--vertivalMenu-item-hover-color);
+      border-left: 2px solid var(--text-hover-color);
+      color: var(--text-hover-color);
     }
     & > .ivu-icon {
       font-size: 16px;

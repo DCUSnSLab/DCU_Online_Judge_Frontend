@@ -1,7 +1,7 @@
 <template>
   <div id="header">
-  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test">
-  <a href="/"><div class="logo"><img id="logo" src="../../../assets/logo.jpg" alt="oj logo"/></div></a>
+  <el-menu mode="horizontal" @select="handleSelect" :default-active="activeIndex" class="oj-menu" ref="test" :style="currentTheme">
+  <a href="/"><div class="logo"><img id="logo" :src="logoSrc" alt="oj logo"/></div></a>
   <el-menu-item index="/">
     <Icon type="home"></Icon>
     {{$t('m.Home')}}
@@ -12,7 +12,7 @@
   </el-menu-item>
   <el-menu-item index="/container">
    <Icon type="monitor"></Icon>
-    {{$t('터미널')}}
+    {{$t('m.Container')}}
   </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
@@ -44,6 +44,9 @@
     <el-menu-item index="/about">{{$t('m.Judger')}}</el-menu-item>
     <el-menu-item index="/FAQ">{{$t('m.FAQ')}}</el-menu-item>
   </el-submenu>
+  <div style="float: right; margin-right: 15px; margin-top: 15px;">
+    <ThemeToggle />
+  </div>
   <template v-if="!isAuthenticated" >
     <el-menu-item index="register" style="float:right;">
       <div class="btn-menu">
@@ -73,7 +76,7 @@
       </span>
     </div>
     <el-submenu style="float:right;">
-      <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" ><span style="color: black; font-weight:bold;">{{ user.username }}</span></template>
+      <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" ><span :style="{ color: 'var(--text-color)', fontWeight: 'bold' }">{{ user.username }}</span></template>
         <el-menu-item index="/user-home">
           {{$t('m.MyHome')}}
         </el-menu-item>
@@ -148,20 +151,23 @@
 </template>
 
 <script>
-  import { mapGetters, mapActions } from 'vuex'
+  import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
   import login from '@oj/views/user/Login'
   import register from '@oj/views/user/Register'
   import api from '@oj/api'
   import Vue from 'vue'
   import ElementUI from 'element-ui'
   import locale from 'element-ui/lib/locale/lang/en'
+  import ThemeToggle from '@/pages/oj/components/ThemeToggle.vue'
+  import { lightTheme, darkTheme } from '../../../theme'
   
   Vue.use(ElementUI, { locale })
   
   export default {
     components: {
       login,
-      register
+      register,
+      ThemeToggle
     },
     mounted () {
       this.getProfile()
@@ -217,6 +223,10 @@
         } else {
           window.open('/admin/')
         }
+      },
+      ...mapMutations('theme', ['toggleTheme']),
+      toggleDarkMode () {
+        this.toggleTheme()
       },
       qnapushlist () {
         let params = { offset: 0,
@@ -290,6 +300,16 @@
         }
         return '/' + this.$route.path.split('/')[1]
       },
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      },
+      logoSrc () {
+        // isDarkMode에 따라 로고 이미지 소스 변경
+        return this.isDarkMode
+          ? require('../../../assets/logo_dark.png')
+          : require('../../../assets/logo.jpg')
+      },
       modalVisible: {
         get () {
           return this.modalStatus.visible
@@ -312,7 +332,7 @@
     background-color: #fff;
     box-shadow: 0 1px 5px 0 rgba(0, 0, 0, 0.1);
     .oj-menu {
-      background: #fdfdfd;
+      background-color: var(--nav-backgound);
     }
 
     .logo {

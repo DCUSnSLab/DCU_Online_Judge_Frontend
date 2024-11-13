@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container">
+  <div class="flex-container" :style="currentTheme">
     <div id="contest-main">
       <!--children-->
       <transition name="fadeInUp">
@@ -25,7 +25,6 @@
                        @on-enter="checkPassword"/>
                 <Button type="info" @click="checkPassword">Enter</Button>
               </div>
-            
               <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
               <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
                 <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
@@ -109,6 +108,7 @@
   import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
   import { compareIdentifiers } from 'semver'
+  import { lightTheme, darkTheme } from '@/theme'
   import axios from 'axios'
   
   export default {
@@ -256,6 +256,10 @@
         contest_table: state => [state.contest.contest],
         now: state => state.contest.now
       }),
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      },
       ...mapGetters(
         ['contestMenuDisabled', 'contestRuleType', 'contestStatus', 'countdown', 'isContestAdmin',
           'OIContestRealTimePermission', 'passwordFormVisible']
