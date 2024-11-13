@@ -52,10 +52,6 @@
       <panel :title="$t('m.System_Statistics')" v-if="isSuperAdmin">
         <div>
           <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
-            <el-table :data="submissionData" style="width: 100%">
-              <el-table-column prop="date" label="Date" width="180"></el-table-column>
-              <el-table-column prop="submission_count" label="Submission Count" width="180"></el-table-column>
-           </el-table>
         </div>
       </panel>
     </el-col>
@@ -117,7 +113,8 @@
     },
     data () {
       return {
-        submissionData: [],
+        submissionData: [], // API로 받아온 submission 데이터
+        loading: true, // 데이터 로딩 상태
         infoData: {
           user_count: 0,
           recent_contest_count: 0,
@@ -133,9 +130,9 @@
     },
     mounted () {
       api.getSubmissionDateCounts().then(resp => {
-        console.log(1)
+        this.submissionData = resp.data.data
         console.log(resp.data.data)
-        this.submissionData(resp.data.data)
+      }, () => {
       }).catch(error => {
         console.error('API 호출 실패:', error)
       })
