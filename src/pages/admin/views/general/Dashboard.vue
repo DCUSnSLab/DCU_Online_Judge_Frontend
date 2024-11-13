@@ -91,6 +91,7 @@
               <ul v-for="detail in release.details" :key="detail">
                 <li v-html="detail"></li>
               </ul>
+
             </div>
           </el-collapse-item>
         </el-collapse>
