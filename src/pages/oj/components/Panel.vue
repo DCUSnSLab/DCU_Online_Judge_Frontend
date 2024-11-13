@@ -115,10 +115,10 @@
       color: var(--text-hover-color);
     }
   }
-  // .ivu-table-row:hover td {
-  //   background: var(--vertivalMenu-item-hover-color) !important;
-  //   color: var(--text-hover-color) !important;
-  // }
+  .ivu-table-row:hover td {
+    background: var(--table-body-background) !important;
+    color: var(--table-text-color) !important;
+  }
   .ivu-table::before {
     background-color: transparent !important;
     border: none !important;

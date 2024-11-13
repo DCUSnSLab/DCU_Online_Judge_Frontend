@@ -417,6 +417,9 @@ h3 {
 }
 
 .lecture-card {
+  background: var(--table-body-background);
+  border-color: var(--table-border-color);
+  color: var(--table-text-color);
   margin-left:20px;
   margin-right:20px;
   margin-bottom:10px

@@ -130,6 +130,7 @@
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
   }
+  
   body {
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
