@@ -1199,6 +1199,7 @@
 
   #submit-code {
     background-color: var(--panelBackground);
+    color: var(--text-color); 
     .status {
       float: left;
       span {
@@ -1256,6 +1257,7 @@
 
   #pieChart {
     background-color: var(--panelBackground);
+    color: var(--verticalMenu-item-color);
     .echarts {
       height: 250px;
       width: 210px;
