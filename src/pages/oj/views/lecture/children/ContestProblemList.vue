@@ -61,7 +61,8 @@
   import {mapState, mapGetters} from 'vuex'
   import {ProblemMixin} from '@oj/components/mixins'
   import api from '@oj/api'
-
+  import axios from 'axios'
+  
   export default {
     name: 'ContestProblemList',
     mixins: [ProblemMixin],
@@ -113,15 +114,18 @@
         this.checkExitstatus()
       },
       checkExitstatus () {
-        api.checkContestExit(this.$route.params.contestID).then(res => {
-          console.log(!res.data.data.start_time)
-          if (res.data.data.data) { // notStudent, notTest, notContest
-            this.getContestProblems()
-          } else if (res.data.data.end_time || !res.data.data.start_time) { // not check-in or check-out
-            this.$error('Error')
-          } else { // check-in
-            this.getContestProblems()
-          }
+        axios.get('https://api64.ipify.org?format=json').then(res => {
+          let clientIP = res.data.ip
+          api.checkContestExit(this.$route.params.contestID, clientIP).then(res => {
+            console.log(!res.data.data.start_time)
+            if (res.data.data.data) { // notStudent, notTest, notContest
+              this.getContestProblems()
+            } else if (res.data.data.end_time || !res.data.data.start_time) { // not check-in or check-out
+              this.$error('Error')
+            } else { // check-in
+              this.getContestProblems()
+            }
+          })
         })
       },
       getContestProblems () {
