@@ -18,7 +18,14 @@ export const lightTheme = {
   '--panel-border-color': '#e9eaec',
   '--verticalMenu-item-backgound': '#fff',
   '--verticalMenu-item-color': '#495060',
-  '--vertivalMenu-item-hover-color': 'f8f8f9'
+  '--vertivalMenu-item-hover-color': 'f8f8f9',
+  '--table-head-backgound': '#f8f8f9',
+  '--table-body-background': '#fff',
+  '--table-bottom-color': '#f8f8f9',
+  '--table-border-color': '#e9eaec',
+  '--table-text-color': '#495060',
+  '--problem-text-color': '#3091f2',
+  '--problem-example-box-color': '#e9eaec'
   // 추가적인 스타일 정의
 }
 export const darkTheme = {
@@ -40,6 +47,13 @@ export const darkTheme = {
   '--list-border-bottom': 'rgba(255, 255, 255, 0.1)',
   '--verticalMenu-item-backgound': '#333',
   '--verticalMenu-item-color': '#b4b4b4',
-  '--vertivalMenu-item-hover-color': '#444'
+  '--vertivalMenu-item-hover-color': '#444',
+  '--table-head-backgound': '#2f2f2f',
+  '--table-body-background': '#0d0d0d',
+  '--table-bottom-color': '#rgba(255, 255, 255, 0.1)',
+  '--table-border-color': '#222',
+  '--table-text-color': '#ececec',
+  '--problem-text-color': '#3498db',
+  '--problem-example-box-color': '#444'
   // 추가적인 스타일 정의
 }

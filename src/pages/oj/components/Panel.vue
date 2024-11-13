@@ -81,4 +81,39 @@
     word-break: break-all;
     word-wrap: break-word;
   }
+  
+  // 테이블 색상
+  .ivu-table{
+    border: 1px solid var(--table-border-color);
+    box-shadow: none !important;
+  }
+  .ivu-table th {
+    background: var(--table-head-backgound);
+    color: var(--table-text-color);
+    border-color: var(--table-border-color) !important;
+    padding: 0 !important; /* 내부 여백 제거 */
+    margin: 0 !important;
+  }
+
+  .ivu-table td {
+    background: var(--table-body-background);
+    color: var(--table-text-color);
+    border-color: var(--table-border-color) !important;
+    padding: 0 !important; /* 내부 여백 제거 */
+    margin: 0 !important;
+  }
+  .ivu-table::before {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .ivu-table::after {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .ivu-card-bordered {
+    border: none !important;
+  }
 </style>

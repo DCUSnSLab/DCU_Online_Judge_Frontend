@@ -25,7 +25,6 @@
                        @on-enter="checkPassword"/>
                 <Button type="info" @click="checkPassword">Enter</Button>
               </div>
-            
               <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
               <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
                 <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>

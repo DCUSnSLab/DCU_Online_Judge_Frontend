@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container">
+  <div class="flex-container" :style="currentTheme">
     <el-col :span="10" v-if="problemRes" id="view-mode">
       <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: dynamicHeight-150 + 'px' }"> <!--가로 모드 문제란-->
         <Panel :padding="40" shadow>
@@ -450,8 +450,8 @@
     <div v-else></div>
 
     <el-col :span="2" id="right-column">
-      <Card id="page-mode">
-        <el-switch v-model="toggleValue" size="large" active-text="가로" inactive-text="세로" @change="toggleSwitch" />
+      <Card id="page-mode" :style="{ backgroundColor: 'var(--panelBackground)' }">
+        <el-switch v-model="toggleValue" size="large" active-text="가로" inactive-text="세로" @change="toggleSwitch"/>
 
       </Card>
       <br />
@@ -596,7 +596,7 @@
 </template>
 
 <script>
-  import {mapGetters, mapActions} from 'vuex'
+  import {mapGetters, mapActions, mapState} from 'vuex'
   import {types} from '../../../../store'
   import CodeMirror from '@oj/components/CodeMirror.vue'
 
@@ -611,6 +611,7 @@
   import Vue from 'vue'
   import Simditor from '../../components/Simditor.vue'
   import axios from 'axios'
+  import { lightTheme, darkTheme } from '@/theme'
   
   Vue.use(SidebarPlugin)
 
@@ -701,6 +702,7 @@
     },
     mounted () {
       this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
+      this.onChangeTheme(this.currentTheme)
       this.init()
       window.addEventListener('resize', this.handleResize)
       window.addEventListener('keydown', this.handleKeyDown)
@@ -1070,9 +1072,16 @@
       toggleSidebar () {
         this.sidebarVisible = !this.sidebarVisible
         this.AIrespone = '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
+      },
+      isDarkMode () {
+        return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
       }
     },
     computed: {
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? 'monokai' : 'solarized'
+      },
       ...mapGetters(['problemSubmitDisabled', 'contestRuleType', 'OIContestRealTimePermission', 'contestStatus']),
       contest () {
         return this.$store.state.contest.contest
@@ -1112,6 +1121,10 @@
     watch: {
       '$route' () {
         this.init()
+      },
+      isDarkMode (newVal) {
+      // 다크모드 변경 시 자동으로 테마를 바꾸도록 함
+        this.onChangeTheme(this.currentTheme)
       }
     }
   }
@@ -1155,7 +1168,7 @@
       font-size: 20px;
       font-weight: 400;
       margin: 25px 0 8px 0;
-      color: #3091f2;
+      color: var(--problem-text-color);
       .copy {
         padding-left: 8px;
       }
@@ -1179,11 +1192,13 @@
         align-self: stretch;
         border-style: solid;
         background: transparent;
+        border: 1px solid var(--problem-example-box-color);
       }
     }
   }
 
   #submit-code {
+    background-color: var(--panelBackground);
     .status {
       float: left;
       span {
@@ -1213,12 +1228,14 @@
   }
 
   #info {
+    background-color: var(--panelBackground);
     margin-bottom: 20px;
     margin-top: 20px;
+    color: var(--verticalMenu-item-color);
     ul {
       list-style-type: none;
       li {
-        border-bottom: 1px dotted #e9eaec;
+        border-bottom: 1px dotted var(--list-border-bottom);
         margin-bottom: 10px;
         p {
           display: inline-block;
@@ -1238,11 +1255,13 @@
   }
 
   #pieChart {
+    background-color: var(--panelBackground);
     .echarts {
       height: 250px;
       width: 210px;
     }
     #detail {
+      color: var(--verticalMenu-item-color);
       position: absolute;
       right: 10px;
       top: 10px;
@@ -1318,6 +1337,7 @@
     margin-right: 10px;
   }
   #run-code{
+    background-color: var(--panelBackground);
     align-items: stretch;
     .sample {
       height: 50%;
@@ -1369,7 +1389,6 @@
       width: auto;
       height: auto;
       flex-wrap: wrap;
-      background-color: white;
     }
     .output-container .text-box,
     .input-container .text-box,
