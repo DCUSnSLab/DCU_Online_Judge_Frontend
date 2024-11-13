@@ -225,6 +225,7 @@
 </script>
 <style lang="less" scoped>
   #contest-card {
+    // color: var(--text-color); 
     #keyword {
       width: 80%;
       margin-right: 30px;

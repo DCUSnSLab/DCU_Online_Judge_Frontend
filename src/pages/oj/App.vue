@@ -126,9 +126,14 @@
 </script>
 
 <style lang="less">
-  html, body {
-    background-color: var(--background-color); /* CSS 변수를 사용하여 배경색 설정 */
-    color: var(--text-color); /* CSS 변수를 사용하여 텍스트 색상 설정 */
+  html {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
+  }
+  
+  body {
+    background-color: var(--background-color) !important;
+    color: var(--text-color) !important;
   }
 
   * {

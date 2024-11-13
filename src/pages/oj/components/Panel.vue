@@ -55,9 +55,13 @@
   .panel-title {
     .section-title;
     padding: 5px 15px;
+    // color: #ff0000;
+    color: var(--text-color);
   }
 
   .panel-extra {
+    // color: #ff0000;
+    color: var(--text-color); 
     line-height: 40px;
     .ivu-input-wrapper:hover .ivu-input {
       border: 1px solid var(--search-box-hovor-color);
@@ -78,12 +82,15 @@
     }
   }
   .panel-body {
+    // color: #ff0000;
+    color: var(--text-color);
     word-break: break-all;
     word-wrap: break-word;
   }
   
   // 테이블 색상
   .ivu-table{
+    color: var(--table-text-color);
     border: 1px solid var(--table-border-color);
     box-shadow: none !important;
   }
@@ -101,6 +108,16 @@
     border-color: var(--table-border-color) !important;
     padding: 0 !important; /* 내부 여백 제거 */
     margin: 0 !important;
+    .ivu-btn-text {
+      color: var(--table-text-color);
+    }
+    .ivu-btn-text:hover {
+      color: var(--text-hover-color);
+    }
+  }
+  .ivu-table-row:hover td {
+    background: var(--table-body-background) !important;
+    color: var(--table-text-color) !important;
   }
   .ivu-table::before {
     background-color: transparent !important;
