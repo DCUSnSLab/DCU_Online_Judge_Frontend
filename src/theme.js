@@ -25,7 +25,10 @@ export const lightTheme = {
   '--table-border-color': '#e9eaec',
   '--table-text-color': '#495060',
   '--problem-text-color': '#3091f2',
-  '--problem-example-box-color': '#e9eaec'
+  '--problem-example-box-color': '#e9eaec',
+  '--qna-card-backgound': '#fff',
+  '--qna-text-color': '#495060',
+  '--qna-card-border-color': 'ebeef5'
   // 추가적인 스타일 정의
 }
 export const darkTheme = {
@@ -48,12 +51,15 @@ export const darkTheme = {
   '--verticalMenu-item-backgound': '#333',
   '--verticalMenu-item-color': '#b4b4b4',
   '--vertivalMenu-item-hover-color': '#444',
-  '--table-head-backgound': '#2f2f2f',
-  '--table-body-background': '#0d0d0d',
+  '--table-head-backgound': '#444',
+  '--table-body-background': '#2f2f2f',
   '--table-bottom-color': '#rgba(255, 255, 255, 0.1)',
   '--table-border-color': '#222',
   '--table-text-color': '#ececec',
   '--problem-text-color': '#3498db',
-  '--problem-example-box-color': '#444'
+  '--problem-example-box-color': '#444',
+  '--qna-card-backgound': '#444',
+  '--qna-text-color': '#fff',
+  '--qna-card-border-color': '222'
   // 추가적인 스타일 정의
 }

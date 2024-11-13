@@ -330,6 +330,9 @@
   }
 
   .box-card {
+    background-color: var(--qna-card-backgound);
+    color: var(--qna-text-color);
+    border: 1px solid var(--qna-card-border-color);
     margin-left: 10px;
     margin-right: 10px;
     margin-bottom: 10px;
