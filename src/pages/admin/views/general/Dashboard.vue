@@ -52,6 +52,16 @@
       <panel :title="$t('m.System_Statistics')" v-if="isSuperAdmin">
         <div>
           <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
+          <Row type="flex" justify="space-around">
+            <Col :span="22">
+              <Panel :padding="10">
+                <div slot="title">{{$t('m.Submission_Statistics')}}</div>
+                <div class="echarts">
+                  <ECharts :options="options" ref="chart" autoresize></ECharts>
+                </div>
+              </Panel>
+            </Col>
+          </Row>
         </div>
       </panel>
     </el-col>
@@ -115,7 +125,29 @@
     data () {
       return {
         submissionData: [], // API로 받아온 submission 데이터
-        loading: true, // 데이터 로딩 상태
+        options: {
+          tooltip: {
+            trigger: 'axis'
+          },
+          xAxis: {
+            type: 'category',
+            data: [],
+            axisLabel: {
+              formatter: (value) => value
+            }
+          },
+          yAxis: {
+            type: 'value',
+            name: 'Submission Count'
+          },
+          series: [
+            {
+              name: 'Submissions',
+              type: 'line',
+              data: []
+            }
+          ]
+        },
         infoData: {
           user_count: 0,
           recent_contest_count: 0,
@@ -130,13 +162,13 @@
       }
     },
     mounted () {
-      api.getSubmissionDateCounts().then(resp => {
-        this.submissionData = resp.data.data
-        console.log(resp.data.data)
-      }, () => {
-      }).catch(error => {
-        console.error('API 호출 실패:', error)
-      })
+      // api.getSubmissionDateCounts().then(resp => {
+      //   this.submissionData = resp.data.data
+      //   console.log(resp.data.data)
+      // }, () => {
+      // }).catch(error => {
+      //   console.error('API 호출 실패:', error)
+      // })
       api.getDashboardInfo().then(resp => {
         this.infoData = resp.data.data
       }, () => {
@@ -161,6 +193,7 @@
       }, () => {
         this.loadingReleases = false
       })
+      this.loadsubmissionData()
     },
     methods: {
       parseSession (sessions) {
@@ -171,6 +204,30 @@
           })[0]
         }
         this.session = session
+      },
+      loadsubmissionData () {
+        let chart = this.$refs.chart
+        chart.showLoading({ maskColor: 'rgba(250, 250, 250, 0.8)' })
+        api.getSubmissionDateCounts().then(resp => {
+          this.submissionData = resp.data.data
+          this.updateChartData()
+          chart.hideLoading()
+          console.log(resp.data.data)
+        }).catch(() => {
+          chart.hideLoading()
+        })
+      },
+      updateChartData () {
+        let dates = []
+        let counts = []
+
+        this.submissionData.forEach(entry => {
+          dates.push(entry.date)
+          counts.push(entry.submission_count)
+        })
+
+        this.options.xAxis.data = dates
+        this.options.series[0].data = counts
       }
     },
     computed: {
