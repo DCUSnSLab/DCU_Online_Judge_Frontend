@@ -145,7 +145,7 @@
           },
           series: [
             {
-              name: 'Submissions',
+              name: '문제 제출 수',
               type: 'line',
               data: []
             }
