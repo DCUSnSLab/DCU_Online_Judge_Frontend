@@ -55,15 +55,17 @@
         <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
         <div>
           <div class="echarts">
-            <ECharts :options="options" ref="chart" autoresize></ECharts>
+            <ECharts :options="optionsSub" ref="chartSub" autoresize></ECharts>
           </div>
         </div>
+        <!--
         <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
         <div>
           <div class="echarts">
             <ECharts :options="options" ref="chart" autoresize></ECharts>
           </div>
         </div>
+      -->
       </panel>
     </el-col>
 
@@ -126,7 +128,7 @@
     data () {
       return {
         submissionData: [], // API로 받아온 submission 데이터
-        options: {
+        optionsSub: {
           tooltip: {
             trigger: 'axis'
           },
@@ -141,13 +143,25 @@
             }
           },
           yAxis: {
-            type: 'value'
+            type: 'value',
+            max: 'dataMax'
           },
           series: [
             {
               name: '문제 제출 수',
               type: 'line',
               data: []
+            }
+          ],
+          dataZoom: [
+            {
+              type: 'slider', // 가로 스크롤 추가
+              show: true,
+              xAxisIndex: [0], // x축에만 적용
+              start: 0, // 시작 비율 (0부터 시작)
+              end: 50,
+              handleSize: '8%', // 스크롤바 핸들의 크기
+              zoomLock: true // 사용자가 스크롤 영역을 이동시킬 수 있도록 잠금
             }
           ]
         },
@@ -212,29 +226,33 @@
         this.session = session
       },
       loadsubmissionData () {
-        let chart = this.$refs.chart
-        console.log(chart)
-        chart.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
+        let chartSub = this.$refs.chartSub
+        console.log(chartSub)
+        chartSub.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
         api.getSubmissionDateCounts().then(resp => {
           this.submissionData = resp.data.data
           this.updateChartData()
-          chart.hideLoading()
+          chartSub.hideLoading()
           console.log(resp.data.data)
         }).catch(() => {
-          chart.hideLoading()
+          chartSub.hideLoading()
         })
       },
       updateChartData () {
         let dates = []
         let counts = []
+        let maxCount = 0
+        this.submissionData.sort((a, b) => new Date(b.date) - new Date(a.date))
+
         this.submissionData.forEach(entry => {
           dates.push(entry.date)
           counts.push(entry.submission_count)
-          console.log(entry.data)
+          maxCount = Math.max(maxCount, entry.submission_count)
         })
 
-        this.options.xAxis.data = dates
-        this.options.series[0].data = counts
+        this.optionsSub.xAxis.data = dates
+        this.optionsSub.series[0].data = counts
+        this.optionsSub.yAxis.max = maxCount
       }
     },
     computed: {
