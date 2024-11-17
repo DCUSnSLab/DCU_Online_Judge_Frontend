@@ -48,20 +48,21 @@
           </el-tag>
         </p>
       </panel>
-
+    </el-col>
+    
+    <el-col :md="14" :lg="16" v-if="isSuperAdmin">
       <panel :title="$t('m.System_Statistics')" v-if="isSuperAdmin">
+        <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
         <div>
-          <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
-          <Row type="flex" justify="space-around">
-            <Col :span="22">
-              <Panel :padding="10">
-                <div slot="title">{{$t('m.Submission_Statistics')}}</div>
-                <div class="echarts">
-                  <ECharts :options="options" ref="chart" autoresize></ECharts>
-                </div>
-              </Panel>
-            </Col>
-          </Row>
+          <div class="echarts">
+            <ECharts :options="options" ref="chart" autoresize></ECharts>
+          </div>
+        </div>
+        <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
+        <div>
+          <div class="echarts">
+            <ECharts :options="options" ref="chart" autoresize></ECharts>
+          </div>
         </div>
       </panel>
     </el-col>
@@ -129,6 +130,9 @@
           tooltip: {
             trigger: 'axis'
           },
+          legend: {
+            data: [this.$i18n.t('m.Submit_date'), this.$i18n.t('m.Submit_cnt')]
+          },
           xAxis: {
             type: 'category',
             data: [],
@@ -137,8 +141,7 @@
             }
           },
           yAxis: {
-            type: 'value',
-            name: 'Submission Count'
+            type: 'value'
           },
           series: [
             {
@@ -193,7 +196,10 @@
       }, () => {
         this.loadingReleases = false
       })
-      this.loadsubmissionData()
+      // submissionData 로딩
+      this.$nextTick(() => {
+        this.loadsubmissionData()  // $nextTick을 사용하여 DOM 업데이트 후 호출
+      })
     },
     methods: {
       parseSession (sessions) {
@@ -207,7 +213,8 @@
       },
       loadsubmissionData () {
         let chart = this.$refs.chart
-        chart.showLoading({ maskColor: 'rgba(250, 250, 250, 0.8)' })
+        console.log(chart)
+        chart.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
         api.getSubmissionDateCounts().then(resp => {
           this.submissionData = resp.data.data
           this.updateChartData()
@@ -220,10 +227,10 @@
       updateChartData () {
         let dates = []
         let counts = []
-
         this.submissionData.forEach(entry => {
           dates.push(entry.date)
           counts.push(entry.submission_count)
+          console.log(entry.data)
         })
 
         this.options.xAxis.data = dates
@@ -290,6 +297,12 @@
       min-width: 200px;
       margin-bottom: 10px;
     }
+  }
+
+  .echarts {
+    margin: 0 auto;
+    width: 95%;
+    height: 400px;
   }
 
 </style>

@@ -327,7 +327,6 @@ export const m = {
   // Dashboard.vue
   Last_Login: '최근 로그인',
   System_Overview: '시스템 개요',
-  System_Statistics: '시스템 통계',
   Submission_Date_Statistics: '문제 제출 통계',
   DashBoardJudge_Server: '채점 서버',
   HTTPS_Status: 'HTTPS 상태',
@@ -351,6 +350,9 @@ export const m = {
   latestVersion: '최신 버전',
   recommendedLevel: '권장 수준:',
   details: '세부사항:',
+  System_Statistics: '시스템 통계',
+  Submit_date: '제출 날짜',
+  Submit_cnt: '제출 코드 수',
   // login.vue
   Welcome_to_Login: '돌아오신것을 환영합니다!',
   GO: 'GO',

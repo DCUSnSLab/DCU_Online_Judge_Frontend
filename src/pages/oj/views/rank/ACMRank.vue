@@ -7,10 +7,12 @@
         <ECharts :options="options" ref="chart" autoresize></ECharts>
       </div>
     </Panel>
+    <!--
     <Table :data="dataRank" :columns="columns" :loading="loadingTable" size="large"></Table>
     <Pagination :total="total" :page-size.sync="limit" :current.sync="page"
                 @on-change="getRankData" show-sizer
                 @on-page-size-change="getRankData(1)"></Pagination>
+  -->
     </Col>
   </Row>
 </template>
@@ -158,6 +160,7 @@
       getRankData (page) {
         let offset = (page - 1) * this.limit
         let bar = this.$refs.chart
+        console.log(bar)
         bar.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
         this.loadingTable = true
         api.getUserRank(offset, this.limit, RULE_TYPE.ACM).then(res => {
