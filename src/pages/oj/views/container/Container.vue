@@ -92,7 +92,7 @@ export default {
       hiddenIframe.style.display = 'none'
       hiddenIframe.name = 'hidden_iframe'
       document.body.appendChild(hiddenIframe)
-      form.target = 'hidden_iframe'
+      form.target = newContainerUrl
       this.addFormInput(form, 'username', 'dcucode-' + this.userData.id)
       this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
       this.addFormInput(form, 'fontSize', '20')
@@ -103,6 +103,7 @@ export default {
     },
     addContainer () {
       const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
+      // const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount
       this.containerCount += 1
       this.multiContainer.push(newContainerUrl)
       this.editContainer = newContainerUrl // 새로 추가된 탭으로 활성화
