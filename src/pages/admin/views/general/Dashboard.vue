@@ -223,13 +223,17 @@
       // getTopsubmitters
       api.getTopsubmitters().then(resp => {
         const topSubmitters = resp.data.data
-        this.topSubmittersData = topSubmitters
 
-        const names = topSubmitters.map(item => item.user__realname)
-        const counts = topSubmitters.map(item => item.submission_count)
+        const sortedSubmitters = topSubmitters.sort((a, b) => b.submission_count - a.submission_count)
+
+        // this.topSubmittersData = topSubmitters
+
+        const names = sortedSubmitters.map(item => item.user__realname)
+        const counts = sortedSubmitters.map(item => item.submission_count)
         const maxCount = Math.max(...counts)
 
-        this.optionsRanking.xAxis.data = names
+        const ranks = names.map((name, index) => `${index + 1}등: ${name}`)
+        this.optionsRanking.xAxis.data = ranks
         this.optionsRanking.series[0].data = counts
         // console.log(resp.data.data)
 
