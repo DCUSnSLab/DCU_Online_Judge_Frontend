@@ -328,6 +328,8 @@ export const m = {
   Last_Login: '최근 로그인',
   System_Overview: '시스템 개요',
   Submission_Date_Statistics: '문제 제출 통계',
+  Submission_Ranking: '서브미션 랭킹',
+  Submissions: '서브미션 수',
   DashBoardJudge_Server: '채점 서버',
   HTTPS_Status: 'HTTPS 상태',
   Force_HTTPS: '강제 HTTPS',

@@ -476,6 +476,9 @@ export default {
   getSubmissionDateCounts () {
     return ajax('admin/sub_date_counts', 'get')
   },
+  getTopsubmitters () {
+    return ajax('admin/topsubmitters', 'get')
+  },
   getSessions () {
     return ajax('sessions', 'get')
   },

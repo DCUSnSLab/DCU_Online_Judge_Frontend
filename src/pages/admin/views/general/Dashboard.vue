@@ -65,14 +65,12 @@
             <ECharts :options="optionsSub" ref="chartSub" autoresize></ECharts>
           </div>
         </div>
-        <!--
-        <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
+        <h2>{{$t('m.Submission_Ranking')}}</h2>
         <div>
           <div class="echarts">
-            <ECharts :options="optionsSub" ref="chartSub" autoresize></ECharts>
+            <ECharts :options="optionsRanking" ref="chartRanking" autoresize></ECharts>
           </div>
         </div>
-      -->
       </panel>
     </el-col>
 
@@ -134,8 +132,43 @@
     },
     data () {
       return {
+        topSubmittersData: [],
+        optionsRanking: {
+          tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+              type: 'shadow'
+            }
+          },
+          xAxis: {
+            type: 'category',
+            data: []
+          },
+          yAxis: {
+            type: 'value',
+            boundaryGap: [0, 0.01]
+          },
+          series: [
+            {
+              name: this.$t('m.Submissions'),
+              type: 'bar',
+              data: []
+            }
+          ],
+          dataZoom: [
+            {
+              type: 'slider',
+              show: true,
+              xAxisIndex: [0],
+              start: 0,
+              end: 50,
+              handleSize: '8%',
+              zoomLock: true
+            }
+          ]
+        },
         dateFilter: 'daily',
-        submissionData: [], // API로 받아온 submission 데이터
+        submissionData: [],
         optionsSub: {
           tooltip: {
             trigger: 'axis'
@@ -163,13 +196,13 @@
           ],
           dataZoom: [
             {
-              type: 'slider', // 가로 스크롤 추가
+              type: 'slider',
               show: true,
-              xAxisIndex: [0], // x축에만 적용
-              start: 0, // 시작 비율 (0부터 시작)
+              xAxisIndex: [0],
+              start: 0,
               end: 50,
-              handleSize: '8%', // 스크롤바 핸들의 크기
-              zoomLock: true // 사용자가 스크롤 영역을 이동시킬 수 있도록 잠금
+              handleSize: '8%',
+              zoomLock: true
             }
           ]
         },
@@ -187,13 +220,22 @@
       }
     },
     mounted () {
-      // api.getSubmissionDateCounts().then(resp => {
-      //   this.submissionData = resp.data.data
-      //   console.log(resp.data.data)
-      // }, () => {
-      // }).catch(error => {
-      //   console.error('API 호출 실패:', error)
-      // })
+      // getTopsubmitters
+      api.getTopsubmitters().then(resp => {
+        const topSubmitters = resp.data.data
+        this.topSubmittersData = topSubmitters
+
+        const names = topSubmitters.map(item => item.user__realname)
+        const counts = topSubmitters.map(item => item.submission_count)
+        const maxCount = Math.max(...counts)
+
+        this.optionsRanking.xAxis.data = names
+        this.optionsRanking.series[0].data = counts
+        // console.log(resp.data.data)
+
+        this.optionsRanking.yAxis.max = maxCount + Math.ceil(maxCount * 0.1)
+      }, () => {
+      })
       api.getDashboardInfo().then(resp => {
         this.infoData = resp.data.data
       }, () => {
@@ -235,13 +277,11 @@
       },
       loadsubmissionData () {
         let chartSub = this.$refs.chartSub
-        console.log(chartSub)
         chartSub.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
         api.getSubmissionDateCounts().then(resp => {
           this.submissionData = resp.data.data
           this.updateChartData()
           chartSub.hideLoading()
-          console.log(resp.data.data)
         }).catch(() => {
           chartSub.hideLoading()
         })
@@ -281,7 +321,7 @@
 
         this.optionsSub.xAxis.data = dates
         this.optionsSub.series[0].data = counts
-        this.optionsSub.yAxis.max = maxCount
+        this.optionsSub.yAxis.max = maxCount + Math.ceil(maxCount * 0.1)
       }
     },
     computed: {
