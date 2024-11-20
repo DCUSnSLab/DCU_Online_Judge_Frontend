@@ -53,6 +53,13 @@
     <el-col :md="14" :lg="16" v-if="isSuperAdmin">
       <panel :title="$t('m.System_Statistics')" v-if="isSuperAdmin">
         <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
+        <div style="margin-bottom: 20px; text-align: center;">
+          <el-select v-model="dateFilter" placeholder="Select period" @change="updateChartData" style="width: 200px;">
+            <el-option :label="$t('m.Daily')" value="daily"></el-option>
+            <el-option :label="$t('m.Weekly')" value="weekly"></el-option>
+            <el-option :label="$t('m.Monthly')" value="monthly"></el-option>
+          </el-select>
+        </div>
         <div>
           <div class="echarts">
             <ECharts :options="optionsSub" ref="chartSub" autoresize></ECharts>
@@ -62,7 +69,7 @@
         <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
         <div>
           <div class="echarts">
-            <ECharts :options="options" ref="chart" autoresize></ECharts>
+            <ECharts :options="optionsSub" ref="chartSub" autoresize></ECharts>
           </div>
         </div>
       -->
@@ -127,6 +134,7 @@
     },
     data () {
       return {
+        dateFilter: 'daily',
         submissionData: [], // API로 받아온 submission 데이터
         optionsSub: {
           tooltip: {
@@ -238,13 +246,34 @@
           chartSub.hideLoading()
         })
       },
+      groupDataByPeriod (data, period) {
+        const groupedData = {}
+        data.forEach(entry => {
+          let key
+          const date = new Date(entry.date)
+          if (period === 'weekly') {
+            const month = String(date.getMonth() + 1).padStart(2, '0') // 월 계산
+            const week = Math.ceil((date.getDate() + 6 - date.getDay()) / 7) // 주차 계산
+            key = `${date.getFullYear()}-${month}월-${week}주` // 월과 주차 포함
+          } else if (period === 'monthly') {
+            key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+          } else {
+            key = entry.date // 기본적으로 일별
+          }
+          groupedData[key] = (groupedData[key] || 0) + entry.submission_count
+        })
+        return Object.entries(groupedData).map(([key, value]) => ({
+          date: key,
+          submission_count: value
+        }))
+      },
       updateChartData () {
+        let filteredData = this.groupDataByPeriod(this.submissionData, this.dateFilter)
+
         let dates = []
         let counts = []
         let maxCount = 0
-        this.submissionData.sort((a, b) => new Date(b.date) - new Date(a.date))
-
-        this.submissionData.forEach(entry => {
+        filteredData.forEach(entry => {
           dates.push(entry.date)
           counts.push(entry.submission_count)
           maxCount = Math.max(maxCount, entry.submission_count)

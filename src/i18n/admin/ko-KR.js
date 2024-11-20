@@ -353,6 +353,9 @@ export const m = {
   System_Statistics: '시스템 통계',
   Submit_date: '제출 날짜',
   Submit_cnt: '제출 코드 수',
+  Daily: '일',
+  Weekly: '주',
+  Monthly: '월',
   // login.vue
   Welcome_to_Login: '돌아오신것을 환영합니다!',
   GO: 'GO',
