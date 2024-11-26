@@ -479,6 +479,9 @@ export default {
   getTopsubmitters () {
     return ajax('admin/topsubmitters', 'get')
   },
+  getUserloginstats () {
+    return ajax('admin/userloginstats', 'get')
+  },
   getSessions () {
     return ajax('sessions', 'get')
   },

@@ -330,6 +330,7 @@ export const m = {
   Submission_Date_Statistics: '문제 제출 통계',
   Submission_Ranking: '서브미션 랭킹',
   Submissions: '서브미션 수',
+  UserLoginStat: '로그인한 사용자',
   DashBoardJudge_Server: '채점 서버',
   HTTPS_Status: 'HTTPS 상태',
   Force_HTTPS: '강제 HTTPS',
