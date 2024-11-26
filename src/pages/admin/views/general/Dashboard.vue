@@ -54,7 +54,7 @@
       <panel :title="$t('m.System_Statistics')" v-if="isSuperAdmin">
         <h2>{{$t('m.Submission_Date_Statistics')}}</h2>
         <div style="margin-bottom: 20px; text-align: center;">
-          <el-select v-model="dateFilter" placeholder="Select period" @change="updateChartData" style="width: 200px;">
+          <el-select v-model="dateFilter_sub" placeholder="Select period" @change="updateChartData_sub" style="width: 200px;">
             <el-option :label="$t('m.Daily')" value="daily"></el-option>
             <el-option :label="$t('m.Weekly')" value="weekly"></el-option>
             <el-option :label="$t('m.Monthly')" value="monthly"></el-option>
@@ -63,6 +63,19 @@
         <div>
           <div class="echarts">
             <ECharts :options="optionsSub" ref="chartSub" autoresize></ECharts>
+          </div>
+        </div>
+        <h2>{{$t('m.UserLoginStat')}}</h2>
+        <div style="margin-bottom: 20px; text-align: center;">
+          <el-select v-model="dateFilter_login" placeholder="Select period" @change="updateChartData_login" style="width: 200px;">
+            <el-option :label="$t('m.Daily')" value="daily"></el-option>
+            <el-option :label="$t('m.Weekly')" value="weekly"></el-option>
+            <el-option :label="$t('m.Monthly')" value="monthly"></el-option>
+          </el-select>
+        </div>
+        <div>
+          <div class="echarts">
+            <ECharts :options="optionsLogin" ref="chartLogin" autoresize></ECharts>
           </div>
         </div>
         <h2>{{$t('m.Submission_Ranking')}}</h2>
@@ -167,8 +180,10 @@
             }
           ]
         },
-        dateFilter: 'daily',
+        dateFilter_sub: 'daily',
         submissionData: [],
+        dateFilter_login: 'daily',
+        loginData: [],
         optionsSub: {
           tooltip: {
             trigger: 'axis'
@@ -206,6 +221,43 @@
             }
           ]
         },
+        optionsLogin: {
+          tooltip: {
+            trigger: 'axis'
+          },
+          legend: {
+            data: [this.$i18n.t('m.Submit_date'), this.$i18n.t('m.Submit_cnt')]
+          },
+          xAxis: {
+            type: 'category',
+            data: [],
+            axisLabel: {
+              formatter: (value) => value
+            }
+          },
+          yAxis: {
+            type: 'value',
+            max: 'dataMax'
+          },
+          series: [
+            {
+              name: '로그인 수',
+              type: 'line',
+              data: []
+            }
+          ],
+          dataZoom: [
+            {
+              type: 'slider',
+              show: true,
+              xAxisIndex: [0],
+              start: 0,
+              end: 50,
+              handleSize: '8%',
+              zoomLock: true
+            }
+          ]
+        },
         infoData: {
           user_count: 0,
           recent_contest_count: 0,
@@ -220,14 +272,9 @@
       }
     },
     mounted () {
-      // getTopsubmitters
       api.getTopsubmitters().then(resp => {
         const topSubmitters = resp.data.data
-
         const sortedSubmitters = topSubmitters.sort((a, b) => b.submission_count - a.submission_count)
-
-        // this.topSubmittersData = topSubmitters
-
         const names = sortedSubmitters.map(item => item.user__realname)
         const counts = sortedSubmitters.map(item => item.submission_count)
         const maxCount = Math.max(...counts)
@@ -235,7 +282,6 @@
         const ranks = names.map((name, index) => `${index + 1}등: ${name}`)
         this.optionsRanking.xAxis.data = ranks
         this.optionsRanking.series[0].data = counts
-        // console.log(resp.data.data)
 
         this.optionsRanking.yAxis.max = maxCount + Math.ceil(maxCount * 0.1)
       }, () => {
@@ -264,9 +310,9 @@
       }, () => {
         this.loadingReleases = false
       })
-      // submissionData 로딩
       this.$nextTick(() => {
-        this.loadsubmissionData()  // $nextTick을 사용하여 DOM 업데이트 후 호출
+        this.loadsubmissionData()
+        this.loadloginData()
       })
     },
     methods: {
@@ -284,13 +330,24 @@
         chartSub.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
         api.getSubmissionDateCounts().then(resp => {
           this.submissionData = resp.data.data
-          this.updateChartData()
+          this.updateChartData_sub()
           chartSub.hideLoading()
         }).catch(() => {
           chartSub.hideLoading()
         })
       },
-      groupDataByPeriod (data, period) {
+      loadloginData () {
+        let chartLogin = this.$refs.chartLogin
+        chartLogin.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
+        api.getUserloginstats().then(resp => {
+          this.loginData = resp.data.data
+          this.updateChartData_login()
+          chartLogin.hideLoading()
+        }).catch(() => {
+          chartLogin.hideLoading()
+        })
+      },
+      groupDataByPeriod_sub (data, period) {
         const groupedData = {}
         data.forEach(entry => {
           let key
@@ -311,8 +368,29 @@
           submission_count: value
         }))
       },
-      updateChartData () {
-        let filteredData = this.groupDataByPeriod(this.submissionData, this.dateFilter)
+      groupDataByPeriod_login (data, period) {
+        const groupedDatalogin = {}
+        data.forEach(entry => {
+          let key
+          const date = new Date(entry.date)
+          if (period === 'weekly') {
+            const month = String(date.getMonth() + 1).padStart(2, '0')
+            const week = Math.ceil((date.getDate() + 6 - date.getDay()) / 7)
+            key = `${date.getFullYear()}-${month}월-${week}주`
+          } else if (period === 'monthly') {
+            key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+          } else {
+            key = entry.date
+          }
+          groupedDatalogin[key] = (groupedDatalogin[key] || 0) + entry.login_count
+        })
+        return Object.entries(groupedDatalogin).map(([key, value]) => ({
+          date: key,
+          login_count: value
+        }))
+      },
+      updateChartData_sub () {
+        let filteredData = this.groupDataByPeriod_sub(this.submissionData, this.dateFilter_sub)
 
         let dates = []
         let counts = []
@@ -326,6 +404,22 @@
         this.optionsSub.xAxis.data = dates
         this.optionsSub.series[0].data = counts
         this.optionsSub.yAxis.max = maxCount + Math.ceil(maxCount * 0.1)
+      },
+      updateChartData_login () {
+        let filteredData = this.groupDataByPeriod_login(this.loginData, this.dateFilter_login)
+
+        let dates = []
+        let counts = []
+        let maxCount = 0
+        filteredData.forEach(entry => {
+          dates.push(entry.date)
+          counts.push(entry.login_count)
+          maxCount = Math.max(maxCount, entry.login_count)
+        })
+
+        this.optionsLogin.xAxis.data = dates
+        this.optionsLogin.series[0].data = counts
+        this.optionsLogin.yAxis.max = maxCount + Math.ceil(maxCount * 0.1)
       }
     },
     computed: {
