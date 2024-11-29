@@ -106,6 +106,7 @@
           http://docs.onlinejudge.me/#/onlinejudge/guide/upgrade</a>
           </p>
         </el-popover>
+
         </span>
 
         <el-collapse v-model="activeNames" v-for="(release, index) of releases" :key="'release' + index">
@@ -243,7 +244,13 @@
             {
               name: '로그인 수',
               type: 'line',
-              data: []
+              data: [],
+              itemStyle: {
+                color: '#409EFF'
+              },
+              lineStyle: {
+                color: '#409EFF'
+              }
             }
           ],
           dataZoom: [
@@ -341,6 +348,8 @@
         chartLogin.showLoading({maskColor: 'rgba(250, 250, 250, 0.8)'})
         api.getUserloginstats().then(resp => {
           this.loginData = resp.data.data
+          console.log(123123)
+          console.log(resp.data.data)
           this.updateChartData_login()
           chartLogin.hideLoading()
         }).catch(() => {
