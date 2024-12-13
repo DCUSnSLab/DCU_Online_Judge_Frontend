@@ -476,7 +476,7 @@ export default {
       data
     })
   },
-  checkContestExit (contestId) {    // working by soojung
+  checkContestExit (contestId, clientIP) {
     return ajax('problem/contest_exit_info', 'get', {
       params: {
         contest_id: contestId,
