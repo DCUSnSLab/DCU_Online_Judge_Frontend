@@ -476,17 +476,7 @@ export default {
       data
     })
   },
-  tokenAuth (data) {
-    return ajax('token_auth', 'post', {
-      data
-    })
-  },
-  tokenRefresh (data) {
-    return ajax('token_refresh', 'post', {
-      data
-    })
-  },
-  checkContestExit (contestId, clientIP) {
+  checkContestExit (contestId) {    // working by soojung
     return ajax('problem/contest_exit_info', 'get', {
       params: {
         contest_id: contestId,

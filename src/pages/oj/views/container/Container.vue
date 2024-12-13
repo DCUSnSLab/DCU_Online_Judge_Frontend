@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
+    <Card :padding="20" id="Terminal" dis-hover class="terminal-card">
       <div class="form-container" v-if="!passwordEntered">
         <label for="passwordInput">Password: </label>
         <input type="password" v-model="password" id="passwordInput" />
@@ -9,16 +9,14 @@
       <div class="form-container" v-else>
         <button @click="resetPassword">PWreset</button>
         <button @click="addContainer">addContainer</button>
-        <button @click="debug">debug</button>
       </div>
-    </Card> -->
+    </Card>
     <div>
       <el-tabs
         v-model="editConainer"
         type="border-card"
-        editable
+        closable
         @tab-remove="removeTab"
-        @tab-add="addContainer"
       >
         <el-tab-pane 
           v-for="(containerURL, index) of multiContainer"
@@ -57,8 +55,7 @@ export default {
       },
       multiContainer: [],
       passwordEntered: false,
-      containerCount: 0,
-      sessionId: ''
+      containerCount: 0
     }
   },
   mounted () {
@@ -70,6 +67,7 @@ export default {
         this.$error(this.$i18n.t('m.Please_login_first'))
         this.$router.push({ name: 'Home' })
       }
+      this.userData.id = 'dcucodetest'
       api.getUserInfo().then(res => {
         this.userData.id = res.data.data.user.username
       })
@@ -81,8 +79,6 @@ export default {
       input.value = value
       form.appendChild(input)
     },
-    debug () {
-    },
     settingNewContainer (newContainerUrl) {
       const form = document.createElement('form')
       form.method = 'POST'
@@ -92,8 +88,9 @@ export default {
       hiddenIframe.name = 'hidden_iframe'
       document.body.appendChild(hiddenIframe)
       form.target = newContainerUrl
-      this.addFormInput(form, 'username', 'jwt' + this.userData.id)
-      this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
+      console.log(form.target)
+      this.addFormInput(form, 'username', this.userData.id)
+      this.addFormInput(form, 'userpassword', this.userData.password)
       this.addFormInput(form, 'fontSize', '20')
       document.body.appendChild(form)
       form.submit()
@@ -104,14 +101,6 @@ export default {
       // const newContainerUrl = 'http://localhost:2224/ssh/host/container$' + this.containerCount
       this.containerCount += 1
       this.multiContainer.push(newContainerUrl)
-      const refreshToken = localStorage.getItem('refresh_token')
-      console.log(refreshToken)
-      let data = {
-        refresh_token: refreshToken
-      }
-      api.tokenRefresh(data).then(res => {
-        localStorage.setItem('access_token', res.data.data.access_token)
-      })
       this.$nextTick(() => {
         this.settingNewContainer(newContainerUrl)
       })
@@ -125,6 +114,8 @@ export default {
       this.passwordEntered = false
     },
     removeTab (targetName) {
+      console.log(targetName)
+      console.log(this.editContainer)
       this.multiContainer = this.multiContainer.filter(multiContainer => multiContainer !== targetName)
       if (this.editContainer === targetName) {
         this.editContainer = this.tabs.length ? this.tabs[0].name : ''
