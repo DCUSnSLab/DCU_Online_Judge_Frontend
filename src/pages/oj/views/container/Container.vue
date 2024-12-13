@@ -61,17 +61,17 @@ export default {
       input: []
     }
   },
-  async mounted () {
-    await this.init()
+  mounted () {
+    this.init()
     this.addContainer()
   },
   methods: {
-    async init () {
+    init () {
       if (!this.isAuthenticated) {
         this.$error(this.$i18n.t('m.Please_login_first'))
         this.$router.push({ name: 'Home' })
       }
-      await api.getUserInfo().then(res => {
+      api.getUserInfo().then(res => {
         this.userData.id = res.data.data.user.username
       })
     },
