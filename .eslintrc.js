@@ -10,6 +10,10 @@ module.exports = {
   plugins: [
     'html'
   ],
+  env: {
+    browser: true, //전역 변수(localStorage) 인식하도록 설정
+    node: true
+  },
   // add your custom rules here
   'rules': {
     // allow paren-less arrow functions
