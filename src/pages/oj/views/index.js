@@ -7,7 +7,7 @@ import FAQ from './help/FAQ.vue'
 import NotFound from './general/404.vue'
 import Home from './general/Home.vue'
 import Announcements from './general/Announcements.vue'
-import Container from './container/Container.vue'
+
 // Grouping Components in the Same Chunk
 const SubmissionList = () => import(/* webpackChunkName: "submission" */ '@oj/views/submission/SubmissionList.vue')
 const SubmissionDetails = () => import(/* webpackChunkName: "submission" */ '@oj/views/submission/SubmissionDetails.vue')
@@ -26,7 +26,7 @@ const LectureContestExit = () => import(/* webpackChunkName: "submission" */ '@o
 
 export {
   Home, NotFound, Announcements,
-  Login_, Logout, UserHome, About, FAQ, Container,
+  Login_, Logout, UserHome, About, FAQ,
   ProblemList, Problem,
   ACMRank, OIRank,
   SubmissionList, SubmissionDetails, LectureContestExit,

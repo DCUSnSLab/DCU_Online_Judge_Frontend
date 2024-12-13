@@ -10,10 +10,6 @@
     <Icon type="ios-book"></Icon>
     {{$t('m.Signup_Lectures')}}
   </el-menu-item>
-  <el-menu-item index="/container">
-   <Icon type="monitor"></Icon>
-    {{$t('m.Container')}}
-  </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
     {{$t('m.Lectures')}}
