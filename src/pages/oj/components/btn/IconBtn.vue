@@ -1,5 +1,5 @@
 <template>
-  <div style="display: inline-block;">
+  <div style="display: inline-block;" >
     <el-tooltip class="item" effect="dark" :content="name" placement="top">
       <el-button plain :icon="'el-icon-fa-' + icon" size="mini">
       </el-button>

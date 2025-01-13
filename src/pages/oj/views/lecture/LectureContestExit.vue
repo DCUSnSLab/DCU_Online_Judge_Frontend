@@ -234,13 +234,11 @@ export default {
     // 사용자 목록 가져오기
     getUserList (page) {
       console.log('getLectureUserList Called')
-      console.log(this.lectureID, this.contestID)
       this.loadingTable = true
       api.getLectureUserList((page - 1) * this.pageSize, this.pageSize, this.keyword, this.lectureID, this.contestID).then(res => {
         this.loadingTable = false
         this.total = res.data.data.total  // 인스턴스 개수
         this.userList = res.data.data.results
-        console.log(this.userList)
         if (this.userList.length === 0) {
           console.log('null')
         } else {
@@ -256,6 +254,7 @@ export default {
                 userinfo['schoolssn'] = user.schoolssn
                 userinfo['startTime'] = user.start_time
                 userinfo['endTime'] = user.end_time
+                console.log(userinfo)
                 // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
               }
             }

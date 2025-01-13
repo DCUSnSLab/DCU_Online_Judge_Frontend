@@ -1,8 +1,8 @@
 <template>
   <Row type="flex">
     <Col :span="24">
-    <Panel id="contest-card" shadow>
-      <div slot="title">{{ this.lecture_title }} <p>{{$t('m.Created')}} : {{ this.lecture_creator }}</p></div><!--LectureList.vue에서 보낸 수강과목 title 값-->
+    <Panel id="contest-card" shadow :style="currentTheme">
+      <div slot="title">{{ this.lecture_title }} <p :style="{ color: 'var(--text-color)' }">{{$t('m.Created')}} : {{ this.lecture_creator }}</p></div><!--LectureList.vue에서 보낸 수강과목 title 값-->
       <div slot="extra">
         <ul class="filter">
           <li>
@@ -225,6 +225,7 @@
 </script>
 <style lang="less" scoped>
   #contest-card {
+    // color: var(--text-color); 
     #keyword {
       width: 80%;
       margin-right: 30px;
@@ -237,7 +238,7 @@
     #contest-list {
       > li {
         padding: 20px;
-        border-bottom: 1px solid rgba(187, 187, 187, 0.5);
+        border-bottom: 1px solid var(--list-border-bottom);
         list-style: none;
 
         .trophy {
@@ -249,10 +250,10 @@
           .title {
             font-size: 18px;
             a.entry {
-              color: #495060;
+              color: var(--text-color);
               &:hover {
-                color: #2d8cf0;
-                border-bottom: 1px solid #2d8cf0;
+                color: var(--text-hover-color);
+                border-bottom: 1px solid var(--text-hover-color);
               }
             }
           }

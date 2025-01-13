@@ -7,7 +7,6 @@
           <span slot="close">{{$t('m.Solved')}}</span>
         </i-switch>
       </div>
-
       <el-row>
         <el-col>
           <el-card class="box-card" v-for="qna in qnaList">
@@ -305,7 +304,7 @@
   }
 
   .article-title {
-    color: #444444;
+    color: var(--text-color); 
   }
 
   a.article-title:hover {
@@ -330,6 +329,9 @@
   }
 
   .box-card {
+    background-color: var(--qna-card-backgound);
+    color: var(--qna-text-color);
+    border: 1px solid var(--qna-card-border-color);
     margin-left: 10px;
     margin-right: 10px;
     margin-bottom: 10px;

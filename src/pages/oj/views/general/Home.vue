@@ -138,11 +138,12 @@ import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import Announcements from './Announcements.vue'
 import api from '@oj/api'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import time from '@/utils/time'
 import { CONTEST_STATUS } from '@/utils/constants'
 import utils from '@/utils/utils'
 import {types} from '@/store'
+import { lightTheme, darkTheme } from '@/theme'
 
 Vue.use(Element)
 
@@ -173,6 +174,10 @@ export default {
         return '/' + 'CourseList'
       }
       return '/' + this.$route.path.split('/')[1]
+    },
+    ...mapState('theme', ['isDarkMode']),
+    currentTheme () {
+      return this.isDarkMode ? darkTheme : lightTheme
     },
     modalVisible: {
       get () {
@@ -429,6 +434,9 @@ h3 {
 }
 
 .lecture-card {
+  background: var(--table-body-background);
+  border-color: var(--table-border-color);
+  color: var(--table-text-color);
   margin-left:20px;
   margin-right:20px;
   margin-bottom:10px

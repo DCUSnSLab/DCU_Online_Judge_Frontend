@@ -51,17 +51,17 @@
           prop="title"
           :label="$t('m.Lecture_title')">
         </el-table-column>
-		<el-table-column
-		  width="100"
-		  :label="$t('m.Lecture_Status')">
-		  <template slot-scope="scope">
-		    <el-switch v-model="scope.row.status"
-			           active-text=""
-					   inactive-text=""
-					   @change="handleVisibleSwitch(scope.row)">
-			</el-switch>
-	      </template>
-		</el-table-column>
+        <el-table-column
+          width="100"
+          :label="$t('m.Lecture_Status')">
+          <template slot-scope="scope">
+            <el-switch v-model="scope.row.status"
+                    active-text=""
+                inactive-text=""
+                @change="handleVisibleSwitch(scope.row)">
+            </el-switch>
+          </template>
+        </el-table-column>
         <el-table-column
           fixed="right"
           width="250"

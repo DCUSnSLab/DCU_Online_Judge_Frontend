@@ -4,6 +4,7 @@ import user from './modules/user'
 import contest from './modules/contest'
 import api from '@oj/api'
 import types from './types'
+import theme from './modules/theme'
 
 Vue.use(Vuex)
 const debug = process.env.NODE_ENV !== 'production'
@@ -62,7 +63,8 @@ const rootActions = {
 export default new Vuex.Store({
   modules: {
     user,
-    contest
+    contest,
+    theme
   },
   state: rootState,
   getters: rootGetters,
