@@ -64,13 +64,6 @@
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="client_ip" label="접속 IP" align="center">
-              <template slot-scope="scope">
-                <span>
-                  {{ scope.row.client_ip }}
-                </span>
-              </template>
-            </el-table-column>
             <el-table-column fixed="right" label="응시 상태 변경" width="200" align="center">
               <template slot-scope="{row}">
                 <icon-btn name="변경" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
@@ -119,7 +112,6 @@
 import api from '../../api.js'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import axios from 'axios'
 
 export default {
   name: 'lecturecontestExit',
@@ -180,19 +172,16 @@ export default {
   methods: {
     /* 학생 전용 (일반, TA/RA) */
     CheckContestExit () {
-      axios.get('https://api64.ipify.org?format=json').then(res => {
-        let clientIP = res.data.ip
-        api.checkContestExit(this.$route.params.contestID, clientIP).then(res => {
-          this.contestEndtime = res.data.data.end_time
-          if (this.contestEndtime) {
-            this.contestExitStatus = true
-            this.contestScore()
-          } else {
-            this.contestExitStatus = false
-          }
-          console.log(this.contestExitStatus)
-        }).catch(() => {
-        })
+      api.checkContestExit(this.$route.params.contestID).then(res => {
+        this.contestEndtime = res.data.data.end_time
+        if (this.contestEndtime) {
+          this.contestExitStatus = true
+          this.contestScore()
+        } else {
+          this.contestExitStatus = false
+        }
+        console.log(this.contestExitStatus)
+      }).catch(() => {
       })
     },
     contestExit () {
@@ -265,7 +254,6 @@ export default {
                 userinfo['schoolssn'] = user.schoolssn
                 userinfo['startTime'] = user.start_time
                 userinfo['endTime'] = user.end_time
-                userinfo['client_ip'] = user.client_ip
                 console.log(userinfo)
                 // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
               }
