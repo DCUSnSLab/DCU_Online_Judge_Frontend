@@ -64,13 +64,6 @@
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="client_ip" label="접속 IP" align="center">
-              <template slot-scope="scope">
-                <span>
-                  {{ scope.row.client_ip }}
-                </span>
-              </template>
-            </el-table-column>
             <el-table-column fixed="right" label="응시 상태 변경" width="200" align="center">
               <template slot-scope="{row}">
                 <icon-btn name="변경" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
@@ -261,7 +254,6 @@ export default {
                 userinfo['schoolssn'] = user.schoolssn
                 userinfo['startTime'] = user.start_time
                 userinfo['endTime'] = user.end_time
-                userinfo['client_ip'] = user.client_ip
                 console.log(userinfo)
                 // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
               }
