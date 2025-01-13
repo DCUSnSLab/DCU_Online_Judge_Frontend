@@ -119,7 +119,6 @@
 import api from '../../api.js'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
-import axios from 'axios'
 
 export default {
   name: 'lecturecontestExit',
@@ -180,19 +179,16 @@ export default {
   methods: {
     /* 학생 전용 (일반, TA/RA) */
     CheckContestExit () {
-      axios.get('https://api64.ipify.org?format=json').then(res => {
-        let clientIP = res.data.ip
-        api.checkContestExit(this.$route.params.contestID, clientIP).then(res => {
-          this.contestEndtime = res.data.data.end_time
-          if (this.contestEndtime) {
-            this.contestExitStatus = true
-            this.contestScore()
-          } else {
-            this.contestExitStatus = false
-          }
-          console.log(this.contestExitStatus)
-        }).catch(() => {
-        })
+      api.checkContestExit(this.$route.params.contestID).then(res => {
+        this.contestEndtime = res.data.data.end_time
+        if (this.contestEndtime) {
+          this.contestExitStatus = true
+          this.contestScore()
+        } else {
+          this.contestExitStatus = false
+        }
+        console.log(this.contestExitStatus)
+      }).catch(() => {
       })
     },
     contestExit () {

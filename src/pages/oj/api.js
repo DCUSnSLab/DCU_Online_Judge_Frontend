@@ -476,11 +476,10 @@ export default {
       data
     })
   },
-  checkContestExit (contestId, clientIP) {
+  checkContestExit (contestId) {
     return ajax('problem/contest_exit_info', 'get', {
       params: {
-        contest_id: contestId,
-        client_ip: clientIP
+        contest_id: contestId
       }
     })
   },

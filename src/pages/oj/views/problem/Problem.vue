@@ -817,19 +817,16 @@
         }).catch(() => {
         })
       },
-      checkContestExit () {  // working by soojung
-        axios.get('https://api64.ipify.org?format=json').then(res => {
-          let clientIP = res.data.ip
-          api.checkContestExit(this.contestID, clientIP).then(res => {
-            this.contestEndtime = res.data.data.end_time
-            if (this.contestEndtime) {
-              this.submitted = true
-              this.contestExitStatus = true
-            }
-            if (this.contestExitStatus) {
-              this.$error('이미 퇴실하셨습니다.')
-            }
-          })
+      checkContestExit () {
+        api.checkContestExit(this.contestID).then(res => {
+          this.contestEndtime = res.data.data.end_time
+          if (this.contestEndtime) {
+            this.submitted = true
+            this.contestExitStatus = true
+          }
+          if (this.contestExitStatus) {
+            this.$error('이미 퇴실하셨습니다.')
+          }
         })
       },
       // ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
