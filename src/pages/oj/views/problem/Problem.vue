@@ -102,7 +102,7 @@
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-                <span v-if="running">실행중</span>
+                <span v-if="running">실행</span>
                 <span v-else>실행</span>
               </Button>
             </el-tooltip>
@@ -1050,13 +1050,13 @@
               this.runResultData.push('오류')
             }
           }
-          console.log(this.outputdata)
-          this.running = false
-          this.statusVisible = false
         }).catch(() => {
           this.$error('error')
-          this.running = false
-          this.statusVisible = false
+        }).finally(() => {
+          setTimeout(() => {
+            this.running = false
+            this.statusVisible = false
+          }, 3000)
         })
       },
       getRunResultLable (index) {
