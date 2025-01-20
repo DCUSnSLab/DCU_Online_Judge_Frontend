@@ -1024,6 +1024,7 @@
           return
         }
         this.running = true
+        this.submitting = true
         this.submissionId = ''
         this.result = {result: 9}
         this.runResultData = []
@@ -1056,6 +1057,7 @@
           setTimeout(() => {
             this.running = false
             this.statusVisible = false
+            this.submitting = false
           }, 3000)
         })
       },
