@@ -14,9 +14,9 @@ node {
 
     //dockerfile기반 빌드하는 stage ,git소스 root에 dockerfile이 있어야한다
     stage('Build image'){
-        app = docker.build("harbor.cu.ac.kr/dcucode/dcu_code_fe")
+        app = docker.build("harbor.cu.ac.kr/dcucode_dev/dcu_code_fe")
         sh """
-        docker run --name sample -d -u root harbor.cu.ac.kr/dcucode/dcu_code_fe
+        docker run --name sample -d -u root harbor.cu.ac.kr/dcucode_dev/dcu_code_fe
         docker cp sample:/oj_frontend/dist .
         docker rm -f sample
         """
@@ -34,6 +34,13 @@ node {
 
         sshPublisher(publishers: [sshPublisherDesc(configName: 'snslab_ssh', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: '/static_files/dcucode_dev', remoteDirectorySDF: false, removePrefix: '', sourceFiles: '*.tar.gz')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true)])
 
+    }
+
+    stage('Push image') {
+        docker.withRegistry("https://harbor.cu.ac.kr", "harbor") {
+            app.push("latest")
+            app.push("${env.BUILD_NUMBER}")
+        }
     }
 
     stage('Complete') {
