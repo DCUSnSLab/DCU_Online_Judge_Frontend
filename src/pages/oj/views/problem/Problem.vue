@@ -712,6 +712,7 @@
       window.addEventListener('blur', this.handleScreenBlur)
       window.addEventListener('focus', this.handleScreenFocus)
       document.addEventListener('contextmenu', this.handleRightClick)
+      window.addEventListener('keyup', this.handleKeyUp)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
@@ -721,6 +722,7 @@
       window.removeEventListener('blur', this.handleScreenBlur)
       window.removeEventListener('focus', this.handleScreenFocus)
       document.removeEventListener('contextmenu', this.handleRightClick)
+      window.removeEventListener('keyup', this.handleKeyUp)
     },
     methods: {
       handleResize () {
@@ -1106,34 +1108,58 @@
         const randomIndex = Math.floor(Math.random() * problems.length)
         const replacementText = problems[randomIndex]
         event.clipboardData.setData('text/plain', replacementText)
-        // this.$message.warning('복사 방지: 변조된 텍스트가 복사되었습니다.')
+        this.$message.error({
+          message: '⚠️페이지 내용을 복사하는 행위는 부정 행위로 의심될 수 있습니다. 로그 저장 완료',
+          duration: 5000
+        })
       },
-      preventKeyCombinations (event) {
-        if ((event.ctrlKey && event.key === 'p') ||
-            (event.metaKey && event.key === 'p') ||
-            (event.key === 'PrintScreen') ||
-            (event.shiftKey && event.key === 's') ||
-            (event.metaKey && event.shiftKey && event.key === 's') ||
-            (event.metaKey && event.shiftKey) ||
-            (event.altKey)) {
-          // event.preventDefault()
-          this.triggerBlurEffect()
-          this.isBlurred = true
-          // this.$message.warning('스크린샷 및 단축키가 차단되었습니다!')
-        }
-      },
-      handleScreenBlur () {
-        this.triggerBlurEffect()
-        this.isBlurred = true
-        // this.$message.warning('⚠️ 창이 비활성화됨: 캡처 도구 실행 가능성 감지!')
-      },
+      // preventKeyCombinations (event) {
+      //   if ((event.ctrlKey && event.key === 'p') ||
+      //       (event.metaKey && event.key === 'p') ||
+      //       (event.key === 'PrintScreen') ||
+      //       (event.shiftKey && event.key === 's') ||
+      //       (event.metaKey && event.shiftKey && event.key === 's') ||
+      //       (event.metaKey && event.shiftKey) ||
+      //       (event.altKey)) {
+      //     // event.preventDefault()
+      //     this.triggerBlurEffect()
+      //     this.isBlurred = true
+      //     // this.$message.warning('스크린샷 및 단축키가 차단되었습니다!')
+      //   }
+      // },
+      // handleKeyUp (event) {
+      //   // 특정 키 조합을 눌렀다가 떼면 블러 해제
+      //   if (
+      //     (event.key === 'PrintScreen') ||
+      //     (event.altKey) ||
+      //     (event.metaKey && event.shiftKey) ||
+      //     (event.metaKey && event.shiftKey && event.key === 's')
+      //   ) {
+      //     this.clearBlurEffect()
+      //     this.isBlurred = false
+      //   }
+      // },
+      // handleScreenBlur () {
+      //   this.triggerBlurEffect()
+      //   this.isBlurred = true
+      //   this.$message.error('⚠️ 창이 비활성화됨: 캡처 도구 실행 가능성 감지!')
+      // },
       handleScreenFocus () {
         if (this.isBlurred) {
-          this.isBlurred = false
-          this.clearBlurEffect()
+          // this.isBlurred = false
+          // this.clearBlurEffect()
           // navigator.clipboard.writeText('스크린샷 차단').catch(() => console.warn('클립보드 초기화 실패'))
-          // this.$message.warning('캡처 도구 감지됨! 화면을 보호했습니다.')
         }
+        this.$message.error({
+          message: '화면 전환 감지되었습니다. 로그 데이터 저장 완료',
+          duration: 3000
+        })
+        setTimeout(() => {
+          this.$message.error({
+            message: '🚨화면을 캡처하면 캡처한 내용도 기록됩니다.',
+            duration: 3000
+          })
+        }, 500)
       },
       triggerBlurEffect () {
         document.body.style.filter = 'blur(10px)'
