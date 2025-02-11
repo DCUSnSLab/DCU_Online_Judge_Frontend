@@ -684,7 +684,8 @@
         outputdata: [],
         runResultData: {},
         running: false,
-        contestType: ''
+        contestType: '',
+        isBlurred: false
       }
     },
 
@@ -706,10 +707,18 @@
       this.init()
       window.addEventListener('resize', this.handleResize)
       window.addEventListener('keydown', this.handleKeyDown)
+      document.addEventListener('copy', this.handleCopy)
+      window.addEventListener('keydown', this.preventKeyCombinations)
+      window.addEventListener('blur', this.handleScreenBlur)
+      window.addEventListener('focus', this.handleScreenFocus)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
       window.removeEventListener('keydown', this.handleKeyDown)
+      document.removeEventListener('copy', this.handleCopy)
+      window.removeEventListener('keydown', this.preventKeyCombinations)
+      window.removeEventListener('blur', this.handleScreenBlur)
+      window.removeEventListener('focus', this.handleScreenFocus)
     },
     methods: {
       handleResize () {
@@ -1077,6 +1086,57 @@
       },
       isDarkMode () {
         return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
+      },
+      // obfuscateText (text) { // 랜덤 문자 삽입입
+      //   let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
+      //   return text.split('').map(() => randomChars[Math.floor(Math.random() * randomChars.length)]).join('')
+      // },
+      handleCopy (event) {
+        if (event.target.closest('#submit-code')) {
+          return // 코드 입력 구간에서는 복사 방지 예외 처리
+        }
+        event.preventDefault() // 기본 복사 동작 방지
+        const problems = [
+          `설명\n\n2 ~ 9 사이의 값을 정수값을 입력받아 입력받은 수에 대한 구구단을 출력하는 프로그램을 작성하시오.\n정수에 대한 변수를 선언하고 변수(dan)에 입력값을 대입한다.\n입력값에 대한 변수를 '출력예시'와 같이 출력하시오.\n\n입력\n\n2 ~ 9 사이의 정수형 값을 입력받는다.\n입력 시 입력 문구는 작성하지 않는다.\n\n출력\n\n입력한 수에 해당하는 구구단을 출력한다.\n입력받은 값이 2 ~ 9 사이의 값이 아닌 경우 -1을 출력한다.\n즉, 입력한 값(dan)이 2보다 작거나 또는 9보다 큰 경우에는 -1을 출력한다.\n\n예시 입력 1 \n\n1\n예시 출력 1\n\n-1\n예시 입력 2 \n\n2\n예시 출력 2\n\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18`,
+          `설명\n\n이름, 나이, 키를 입력받은 후 아래와 같이 정리하여 출력해주는 프로그램을 작성하시오. 키는 소수점까지 입력받을 수 있도록 하고, 출력할 때 키는 소수점 둘째 자리까지 표시하도록 한다.\n입력 예시\n\nhong gil dong\n22\n139.4\n출력 예시\n\nname:hong gil dong\nage:22years old\nheight:139.40cm\n\n입력\n\n임의의 이름, 나이, 키를 입력받는다.\n\n출력\n\n위 설명에 맞게 코드를 작성하고 출력한다.\n출력은 print()를 이용하여 출력한다.\n\n예시 입력 1 \n\nHong gil dong\n22\n139.4\n예시 출력 1\n\nname:Hong gil dong\nage:22years old\nheight:139.40cm\n예시 입력 2 \n\nLee jae huek\n25\n188.333\n예시 출력 2\n\nname:Lee jae huek\nage:25years old\nheight:188.33cm`,
+          `설명\n\n점수를 키보드로부터 입력받아 80점 이상이면 A등급, 60점 이상이고 80점 미만이면 B등급, 60점 미만이면 C등급으로 출력하는 프로그램을 아래 설명과 입/출력 예시 참고 후 작성하시오.\n점수(score)에 대한 변수를 선언하고 변수에 입력값을 대입한다.\n변수에 저장된 입력값의 조건에 따라, '출력예시'와 같이 출력하시오.\n\n입력\n\n점수값 1개를 입력 받는다.\n입력 시 입력 문구는 작성하지 않는다.\n\n출력\n\n입력받은 점수에 따라 다음의 출력문을 출력한다.\n점수가 0 이하 또는 100을 초과하는 경우에는 -1을 출력한다.\n점수가 80점 이상인 경우 문자 'A'를 출력한다.\n점수가 60점 이상이고, 80점 미만인 경우 문자 'B'를 출력한다.\n점수가 60점 미만인 경우 문자 'C'를 출력한다.\n\n예시 입력 1 \n\n-13\n예시 출력 1\n\n-1\n예시 입력 2 \n\n100\n예시 출력 2\n\nA\n예시 입력 3 \n\n10\n예시 출력 3\n\nC\n예시 입력 4 \n\n-2\n예시 출력 4\n\n-1`
+        ]
+        const randomIndex = Math.floor(Math.random() * problems.length)
+        const replacementText = problems[randomIndex]
+        event.clipboardData.setData('text/plain', replacementText)
+        // this.$message.warning('복사 방지: 변조된 텍스트가 복사되었습니다.')
+      },
+      preventKeyCombinations (event) {
+        if ((event.ctrlKey && event.key === 'p') ||
+            (event.metaKey && event.key === 'p') ||
+            (event.key === 'PrintScreen') ||
+            (event.shiftKey && event.key === 's') ||
+            (event.metaKey && event.shiftKey && event.key === 's') ||
+            (event.metaKey && event.shiftKey)) {
+          // event.preventDefault()
+          this.triggerBlurEffect()
+          this.isBlurred = true
+          // this.$message.warning('스크린샷 및 단축키가 차단되었습니다!')
+        }
+      },
+      handleScreenBlur () {
+        this.triggerBlurEffect()
+        this.isBlurred = true
+        // this.$message.warning('⚠️ 창이 비활성화됨: 캡처 도구 실행 가능성 감지!')
+      },
+      handleScreenFocus () {
+        if (this.isBlurred) {
+          this.isBlurred = false
+          this.clearBlurEffect()
+          // navigator.clipboard.writeText('스크린샷 차단').catch(() => console.warn('클립보드 초기화 실패'))
+          // this.$message.warning('캡처 도구 감지됨! 화면을 보호했습니다.')
+        }
+      },
+      triggerBlurEffect () {
+        document.body.style.filter = 'blur(10px)'
+      },
+      clearBlurEffect () {
+        document.body.style.filter = 'none'
       }
     },
     computed: {
@@ -1277,6 +1337,7 @@
     width: 500px;
     height: 480px;
   }
+  
 </style>
 
 
