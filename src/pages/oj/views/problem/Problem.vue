@@ -706,10 +706,12 @@
       this.init()
       window.addEventListener('resize', this.handleResize)
       window.addEventListener('keydown', this.handleKeyDown)
+      document.addEventListener('copy', this.handleCopy)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
       window.removeEventListener('keydown', this.handleKeyDown)
+      document.removeEventListener('copy', this.handleCopy)
     },
     methods: {
       handleResize () {
@@ -1077,6 +1079,19 @@
       },
       isDarkMode () {
         return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
+      },
+      // obfuscateText (text) { // 랜덤 문자 삽입입
+      //   let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
+      //   return text.split('').map(() => randomChars[Math.floor(Math.random() * randomChars.length)]).join('')
+      // },
+      handleCopy (event) {
+        if (event.target.closest('#submit-code')) {
+          return // 코드 입력 구간에서는 복사 방지 예외 처리
+        }
+        event.preventDefault() // 기본 복사 동작 방지
+        const replacementText = `설명\n\n2 ~ 9 사이의 값을 정수값을 입력받아 입력받은 수에 대한 구구단을 출력하는 프로그램을 작성하시오.\n정수에 대한 변수를 선언하고 변수(dan)에 입력값을 대입한다.\n입력값에 대한 변수를 '출력예시'와 같이 출력하시오.\n\n입력\n\n2 ~ 9 사이의 정수형 값을 입력받는다.\n입력 시 입력 문구는 작성하지 않는다.\n\n출력\n\n입력한 수에 해당하는 구구단을 출력한다.\n입력받은 값이 2 ~ 9 사이의 값이 아닌 경우 -1을 출력한다.\n즉, 입력한 값(dan)이 2보다 작거나 또는 9보다 큰 경우에는 -1을 출력한다.\n\n예시 입력 1 \n\n1\n예시 출력 1\n\n-1\n예시 입력 2 \n\n2\n예시 출력 2\n\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18`
+        event.clipboardData.setData('text/plain', replacementText)
+        // this.$message.warning('복사 방지: 변조된 텍스트가 복사되었습니다.')
       }
     },
     computed: {
