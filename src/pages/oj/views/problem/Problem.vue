@@ -711,6 +711,7 @@
       window.addEventListener('keydown', this.preventKeyCombinations)
       window.addEventListener('blur', this.handleScreenBlur)
       window.addEventListener('focus', this.handleScreenFocus)
+      document.addEventListener('contextmenu', this.handleRightClick)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
@@ -719,6 +720,7 @@
       window.removeEventListener('keydown', this.preventKeyCombinations)
       window.removeEventListener('blur', this.handleScreenBlur)
       window.removeEventListener('focus', this.handleScreenFocus)
+      document.removeEventListener('contextmenu', this.handleRightClick)
     },
     methods: {
       handleResize () {
@@ -1137,6 +1139,10 @@
       },
       clearBlurEffect () {
         document.body.style.filter = 'none'
+      },
+      handleRightClick (event) {
+        event.preventDefault()
+        // this.$message.warning('우클릭이 차단되었습니다.')
       }
     },
     computed: {
