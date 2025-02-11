@@ -684,7 +684,9 @@
         outputdata: [],
         runResultData: {},
         running: false,
-        contestType: ''
+        contestType: '',
+        lastBlurTime: null,
+        isBlurred: false
       }
     },
 
@@ -707,11 +709,17 @@
       window.addEventListener('resize', this.handleResize)
       window.addEventListener('keydown', this.handleKeyDown)
       document.addEventListener('copy', this.handleCopy)
+      window.addEventListener('keydown', this.preventKeyCombinations)
+      window.addEventListener('blur', this.handleScreenBlur)
+      window.addEventListener('focus', this.handleScreenFocus)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
       window.removeEventListener('keydown', this.handleKeyDown)
       document.removeEventListener('copy', this.handleCopy)
+      window.removeEventListener('keydown', this.preventKeyCombinations)
+      window.removeEventListener('blur', this.handleScreenBlur)
+      window.removeEventListener('focus', this.handleScreenFocus)
     },
     methods: {
       handleResize () {
@@ -1092,6 +1100,38 @@
         const replacementText = `설명\n\n2 ~ 9 사이의 값을 정수값을 입력받아 입력받은 수에 대한 구구단을 출력하는 프로그램을 작성하시오.\n정수에 대한 변수를 선언하고 변수(dan)에 입력값을 대입한다.\n입력값에 대한 변수를 '출력예시'와 같이 출력하시오.\n\n입력\n\n2 ~ 9 사이의 정수형 값을 입력받는다.\n입력 시 입력 문구는 작성하지 않는다.\n\n출력\n\n입력한 수에 해당하는 구구단을 출력한다.\n입력받은 값이 2 ~ 9 사이의 값이 아닌 경우 -1을 출력한다.\n즉, 입력한 값(dan)이 2보다 작거나 또는 9보다 큰 경우에는 -1을 출력한다.\n\n예시 입력 1 \n\n1\n예시 출력 1\n\n-1\n예시 입력 2 \n\n2\n예시 출력 2\n\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18`
         event.clipboardData.setData('text/plain', replacementText)
         // this.$message.warning('복사 방지: 변조된 텍스트가 복사되었습니다.')
+      },
+      preventKeyCombinations (event) {
+        if ((event.ctrlKey && event.key === 'p') ||
+            (event.metaKey && event.key === 'p') ||
+            (event.key === 'PrintScreen') ||
+            (event.shiftKey && event.key === 's') ||
+            (event.metaKey && event.shiftKey && event.key === 's') ||
+            (event.metaKey && event.shiftKey)) {
+          // event.preventDefault()
+          this.triggerBlurEffect()
+          this.isBlurred = true
+          // this.$message.warning('스크린샷 및 단축키가 차단되었습니다!')
+        }
+      },
+      handleScreenBlur () {
+        this.triggerBlurEffect()
+        this.isBlurred = true
+        // this.$message.warning('⚠️ 창이 비활성화됨: 캡처 도구 실행 가능성 감지!')
+      },
+      handleScreenFocus () {
+        if (this.isBlurred) {
+          this.isBlurred = false
+          this.clearBlurEffect()
+          // navigator.clipboard.writeText('스크린샷 차단').catch(() => console.warn('클립보드 초기화 실패'))
+          // this.$message.warning('캡처 도구 감지됨! 화면을 보호했습니다.')
+        }
+      },
+      triggerBlurEffect () {
+        document.body.style.filter = 'blur(10px)'
+      },
+      clearBlurEffect () {
+        document.body.style.filter = 'none'
       }
     },
     computed: {
@@ -1292,6 +1332,7 @@
     width: 500px;
     height: 480px;
   }
+  
 </style>
 
 
