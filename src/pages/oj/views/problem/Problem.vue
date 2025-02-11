@@ -1114,7 +1114,8 @@
             (event.key === 'PrintScreen') ||
             (event.shiftKey && event.key === 's') ||
             (event.metaKey && event.shiftKey && event.key === 's') ||
-            (event.metaKey && event.shiftKey)) {
+            (event.metaKey && event.shiftKey) ||
+            (event.altKey)) {
           // event.preventDefault()
           this.triggerBlurEffect()
           this.isBlurred = true
