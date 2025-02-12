@@ -46,6 +46,12 @@
 
           </div>
         </Panel>
+        <Card dis-hover>
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <p>Problem copied({{ antiData.copy }}),</p>
+            <p>Screen focusing({{ antiData.focusScreen }})</p>
+          </div>
+        </Card>
       </el-col>
       <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
         <!--problem main end-->
@@ -272,6 +278,12 @@
 
           </div>
         </Panel>
+        <Card dis-hover>
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <p>Problem copied({{ antiData.copy }}),</p>
+            <p>Screen focusing({{ antiData.focusScreen }})</p>
+          </div>
+        </Card>
         <br>
         <Card :padding="20" id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
@@ -685,7 +697,8 @@
         runResultData: {},
         running: false,
         contestType: '',
-        isBlurred: false
+        isBlurred: false,
+        antiData: { copy: 0, focusScreen: 0 }
       }
     },
 
@@ -1112,6 +1125,7 @@
           message: '⚠️페이지 내용을 복사하는 행위는 부정 행위로 의심될 수 있습니다. 로그 저장 완료',
           duration: 5000
         })
+        this.antiData.copy += 1
       },
       // preventKeyCombinations (event) {
       //   if ((event.ctrlKey && event.key === 'p') ||
@@ -1160,6 +1174,7 @@
             duration: 3000
           })
         }, 500)
+        this.antiData.focusScreen += 1
       },
       triggerBlurEffect () {
         document.body.style.filter = 'blur(10px)'
