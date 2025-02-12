@@ -48,8 +48,8 @@
         </Panel>
         <Card dis-hover>
           <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <p>copy: {{ antiData.copy }}</p>
-            <p>focusScreen: {{ antiData.focusScreen }}</p>
+            <p>Problem copied({{ antiData.copy }}),</p>
+            <p>Screen focusing({{ antiData.focusScreen }})</p>
           </div>
         </Card>
       </el-col>
@@ -280,8 +280,8 @@
         </Panel>
         <Card dis-hover>
           <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <p>copy: {{ antiData.copy }}</p>
-            <p>focusScreen: {{ antiData.focusScreen }}</p>
+            <p>Problem copied({{ antiData.copy }}),</p>
+            <p>Screen focusing({{ antiData.focusScreen }})</p>
           </div>
         </Card>
         <br>
