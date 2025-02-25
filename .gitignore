@@ -36,6 +36,8 @@ dist/
 # Dependency directories
 node_modules/
 jspm_packages/
+config/index.js
+package-lock.json
 
 # Typescript v1 declaration files
 typings/
@@ -69,4 +71,6 @@ package-lock.json
 # build
 vendor-manifest.json
 vendor.dll*.js
+
+
 
