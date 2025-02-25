@@ -39,13 +39,19 @@
     <Col :span="22">
       <panel>
         <div slot="title">
-          {{$t('m.DCU_Code_Intro_video')}}
+          <!--{{$t('m.DCU_Code_Intro_video')}}-->
+          Terminal for Hiring with Llama
           <!-- DCU Code 소개 영상 -->
           <Button style="float: right" type="info" v-if="!detail" @click="showDetail">{{$t('m.Detail')}}</Button>
           <Button style="float: right" type="info" v-else @click="showDetail">{{$t('m.Minimization')}}</Button>
         </div>
         <p v-if="detail" align="middle">
-          <iframe width="789" height="444" src="https://www.youtube.com/embed/6kaNUXN951c" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          <template>
+            <div class="terminal-container">
+              <div ref="terminal"></div>
+            </div>
+          </template>
+          <!--<iframe width="789" height="444" src="https://www.youtube.com/embed/6kaNUXN951c" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>-->
         </p>
       </panel>
     </Col>
@@ -144,6 +150,11 @@ import { CONTEST_STATUS } from '@/utils/constants'
 import utils from '@/utils/utils'
 import {types} from '@/store'
 import { lightTheme, darkTheme } from '@/theme'
+import { Terminal } from 'xterm'
+import { WebLinksAddon } from 'xterm-addon-web-links'
+import { SerializeAddon } from 'xterm-addon-serialize'
+import 'xterm/css/xterm.css'
+import axios from 'axios'
 
 Vue.use(Element)
 
@@ -194,7 +205,7 @@ export default {
       tablerow: ['1'], // 테이블 출력 수 조절을 위한 값. 지우거나 값 수정하지 말 것
       lecturelist: [],
       contests: [],
-      detail: false,
+      detail: true,
       index: 0,
       activeName: '',
       clsize: 0,
@@ -205,15 +216,162 @@ export default {
         schoolssn: ''
       },
       loadingSaveBtn: false,
-      month: 0
+      month: 0,
+      term: null,
+      apiUrl: 'http://203.250.33.193:11434/api/generate',
+      userInput: ''
     }
   },
   mounted () {
     this.setDashboard()
     let today = new Date()
     this.month = today.getMonth() + 1
+    this.initTerminal()
   },
   methods: {
+    initTerminal () {
+      this.term = new Terminal({
+        cursorBlink: true, // 커서 깜박임 활성화
+        cols: 140,
+        rows: 25,
+        fontSize: 14,
+        wordWrap: true,
+        theme: {
+          background: '#000000',
+          foreground: '#FFFFFF'
+        }
+      })
+      this.term.loadAddon(new WebLinksAddon())
+      this.term.loadAddon(new SerializeAddon())
+      this.term.loadAddon(new WebLinksAddon())
+      this.term.open(this.$refs.terminal)
+      this.created()
+      this.printBanner()
+      this.promptUser()
+    },
+    printBanner () {
+      this.term.write('\x1b[32m') // 초록색 적용
+      this.term.write('   _____        __ _                                      _____           _                   _           _     \r\n')
+      this.term.write('  / ____|      / _| |                            ___     / ____|         | |                 | |         | |    \r\n')
+      this.term.write(' | (___   ___ | |_| |___      ____ _ _ __ ___   ( _ )   | (___  _   _ ___| |_ ___ _ __ ___   | |     __ _| |__  \r\n')
+      this.term.write('  \\___ \\ / _ \\|  _| __\\ \\ /\\ / / _` | \'__/ _ \\  / _ \\/\\  \\___ \\| | | / __| __/ _ \\ \'_ ` _ \\  | |    / _` | \'_ \\ \r\n')
+      this.term.write('  ____) | (_) | | | |_ \\ V  V / (_| | | |  __/ | (_>  <  ____) | |_| \\__ \\ ||  __/ | | | | | | |___| (_| | |_) |\r\n')
+      this.term.write(' |_____/ \\___/|_|  \\__| \\_/\\_/ \\__,_|_|  \\___|  \\___/\\/ |_____/ \\__, |___/\\__\\___|_| |_| |_| |______\\__,_|_.__/ \r\n')
+      this.term.write('                                                                 __/ |                                          \r\n')
+      this.term.write('                                                                |___/                                           \r\n')
+      this.term.write('\x1b[34m') // 파란색 적용
+      this.term.write('DCUCODE 세상에 오신 걸 환영합니다.\r\n')
+      this.term.write('DCUCODE는 대구가톨릭대학교 컴퓨터소프트웨어학부 "소프트웨어시스템연구실"에서 관리하고 있습니다.\r\n')
+      this.term.write('\x1b[33m') // 노란색 적용
+      this.term.write('DCUCODE 개발팀에서는 개발자와 디자이너를 모집하고 있습니다.\r\n')
+      this.term.write('\x1b[0m') // 색상 초기화
+      this.term.write('모집 공고 : https://gleaming-wound-252.notion.site/Recruit-e6aa63beb7ea463dacfcd755e2e3c04c\r\n')
+      this.term.write('↓↓↓ 궁금한게 있으면 바로 물어보세요 (질문을 입력하고 Enter를 누르세요.)↓↓↓\r\n')
+      this.term.write('\x1b[32mDCU Llama Chat - Ollama API 연결됨\r\n')
+    },
+    promptUser () {
+      this.userInput = ''
+      this.term.write('\x1b[33m> \x1b[37m')
+    },
+    async sendToOllama (userInput) {
+      if (!userInput.trim()) return
+      const prePrompt = `
+        지금부터 프롬프트는 아래 조건에 따라 수행되어야 함
+        - 대답은 무조건 한국어로만 한다. 필요에 따라 영어를 쓸 수 있음.
+        - 내가 제공 해주는 연구실 관련된 대답만 해야함.
+        - 연구실 정보 이외에 대한 대답은 모두 거부하십시오.
+        - 연구실 정보:
+        - 연구실이름 : 소프트웨어시스템연구실(Software&System Lab.)
+        - 지도교수: 전수빈, 서동만
+        - 프로젝트: 자율주행, 딥러닝, 딥러닝시스템, 딥러닝응용시스템
+        - 연구생정보 : 박준홍, 권혁규, 조준현, 문지원, 박보은, 임찬아, 윤재이, 정하연
+        `
+      const fullPrompt = prePrompt + '\n\n' + 'Q: ' + userInput
+      this.term.write('\x1b[36m[Llama]:\x1b[37m 생각중...\r\n')
+      try {
+        const response = await fetch(this.apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: 'llama3.3',
+            prompt: fullPrompt,
+            stream: true
+          })
+        })
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let partialText = ''
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          const text = decoder.decode(value, { stream: true })
+          try {
+            const jsonObjects = text.trim().split('\n').map(JSON.parse)
+            for (const obj of jsonObjects) {
+              if (obj.response) {
+                this.term.write(obj.response.replace(/\n/g, '\r\n'))
+              }
+              if (obj.done) break
+            }
+          } catch (error) {
+            console.error('JSON 파싱 오류:', error)
+          }
+        }
+        this.term.write('\r\n')
+        this.promptUser()
+      } catch (error) {
+        this.term.write('\x1b[31m[Llama]: 오류 발생 - ' + error.message + '\r\n\x1b[37m> ')
+      }
+    },
+    async sendToOllama2 (userInput) {
+      if (!userInput.trim()) return
+      this.term.write('\x1b[36m[Llama]:\x1b[37m 생각중...\r\n')
+      try {
+        const response = await axios.post(this.apiUrl, {
+          model: 'llama3.3',  // 사용할 모델 (Ollama 서버에 설정된 모델명 확인)
+          prompt: userInput,
+          stream: false
+        })
+        const result = response.data.response || '응답을 받을 수 없습니다.'
+        this.printResponse(result)
+      } catch (error) {
+        this.printResponse('오류 발생: ' + error.message)
+      }
+    },
+    printResponse (responseText) {
+      const lines = responseText.replace(/\s+/g, ' ').split('\n') // 공백 정리 후 줄 단위 분할
+      lines.forEach((line) => {
+        this.term.write('\x1b[36m[Llama]:\x1b[37m ' + line.trimStart() + '\r\n') // 앞 공백 제거 후 출력
+      })
+      this.promptUser()
+    },
+    created () {
+      this.term.onKey((e) => {
+        const { key, domEvent } = e
+        if (domEvent.key === 'Enter') {
+          this.term.write('\r\n')
+          this.sendToOllama(this.userInput)
+        } else if (domEvent.key === 'Backspace') {
+          if (this.userInput.length > 0) {
+            this.userInput = this.userInput.slice(0, -1)
+            this.term.write('\b \b')
+          }
+        } else if (!domEvent.ctrlKey && !domEvent.altKey && !domEvent.metaKey) {
+          // 한글 입력을 방해하지 않도록 IME를 사용하도록 설정
+          this.userInput += key
+          this.term.write(key)
+        }
+      })
+      // IME(한글) 입력 지원을 위한 이벤트 처리
+      this.term.element.addEventListener('compositionstart', () => {
+        this.isComposing = true
+      })
+      this.term.element.addEventListener('compositionend', (event) => {
+        this.isComposing = false
+        this.userInput += event.data // 입력된 한글 추가
+        this.term.write(event.data)
+      })
+    },
     getDuration (startTime, endTime) {
       return time.duration(startTime, endTime)
     },
@@ -545,6 +703,20 @@ h3 {
     }
   }
 }
+
+.terminal-container {
+  width: 100%;
+  height: 450px;
+  background: black;
+  overflow: hidden;
+}
+.xterm-viewport::-webkit-scrollbar {
+  display: none;
+}
+.xterm-viewport {
+  overflow: hidden !important;
+}
+
 </style>
 <style>
 /**
