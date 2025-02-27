@@ -162,84 +162,6 @@ export default {
       }
     },
     // Xterm
-    initTerminal () {
-      this.term = new Terminal({
-        cursorBlink: true, // 커서 깜박임 활성화
-        cols: 150,
-        fontSize: 14,
-        wordWrap: false,
-        theme: {
-          background: '#000000',
-          foreground: '#FFFFFF'
-        }
-      })
-      this.term.loadAddon(new WebLinksAddon())
-      this.term.loadAddon(new SerializeAddon())
-      this.term.open(this.$refs.terminal)
-      this.term.write('Connecting to SSH server...\r\n')
-    },
-    connectWebSocket () {
-      this.ws = new WebSocket('ws://localhost:8080')
-
-      this.ws.onopen = () => {
-        this.term.write('Connected to WebSocket server.\r\n')
-        this.term.write('              ,---------------------------,\r\n' +
-          '              |  /---------------------\\  |\r\n' +
-          '              | |                       | |\r\n' +
-          '              | |       Software &      | |\r\n' +
-          '              | |         System        | |\r\n' +
-          '              | |       laboratory      | |\r\n' +
-          '              | |                       | |\r\n' +
-          '              |  \\_____________________/  |\r\n' +
-          '              |___________________________|\r\n' +
-          '            ,---\\_____     []     _______/------,\r\n' +
-          '          /         /______________\\           /|\r\n' +
-          '        /___________________________________ /  | ___\r\n' +
-          '        |                                   |   |    )\r\n' +
-          '        |  _ _ _                 [-------]  |   |   (\r\n' +
-          '        |  o o o                 [-------]  |  /    _)_\r\n' +
-          '        |__________________________________ |/     /  /\r\n' +
-          '    /-------------------------------------/|      ( )/\r\n' +
-          '  /-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
-          '/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
-          '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n')
-
-        // SSH 서버에 연결 요청
-        this.ws.send(JSON.stringify({
-          type: 'connect',
-          host: '203.250.33.83',
-          username: 'marsberry',
-          password: 'akqthtk1!'
-        }))
-      }
-
-      this.ws.onmessage = (event) => {
-        const data = JSON.parse(event.data)
-
-        if (data.type === 'output') {
-          this.term.write(data.output)
-        } else if (data.type === 'error') {
-          this.term.write(`Error: ${data.message}\r\n`)
-        }
-      }
-
-      // ✅ 키보드 입력 처리 수정
-      this.term.onData((input) => {
-        if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-          if (input === '\r') {
-            this.ws.send(JSON.stringify({ type: 'command', command: '\n' }))
-          } else if (input.charCodeAt(0) === 127) {
-            this.ws.send(JSON.stringify({ type: 'command', command: '\b' }))
-          } else {
-            this.ws.send(JSON.stringify({ type: 'command', command: input }))
-          }
-        }
-      })
-
-      this.ws.onclose = () => {
-        this.term.write('\r\nDisconnected from SSH server.\r\n')
-      }
-    },
     addTerminal () {
       const id = Date.now().toString()
       this.terminals.push({ id })
@@ -254,6 +176,7 @@ export default {
         const term = new Terminal({
           cursorBlink: true, // 커서 깜박임 활성화
           cols: 150,
+          rows: 40,
           fontSize: 14,
           wordWrap: false,
           theme: {
@@ -264,31 +187,64 @@ export default {
         // const fitAddon = new FitAddon()
         // term.loadAddon(fitAddon)
         term.open(termElement)
-        term.write('Connecting to SSH server...\r\n')
+        term.write('\x1b[1mConnecting to SSH server...\x1b[0m\r\n')
         // fitAddon.fit()
 
-        const ws = new WebSocket('ws://localhost:8080')
+        const ws = new WebSocket('ws://203.250.33.103:32733/')
         ws.onopen = () => {
-          term.write('Connected to WebSocket server.\r\n')
+          term.write('\x1b[1mConnected to WebSocket server.\x1b[0m\r\n')
           console.log(`WebSocket connected for terminal ${id}`)
+          term.write('              ,---------------------------,\r\n' +
+          '              |  /---------------------\\  |\r\n' +
+          '              | |                       | |\r\n' +
+          '              | |       Software &      | |\r\n' +
+          '              | |         System        | |\r\n' +
+          '              | |       Laboratory      | |\r\n' +
+          '              | |                       | |\r\n' +
+          '              |  \\_____________________/  |\r\n' +
+          '              |___________________________|\r\n' +
+          '            ,---\\_____     []     _______/------,\r\n' +
+          '          /         /______________\\           /|\r\n' +
+          '        /___________________________________ /  | ___\r\n' +
+          '        |                                   |   |    )\r\n' +
+          '        |  _ _ _                 [-------]  |   |   (\r\n' +
+          '        |  o o o                 [-------]  |  /    _)_\r\n' +
+          '        |__________________________________ |/     /  /\r\n' +
+          '    /-------------------------------------/|      ( )/\r\n' +
+          '  /-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
+          '/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
+          '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\n')
+          // SSH 서버에 연결 요청
           ws.send(JSON.stringify({
             type: 'connect',
             host: '203.250.33.83',
-            username: 'marsberry',
-            password: 'akqthtk1!'
+            username: 'wldnjs269',
+            password: 'eorkeoSquirtle@1!'
           }))
         }
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data)
           if (data.type === 'output') {
             term.write(data.output)
+          } else if (data.type === 'error') {
+            term.write(`Error: ${data.message}\r\n`)
           }
         }
 
         term.onData((input) => {
-          ws.send(JSON.stringify({ type: 'command', command: input }))
+          if (ws && ws.readyState === WebSocket.OPEN) {
+            if (input === '\r') {
+              ws.send(JSON.stringify({ type: 'command', command: '\n' }))
+            } else if (input.charCodeAt(0) === 127) {
+              ws.send(JSON.stringify({ type: 'command', command: '\b' }))
+            } else {
+              ws.send(JSON.stringify({ type: 'command', command: input }))
+            }
+          }
         })
-
+        ws.onclose = () => {
+          term.write('\r\nDisconnected from SSH server.\r\n')
+        }
         this.terminalMap.set(id, term)
         this.wsMap.set(id, ws)
       })
