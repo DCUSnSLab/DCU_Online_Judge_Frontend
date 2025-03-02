@@ -176,7 +176,7 @@ export default {
         const term = new Terminal({
           cursorBlink: true, // 커서 깜박임 활성화
           cols: 150,
-          rows: 40,
+          rows: 60,
           fontSize: 14,
           wordWrap: false,
           theme: {
@@ -243,6 +243,7 @@ export default {
           }
         })
         ws.onclose = () => {
+          console.warn('WebSocket disconnected. Closing terminal...')
           term.write('\r\nDisconnected from SSH server.\r\n')
         }
         this.terminalMap.set(id, term)
