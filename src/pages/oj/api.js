@@ -13,6 +13,11 @@ export default {
       data
     })
   },
+  tokenRefresh (data) {
+    return ajax('token_refresh', 'post', {
+      data
+    })
+  },
   getAIhelperflag (data) {
     return ajax('lecture/aihelperflag', 'post', {
       data
