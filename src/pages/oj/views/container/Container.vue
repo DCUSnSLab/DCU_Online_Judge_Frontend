@@ -220,9 +220,6 @@ export default {
           '  /-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
           '/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
           '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\n')
-          // debug
-          console.log('dcucode-' + this.userData.id)
-          console.log(localStorage.getItem('access_token'))
           // SSH 서버에 연결 요청
           ws.send(JSON.stringify({
             type: 'connect',
