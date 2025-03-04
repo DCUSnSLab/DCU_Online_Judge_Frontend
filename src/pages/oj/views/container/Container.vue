@@ -82,13 +82,12 @@ export default {
     }
   },
   created () {
+  },
+  async mounted () {
+    await this.init()
     // ✅ 페이지 로드 시 자동으로 첫 번째 터미널 생성
     this.addTerminal()
   },
-  // async mounted () {
-  //   await this.init()
-  //   this.addContainer()
-  // },
   // mounted () {
   //   this.initTerminal()
   //   this.connectWebSocket()
@@ -132,7 +131,7 @@ export default {
       setTimeout(() => document.body.removeChild(hiddenIframe), 1000)
     },
     addContainer () {
-      const newContainerUrl = 'http://203.250.33.87:31647/ssh/host/container$' + this.containerCount
+      const newContainerUrl = 'http://xxx.xxx.xxx.xxx:xxxx/ssh/host/container$' + this.containerCount
       this.containerCount += 1
       this.multiContainer.push(newContainerUrl)
       this.editContainer = newContainerUrl // 새로 추가된 탭으로 활성화
@@ -166,6 +165,13 @@ export default {
       const id = Date.now().toString()
       this.terminals.push({ id })
       this.activeTerminal = id
+      // token refresh
+      let data = {
+        refresh_token: localStorage.getItem('refresh_token')
+      }
+      api.tokenRefresh(data).then(res => {
+        localStorage.setItem('access_token', res.data.data.access_token)
+      })
 
       this.$nextTick(() => {
         const termElement = this.$refs.terminal[this.terminals.length - 1]
@@ -218,8 +224,8 @@ export default {
           ws.send(JSON.stringify({
             type: 'connect',
             host: '203.250.33.83',
-            username: 'wldnjs269',
-            password: 'eorkeoSquirtle@1!'
+            username: 'dcucode-' + this.userData.id,
+            password: localStorage.getItem('access_token')
           }))
         }
         ws.onmessage = (event) => {
