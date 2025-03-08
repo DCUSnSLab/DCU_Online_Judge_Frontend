@@ -24,8 +24,7 @@ node {
         sh "ls -al dist"
         sh '''
         tar czvf latest.tar.gz -C dist .
-        BUILD_NUMBER_1=$(expr ${BUILD_NUMBER} + 15)
-        cp latest.tar.gz build_${BUILD_NUMBER_1}.tar.gz
+        cp latest.tar.gz build_${BUILD_NUMBER}.tar.gz
         pwd
         ls -al
         '''
