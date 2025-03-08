@@ -10,6 +10,10 @@
     <Icon type="ios-book"></Icon>
     {{$t('m.Signup_Lectures')}}
   </el-menu-item>
+  <el-menu-item index="/container">
+    <Icon type="monitor"></Icon>
+    {{$t('터미널')}}
+  </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
     {{$t('m.Lectures')}}
@@ -156,9 +160,9 @@
   import locale from 'element-ui/lib/locale/lang/en'
   import ThemeToggle from '@/pages/oj/components/ThemeToggle.vue'
   import { lightTheme, darkTheme } from '../../../theme'
-  
+
   Vue.use(ElementUI, { locale })
-  
+
   export default {
     components: {
       login,

@@ -8,6 +8,7 @@ import {
   Home,
   Login_,
   Logout,
+  Container,
   NotFound,
   OIRank,
   Problem,
@@ -288,6 +289,12 @@ export default [
     name: 'about',
     meta: {title: 'About'},
     component: About
+  },
+  {
+    path: '/container',
+    name: 'container',
+    meta: {title: 'Container'},
+    component: Container
   },
   {
     path: '/faq',

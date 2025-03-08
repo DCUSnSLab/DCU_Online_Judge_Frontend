@@ -100,6 +100,8 @@
             delete formData['tfa_code']
           }
           api.login(formData).then(res => {
+            localStorage.setItem('access_token', res.data.data.tokens.access)
+            localStorage.setItem('refresh_token', res.data.data.tokens.refresh)
             this.btnLoginLoading = false
             this.changeModalStatus({visible: false})
             this.getProfile()
