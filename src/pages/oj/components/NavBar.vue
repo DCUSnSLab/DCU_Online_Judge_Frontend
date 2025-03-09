@@ -10,13 +10,13 @@
     <Icon type="ios-book"></Icon>
     {{$t('m.Signup_Lectures')}}
   </el-menu-item>
-  <el-menu-item index="/container">
-    <Icon type="monitor"></Icon>
-    {{$t('터미널')}}
-  </el-menu-item>
   <el-menu-item index="/lecture">
     <Icon type="ios-book"></Icon>
     {{$t('m.Lectures')}}
+  </el-menu-item>
+  <el-menu-item index="/container">
+    <Icon type="monitor"></Icon>
+    {{$t('컨테이너')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
   </el-menu-item>
   <el-menu-item index="/contest">
     <Icon type="ios-book"></Icon>
