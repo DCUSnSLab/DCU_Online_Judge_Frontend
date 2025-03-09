@@ -348,5 +348,5 @@ export const m = {
   Browser: 'Browser',
   Last_activity: 'Last Activity',
   PushGithub: 'Upload to Github',
-  Container: 'Container'
+  Container: 'DCU Shell'
 }
