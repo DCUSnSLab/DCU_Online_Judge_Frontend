@@ -182,7 +182,7 @@ export default {
         const term = new Terminal({
           cursorBlink: true, // 커서 깜박임 활성화
           cols: 150,
-          rows: 60,
+          rows: 50,
           fontSize: 14,
           wordWrap: false,
           theme: {
