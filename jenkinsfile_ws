@@ -26,10 +26,10 @@ node {
         }
     }
 
-//    stage('Kubernetes deploy') {
-//        sh "kubectl delete -f /services/dcucode/ssh-ws-server_only_con.yaml -n dcucode"
-//        sh "kubectl apply -f /services/dcucode/ssh-ws-server_only_con.yaml -n dcucode"
-//    }
+    stage('Kubernetes deploy') {
+        sh "kubectl delete -f /services/dcucode/ssh-server/ssh-ws-server_only_con.yaml -n dcucode-test"
+        sh "kubectl apply -f /services/dcucode/ssh-server/ssh-ws-server_only_con.yaml -n dcucode-test"
+    }
 
     stage('Complete') {
         sh "echo 'The end'"
