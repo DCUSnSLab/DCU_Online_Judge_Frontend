@@ -16,7 +16,7 @@
   </el-menu-item>
   <el-menu-item index="/container">
     <Icon type="monitor"></Icon>
-    {{$t('컨테이너')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
+    {{$t('DCU Shell')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
   </el-menu-item>
   <el-menu-item index="/contest">
     <Icon type="ios-book"></Icon>

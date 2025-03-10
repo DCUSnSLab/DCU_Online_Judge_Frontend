@@ -46,7 +46,7 @@
       return {
         imgList: [
           {
-            url: 'https://www.cu.ac.kr/images/common/link_logo_active.png',
+            url: require('../../assets/logo_dcu.png'),
             style: {
               width: '220px',
               height: '35px',
@@ -54,7 +54,7 @@
             },
             link: 'https://www.cu.ac.kr'
           }, {
-            url: 'http://sw.cu.ac.kr/pages/layout/A_layout/A_type/images/common/logo.png',
+            url: 'https://sw.cu.ac.kr/pages/layout/A_layout/A_type/images/common/logo.png',
             style: {
               width: '178px',
               height: '35px',
@@ -62,7 +62,7 @@
             },
             link: 'http://sw.cu.ac.kr/'
           }, {
-            url: 'http://software.cu.ac.kr/pages/layout/A_layout/A_type/images/common/logo.png',
+            url: require('../../assets/logo_software.png'),
             style: {
               width: '178px',
               height: '35px',
