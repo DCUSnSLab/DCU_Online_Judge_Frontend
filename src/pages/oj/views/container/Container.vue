@@ -196,7 +196,6 @@ export default {
         term.write('\x1b[1mConnecting to SSH server...\x1b[0m\r\n')
         // fitAddon.fit()
         const ws = new WebSocket(`wss://${window.location.host}/ssh`)
-        
         ws.onopen = () => {
           term.write('\x1b[1mConnected to WebSocket server.\x1b[0m\r\n')
           console.log(`WebSocket connected for terminal ${id}`)
