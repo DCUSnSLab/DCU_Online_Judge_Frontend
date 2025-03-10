@@ -84,9 +84,20 @@ export default {
   created () {
   },
   async mounted () {
+    window.addEventListener('beforeunload', this.closeAllWebSockets)
     await this.init()
     // ✅ 페이지 로드 시 자동으로 첫 번째 터미널 생성
     this.addTerminal()
+  },
+  beforeRouteLeave (to, from, next) {
+    console.log('Navigating away... Closing all WebSockets.')
+    this.closeAllWebSockets()
+    next()
+  },
+  beforeDestroy () {
+    console.log('Component destroyed... Closing all WebSockets.')
+    window.removeEventListener('beforeunload', this.closeAllWebSockets)
+    this.closeAllWebSockets()
   },
   // mounted () {
   //   this.initTerminal()
@@ -195,7 +206,7 @@ export default {
         term.open(termElement)
         term.write('\x1b[1mConnecting to SSH server...\x1b[0m\r\n')
         // fitAddon.fit()
-        const ws = new WebSocket(`ws://${window.location.host}/ssh`)
+        const ws = new WebSocket('ws://${window.location.host}/ssh')
         ws.onopen = () => {
           term.write('\x1b[1mConnected to WebSocket server.\x1b[0m\r\n')
           console.log(`WebSocket connected for terminal ${id}`)
@@ -265,6 +276,14 @@ export default {
       if (this.activeTerminal === id && this.terminals.length > 0) {
         this.activeTerminal = this.terminals[0].id
       }
+    },
+    closeAllWebSockets () {
+      console.log('Closing all WebSockets...')
+      this.wsMap.forEach(ws => {
+        if (ws) ws.close()
+      })
+      this.wsMap.clear()
+      this.terminalMap.clear()
     }
   },
   computed: {
