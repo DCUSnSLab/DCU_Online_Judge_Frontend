@@ -182,7 +182,7 @@ export default {
         const term = new Terminal({
           cursorBlink: true, // 커서 깜박임 활성화
           cols: 150,
-          rows: 50,
+          rows: 60,
           fontSize: 14,
           wordWrap: false,
           theme: {
@@ -195,7 +195,8 @@ export default {
         term.open(termElement)
         term.write('\x1b[1mConnecting to SSH server...\x1b[0m\r\n')
         // fitAddon.fit()
-        const ws = new WebSocket(`wss://${window.location.host}/ssh`)
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+        const ws = new WebSocket(`${wsProtocol}://${window.location.host}/ssh`)
         ws.onopen = () => {
           term.write('\x1b[1mConnected to WebSocket server.\x1b[0m\r\n')
           console.log(`WebSocket connected for terminal ${id}`)
