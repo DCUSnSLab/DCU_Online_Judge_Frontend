@@ -10,6 +10,22 @@
           반드시 개인정보를 수정해주시기 바랍니다.<br/>
         </div>
       </panel>
+      <el-dialog title="개인정보 변경" :modal=false :visible.sync="dialogFormVisible">
+        <Form ref="formProfile" :model="formProfile">
+          <Row type="flex" :gutter="30" justify="space-around">
+            <Col :span="30" align="center">
+              <h4 align="center">DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
+                반드시 전화번호를 학번으로 변경해주시기 바랍니다.</h4><br/>
+              <Form-item label="학번">
+                <Input v-model="formProfile.schoolssn"/>
+              </Form-item>
+              <Form-item>
+                <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">{{$t('m.Save')}}</Button>
+              </Form-item>
+            </Col>
+          </Row>
+        </Form>
+      </el-dialog>
     </Col>
     <Col :span="22">
       <panel>
@@ -394,6 +410,7 @@ export default {
         this.$success('Success')
         this.$store.commit(types.CHANGE_PROFILE, {profile: res.data.data})
         this.loadingSaveBtn = false
+        this.dialogFormVisible = false
       }, _ => {
         this.loadingSaveBtn = false
       })

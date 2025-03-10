@@ -14,7 +14,7 @@
         </div>
         <el-col :span="8">
           <p>신고 및 문의 : <a href="mailto:dcucode@gmail.com">dcucode@gmail.com</a></p>
-          <p>Powered by <a href="https://cu.ac.kr" target="_blank">Daegu Catholic university</a> and <a href="https://github.com/QingdaoU" target="_blank">Qingdao University</a>
+          <p>Powered by <a href="https://gleaming-wound-252.notion.site/Software-and-System-Laboratory-b0507f8d36584dad8d0b0a2100466085?pvs=74" target="_blank">Software&System Lab.</a>, <a href="https://cu.ac.kr" target="_blank">Daegu Catholic university</a> and <a href="https://github.com/QingdaoU" target="_blank">Qingdao University</a>
           </p>
         </el-col>
         </el-row>
