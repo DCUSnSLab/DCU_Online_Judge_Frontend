@@ -292,5 +292,5 @@ export const m = {
   Browser: '브라우저',
   Last_activity: '마지막 활동',
   PushGithub: 'Github에 업로드',
-  Container: '컨테이너'
+  Container: 'DCU Shell'
 }

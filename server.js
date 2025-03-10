@@ -8,7 +8,7 @@ wss.on('connection', (ws) => {
   console.log('Client connected')
 
   const conn = new Client()
-  let termSize = { cols: 150, rows: 30 } // ✅ 기본 터미널 크기 설정
+  let termSize = { cols: 150, rows: 50 } // ✅ 기본 터미널 크기 설정
 
   ws.on('message', (message) => {
     const data = JSON.parse(message)
