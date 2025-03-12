@@ -62,7 +62,6 @@ wss.on('connection', (ws, req) => {
   // ✅ 클라이언트가 연결을 끊었을 때 로그 출력
   ws.on('close', () => {
     console.log(`Client disconnected: ${clientIP}`)
-    console.log(`Current connections after disconnect: ${wss.clients.size}`)
     if (conn.shell) {
       conn.shell.write('exit\n') // SSH 세션 안전 종료
       conn.shell.end()
@@ -79,13 +78,5 @@ wss.on('connection', (ws, req) => {
     ws.send(JSON.stringify({ type: 'error', message: err.message }))
   })
 })
-
-// ✅ 5초마다 현재 연결된 클라이언트 수 및 IP 출력
-setInterval(() => {
-  console.log(`Current connections: ${wss.clients.size}`)
-  wss.clients.forEach((client, index) => {
-    console.log(`Client ${index + 1}: ${client._socket.remoteAddress}`)
-  })
-}, 5000)
 
 console.log('WebSocket SSH server running on ws://localhost:8080')
