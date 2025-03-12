@@ -2,17 +2,6 @@
   <div>
     <!-- Tabs Container -->
     <div class="tabs-container">
-      <!-- Individual Tabs -->
-<!--      <div-->
-<!--        v-for="(containerURL, index) in multiContainer"-->
-<!--        :key="containerURL"-->
-<!--        :class="['tab', { active: editContainer === containerURL }]"-->
-<!--        @click="editContainer = containerURL"-->
-<!--      >-->
-<!--        <span>{{ 'DCU Shell ' + (index + 1) }}</span>-->
-<!--        <button class="close-btn" @click.stop="removeTab(containerURL)">×</button>-->
-<!--      </div>-->
-<!--      <button class="add-tab-btn" @click="addContainer">+</button>-->
       <div
         v-for="(terminal, index) in terminals"
         :key="terminal.id"
@@ -24,20 +13,6 @@
       </div>
       <button class="add-tab-btn" @click="addTerminal">+</button>
     </div>
-
-    <!-- Tab Content -->
-<!--    <div class="content">-->
-<!--      <div v-for="(containerURL, index) in multiContainer" :key="containerURL">-->
-<!--        <iframe-->
-<!--          v-show="editContainer === containerURL"-->
-<!--          :name="containerURL"-->
-<!--          width="100%"-->
-<!--          height="800px"-->
-<!--          :src="containerURL"-->
-<!--          frameborder="0"-->
-<!--        ></iframe>-->
-<!--      </div>-->
-<!--    </div>-->
     <div class="content">
       <div
         v-for="(terminal, index) in terminals"
@@ -84,9 +59,20 @@ export default {
   created () {
   },
   async mounted () {
+    window.addEventListener('beforeunload', this.closeAllWebSockets)
     await this.init()
     // ✅ 페이지 로드 시 자동으로 첫 번째 터미널 생성
     this.addTerminal()
+  },
+  beforeRouteLeave (to, from, next) {
+    console.log('Navigating away... Closing all WebSockets.')
+    this.closeAllWebSockets()
+    next()
+  },
+  beforeDestroy () {
+    console.log('Component destroyed... Closing all WebSockets.')
+    window.removeEventListener('beforeunload', this.closeAllWebSockets)
+    this.closeAllWebSockets()
   },
   // mounted () {
   //   this.initTerminal()
@@ -102,63 +88,7 @@ export default {
         this.userData.id = res.data.data.user.username
       })
     },
-    addFormInput (form, name, value) {
-      const input = document.createElement('input')
-      input.type = 'hidden'
-      input.name = name
-      input.value = value
-      form.appendChild(input)
-    },
     debug () {
-    },
-    settingNewContainer (newContainerUrl) {
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = newContainerUrl
-
-      const hiddenIframe = document.createElement('iframe')
-      hiddenIframe.style.display = 'none'
-      hiddenIframe.name = 'hidden_iframe'
-      document.body.appendChild(hiddenIframe)
-      form.target = 'hidden_iframe'
-
-      this.addFormInput(form, 'username', 'dcucode-' + this.userData.id)
-      this.addFormInput(form, 'userpassword', localStorage.getItem('access_token'))
-      this.addFormInput(form, 'fontSize', '20')
-      document.body.appendChild(form)
-      form.submit()
-      document.body.removeChild(form)
-      setTimeout(() => document.body.removeChild(hiddenIframe), 1000)
-    },
-    addContainer () {
-      const newContainerUrl = 'http://xxx.xxx.xxx.xxx:xxxx/ssh/host/container$' + this.containerCount
-      this.containerCount += 1
-      this.multiContainer.push(newContainerUrl)
-      this.editContainer = newContainerUrl // 새로 추가된 탭으로 활성화
-      const refreshToken = localStorage.getItem('refresh_token')
-      let data = {
-        refresh_token: refreshToken
-      }
-      api.tokenRefresh(data).then(res => {
-        localStorage.setItem('access_token', res.data.data.access_token)
-      })
-      this.$nextTick(() => {
-        this.settingNewContainer(newContainerUrl)
-      })
-    },
-    setPassword () {
-      this.userData.password = this.password
-      this.password = ''
-      this.passwordEntered = true
-    },
-    resetPassword () {
-      this.passwordEntered = false
-    },
-    removeTab (targetName) {
-      this.multiContainer = this.multiContainer.filter(multiContainer => multiContainer !== targetName)
-      if (this.editContainer === targetName) {
-        this.editContainer = this.multiContainer.length ? this.multiContainer[0] : null
-      }
     },
     // Xterm
     addTerminal () {
@@ -182,7 +112,7 @@ export default {
         const term = new Terminal({
           cursorBlink: true, // 커서 깜박임 활성화
           cols: 150,
-          rows: 60,
+          rows: Math.floor(window.innerHeight / 19),
           fontSize: 14,
           wordWrap: false,
           theme: {
@@ -227,6 +157,10 @@ export default {
             username: 'dcucode-' + this.userData.id,
             password: localStorage.getItem('access_token')
           }))
+          window.addEventListener('resize', () => {
+            const newRows = Math.floor(window.innerHeight / 19)
+            term.resize(150, newRows)
+          })
         }
         ws.onmessage = (event) => {
           const data = JSON.parse(event.data)
@@ -266,6 +200,14 @@ export default {
       if (this.activeTerminal === id && this.terminals.length > 0) {
         this.activeTerminal = this.terminals[0].id
       }
+    },
+    closeAllWebSockets () {
+      console.log('Closing all WebSockets...')
+      this.wsMap.forEach(ws => {
+        if (ws) ws.close()
+      })
+      this.wsMap.clear()
+      this.terminalMap.clear()
     }
   },
   computed: {
