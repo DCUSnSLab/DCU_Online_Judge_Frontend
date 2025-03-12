@@ -61,15 +61,15 @@
 
   .panel-extra {
     // color: #ff0000;
-    color: var(--text-color); 
+    color: var(--text-color);
     line-height: 40px;
     .ivu-input-wrapper:hover .ivu-input {
       border: 1px solid var(--search-box-hovor-color);
-    }    
+    }
     .ivu-input {
-      background-color: var(--search-box-color); 
+      background-color: var(--search-box-color);
       border: 1px solid var(--search-box-border-color);
-      color: var(--text-color); 
+      color: var(--text-color);
     }
     .ivu-input-icon {
       line-height: 40px;
@@ -87,7 +87,7 @@
     word-break: break-all;
     word-wrap: break-word;
   }
-  
+
   // 테이블 색상
   .ivu-table{
     color: var(--table-text-color);

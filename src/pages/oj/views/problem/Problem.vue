@@ -56,7 +56,7 @@
       <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
         <!--problem main end-->
         <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
-      </iframe>-->  
+      </iframe>-->
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
             @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight*0.9" :ToggleValue="toggleValue"></CodeMirror>
@@ -160,7 +160,7 @@
             </div>
             <div v-if="showResultType">
               <el-tabs type="border-card">
-                <el-tab-pane 
+                <el-tab-pane
                   v-for="(sample, index) of problem.samples"
                   :key="index"
                   :label="getRunResultLable(index)"
@@ -388,7 +388,7 @@
           </div>
           <div v-if="showResultType">
             <el-tabs type="border-card">
-              <el-tab-pane 
+              <el-tab-pane
                 v-for="(sample, index) of problem.samples"
                 :key="index"
                 :label="getRunResultLable(index)"
@@ -624,7 +624,7 @@
   import Simditor from '../../components/Simditor.vue'
   import axios from 'axios'
   import { lightTheme, darkTheme } from '@/theme'
-  
+
   Vue.use(SidebarPlugin)
 
   // 只显示这些状态的图形占用
@@ -1255,7 +1255,7 @@
       flex: 5; /* 5:7 비율로 나누기 위해 5로 설정 */
       margin-right: 9px;
       overflow: scroll;
- 
+
     }
     #problem-main-height {
       flex: auto;
@@ -1309,7 +1309,7 @@
 
   #submit-code {
     background-color: var(--panelBackground);
-    color: var(--text-color); 
+    color: var(--text-color);
     .status {
       float: left;
       span {
@@ -1385,7 +1385,7 @@
     width: 500px;
     height: 480px;
   }
-  
+
 </style>
 
 
@@ -1409,7 +1409,7 @@
     }
   }
   .sidebar {
-    background: white;
+    background-color: var(--panelBackground);
     border: 2px solid #bcbcbc;
   }
   .sidebar-header {
@@ -1488,6 +1488,7 @@
       margin-right: 5px;
     }
     .input-output-container {
+      background-color: var(--panelBackground);
       display: flex;
     }
     .input-container,
