@@ -32,8 +32,8 @@ export const lightTheme = {
   // 추가적인 스타일 정의
 }
 export const darkTheme = {
-  '--background-color': '#222',
-  '--background-color2': '#222',
+  '--background-color': '#17161c',
+  '--background-color2': '#17161c',
   '--text-color': '#fff',
   '--text-hover-color': '#3498db',
   '--announcement-title-color': '#b4b4b4',
@@ -45,7 +45,7 @@ export const darkTheme = {
   '--search-box-hovor-color': '#3498db',
   '--panelBackground': '#333',
   '--panel-border-color': '#222',
-  '--nav-backgound': '#424242',
+  '--nav-backgound': '#404040',
   '--border-color': '#222',
   '--list-border-bottom': 'rgba(255, 255, 255, 0.1)',
   '--verticalMenu-item-backgound': '#333',
