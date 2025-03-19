@@ -514,8 +514,7 @@ export default {
     return ajax('/user/event_log', 'post', {
       data: {
         problem_id: problemID,
-        event_type: eventType,
-        timestamp: new Date().toISOString()
+        event_type: eventType
       }
     })
   }
