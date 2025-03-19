@@ -738,6 +738,9 @@
       window.removeEventListener('keyup', this.handleKeyUp)
     },
     methods: {
+      logUserEvent (problemID, eventType) {
+        return api.logUserEvent(problemID, eventType)
+      },
       handleResize () {
         this.dynamicHeight = window.innerHeight
       },
@@ -1235,6 +1238,16 @@
       isDarkMode (newVal) {
       // 다크모드 변경 시 자동으로 테마를 바꾸도록 함
         this.onChangeTheme(this.currentTheme)
+      },
+      'antiData.copy' (newValue, oldValue) {
+        if (newValue > oldValue) {
+          this.logUserEvent(this.problem.id, 'copy_attempt')
+        }
+      },
+      'antiData.focusScreen' (newValue, oldValue) {
+        if (newValue > oldValue) {
+          this.logUserEvent(this.problem.id, 'focus_screen')
+        }
       }
     }
   }

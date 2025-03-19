@@ -509,6 +509,15 @@ export default {
     return ajax('contest/user', 'get', {
       params: params
     })
+  },
+  logUserEvent (problemID, eventType) {
+    return ajax('/user/event_log', 'post', {
+      data: {
+        problem_id: problemID,
+        event_type: eventType,
+        timestamp: new Date().toISOString()
+      }
+    })
   }
 }
 
