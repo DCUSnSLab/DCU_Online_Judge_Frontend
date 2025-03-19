@@ -5,7 +5,7 @@
           @on-change="onChange"
           @on-page-size-change="onPageSizeChange"
           :show-sizer="showSizer"
-          :page-size-opts="[10, 30, 50, 100, 200]"
+          :page-size-opts="[10, 30, 50, 100, 200]" 
           :current="current"></Page>
   </div>
 </template>
@@ -34,6 +34,7 @@
     },
     methods: {
       onChange (page) {
+        console.log('onChange page', page)
         if (page < 1) {
           page = 1
         }

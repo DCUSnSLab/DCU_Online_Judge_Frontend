@@ -26,7 +26,8 @@
                     key="page"
                     :total="total"
                     :page-size="limit"
-                    @on-change="">
+                    :current="page"
+                    @on-change="getAnnouncementList">
         </Pagination>
       </template>
       <template v-else>
@@ -36,11 +37,16 @@
   </Panel>
 </template>
 
+
+
 <script>
   import api from '@oj/api'
   import Pagination from '@oj/components/Pagination'
   import { mapState } from 'vuex'
   import { lightTheme, darkTheme } from '@/theme'
+  import { page } from 'vue-analytics'
+
+  var pageFoo = 1 // 페이지 위치 임시로 저장하는거
 
   export default {
     name: 'Announcement',
@@ -49,7 +55,7 @@
     },
     data () {
       return {
-        limit: 10,
+        limit: 10, // 페이지당 보여주는 공지사항 수
         total: 10,
         btnLoading: false,
         announcements: [],
@@ -61,14 +67,15 @@
       this.init()
     },
     methods: {
-      init () {
+      init () { // 초기화
         if (this.isContest) {
           this.getContestAnnouncementList()
         } else {
           this.getAnnouncementList()
         }
       },
-      getAnnouncementList (page = 1) {
+      getAnnouncementList (page = 1) { // 원래 page = 1, 공지사항 새로고침? 페이지 2로 이동 ㄱㄴ 문제 : 새로고침 누르면 페이지 1로 이동 문제는 하단 공지 사항 페이지 번호가 1로 안바뀜
+        console.log('getAnnouncement page', page)
         this.btnLoading = true
         api.getAnnouncementList((page - 1) * this.limit, this.limit).then(res => {
           this.btnLoading = false
@@ -77,6 +84,9 @@
         }, () => {
           this.btnLoading = false
         })
+        pageFoo = page
+        this.page = pageFoo
+        console.log('pageFoo', pageFoo)
       },
       getContestAnnouncementList () {
         this.btnLoading = true
@@ -87,19 +97,26 @@
           this.btnLoading = false
         })
       },
-      goAnnouncement (announcement) {
+      goAnnouncement (announcement) { // 공지사항 들어가는거
+        console.log('page', this.page)
+        console.log('pageFoo', pageFoo)
         this.announcement = announcement
         this.listVisible = false
+        console.log('page', this.page)
       },
+      // 공지사항 페이지로 돌아가기, 문제 : 공지사항 페이지 번호가 1로 바뀜
       goBack () {
-        this.listVisible = true
+        this.listVisible = true // 공지 리스트 보여주는거
         this.announcement = ''
+        this.page = pageFoo // 내가 덕분에 산다...
+        console.log('page', this.page)
+        console.log('pageFoo', pageFoo)
       }
     },
     computed: {
       title () {
         if (this.listVisible) {
-          return this.isContest ? this.$i18n.t('m.Contest_Announcements') : this.$i18n.t('m.Announcements')
+          return this.isContest ? this.$i18n.t('m.Contest_Announcements') : this.$i18n.t('m.Announcements 살려줘')
         } else {
           return this.announcement.title
         }
