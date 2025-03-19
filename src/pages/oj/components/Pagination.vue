@@ -34,7 +34,6 @@
     },
     methods: {
       onChange (page) {
-        console.log('onChange page', page)
         if (page < 1) {
           page = 1
         }
@@ -45,7 +44,6 @@
         this.$emit('update:pageSize', pageSize)
         this.$emit('on-page-size-change', pageSize)
       }
-
     }
   }
 </script>
