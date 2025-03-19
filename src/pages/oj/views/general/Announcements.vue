@@ -26,7 +26,8 @@
                     key="page"
                     :total="total"
                     :page-size="limit"
-                    @on-change="">
+                    :current="page"
+                    @on-change="getAnnouncementList">
         </Pagination>
       </template>
       <template v-else>
@@ -36,11 +37,14 @@
   </Panel>
 </template>
 
+
+
 <script>
   import api from '@oj/api'
   import Pagination from '@oj/components/Pagination'
   import { mapState } from 'vuex'
   import { lightTheme, darkTheme } from '@/theme'
+  import { page } from 'vue-analytics'
 
   export default {
     name: 'Announcement',
@@ -49,7 +53,7 @@
     },
     data () {
       return {
-        limit: 10,
+        limit: 10, // 페이지당 보여주는 공지사항 수
         total: 10,
         btnLoading: false,
         announcements: [],
@@ -61,14 +65,15 @@
       this.init()
     },
     methods: {
-      init () {
+      init () { // 초기화
         if (this.isContest) {
           this.getContestAnnouncementList()
         } else {
           this.getAnnouncementList()
         }
       },
-      getAnnouncementList (page = 1) {
+      getAnnouncementList (page = 1) { // 원래 page = 1, 공지사항 새로고침? 페이지 2로 이동 ㄱㄴ 문제 : 새로고침 누르면 페이지 1로 이동 문제는 하단 공지 사항 페이지 번호가 1로 안바뀜
+        this.page = page
         this.btnLoading = true
         api.getAnnouncementList((page - 1) * this.limit, this.limit).then(res => {
           this.btnLoading = false
@@ -91,8 +96,9 @@
         this.announcement = announcement
         this.listVisible = false
       },
+      // 공지사항 페이지로 돌아가기, 문제 : 공지사항 페이지 번호가 1로 바뀜
       goBack () {
-        this.listVisible = true
+        this.listVisible = true // 공지 리스트 보여주는거
         this.announcement = ''
       }
     },
