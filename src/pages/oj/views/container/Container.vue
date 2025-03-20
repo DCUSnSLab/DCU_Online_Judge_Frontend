@@ -112,7 +112,7 @@ export default {
         const term = new Terminal({
           cursorBlink: true, // 커서 깜박임 활성화
           cols: 150,
-          rows: Math.floor(window.innerHeight / 19),
+          rows: Math.floor(window.innerHeight / 20),
           fontSize: 14,
           wordWrap: false,
           theme: {
@@ -158,7 +158,7 @@ export default {
             password: localStorage.getItem('access_token')
           }))
           window.addEventListener('resize', () => {
-            const newRows = Math.floor(window.innerHeight / 19)
+            const newRows = Math.floor(window.innerHeight / 20)
             term.resize(150, newRows)
           })
         }
