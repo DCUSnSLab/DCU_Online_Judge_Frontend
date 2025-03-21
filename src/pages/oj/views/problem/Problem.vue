@@ -825,6 +825,8 @@
           problem.languages = problem.languages.sort()
           this.problem = problem
           this.changePie(problem)
+          this.antiData.copy = problem.copied || 0
+          this.antiData.focusScreen = problem.focusing || 0
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
           if (this.code !== '') {
