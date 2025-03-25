@@ -1,82 +1,115 @@
-const WebSocket = require('ws')
-const { Server } = require('ws')
-const { Client } = require('ssh2')
+const WebSocket = require('ws');
+const { Server } = require('ws');
+const { Client } = require('ssh2');
 
-const wss = new Server({ port: 8080 })
+// Create a new WebSocket server on port 8080
+const wss = new Server({ port: 8080 });
+
+// Logging helper functions with timestamp
+const sessionInfo = {
+  clientIP: null,
+  username: null
+};
+function logInfo(message) {
+  console.log(`[${new Date().toISOString()}] ${JSON.stringify(sessionInfo)} ${message}`);
+}
+
+function logError(message) {
+  console.error(`[${new Date().toISOString()}] ${JSON.stringify(sessionInfo)} ${message}`);
+}
 
 wss.on('connection', (ws, req) => {
-  const clientIP = ws._socket.remoteAddress // ✅ 클라이언트 IP 가져오기
-  console.log(`Client connected: ${clientIP}`)
+  const clientIP = ws._socket.remoteAddress; // Get the client IP address
+  logInfo(`Client connected: ${clientIP}`);
 
-  const conn = new Client()
-  let termSize = { cols: 150, rows: 50 } // ✅ 기본 터미널 크기 설정
+  const conn = new Client();
+  let termSize = { cols: 150, rows: 50 }; // Set default terminal size
 
   ws.on('message', (message) => {
-    const data = JSON.parse(message)
+    const data = JSON.parse(message);
 
     if (data.type === 'connect') {
-      // SSH 서버 정보
+      // SSH server connection details
       conn.connect({
-        host: '203.250.33.83',  // SSH 서버 주소
+        host: '203.250.33.83', // SSH server address
         port: 32022,
         username: data.username,
         password: data.password
-      })
+      });
+      sessionInfo.username = data.username;
+      sessionInfo.clientIP = clientIP;
     } else if (data.type === 'resize') {
-      // ✅ 클라이언트에서 터미널 크기 변경 요청 시 적용
-      termSize = { cols: data.cols, rows: data.rows }
+      // Apply terminal resize requested by the client
+      termSize = { cols: data.cols, rows: data.rows };
       if (conn.shellStream) {
-        conn.shellStream.setWindow(data.rows, data.cols, 600, 800)
+        conn.shellStream.setWindow(data.rows, data.cols, 600, 800);
       }
     } else if (data.type === 'command') {
-      // 명령어 실행
+      // Execute command in the SSH shell
       if (conn.shell) {
-        conn.shell.write(data.command)
+        conn.shell.write(data.command);
       }
     }
-  })
+  });
 
   conn.on('ready', () => {
-    console.log(`SSH connection established for ${clientIP}`)
-    ws.send(JSON.stringify({ type: 'connected' }))
+    logInfo(`SSH connection established for ${clientIP}`);
+    ws.send(JSON.stringify({ type: 'connected' }));
 
+    // Open SSH shell with the given terminal size
     conn.shell(termSize, (err, stream) => {
       if (err) {
-        ws.send(JSON.stringify({ type: 'error', message: err.message }))
-        return
+        ws.send(JSON.stringify({ type: 'error', message: err.message }));
+        return;
       }
 
-      conn.shell = stream
-
+      // Assign the SSH shell stream to conn.shell
+      conn.shell = stream;
       stream.on('data', (data) => {
-        ws.send(JSON.stringify({ type: 'output', output: data.toString() }))
-      })
+        if (ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: 'output', output: data.toString() }), (err) => {
+            if (err) {
+              logError(`Error sending data: ${err.message}`);
+            }
+          });
+        }
+      });
 
       stream.on('close', () => {
-        conn.end()
-        ws.close()
-      })
-    })
-  })
+        conn.end();
+        ws.close();
+      });
+    });
+  });
 
-  // ✅ 클라이언트가 연결을 끊었을 때 로그 출력
+  // When the client disconnects, log the event and close the SSH connection safely
   ws.on('close', () => {
-    console.log(`Client disconnected: ${clientIP}`)
-    if (conn.shell) {
-      conn.shell.write('exit\n') // SSH 세션 안전 종료
-      conn.shell.end()
+    logInfo(`Client disconnected`);
+    try {
+      if (conn.shell && typeof conn.shell.write === 'function') {
+        conn.shell.write('exit\n'); // SSH 세션 안전 종료
+        conn.shell.end();
+      }
+    } catch (err) {
+      logError(`Error writing exit command`);
     }
-    conn.end()
-  })
+    conn.end();
+  });
 
-  // ✅ 웹소켓 에러 발생 시 로그 출력
+  // Log WebSocket errors
   ws.on('error', (err) => {
-    console.error(`WebSocket error from ${clientIP}:`, err.message)
-  })
+    logError(`WebSocket error from : ${err.message}`);
+  });
 
+  // Handle SSH connection errors
   conn.on('error', (err) => {
-    ws.send(JSON.stringify({ type: 'error', message: err.message }))
-  })
-})
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'error', message: err.message }));
+    } else {
+      logError('WebSocket is closed. Cannot send SSH error message.');
+    }
+  });
+});
 
-console.log('WebSocket SSH server running on ws://localhost:8080')
+logInfo('WebSocket SSH server running on ws://localhost:8080');
+
