@@ -27,8 +27,8 @@ node {
     }
 
     stage('Kubernetes deploy') {
-        sh "kubectl delete -f /services/dcucode/ssh-server/ssh-ws-server_only_con.yaml -n dcucode-dev"
-        sh "kubectl apply -f /services/dcucode/ssh-server/ssh-ws-server_only_con.yaml -n dcucode-dev"
+        sh "kubectl delete -f /services/dcucode/ssh-server/ssh-ws-server_dev_only_con.yaml -n dcucode-dev"
+        sh "kubectl apply -f /services/dcucode/ssh-server/ssh-ws-server_dev_only_con.yaml -n dcucode-dev"
     }
 
     stage('Complete') {
