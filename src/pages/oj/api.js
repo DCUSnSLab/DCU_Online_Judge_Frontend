@@ -510,11 +510,11 @@ export default {
       params: params
     })
   },
-  logUserEvent (problemID, lectureID, contestID, eventType) {
+  logUserEvent (problemID, ruleType, contestID, eventType) {
     return ajax('/user/event_log', 'post', {
       data: {
         problem_id: problemID,
-        lecture_id: lectureID,
+        rule_type: ruleType,
         contest_id: contestID,
         event_type: eventType
       }

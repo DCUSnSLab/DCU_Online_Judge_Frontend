@@ -827,6 +827,7 @@
           this.changePie(problem)
           this.antiData.copy = problem.copied || 0
           this.antiData.focusScreen = problem.focusing || 0
+          this.rule_type = problem.rule_type
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
           if (this.code !== '') {
@@ -1243,12 +1244,12 @@
       },
       'antiData.copy' (newValue, oldValue) {
         if (newValue > oldValue) {
-          this.logUserEvent(this.problem.id, this.lectureID, this.contestID, 'copy_attempt')
+          this.logUserEvent(this.problem.id, this.rule_type, this.contestID, 'copy_attempt')
         }
       },
       'antiData.focusScreen' (newValue, oldValue) {
         if (newValue > oldValue) {
-          this.logUserEvent(this.problem.id, this.lectureID, this.contestID, 'focus_screen')
+          this.logUserEvent(this.problem.id, this.rule_type, this.contestID, 'focus_screen')
         }
       }
     }
