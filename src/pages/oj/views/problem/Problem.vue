@@ -738,8 +738,8 @@
       window.removeEventListener('keyup', this.handleKeyUp)
     },
     methods: {
-      logUserEvent (problemID, eventType) {
-        return api.logUserEvent(problemID, eventType)
+      logUserEvent (problemID, lectureID, contestID, eventType) {
+        return api.logUserEvent(problemID, lectureID, contestID, eventType)
       },
       handleResize () {
         this.dynamicHeight = window.innerHeight
@@ -1243,12 +1243,12 @@
       },
       'antiData.copy' (newValue, oldValue) {
         if (newValue > oldValue) {
-          this.logUserEvent(this.problem.id, 'copy_attempt')
+          this.logUserEvent(this.problem.id, this.lectureID, this.contestID, 'copy_attempt')
         }
       },
       'antiData.focusScreen' (newValue, oldValue) {
         if (newValue > oldValue) {
-          this.logUserEvent(this.problem.id, 'focus_screen')
+          this.logUserEvent(this.problem.id, this.lectureID, this.contestID, 'focus_screen')
         }
       }
     }
