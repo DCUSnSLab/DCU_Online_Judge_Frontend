@@ -82,6 +82,44 @@
           </el-pagination>
         </div>
       </Panel>
+      <Panel style="margin-top: 20px; padding-bottom: 20px;" title="학생별 문제 점수">
+        <div slot="title"><b>사용자 점수 조회</b></div>
+        <el-table v-loading="loadingTable"
+            element-loading-text="loading"
+            @selection-change="handleSelectionChange"
+            :data="userList"
+            style="width: 100%">
+          <el-table-column prop="realname" label="이름" fixed width="120" align="center">
+            <template slot-scope="scope">
+              <span>{{ scope.row.realname || scope.row.user.realname }}</span>
+            </template>
+          </el-table-column>
+
+          <!-- 문제별 열 동적 생성 -->
+          <el-table-column
+            v-for="problem in problemList"
+            :key="problem"
+            :label="problem"
+            align="center"
+          >
+            <template slot-scope="scope">
+              <span>
+                {{
+                  studentProblemData[scope.row.user.id] &&
+                  studentProblemData[scope.row.user.id][problem]
+                    ? studentProblemData[scope.row.user.id][problem].score +
+                      '(' +
+                      studentProblemData[scope.row.user.id][problem].copied +
+                      ',' +
+                      studentProblemData[scope.row.user.id][problem].focusing +
+                      ')'
+                    : '-'
+                }}
+              </span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </Panel>
     </div>
   </div>
   <div class="flex-container" v-else>
@@ -155,7 +193,9 @@ export default {
       showUserDialog: false,
       user: {},
       loadingTable: false,
-      currentPage: 0
+      currentPage: 0,
+      problemList: [], // 문제 ID 또는 이름 목록
+      studentProblemData: {} // { userID: { problemID: { score, copied, focusing } } }
     }
   },
   mounted () {
@@ -239,6 +279,25 @@ export default {
         this.loadingTable = false
         this.total = res.data.data.total  // 인스턴스 개수
         this.userList = res.data.data.results
+
+        // 문제 ID 리스트 예시 (API 연동시 동적으로 구성 가능)
+        this.problemList = ['문제1', '문제2', '문제3'] // 문제 이름 또는 ID
+
+        // 학생별 문제별 점수 초기화
+        this.studentProblemData = {}
+        this.userList.forEach(user => {
+          const uid = user.user.id
+          this.studentProblemData[uid] = {}
+
+          this.problemList.forEach(problem => {
+            // 추후 실제 데이터로 교체
+            this.studentProblemData[uid][problem] = {
+              score: 0,
+              copied: 0,
+              focusing: 0
+            }
+          })
+        })
         if (this.userList.length === 0) {
           console.log('null')
         } else {
