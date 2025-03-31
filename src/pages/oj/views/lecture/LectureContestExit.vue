@@ -1,7 +1,7 @@
 <template>
   <div class="flex-container" v-if="isAdminRole">
     <div id="manage">
-      <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
+      <Panel v-if="isContestMode" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
           <Button @click.native="exitAllStudent()" style="float:right">전체 퇴실 처리</Button>
         </div>
@@ -82,7 +82,7 @@
           </el-pagination>
         </div>
       </Panel>
-      <Panel style="margin-top: 20px; padding-bottom: 20px;" title="학생별 문제 점수">
+      <Panel style="margin-top: 20px;" title="학생별 문제 점수">
         <div slot="title"><b>사용자 부정 행위 조회</b></div>
         <el-table v-loading="loadingTable"
             element-loading-text="loading"
@@ -118,6 +118,15 @@
             </template>
           </el-table-column>
         </el-table>
+        <div class="panel-options">
+          <el-pagination
+            class="page"
+            layout="prev, pager, next"
+            @current-change="currentChange"
+            :page-size="pageSize"
+            :total="total">
+          </el-pagination>
+        </div>
       </Panel>
     </div>
   </div>
@@ -353,6 +362,9 @@ export default {
     },
     isAdminRole () {
       return this.$store.getters.isAdminRole
+    },
+    isContestMode () {
+      return (this.$route.params.lectureContestType || '').trim() === '대회'
     }
   },
   watch: {
