@@ -92,7 +92,16 @@
         <VerticalMenu-item
           v-if="(OIContestRealTimePermission && contestType === '대회' && lectureID) || isContestAdmin"
           :disabled="!isContestAdmin && (contestMenuDisabled || (contestCheckInOutStatus !== 'checkIn' && contestCheckInOutStatus !== 'notStudent'))"
-          :route="{name: 'lecture-contest-exit'}">
+          :route="{
+            name: 'lecture-contest-exit',
+            params: {
+              contestID: contestID,
+              lectureID: lectureID,
+              lectureTitle: contest.lecture_title,
+              lectureFounder: contest.created_by.realname,
+              lectureContestType: contestType
+            }
+          }">
           <Icon type="android-exit"></Icon>
           {{$t('m.Exit')}}
         </VerticalMenu-item>
