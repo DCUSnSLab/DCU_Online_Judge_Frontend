@@ -83,7 +83,7 @@
         </div>
       </Panel>
       <Panel style="margin-top: 20px; padding-bottom: 20px;" title="학생별 문제 점수">
-        <div slot="title"><b>사용자 점수 조회</b></div>
+        <div slot="title"><b>사용자 부정 행위 조회</b></div>
         <el-table v-loading="loadingTable"
             element-loading-text="loading"
             @selection-change="handleSelectionChange"
@@ -107,8 +107,7 @@
                 {{
                   studentProblemData[scope.row.user.id] &&
                   studentProblemData[scope.row.user.id][problem]
-                    ? studentProblemData[scope.row.user.id][problem].score +
-                      '(' +
+                    ? '(' +
                       studentProblemData[scope.row.user.id][problem].copied +
                       ',' +
                       studentProblemData[scope.row.user.id][problem].focusing +
