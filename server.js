@@ -47,7 +47,11 @@ wss.on('connection', (ws, req) => {
     } else if (data.type === 'command') {
       // Execute command in the SSH shell
       if (conn.shell) {
-        conn.shell.write(data.command);
+	try {
+        	conn.shell.write(data.command);
+	} catch (err) {
+      		logError(`error : data type is command`);
+      	}
       }
     }
   });
