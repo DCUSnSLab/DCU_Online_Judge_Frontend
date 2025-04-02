@@ -698,7 +698,8 @@
         running: false,
         contestType: '',
         isBlurred: false,
-        antiData: { copy: 0, focusScreen: 0 }
+        antiData: { copy: 0, focusScreen: 0 },
+        initialAntiData: { copy: 0, focusScreen: 0 }
       }
     },
 
@@ -738,8 +739,8 @@
       window.removeEventListener('keyup', this.handleKeyUp)
     },
     methods: {
-      logUserEvent (problemID, lectureID, contestID, eventType) {
-        return api.logUserEvent(problemID, lectureID, contestID, eventType)
+      logUserEvent (problemID, ruleType, contestID, focusing, copied) {
+        return api.logUserEvent(problemID, ruleType, contestID, focusing, copied)
       },
       handleResize () {
         this.dynamicHeight = window.innerHeight
@@ -827,6 +828,8 @@
           this.changePie(problem)
           this.antiData.copy = problem.copied || 0
           this.antiData.focusScreen = problem.focusing || 0
+          this.initialAntiData.copy = this.antiData.copy
+          this.initialAntiData.focusScreen = this.antiData.focusScreen
           this.rule_type = problem.rule_type
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
@@ -1232,6 +1235,23 @@
         language: this.language,
         theme: this.theme
       })
+
+      const copiedDiff = this.antiData.copy - this.initialAntiData.copy
+      const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
+
+      console.log('[DIFF] Copy:', copiedDiff, '| Focus:', focusDiff)
+      console.log('[STATE] antiData:', this.antiData, '| initial:', this.initialAntiData)
+
+      if (copiedDiff > 0 || focusDiff > 0) {
+        this.logUserEvent(
+          this.problem.id,
+          this.rule_type,
+          this.contestID,
+          focusDiff,
+          copiedDiff
+        )
+      }
+
       next()
     },
     watch: {
@@ -1241,16 +1261,6 @@
       isDarkMode (newVal) {
       // 다크모드 변경 시 자동으로 테마를 바꾸도록 함
         this.onChangeTheme(this.currentTheme)
-      },
-      'antiData.copy' (newValue, oldValue) {
-        if (newValue > oldValue) {
-          this.logUserEvent(this.problem.id, this.rule_type, this.contestID, 'copy_attempt')
-        }
-      },
-      'antiData.focusScreen' (newValue, oldValue) {
-        if (newValue > oldValue) {
-          this.logUserEvent(this.problem.id, this.rule_type, this.contestID, 'focus_screen')
-        }
       }
     }
   }
