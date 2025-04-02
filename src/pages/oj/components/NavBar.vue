@@ -360,6 +360,7 @@
       font-size: 16px;
       float: right;
       margin-right: 10px;
+      margin-left: -40px;
       margin-top: 15px;
     }
     .el-menu-item1 {
@@ -391,4 +392,5 @@
   .notify {
       display: flex;
   }
+
 </style>
