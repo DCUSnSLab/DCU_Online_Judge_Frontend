@@ -18,8 +18,7 @@
               <div class="flex-container sample">
                 <div class="sample-input">
                   <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
-                    <a class="copy" v-clipboard:copy="sample.input" v-clipboard:success="onCopy"
-                      v-clipboard:error="onCopyError">
+                    <a class="copy" @click="handleSampleCopy(sample.input)">
                       <Icon type="clipboard"></Icon>
                     </a>
                   </p>
@@ -56,7 +55,7 @@
       <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
         <!--problem main end-->
         <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
-      </iframe>-->  
+      </iframe>-->
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
             @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight*0.9" :ToggleValue="toggleValue"></CodeMirror>
@@ -160,7 +159,7 @@
             </div>
             <div v-if="showResultType">
               <el-tabs type="border-card">
-                <el-tab-pane 
+                <el-tab-pane
                   v-for="(sample, index) of problem.samples"
                   :key="index"
                   :label="getRunResultLable(index)"
@@ -250,8 +249,7 @@
               <div class="flex-container sample">
                 <div class="sample-input">
                   <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
-                    <a class="copy" v-clipboard:copy="sample.input" v-clipboard:success="onCopy"
-                      v-clipboard:error="onCopyError">
+                    <a class="copy" @click="handleSampleCopy(sample.input)">
                       <Icon type="clipboard"></Icon>
                     </a>
                   </p>
@@ -388,7 +386,7 @@
           </div>
           <div v-if="showResultType">
             <el-tabs type="border-card">
-              <el-tab-pane 
+              <el-tab-pane
                 v-for="(sample, index) of problem.samples"
                 :key="index"
                 :label="getRunResultLable(index)"
@@ -624,7 +622,7 @@
   import Simditor from '../../components/Simditor.vue'
   import axios from 'axios'
   import { lightTheme, darkTheme } from '@/theme'
-  
+
   Vue.use(SidebarPlugin)
 
   // 只显示这些状态的图形占用
@@ -1108,7 +1106,26 @@
       //   let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
       //   return text.split('').map(() => randomChars[Math.floor(Math.random() * randomChars.length)]).join('')
       // },
+      handleSampleCopy (text) {
+        this.ignoreNextCopy = true // 🔥 이 플래그를 세워서 다음 copy 이벤트 무시
+        // 직접 복사
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            this.$message.success(this.$t('m.Code_Copied'))
+          })
+          .catch(() => {
+            this.$message.error(this.$t('m.Failed_to_copy'))
+          })
+        // 🔥 잠시 후 플래그 해제
+        setTimeout(() => {
+          this.ignoreNextCopy = false
+        }, 50)
+      },
       handleCopy (event) {
+        if (this.ignoreNextCopy) {
+          // ❗복사 버튼에서 발생한 copy 이벤트는 무시
+          return
+        }
         if (event.target.closest('#submit-code')) {
           return // 코드 입력 구간에서는 복사 방지 예외 처리
         }
@@ -1255,7 +1272,7 @@
       flex: 5; /* 5:7 비율로 나누기 위해 5로 설정 */
       margin-right: 9px;
       overflow: scroll;
- 
+
     }
     #problem-main-height {
       flex: auto;
@@ -1309,7 +1326,7 @@
 
   #submit-code {
     background-color: var(--panelBackground);
-    color: var(--text-color); 
+    color: var(--text-color);
     .status {
       float: left;
       span {
@@ -1385,7 +1402,7 @@
     width: 500px;
     height: 480px;
   }
-  
+
 </style>
 
 
