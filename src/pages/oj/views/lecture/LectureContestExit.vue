@@ -83,7 +83,29 @@
         </div>
       </Panel>
       <Panel style="margin-top: 20px;" title="학생별 문제 점수">
-        <div slot="title"><b>사용자 부정 행위 조회</b></div>
+        <div slot="title" style="display: inline-flex; align-items: center;">
+          <b>사용자 부정 행위 조회</b>
+          <el-tooltip content="Problem copied: 복사 횟수, Screen focusing: 포커스 이탈 횟수" placement="top">
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 0.5em;
+                cursor: pointer;
+                background-color: #eeeeee;
+                color: #333;
+                border-radius: 50%;
+                width: 1.4em;
+                height: 1.4em;
+                font-size: 0.85em;
+                font-weight: bold;
+              "
+            >
+              ?
+            </span>
+          </el-tooltip>
+        </div>
         <el-table v-loading="loadingTable"
             element-loading-text="loading"
             @selection-change="handleSelectionChange"
@@ -107,11 +129,10 @@
                 {{
                   studentProblemData[scope.row.user.id] &&
                   studentProblemData[scope.row.user.id][problem]
-                    ? '(' +
+                    ?
                       studentProblemData[scope.row.user.id][problem].copied +
                       ',' +
-                      studentProblemData[scope.row.user.id][problem].focusing +
-                      ')'
+                      studentProblemData[scope.row.user.id][problem].focusing
                     : '-'
                 }}
               </span>
@@ -300,7 +321,6 @@ export default {
           this.problemList.forEach(problem => {
             // 추후 실제 데이터로 교체
             this.studentProblemData[uid][problem] = {
-              score: 0,
               copied: 0,
               focusing: 0
             }
