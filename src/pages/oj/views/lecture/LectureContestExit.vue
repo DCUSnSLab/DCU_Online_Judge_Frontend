@@ -94,11 +94,11 @@
                 margin-left: 0.5em;
                 cursor: pointer;
                 background-color: #eeeeee;
-                color: #333;
+                color: #9a9a9a;
                 border-radius: 50%;
-                width: 1.4em;
-                height: 1.4em;
-                font-size: 0.85em;
+                width: 1.2em;
+                height: 1.2em;
+                font-size: 0.7em;
                 font-weight: bold;
               "
             >
