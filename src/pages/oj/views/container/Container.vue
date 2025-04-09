@@ -1,26 +1,53 @@
 <template>
-  <div>
-    <!-- Tabs Container -->
-    <div class="tabs-container">
-      <div
-        v-for="(terminal, index) in terminals"
-        :key="terminal.id"
-        :class="['tab', { active: activeTerminal === terminal.id }]"
-        @click="activeTerminal = terminal.id"
-      >
-        <span>{{ `DCU Shell ${index + 1}` }}</span>
-        <button class="close-btn" @click.stop="removeTerminal(terminal.id)">×</button>
+  <div> <!-- 루트 요소 -->
+    <div>
+      <!-- Tabs Container -->
+      <div class="tabs-container">
+        <div
+          v-for="(terminal, index) in terminals"
+          :key="terminal.id"
+          :class="['tab', { active: activeTerminal === terminal.id }]"
+          @click="activeTerminal = terminal.id"
+        >
+          <span>{{ `DCU Shell ${index + 1}` }}</span>
+          <button class="close-btn" @click.stop="removeTerminal(terminal.id)">×</button>
+        </div>
+        <button class="add-tab-btn" @click="addTerminal">+</button>
       </div>
-      <button class="add-tab-btn" @click="addTerminal">+</button>
+      <div class="content">
+        <div
+          v-for="(terminal, index) in terminals"
+          :key="terminal.id"
+          v-show="activeTerminal === terminal.id"
+          ref="terminal"
+        ></div>
+      </div>
     </div>
-    <div class="content">
-      <div
-        v-for="(terminal, index) in terminals"
-        :key="terminal.id"
-        v-show="activeTerminal === terminal.id"
-        ref="terminal"
-      ></div>
-    </div>
+    <el-dialog
+      title="DCU Shell 이미지 선택"
+      :visible.sync="dialogVisible"
+      width="30%"
+    >
+      <el-form ref="form" :model="form" label-width="120px">
+        <el-form-item label="이미지">
+          <el-select v-model="selectedImage" placeholder="이미지를 선택하세요">
+            <el-option
+              v-for="item in imageList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="dialogVisible = false">취소</el-button>
+          <el-button type="primary" @click="imageSubmmit">접속</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -38,6 +65,7 @@ export default {
   name: 'Container',
   data () {
     return {
+      dialogVisible: true,
       userData: {
         id: '',
         password: ''
@@ -53,16 +81,18 @@ export default {
       terminals: [],
       activeTerminal: null,
       terminalMap: new Map(),
-      wsMap: new Map()
+      wsMap: new Map(),
+      selectedImage: '',
+      imageList: []
     }
   },
   created () {
   },
   async mounted () {
-    window.addEventListener('beforeunload', this.closeAllWebSockets)
+    this.dialogVisible = true
     await this.init()
+    window.addEventListener('beforeunload', this.closeAllWebSockets)
     // ✅ 페이지 로드 시 자동으로 첫 번째 터미널 생성
-    this.addTerminal()
   },
   beforeRouteLeave (to, from, next) {
     console.log('Navigating away... Closing all WebSockets.')
@@ -87,6 +117,18 @@ export default {
       await api.getUserInfo().then(res => {
         this.userData.id = res.data.data.user.username
       })
+      this.getImageList()
+    },
+    async imageSubmmit () {
+      this.addTerminal()
+      this.dialogVisible = false
+    },
+    getImageList () {
+      // api
+      this.imageList = [
+      { label: 'Ubuntu 20.04', value: 'ubuntu-20.04' },
+      { label: 'Alpine 3.17', value: 'alpine-3.17' },
+      { label: 'Debian 11', value: 'debian-11' }]
     },
     debug () {
     },
@@ -126,7 +168,7 @@ export default {
         term.write('\x1b[1mConnecting to SSH server...\x1b[0m\r\n')
         // fitAddon.fit()
         const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
-        const ws = new WebSocket(`${wsProtocol}://${window.location.host}/ssh`)
+        const ws = new WebSocket(`${wsProtocol}://${window.location.host}:8000/ssh`)
         ws.onopen = () => {
           term.write('\x1b[1mConnected to WebSocket server.\x1b[0m\r\n')
           console.log(`WebSocket connected for terminal ${id}`)
@@ -151,11 +193,15 @@ export default {
           '/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/-/ /\r\n' +
           '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n\n')
           // SSH 서버에 연결 요청
+          console.log('dcucode-' + this.userData.id)
+          console.log(localStorage.getItem('access_token'))
           ws.send(JSON.stringify({
             type: 'connect',
             host: '203.250.33.83',
-            username: 'dcucode-' + this.userData.id,
-            password: localStorage.getItem('access_token')
+            // username: 'dcucode-' + this.userData.id,
+            // password: localStorage.getItem('access_token')
+            username: 'dcucodetest',
+            password: 'dcucodetest'
           }))
           window.addEventListener('resize', () => {
             const newRows = Math.floor(window.innerHeight / 20)
