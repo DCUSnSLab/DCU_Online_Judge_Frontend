@@ -727,6 +727,7 @@
       window.addEventListener('focus', this.handleScreenFocus)
       document.addEventListener('contextmenu', this.handleRightClick)
       window.addEventListener('keyup', this.handleKeyUp)
+      window.addEventListener('beforeunload', this.handleBeforeUnload)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
@@ -737,10 +738,34 @@
       window.removeEventListener('focus', this.handleScreenFocus)
       document.removeEventListener('contextmenu', this.handleRightClick)
       window.removeEventListener('keyup', this.handleKeyUp)
+      window.removeEventListener('beforeunload', this.handleBeforeUnload)
     },
     methods: {
       logUserEvent (problemID, ruleType, contestID, focusing, copied) {
         return api.logUserEvent(problemID, ruleType, contestID, focusing, copied)
+      },
+      handleBeforeUnload (event) {
+        console.log('Before unload event triggered')
+        const copiedDiff = this.antiData.copy - this.initialAntiData.copy
+        const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
+
+        if (copiedDiff > 0 || focusDiff > 0) {
+          // sendBeacon 사용
+          const logData = {
+            problemID: this.problem.id,
+            ruleType: this.rule_type,
+            contestID: this.contestID,
+            focusing: focusDiff,
+            copied: copiedDiff
+          }
+
+          console.log('Sending log data:', logData)
+
+          const blob = new Blob([JSON.stringify(logData)], { type: 'application/json' })
+          navigator.sendBeacon('http://localhost/api/user/event_log', blob)
+        }
+        event.preventDefault()
+        event.returnValue = ''
       },
       handleResize () {
         this.dynamicHeight = window.innerHeight
@@ -1238,9 +1263,6 @@
 
       const copiedDiff = this.antiData.copy - this.initialAntiData.copy
       const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
-
-      console.log('[DIFF] Copy:', copiedDiff, '| Focus:', focusDiff)
-      console.log('[STATE] antiData:', this.antiData, '| initial:', this.initialAntiData)
 
       if (copiedDiff > 0 || focusDiff > 0) {
         this.logUserEvent(
