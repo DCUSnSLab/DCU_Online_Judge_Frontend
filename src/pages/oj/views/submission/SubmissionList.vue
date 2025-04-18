@@ -22,22 +22,6 @@
               </Dropdown>
             </li>
             <li>
-              <Dropdown @on-click="handleProblemChange">
-                <span>{{ currentProblemDisplay }}
-                  <Icon type="arrow-down-b"></Icon>
-                </span>
-                <Dropdown-menu slot="list">
-                  <Dropdown-item name="">{{ $t('m.All') }}</Dropdown-item>
-                  <Dropdown-item
-                    v-for="(problem, index) in problems"
-                    :key="problem.id"
-                    :name="problem.id">
-                    {{ $t('m.Problem') }} {{ index + 1 }}
-                  </Dropdown-item>
-                </Dropdown-menu>
-              </Dropdown>
-            </li>
-            <li>
               <Dropdown @on-click="handleResultChange">
                 <span>{{status}}
                   <Icon type="arrow-down-b"></Icon>
@@ -67,7 +51,6 @@
           </ul>
         </div>
         <Table stripe :disabled-hover="true" :columns="columns" :data="submissions" :loading="loadingTable"></Table>
-        <Pagination :total="total" :page-size="limit" @on-change="changePage" :current.sync="page"></Pagination>
         <Pagination :total="total" :page-size="limit" @on-change="changePage" :current.sync="page"></Pagination>
       </Panel>
     </div>
@@ -232,7 +215,7 @@
     },
     mounted () {
       this.init()
-      this.fetchProblemList()
+      this.fetchProblemList() // 수정하였음.
       this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS)
       // 去除submitting的状态 和 两个
       delete this.JUDGE_STATUS['9']
@@ -242,7 +225,7 @@
       init () {
         this.contestID = this.$route.params.contestID
         let query = this.$route.query
-        this.selectedProblem = query.problemID || null
+        this.selectedProblem = query.problemID || null // 2차
         this.formFilter.myself = query.myself === '0'
         this.formFilter.result = query.result || ''
         this.formFilter.username = query.username || ''
@@ -301,7 +284,7 @@
         let routeName = query.contestID ? 'contest-submission-list' : 'submission-list'
         this.$router.push({
           name: routeName,
-          query
+          query: utils.filterEmptyValue(query)  // 2차 수정중 복원하였음
         })
       },
       goRoute (route) {
@@ -334,26 +317,27 @@
           this.rejudge_column = true
         }
       },
-      handleResultChange (status) {
+      handleResultChange (status) { // 2차 수정하였음.
         this.page = 1
         this.formFilter.result = status
         const query = Object.assign({}, this.$route.query)
         if (status === '') {
-          delete query.result
+          delete query.result // 상태가 'All'이면 result 제거
         } else {
-          query.result = status
+          query.result = status // 상태 값 설정
         }
-        query.page = this.page
+        query.page = this.page // 페이지네이션 정보 갱신
 
+        // problemID 유지
         if (this.selectedProblem && this.selectedProblem !== '') {
           query.problemID = this.selectedProblem
         } else {
-          delete query.problemID
+          delete query.problemID // 선택된 문제가 없으면 제거
         }
 
         this.$nextTick(() => {
           this.$router.push({ query })
-          this.getSubmissions()
+          this.getSubmissions() // 데이터 갱신
         })
       },
       handleQueryChange () {
@@ -373,7 +357,7 @@
       handleProblemChange (problemID) {
         this.selectedProblem = problemID === '' ? null : problemID
         this.page = 1
-
+        // 아래 부터 2차수정
         const query = Object.assign({}, this.$route.query)
         if (problemID === '') {
           delete query.problemID
@@ -384,7 +368,7 @@
 
         this.$nextTick(() => {
           this.$router.push({ query })
-
+          // 위 부터 2차수정
           this.getSubmissions()
         })
       },
