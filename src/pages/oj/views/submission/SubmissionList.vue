@@ -22,6 +22,22 @@
               </Dropdown>
             </li>
             <li>
+              <Dropdown @on-click="handleProblemChange">
+                <span>{{ currentProblemDisplay }}
+                  <Icon type="arrow-down-b"></Icon>
+                </span>
+                <Dropdown-menu slot="list">
+                  <Dropdown-item name="">{{ $t('m.All') }}</Dropdown-item>
+                  <Dropdown-item
+                    v-for="(problem, index) in problems"
+                    :key="problem.id"
+                    :name="problem.id">
+                    {{ $t('m.Problem') }} {{ index + 1 }}
+                  </Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </li>
+            <li>
               <Dropdown @on-click="handleResultChange">
                 <span>{{status}}
                   <Icon type="arrow-down-b"></Icon>
@@ -51,6 +67,7 @@
           </ul>
         </div>
         <Table stripe :disabled-hover="true" :columns="columns" :data="submissions" :loading="loadingTable"></Table>
+        <Pagination :total="total" :page-size="limit" @on-change="changePage" :current.sync="page"></Pagination>
         <Pagination :total="total" :page-size="limit" @on-change="changePage" :current.sync="page"></Pagination>
       </Panel>
     </div>
@@ -284,7 +301,7 @@
         let routeName = query.contestID ? 'contest-submission-list' : 'submission-list'
         this.$router.push({
           name: routeName,
-          query: utils.filterEmptyValue(query)
+          query
         })
       },
       goRoute (route) {
