@@ -1032,11 +1032,14 @@
         this.submissionId = ''
         this.result = {result: 9}
         this.submitting = true
+
         let data = {
           problem_id: this.problem.id,
           language: this.language,
           code: this.code,
-          contest_id: this.contestID
+          contest_id: this.contestID,
+          copied: this.antiData.copy,               // 안티 데이터 추가
+          focusing: this.antiData.focusScreen       // 안티 데이터 추가
         }
         if (this.captchaRequired) {
           data.captcha = this.captchaCode
