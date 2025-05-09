@@ -630,6 +630,13 @@
   // 只显示这些状态的图形占用
   const filtedStatus = ['-1', '-2', '0', '1', '2', '3', '4', '8']
 
+  function getCookie (name) {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop().split(';').shift()
+    return null
+  }
+
   export default {
     name: 'Problem',
     components: {
@@ -746,24 +753,35 @@
       },
       handleBeforeUnload (event) {
         console.log('Before unload event triggered')
+
         const copiedDiff = this.antiData.copy - this.initialAntiData.copy
         const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
 
         if (copiedDiff > 0 || focusDiff > 0) {
-          // sendBeacon 사용
           const logData = {
-            problemID: this.problem.id,
-            ruleType: this.rule_type,
-            contestID: this.contestID,
+            problem_id: this.problem.id,
+            rule_type: this.rule_type,
+            contest_id: this.contestID,
             focusing: focusDiff,
             copied: copiedDiff
           }
 
-          console.log('Sending log data:', logData)
+          console.log('Sending log data with fetch:', logData)
 
-          const blob = new Blob([JSON.stringify(logData)], { type: 'application/json' })
-          navigator.sendBeacon('http://localhost/api/user/event_log', blob)
+          const csrfToken = getCookie('csrftoken')  // ✅ 쿠키에서 CSRF 토큰 가져오기
+
+          fetch('/api/user/event_log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken               // ✅ CSRF 헤더 추가
+            },
+            body: JSON.stringify(logData),
+            keepalive: true,
+            credentials: 'include'                   // ✅ 쿠키 동봉 필수
+          })
         }
+
         event.preventDefault()
         event.returnValue = ''
       },
