@@ -1039,7 +1039,8 @@
           code: this.code,
           contest_id: this.contestID,
           copied: this.antiData.copy,               // 안티 데이터 추가
-          focusing: this.antiData.focusScreen       // 안티 데이터 추가
+          focusing: this.antiData.focusScreen,      // 안티 데이터 추가
+          rule_type: this.problem.rule_type
         }
         if (this.captchaRequired) {
           data.captcha = this.captchaCode
