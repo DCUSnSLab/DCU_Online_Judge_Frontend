@@ -1,7 +1,7 @@
 <template>
   <div class="flex-container" v-if="accsessR && (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)">
     <div id="manage">
-      <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
+      <Panel v-if="isContestMode" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
           <Button @click.native="exitAllStudent()" style="float:right">전체 퇴실 처리</Button>
         </div>
@@ -72,6 +72,73 @@
           </el-table>
         </template>
         <!---->
+        <div class="panel-options">
+          <el-pagination
+            class="page"
+            layout="prev, pager, next"
+            @current-change="currentChange"
+            :page-size="pageSize"
+            :total="total">
+          </el-pagination>
+        </div>
+      </Panel>
+      <Panel style="margin-top: 20px;" title="학생별 문제 점수">
+        <div slot="title" style="display: inline-flex; align-items: center;">
+          <b>사용자 부정 행위 조회</b>
+          <el-tooltip content="Problem copied: 복사 횟수, Screen focusing: 포커스 이탈 횟수" placement="top">
+            <span
+              style="
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-left: 0.5em;
+                cursor: pointer;
+                background-color: #eeeeee;
+                color: #9a9a9a;
+                border-radius: 50%;
+                width: 1.2em;
+                height: 1.2em;
+                font-size: 0.7em;
+                font-weight: bold;
+              "
+            >
+              ?
+            </span>
+          </el-tooltip>
+        </div>
+        <el-table v-loading="loadingTable"
+            element-loading-text="loading"
+            @selection-change="handleSelectionChange"
+            :data="userList"
+            style="width: 100%">
+          <el-table-column prop="realname" label="이름" fixed width="120" align="center">
+            <template slot-scope="scope">
+              <span>{{ scope.row.realname || scope.row.user.realname }}</span>
+            </template>
+          </el-table-column>
+
+          <!-- 문제별 열 동적 생성 -->
+          <el-table-column
+            v-for="problem in problemList"
+            :key="problem.id"
+            :label="problem.title"
+            align="center"
+          >
+            <template slot-scope="scope">
+              <span>
+                {{
+                  studentProblemData[scope.row.user.id] &&
+                  studentProblemData[scope.row.user.id][problem.id]
+                    ?
+                    studentProblemData[scope.row.user.id][problem.id].copied +
+                    ',' +
+                    studentProblemData[scope.row.user.id][problem.id].focusing
+                    : '-'
+                }}
+              </span>
+            </template>
+          </el-table-column>
+        </el-table>
         <div class="panel-options">
           <el-pagination
             class="page"
@@ -156,6 +223,8 @@ export default {
       user: {},
       loadingTable: false,
       currentPage: 0,
+      problemList: [], // 문제 ID 또는 이름 목록
+      studentProblemData: {}, // { userID: { problemID: { score, copied, focusing } } }
       Ta: null,
       accsessR: false
     }
@@ -250,40 +319,54 @@ export default {
       this.loadingTable = true
       api.getLectureUserList((page - 1) * this.pageSize, this.pageSize, this.keyword, this.lectureID, this.contestID).then(res => {
         this.loadingTable = false
-        this.total = res.data.data.total  // 인스턴스 개수
-        this.userList = res.data.data.results
+
+        // 문제 목록
+        this.problemList = res.data.data.problem_list.map(problem => {
+          return {
+            id: problem.id.toString(),
+            title: problem.title
+          }
+        })
+
+        this.total = res.data.data.student_list.total
+        this.userList = res.data.data.student_list.results
+
+        // 학생별 문제별 점수 초기화
+        this.studentProblemData = {}
+
+        this.userList.forEach(user => {
+          const uid = user.user.id
+          const cheatLog = user.cheat_log || {}
+          this.studentProblemData[uid] = {}
+
+          this.problemList.forEach(problem => {
+            const pid = problem.id
+            const log = cheatLog[pid]
+            this.studentProblemData[uid][pid] = {
+              copied: log && log.copied ? log.copied : 0,
+              focusing: log && log.focusing ? log.focusing : 0
+            }
+          })
+        })
+
         if (this.userList.length === 0) {
           console.log('null')
         } else {
-          // let k = 0
           this.userList.forEach(user => {
             this.userID = user.user.id
             if (user.score !== null) {
               if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
                 console.log('empty object')
               } else {
-                var userinfo = {}
-                userinfo['realname'] = user.realname
-                userinfo['schoolssn'] = user.schoolssn
-                userinfo['startTime'] = user.start_time
-                userinfo['endTime'] = user.end_time
+                const userinfo = {
+                  realname: user.realname,
+                  schoolssn: user.schoolssn,
+                  startTime: user.start_time,
+                  endTime: user.end_time
+                }
                 console.log(userinfo)
-                // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
               }
             }
-            // api.checkContestExitManage(this.$route.params.contestID, this.userID).then(res => {
-            //   // this.contestStartTime = res.data.data.start_time
-            //   this.contestEndtime = res.data.data.end_time
-            //   this.exitStatus = false
-            //   if (this.contestEndtime) {
-            //     this.exitStatus = true
-            //   }
-            //   this.userList[k] = Object.assign({}, this.userList[k], {exit_status: this.exitStatus, userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
-            //   console.log(this.exitStatus)
-            //   k = k + 1
-            // })
-            // // this.userList[k].push({userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
-            // // this.userList[k] = Object.assign({}, this.userList[k], {userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
           })
         }
       }, res => {
@@ -308,6 +391,9 @@ export default {
     },
     isAdminRole () {
       return this.$store.getters.isAdminRole
+    },
+    isContestMode () {
+      return (this.$route.params.lectureContestType || '').trim() === '대회'
     },
     isSemiAdmin () {
       return this.$store.getters.isSemiAdmin

@@ -516,6 +516,17 @@ export default {
     return ajax('contest/user', 'get', {
       params: params
     })
+  },
+  logUserEvent (problemID, ruleType, contestID, focusing, copied) {
+    return ajax('/user/event_log', 'post', {
+      data: {
+        problem_id: problemID,
+        rule_type: ruleType,
+        contest_id: contestID,
+        focusing: focusing,
+        copied: copied
+      }
+    })
   }
 }
 
