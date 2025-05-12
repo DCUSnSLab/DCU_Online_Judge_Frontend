@@ -16,7 +16,7 @@ node {
 
     //dockerfile기반 빌드하는 stage ,git소스 root에 dockerfile이 있어야한다
     stage('Build image'){
-        app = docker.build("harbor.cu.ac.kr/dcucode/ssh-ws-server", "-f Dockerfile_ws .")
+        app = docker.build("harbor.cu.ac.kr/dcucode_dev/ssh-ws-server", "-f Dockerfile_ws .")
     }
 
     stage('Push image') {
@@ -27,8 +27,8 @@ node {
     }
 
     stage('Kubernetes deploy') {
-        sh "kubectl delete -f /services/dcucode/ssh-server/ssh-ws-server_only_con.yaml -n dcucode-test"
-        sh "kubectl apply -f /services/dcucode/ssh-server/ssh-ws-server_only_con.yaml -n dcucode-test"
+        sh "kubectl delete -f /services/dcucode/ssh-server/ssh-ws-server_dev_only_con.yaml -n dcucode-dev"
+        sh "kubectl apply -f /services/dcucode/ssh-server/ssh-ws-server_dev_only_con.yaml -n dcucode-dev"
     }
 
     stage('Complete') {

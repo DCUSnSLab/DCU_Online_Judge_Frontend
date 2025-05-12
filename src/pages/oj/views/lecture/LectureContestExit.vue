@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container" v-if="isAdminRole">
+  <div class="flex-container" v-if="accsessR && (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)">
     <div id="manage">
       <Panel v-if="isContestMode" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
@@ -224,7 +224,9 @@ export default {
       loadingTable: false,
       currentPage: 0,
       problemList: [], // 문제 ID 또는 이름 목록
-      studentProblemData: {} // { userID: { problemID: { score, copied, focusing } } }
+      studentProblemData: {}, // { userID: { problemID: { score, copied, focusing } } }
+      Ta: null,
+      accsessR: false
     }
   },
   mounted () {
@@ -232,11 +234,22 @@ export default {
     this.lectureID = this.$route.params.lectureID
     this.lectureTitle = this.$route.params.lectureTitle
     this.lectureFounder = this.$route.params.lectureFounder
-    if (this.isAdminRole) {
-      this.getUserList(1)
-    } else {
-      this.CheckContestExit()
-    }
+    console.log(this.isAdminRole)
+    console.log(this.isSemiAdmin)
+    api.getTAList(this.lectureID).then(res => {
+      console.log(res)
+      this.Ta = res.data.data
+      console.log(this.Ta)
+      const allow = (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta)
+      this.accsessR = allow
+      if (this.accsessR) {
+        console.log('관리자')
+        this.getUserList(1)
+      } else {
+        console.log('학생')
+        this.CheckContestExit()
+      }
+    })
   },
   methods: {
     /* 학생 전용 (일반, TA/RA) */
@@ -381,6 +394,15 @@ export default {
     },
     isContestMode () {
       return (this.$route.params.lectureContestType || '').trim() === '대회'
+    },
+    isSemiAdmin () {
+      return this.$store.getters.isSemiAdmin
+    },
+    accsess () {
+      if (this.Ta === null) {
+        return false
+      }
+      return (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)
     }
   },
   watch: {

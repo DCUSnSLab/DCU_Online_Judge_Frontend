@@ -6,6 +6,22 @@
         <div slot="extra">
           <ul class="filter">
             <li>
+              <Dropdown @on-click="handleProblemChange">
+                <span>{{ currentProblemDisplay }}
+                  <Icon type="arrow-down-b"></Icon>
+                </span>
+                <Dropdown-menu slot="list">
+                  <Dropdown-item name="">{{ $t('m.All') }}</Dropdown-item>
+                  <Dropdown-item
+                    v-for="(problem, index) in problems"
+                    :key="problem.id"
+                    :name="problem.id">
+                    {{ $t('m.Problem') }} {{ index + 1 }}
+                  </Dropdown-item>
+                </Dropdown-menu>
+              </Dropdown>
+            </li>
+            <li>
               <Dropdown @on-click="handleResultChange">
                 <span>{{status}}
                   <Icon type="arrow-down-b"></Icon>
@@ -35,7 +51,7 @@
           </ul>
         </div>
         <Table stripe :disabled-hover="true" :columns="columns" :data="submissions" :loading="loadingTable"></Table>
-        <Pagination :total="total" :page-size="limit" @on-change="changeRoute" :current.sync="page"></Pagination>
+        <Pagination :total="total" :page-size="limit" @on-change="changePage" :current.sync="page"></Pagination>
       </Panel>
     </div>
   </div>
@@ -192,11 +208,14 @@
         problemID: '',
         routeName: '',
         JUDGE_STATUS: '',
-        rejudge_column: true
+        rejudge_column: true,
+        problems: [ {id: 1}, {id: 2} ],
+        selectedProblem: ''
       }
     },
     mounted () {
       this.init()
+      this.fetchProblemList() // 수정하였음.
       this.JUDGE_STATUS = Object.assign({}, JUDGE_STATUS)
       // 去除submitting的状态 和 两个
       delete this.JUDGE_STATUS['9']
@@ -206,7 +225,7 @@
       init () {
         this.contestID = this.$route.params.contestID
         let query = this.$route.query
-        this.problemID = query.problemID
+        this.selectedProblem = query.problemID || null // 2차
         this.formFilter.myself = query.myself === '0'
         this.formFilter.result = query.result || ''
         this.formFilter.username = query.username || ''
@@ -218,17 +237,20 @@
         this.getSubmissions()
       },
       buildQuery () {
-        return {
+        const query = {
           myself: this.formFilter.myself === true ? '0' : '1',
           result: this.formFilter.result,
           username: this.formFilter.username,
           page: this.page
         }
+        if (this.selectedProblem && this.selectedProblem !== '') {
+          query.problem_id = this.selectedProblem
+        }
+        return query
       },
       getSubmissions () {
         let params = this.buildQuery()
         params.contest_id = this.contestID
-        params.problem_id = this.problemID
         let offset = (this.page - 1) * this.limit
         let func = this.contestID ? 'getContestSubmissionList' : 'getSubmissionList'
         this.loadingTable = true
@@ -245,15 +267,24 @@
           this.loadingTable = false
         })
       },
+      changePage (newPage) {
+        this.page = newPage
+        this.getSubmissions()
+      },
       // 改变route， 通过监听route变化请求数据，这样可以产生route history， 用户返回时就会保存之前的状态
       changeRoute () {
         let query = utils.filterEmptyValue(this.buildQuery())
         query.contestID = this.contestID
-        query.problemID = this.problemID
+        query.problemID = this.selectedProblemID
+
+        if (JSON.stringify(this.$route.query) === JSON.stringify(query)) {
+          return
+        }
+
         let routeName = query.contestID ? 'contest-submission-list' : 'submission-list'
         this.$router.push({
           name: routeName,
-          query: utils.filterEmptyValue(query)
+          query: utils.filterEmptyValue(query)  // 2차 수정중 복원하였음
         })
       },
       goRoute (route) {
@@ -286,23 +317,69 @@
           this.rejudge_column = true
         }
       },
-      handleResultChange (status) {
+      handleResultChange (status) { // 2차 수정하였음.
         this.page = 1
         this.formFilter.result = status
-        this.changeRoute()
+        const query = Object.assign({}, this.$route.query)
+        if (status === '') {
+          delete query.result // 상태가 'All'이면 result 제거
+        } else {
+          query.result = status // 상태 값 설정
+        }
+        query.page = this.page // 페이지네이션 정보 갱신
+
+        // problemID 유지
+        if (this.selectedProblem && this.selectedProblem !== '') {
+          query.problemID = this.selectedProblem
+        } else {
+          delete query.problemID // 선택된 문제가 없으면 제거
+        }
+
+        this.$nextTick(() => {
+          this.$router.push({ query })
+          this.getSubmissions() // 데이터 갱신
+        })
       },
       handleQueryChange () {
         this.page = 1
-        this.changeRoute()
+        this.getSubmissions()
       },
       handleRejudge (id, index) {
         this.submissions[index].loading = true
         api.submissionRejudge(id).then(res => {
           this.submissions[index].loading = false
           this.$success('Succeeded')
-          this.getSubmissions()
+          this.changeRoute()
         }, () => {
           this.submissions[index].loading = false
+        })
+      },
+      handleProblemChange (problemID) {
+        this.selectedProblem = problemID === '' ? null : problemID
+        this.page = 1
+        // 아래 부터 2차수정
+        const query = Object.assign({}, this.$route.query)
+        if (problemID === '') {
+          delete query.problemID
+        } else {
+          query.problemID = problemID
+        }
+        query.page = this.page
+
+        this.$nextTick(() => {
+          this.$router.push({ query })
+          // 위 부터 2차수정
+          this.getSubmissions()
+        })
+      },
+      fetchProblemList () {
+        api.getContestProblemList(this.contestID).then(res => {
+          this.problems = (res.data.data || []).map(problem => ({
+            id: problem._id,
+            title: problem.title
+          }))
+        }).catch(() => {
+          this.problems = []
         })
       }
     },
@@ -324,6 +401,14 @@
         // return !this.contestID && this.user.admin_type === USER_TYPE.SUPER_ADMIN // 특정 대회에 소속된 문제이면서, 사용자가 관리자인 경우에면 Rejudge 옵션 추가
         console.log('rejudgeColumnVisible')
         return this.user.admin_type === USER_TYPE.SUPER_ADMIN
+      },
+      currentProblemDisplay () {
+        if (!this.selectedProblem) {
+          return this.$t('m.Select_Problem')
+        }
+        const index = this.problems.findIndex(p => p.id === this.selectedProblem)
+        if (index === -1) return this.$t('m.Select_Problem')
+        return this.$t('m.Problem') + ' ' + (index + 1)
       }
     },
     watch: {

@@ -5,7 +5,7 @@
           @on-change="onChange"
           @on-page-size-change="onPageSizeChange"
           :show-sizer="showSizer"
-          :page-size-opts="[10, 30, 50, 100, 200]"
+          :page-size-opts="[10, 30, 50, 100, 200]" 
           :current="current"></Page>
   </div>
 </template>
@@ -44,7 +44,6 @@
         this.$emit('update:pageSize', pageSize)
         this.$emit('on-page-size-change', pageSize)
       }
-
     }
   }
 </script>
