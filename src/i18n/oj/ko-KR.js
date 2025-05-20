@@ -127,7 +127,7 @@ export const m = {
   Overview: '개요',
   Admin_Helper: '관리자 도우미',
   Contest_Announcements: '실습 및 과제 공지사항',
-  Exit: '관리',   // working by soojung
+  Exit: '종료',   // working by soojung
   Total_Score: '최종 점수',
   // ContestProblemList
   Problems_List: '문제 목록',
@@ -261,11 +261,7 @@ export const m = {
   Search_Author: '코드 작성자 검색',
   Succeeded: '성공',
   No_empty_Password: '비밀번호는 비워둘 수 없습니다.',
-<<<<<<< HEAD
-  Select_Problem: '문제 선택', // 2차 수정
-=======
   Select_Problem: '문제 선택',
->>>>>>> 7bad6fef8120ffcf4bc37bcf66a8f0009a0119eb
   // Save.vue
   Save: '저장',
   DCUCode_qna: 'DCU Code 질문/답변',
