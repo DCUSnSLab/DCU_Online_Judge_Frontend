@@ -165,19 +165,13 @@
               return h('span', data.row.created_by.username)
             }
           }
-        ],
-        typeIs: false
+        ]
       }
     },
     mounted () {
       this.contestID = this.$route.params.contestID
       this.lectureID = this.$route.params.lectureID
       this.route_name = this.$route.name
-      api.checkContestExit(this.contestID).then(res => {
-        if (res.data.data.data === 'notStudent') {
-          this.typeIs = true
-        }
-      })
       this.$store.dispatch('getContest').then(res => {
         this.changeDomTitle({title: res.data.data.title})
         let data = res.data.data
@@ -275,21 +269,8 @@
         }
       },
       showAdminHelper () {
-        return this.typeIs && this.contestRuleType === 'ACM'
+        return this.isContestAdmin && this.contestRuleType === 'ACM'
       }
-
-      // if (this.contestRuleType === 'ACM') {
-      //     api.checkContestExit(this.contestID).then(res => {
-      //       if (res.data.data.data === 'notStudent') {
-      //         console.log('관리자')
-      //         return true
-      //       } else {
-      //         console.log('일반')
-      //         return false
-      //       }
-      //     })
-      //   }
-      //   console.log(this.isContestAdmin && this.contestRuleType === 'ACM')
     },
     watch: {
       '$route' (newVal) {

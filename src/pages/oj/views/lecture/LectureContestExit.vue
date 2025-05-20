@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container" v-if="accsessR && (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)">
+  <div class="flex-container" v-if="isAdminRole">
     <div id="manage">
       <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
@@ -155,9 +155,7 @@ export default {
       showUserDialog: false,
       user: {},
       loadingTable: false,
-      currentPage: 0,
-      Ta: null,
-      accsessR: false
+      currentPage: 0
     }
   },
   mounted () {
@@ -165,22 +163,11 @@ export default {
     this.lectureID = this.$route.params.lectureID
     this.lectureTitle = this.$route.params.lectureTitle
     this.lectureFounder = this.$route.params.lectureFounder
-    console.log(this.isAdminRole)
-    console.log(this.isSemiAdmin)
-    api.getTAList(this.lectureID).then(res => {
-      console.log(res)
-      this.Ta = res.data.data
-      console.log(this.Ta)
-      const allow = (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta)
-      this.accsessR = allow
-      if (this.accsessR) {
-        console.log('관리자')
-        this.getUserList(1)
-      } else {
-        console.log('학생')
-        this.CheckContestExit()
-      }
-    })
+    if (this.isAdminRole) {
+      this.getUserList(1)
+    } else {
+      this.CheckContestExit()
+    }
   },
   methods: {
     /* 학생 전용 (일반, TA/RA) */
@@ -308,15 +295,6 @@ export default {
     },
     isAdminRole () {
       return this.$store.getters.isAdminRole
-    },
-    isSemiAdmin () {
-      return this.$store.getters.isSemiAdmin
-    },
-    accsess () {
-      if (this.Ta === null) {
-        return false
-      }
-      return (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)
     }
   },
   watch: {
