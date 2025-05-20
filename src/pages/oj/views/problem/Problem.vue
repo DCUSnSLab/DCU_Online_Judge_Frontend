@@ -628,6 +628,13 @@
   // 只显示这些状态的图形占用
   const filtedStatus = ['-1', '-2', '0', '1', '2', '3', '4', '8']
 
+  function getCookie (name) {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop().split(';').shift()
+    return null
+  }
+
   export default {
     name: 'Problem',
     components: {
@@ -696,7 +703,8 @@
         running: false,
         contestType: '',
         isBlurred: false,
-        antiData: { copy: 0, focusScreen: 0 }
+        antiData: { copy: 0, focusScreen: 0 },
+        initialAntiData: { copy: 0, focusScreen: 0 }
       }
     },
 
@@ -724,6 +732,7 @@
       window.addEventListener('focus', this.handleScreenFocus)
       document.addEventListener('contextmenu', this.handleRightClick)
       window.addEventListener('keyup', this.handleKeyUp)
+      window.addEventListener('beforeunload', this.handleBeforeUnload)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
@@ -734,8 +743,46 @@
       window.removeEventListener('focus', this.handleScreenFocus)
       document.removeEventListener('contextmenu', this.handleRightClick)
       window.removeEventListener('keyup', this.handleKeyUp)
+      window.removeEventListener('beforeunload', this.handleBeforeUnload)
     },
     methods: {
+      logUserEvent (problemID, ruleType, contestID, focusing, copied) {
+        return api.logUserEvent(problemID, ruleType, contestID, focusing, copied)
+      },
+      handleBeforeUnload (event) {
+        console.log('Before unload event triggered')
+
+        const copiedDiff = this.antiData.copy - this.initialAntiData.copy
+        const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
+
+        if (copiedDiff > 0 || focusDiff > 0) {
+          const logData = {
+            problem_id: this.problem.id,
+            rule_type: this.rule_type,
+            contest_id: this.contestID,
+            focusing: focusDiff,
+            copied: copiedDiff
+          }
+
+          console.log('Sending log data with fetch:', logData)
+
+          const csrfToken = getCookie('csrftoken')  // ✅ 쿠키에서 CSRF 토큰 가져오기
+
+          fetch('/api/user/event_log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken               // ✅ CSRF 헤더 추가
+            },
+            body: JSON.stringify(logData),
+            keepalive: true,
+            credentials: 'include'                   // ✅ 쿠키 동봉 필수
+          })
+        }
+
+        event.preventDefault()
+        event.returnValue = ''
+      },
       handleResize () {
         this.dynamicHeight = window.innerHeight
       },
@@ -820,6 +867,11 @@
           problem.languages = problem.languages.sort()
           this.problem = problem
           this.changePie(problem)
+          this.antiData.copy = problem.copied || 0
+          this.antiData.focusScreen = problem.focusing || 0
+          this.initialAntiData.copy = this.antiData.copy
+          this.initialAntiData.focusScreen = this.antiData.focusScreen
+          this.rule_type = problem.rule_type
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
           if (this.code !== '') {
@@ -978,11 +1030,15 @@
         this.submissionId = ''
         this.result = {result: 9}
         this.submitting = true
+
         let data = {
           problem_id: this.problem.id,
           language: this.language,
           code: this.code,
-          contest_id: this.contestID
+          contest_id: this.contestID,
+          copied: this.antiData.copy,               // 안티 데이터 추가
+          focusing: this.antiData.focusScreen,      // 안티 데이터 추가
+          rule_type: this.problem.rule_type
         }
         if (this.captchaRequired) {
           data.captcha = this.captchaCode
@@ -1243,6 +1299,20 @@
         language: this.language,
         theme: this.theme
       })
+
+      const copiedDiff = this.antiData.copy - this.initialAntiData.copy
+      const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
+
+      if (copiedDiff > 0 || focusDiff > 0) {
+        this.logUserEvent(
+          this.problem.id,
+          this.rule_type,
+          this.contestID,
+          focusDiff,
+          copiedDiff
+        )
+      }
+
       next()
     },
     watch: {
