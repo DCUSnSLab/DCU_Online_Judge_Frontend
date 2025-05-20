@@ -261,6 +261,7 @@ export const m = {
   Search_Author: '코드 작성자 검색',
   Succeeded: '성공',
   No_empty_Password: '비밀번호는 비워둘 수 없습니다.',
+  Select_Problem: '문제 선택', // 2차 수정
   // Save.vue
   Save: '저장',
   DCUCode_qna: 'DCU Code 질문/답변',
