@@ -23,7 +23,6 @@
         @click="handleLogin"
         class="btn" long
         :loading="btnLoginLoading"
-        style="margin-left: 30px;"
         name="/login">
         {{$t('m.UserLogin')}}
       </Button>
@@ -141,7 +140,7 @@
     margin-bottom: -15px;
     text-align: left;
     .btn {
-      margin: 0 0 15px 50;
+      margin: 0 0 15px 0;
       &:last-child {
         margin: 0;
       }
