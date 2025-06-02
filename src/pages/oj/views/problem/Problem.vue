@@ -1283,7 +1283,7 @@
       },
       submissionRoute () {
         if (this.contestID) {
-          return {name: 'contest-submission-list', query: {problemID: this.problem.id}}
+          return {name: 'contest-submission-list', query: {problemID: this.problemID_}}
         } else {
           return {name: 'submission-list', query: {problemID: this.problem.id}}
         }
