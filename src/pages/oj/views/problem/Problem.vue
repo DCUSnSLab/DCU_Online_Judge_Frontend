@@ -19,7 +19,7 @@
                 <div class="sample-input">
                   <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
                     <a class="copy" @click="handleSampleCopy(sample.input)">
-                      <Icon type="clipboard"></Icon>
+<!--                      <Icon type="clipboard"></Icon>-->
                     </a>
                   </p>
                   <pre>{{ sample.input }}</pre>
@@ -107,8 +107,8 @@
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-                <span v-if="running">실행</span>
-                <span v-else>실행</span>
+                <span v-if="running">{{$t('m.Running')}}</span>
+                <span v-else>{{$t('m.Execution')}}</span>
               </Button>
             </el-tooltip>
             <el-tooltip v-if="aiaskbutton" >
@@ -145,9 +145,9 @@
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
             <div class="result-tap">
-              <p class="title">{{$t('실행 결과')}}</p>
+              <p class="title">{{$t('m.Execution_Result')}}</p>
               <div class="input-output-container">
-                <p class="sub-title">{{$t('타입')}}</p>
+                <p class="sub-title">{{$t('m.Type')}}</p>
                 <el-switch
                   v-model="showResultType"
                   inline-prompt
@@ -166,19 +166,19 @@
                 >
                   <div class="input-output-container">
                     <div class="input-container">
-                      <p class="sub-title">{{$t('입력')}}</p>
+                      <p class="sub-title">{{$t('m.Input')}}</p>
                       <div class="text-box">
                         <pre>{{sample.input}}</pre>
                       </div>
                     </div>
                     <div class="output-container">
-                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.Your_Output')}}</p>
                       <div class="text-box">
                         <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                       </div>
                     </div>
                     <div class="sample-output-container">
-                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                       <div class="text-box">
                         <pre>{{sample.output}}</pre>
                       </div>
@@ -194,10 +194,10 @@
                     <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
                     <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
                     <p class="title">
-                        {{$t('테스트')}} {{index + 1}}
+                        {{$t('m.Test')}} {{index + 1}}
                     </p>
                     <div class="result-container">
-                        <p class="sub-title">{{$t('결과 >')}}</p>
+                        <p class="sub-title">{{$t('m.Result')}} ></p>
                         <div class="text-box"
                         :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
                           <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
@@ -206,19 +206,19 @@
                   </div>
                   <div v-if="isTestcaseSelected(index)" class="input-output-container">
                     <div class="input-container">
-                      <p class="sub-title">{{$t('입력')}}</p>
+                      <p class="sub-title">{{$t('m.Input')}}</p>
                       <div class="text-box">
                         <pre>{{sample.input}}</pre>
                       </div>
                     </div>
                     <div class="output-container">
-                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.Your_Output')}}</p>
                       <div class="text-box">
                         <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                       </div>
                     </div>
                     <div class="sample-output-container">
-                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                       <div class="text-box">
                         <pre>{{sample.output}}</pre>
                       </div>
@@ -250,7 +250,7 @@
                 <div class="sample-input">
                   <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
                     <a class="copy" @click="handleSampleCopy(sample.input)">
-                      <Icon type="clipboard"></Icon>
+<!--                      <Icon type="clipboard"></Icon>-->
                     </a>
                   </p>
                   <pre>{{ sample.input }}</pre>
@@ -333,8 +333,8 @@
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-                <span v-if="running">실행중</span>
-                <span v-else>실행</span>
+                <span v-if="running">{{$t('m.Running')}}</span>
+                <span v-else>{{$t('m.Execution')}}</span>
               </Button>
             </el-tooltip>
             <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
@@ -372,9 +372,9 @@
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
           <div class="result-tap">
-            <p class="title">{{$t('실행 결과')}}</p>
+            <p class="title">{{$t('m.Execution_Result')}}</p>
             <div class="input-output-container">
-              <p class="sub-title">{{$t('타입')}}</p>
+              <p class="sub-title">{{$t('m.Type')}}</p>
               <el-switch
                 v-model="showResultType"
                 inline-prompt
@@ -393,19 +393,19 @@
               >
                 <div class="input-output-container">
                   <div class="input-container">
-                    <p class="sub-title">{{$t('입력')}}</p>
+                    <p class="sub-title">{{$t('m.Input')}}</p>
                     <div class="text-box">
                       <pre>{{sample.input}}</pre>
                     </div>
                   </div>
                   <div class="output-container">
-                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.Your_Output')}}</p>
                     <div class="text-box">
                       <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                     </div>
                   </div>
                   <div class="sample-output-container">
-                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                     <div class="text-box">
                       <pre>{{sample.output}}</pre>
                     </div>
@@ -421,10 +421,10 @@
                   <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
                   <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
                   <p class="title">
-                      {{$t('테스트')}} {{index + 1}}
+                      {{$t('m.Test')}} {{index + 1}}
                   </p>
                   <div class="result-container">
-                      <p class="sub-title">{{$t('결과 >')}}</p>
+                      <p class="sub-title">{{$t('m.Result')}} ></p>
                       <div class="text-box"
                       :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
                         <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
@@ -433,19 +433,19 @@
                 </div>
                 <div v-if="isTestcaseSelected(index)" class="input-output-container">
                   <div class="input-container">
-                    <p class="sub-title">{{$t('입력')}}</p>
+                    <p class="sub-title">{{$t('m.Input')}}</p>
                     <div class="text-box">
                       <pre>{{sample.input}}</pre>
                     </div>
                   </div>
                   <div class="output-container">
-                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.Your_Output')}}</p>
                     <div class="text-box">
                       <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                     </div>
                   </div>
                   <div class="sample-output-container">
-                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                     <div class="text-box">
                       <pre>{{sample.output}}</pre>
                     </div>
