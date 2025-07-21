@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container" v-if="accsessR && (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)">
+  <div class="flex-container" v-if="isAdminRole">
     <div id="manage">
       <Panel v-show="chkContesttype" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>

@@ -288,21 +288,8 @@
         }
       },
       showAdminHelper () {
-        return this.typeIs && this.contestRuleType === 'ACM'
+        return this.isContestAdmin && this.contestRuleType === 'ACM'
       }
-
-      // if (this.contestRuleType === 'ACM') {
-      //     api.checkContestExit(this.contestID).then(res => {
-      //       if (res.data.data.data === 'notStudent') {
-      //         console.log('관리자')
-      //         return true
-      //       } else {
-      //         console.log('일반')
-      //         return false
-      //       }
-      //     })
-      //   }
-      //   console.log(this.isContestAdmin && this.contestRuleType === 'ACM')
     },
     watch: {
       '$route' (newVal) {

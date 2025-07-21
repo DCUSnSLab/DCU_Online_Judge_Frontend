@@ -8,13 +8,6 @@ axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.xsrfCookieName = 'csrftoken'
 
 export default {
-  getTAList (lecture) {
-    return ajax('lecture/talist', 'get', {
-      params: {
-        lecture_id: lecture
-      }
-    })
-  },
   getlectureid (data) {
     return ajax('lecture', 'post', {
       data
