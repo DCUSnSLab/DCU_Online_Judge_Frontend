@@ -7,6 +7,7 @@ export const m = {
   Dashboard: 'Dashboard',
   General: 'General',
   User: 'User',
+  User_Search: 'User Search',
   Add: 'Add',
   Lecture_Search: 'Lecture Search',
   Announcement: 'Announcement',

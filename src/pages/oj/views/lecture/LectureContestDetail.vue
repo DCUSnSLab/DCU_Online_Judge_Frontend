@@ -29,11 +29,11 @@
               <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
                 <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
                 <el-button
-                  v-if="contestCheckInOutStatus==='notCheck'"
+                  v-if="ContestInOutStatus ==='notCheck'"
                   type="info"
                   size="small"
                   @click="checkInContest" 
-                  :disabled="contestCheckInOutStatus!=='notCheck' || contestMenuDisabled"
+                  :disabled="ContestInOutStatus !=='notCheck' || contestMenuDisabled"
                 >
                   <span>{{$t('시험 시작')}}</span>
                 </el-button>
@@ -50,20 +50,20 @@
           {{$t('m.Overview')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
+        <VerticalMenu-item :disabled="contestMenuDisabled || ContestInOutStatus  === 'checkOut' || ContestInOutStatus  === 'notCheck'"
                            :route="{name: 'lecture-contest-announcement-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="chatbubble-working"></Icon>
           {{$t('m.Announcements')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
+        <VerticalMenu-item :disabled="contestMenuDisabled || ContestInOutStatus  === 'checkOut' || ContestInOutStatus  === 'notCheck'"
                            :route="{name: 'lecture-contest-problem-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="ios-photos"></Icon>
           {{$t('m.Problems')}}
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
+                           :disabled="contestMenuDisabled || ContestInOutStatus  === 'checkOut' || ContestInOutStatus  === 'notCheck'"
                            :route="{name: 'lecture-contest-submission-list'}">
           <Icon type="navicon-round"></Icon>
           {{$t('m.Submissions')}}
@@ -75,7 +75,7 @@
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
+                           :disabled="contestMenuDisabled || ContestInOutStatus  === 'checkOut' || ContestInOutStatus  === 'notCheck'"
                            :route="{name: 'lecture-contest-rank', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="stats-bars"></Icon>
           {{$t('m.Rankings')}}
@@ -90,8 +90,8 @@
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
         <VerticalMenu-item
-          v-if="(OIContestRealTimePermission && contestType === '대회' && lectureID) || isContestAdmin"
-          :disabled="!isContestAdmin && (contestMenuDisabled || (contestCheckInOutStatus !== 'checkIn' && contestCheckInOutStatus !== 'notStudent'))"
+          v-if="(OIContestRealTimePermission && contestType === '대회' && lectureID) || (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta)"
+          :disabled="!((this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta)) && (contestMenuDisabled || (ContestInOutStatus  !== 'checkIn' && ContestInOutStatus  !== 'notStudent'))"
           :route="{
             name: 'lecture-contest-exit',
             params: {
@@ -136,8 +136,6 @@
         contestPassword: '',
         isvisible: false,
         dialogFormVisible: false,
-        contestcheckInOutStatusWord: '',
-        contestcheckInOutStatus: '',
         columns: [ // 수강과목 세부 페이지의 내부 항목 제목
           // {
           //   title: this.$i18n.t('Id'),
@@ -176,13 +174,18 @@
             }
           }
         ],
-        typeIs: false
+        typeIs: false,
+        contestcheckInOutStatusWord: '',
+        ContestInOutStatus: ''
       }
     },
     mounted () {
       this.contestID = this.$route.params.contestID
       this.lectureID = this.$route.params.lectureID
       this.route_name = this.$route.name
+      api.getTAList(this.lectureID).then(res => {
+        this.Ta = res.data.data
+      })
       api.checkContestExit(this.contestID).then(res => {
         if (res.data.data.data === 'notStudent') {
           this.typeIs = true
@@ -230,16 +233,16 @@
       contestCheckInOutStatus () {
         api.checkContestExit(this.contestID).then(res => {
           if (res.data.data.data === 'notStudent') {
-            this.contestCheckInOutStatus = 'notStudent'
+            this.ContestInOutStatus = 'notStudent'
             this.contestcheckInOutStatusWord = '관리자'
           } else if (res.data.data.end_time) {
-            this.contestCheckInOutStatus = 'checkOut'
+            this.ContestInOutStatus = 'checkOut'
             this.contestcheckInOutStatusWord = '퇴실완료'
           } else if (res.data.data.start_time) {
-            this.contestCheckInOutStatus = 'checkIn'
+            this.ContestInOutStatus = 'checkIn'
             this.contestcheckInOutStatusWord = '입실완료'
           } else {
-            this.contestCheckInOutStatus = 'notCheck'
+            this.ContestInOutStatus = 'notCheck'
             this.contestcheckInOutStatusWord = '입실 전'
           }
         })
@@ -325,13 +328,22 @@
   }
 
   .flex-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: hidden;
+
     #contest-main {
-      flex: 1 1;
+      flex: 1 1 auto;
+      min-width: 0;
       #contest-desc {
         flex: auto;
       }
     }
     #contest-menu {
+      flex-shrink: 0;
       flex: none;
       width: 210px;
       margin-left: 20px;
@@ -355,5 +367,4 @@
       margin-right: 10px;
     }
   }
-  
 </style>

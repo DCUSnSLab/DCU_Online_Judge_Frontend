@@ -6,6 +6,7 @@ export const m = {
   Lecture_Search: '과목 검색',
   See_All_Lecture: '전체 과목 보기',
   Search: '검색',
+  User_Search: '사용자 검색',
   Add: '추가하기',
   Maker: '생성자',
   Save: '저장',
