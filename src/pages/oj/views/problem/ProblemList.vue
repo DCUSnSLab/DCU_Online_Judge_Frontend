@@ -1,8 +1,8 @@
 <template>
   <Row type="flex" :gutter="18">
     <Col :span=19>
-    <Panel shadow>
-      <div slot="title">{{$t('m.Problem_List')}}</div>
+    <Panel shadow :style="currentTheme">
+      <div slot="title">{{$t('m.Problems_List')}}</div>
       <div slot="extra">
         <ul class="filter">
           <li>
@@ -46,7 +46,6 @@
              disabled-hover></Table>
     </Panel>
     <Pagination :total="total" :page-size="limit" @on-change="pushRouter" :current.sync="query.page"></Pagination>
-
     </Col>
 
     <Col :span="5">
@@ -261,7 +260,7 @@
       },
       pickone () {
         api.pickone().then(res => {
-          this.$success('Good Luck')
+          this.$success(this.$i18n.t('m.GoodLuck'))
           this.$router.push({name: 'problem-details', params: {problemID: res.data.data}})
         })
       }
@@ -291,11 +290,14 @@
   }
 
   .tag-btn {
+    color: var(--text-color); 
     margin-right: 5px;
     margin-bottom: 10px;
   }
 
   #pick-one {
+    color: var(--text-color); 
+    background-color: var(--button-background);
     margin-top: 10px;
   }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container">
+  <div class="flex-container" :style="currentTheme">
     <el-col :span="10" v-if="problemRes" id="view-mode">
       <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: dynamicHeight-150 + 'px' }"> <!--가로 모드 문제란-->
         <Panel :padding="40" shadow>
@@ -46,6 +46,12 @@
 
           </div>
         </Panel>
+        <Card dis-hover>
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <p>Problem copied({{ antiData.copy }}),</p>
+            <p>Screen focusing({{ antiData.focusScreen }})</p>
+          </div>
+        </Card>
       </el-col>
       <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
         <!--problem main end-->
@@ -53,7 +59,7 @@
       </iframe>-->  
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
-            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight" :ToggleValue="toggleValue"></CodeMirror>
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight*0.9" :ToggleValue="toggleValue"></CodeMirror>
           <Row type="flex" justify="space-between">
             <Col :span="10">
             <div class="status" v-if="statusVisible">
@@ -90,21 +96,139 @@
               </div>
             </template>
 
-            <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
+            <Button v-if="problemRes" type="success" icon="edit" :loading="submitting" @click="submitCode"
               :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <Button v-on:click="toggleSidebar" v-if="aihelperflag" :disabled=askbutton @click.native="askAI"
-              class="fl-right">
-              <span>{{ $t('m.callai') }}</span>
+            <el-tooltip
+              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다. (ctrl + enter)"
+              placement="top">
+              <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
+                    :disabled="problemSubmitDisabled || submitted"
+                    class="run-btn">
+                <span v-if="running">실행</span>
+                <span v-else>실행</span>
+              </Button>
+            </el-tooltip>
+            <el-tooltip v-if="aiaskbutton" >
+              <Button @click="toggleSidebar"
+                      v-if="aihelperflag"
+                      :disabled="aiaskbutton"
+                      class="fl-right">
+                <span>{{$t('m.callai')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
+                    :disabled="aiaskbutton"
+                    @click.native="askAI"
+                    class="fl-right">
+              <span>{{$t('m.callai')}}</span>
             </Button>
-            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
-              <span>{{ $t('m.calltara') }}</span>
+
+            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
+            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button v-b-toggle.sidebar-right
+                      :disabled="askbutton"
+                      class="fl-right">
+                <span>{{$t('m.calltara')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="!askbutton" v-b-toggle.sidebar-right
+                    :disabled="askbutton"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
             </Button>
             </Col>
           </Row>
+          <Card :padding="20" id="run-code" dis-hover>
+            <div class="result-tap">
+              <p class="title">{{$t('실행 결과')}}</p>
+              <div class="input-output-container">
+                <p class="sub-title">{{$t('타입')}}</p>
+                <el-switch
+                  v-model="showResultType"
+                  inline-prompt
+                  size="large"
+                  active-text="2"
+                  inactive-text="1"
+                />
+              </div>
+            </div>
+            <div v-if="showResultType">
+              <el-tabs type="border-card">
+                <el-tab-pane 
+                  v-for="(sample, index) of problem.samples"
+                  :key="index"
+                  :label="getRunResultLable(index)"
+                >
+                  <div class="input-output-container">
+                    <div class="input-container">
+                      <p class="sub-title">{{$t('입력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.input}}</pre>
+                      </div>
+                    </div>
+                    <div class="output-container">
+                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <div class="text-box">
+                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                      </div>
+                    </div>
+                    <div class="sample-output-container">
+                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.output}}</pre>
+                      </div>
+                    </div>
+                  </div>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+            <div v-else>
+              <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+                <div class="sample">
+                  <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
+                    <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
+                    <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
+                    <p class="title">
+                        {{$t('테스트')}} {{index + 1}}
+                    </p>
+                    <div class="result-container">
+                        <p class="sub-title">{{$t('결과 >')}}</p>
+                        <div class="text-box"
+                        :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                          <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                        </div>
+                    </div>
+                  </div>
+                  <div v-if="isTestcaseSelected(index)" class="input-output-container">
+                    <div class="input-container">
+                      <p class="sub-title">{{$t('입력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.input}}</pre>
+                      </div>
+                    </div>
+                    <div class="output-container">
+                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <div class="text-box">
+                        <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                      </div>
+                    </div>
+                    <div class="sample-output-container">
+                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <div class="text-box">
+                        <pre>{{sample.output}}</pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
         </Card>
       </el-col>
       <div v-else id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
@@ -154,6 +278,12 @@
 
           </div>
         </Panel>
+        <Card dis-hover>
+          <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <p>Problem copied({{ antiData.copy }}),</p>
+            <p>Screen focusing({{ antiData.focusScreen }})</p>
+          </div>
+        </Card>
         <br>
         <Card :padding="20" id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
@@ -193,29 +323,147 @@
                 <Input v-model="captchaCode" class="captcha-code" />
               </div>
             </template>
-
-            <Button v-if="problemRes" type="warning" icon="edit" :loading="submitting" @click="submitCode"
+            <Button v-if="problemRes" type="success" icon="edit" :loading="submitting" @click="submitCode"
               :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
               <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
               <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
             </Button>
             <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-
-            <Button v-b-toggle.sidebar-right :disabled="askbutton || contestExitStatus" class="fl-right">
-              <span>{{ $t('m.calltara') }}</span>
-
+            <el-tooltip
+              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다. (ctrl + enter)"
+              placement="top">
+              <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
+                    :disabled="problemSubmitDisabled || submitted"
+                    class="run-btn">
+                <span v-if="running">실행중</span>
+                <span v-else>실행</span>
+              </Button>
+            </el-tooltip>
+            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button @click="toggleSidebar"
+                      v-if="aihelperflag"
+                      :disabled="aiaskbutton"
+                      class="fl-right">
+                <span>{{$t('m.callai')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
+                    :disabled="aiaskbutton"
+                    @click.native="askAI"
+                    class="fl-right">
+              <span>{{$t('m.callai')}}</span>
             </Button>
 
+            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
+            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
+              <Button v-b-toggle.sidebar-right
+                      :disabled="askbutton"
+                      class="fl-right">
+                <span>{{$t('m.calltara')}}</span>
+              </Button>
+            </el-tooltip>
+            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
+            <Button v-if="!askbutton" v-b-toggle.sidebar-right
+                    :disabled="askbutton"
+                    class="fl-right">
+              <span>{{$t('m.calltara')}}</span>
+            </Button>
             </Col>
           </Row>
+        </Card>
+        <Card :padding="20" id="run-code" dis-hover>
+          <div class="result-tap">
+            <p class="title">{{$t('실행 결과')}}</p>
+            <div class="input-output-container">
+              <p class="sub-title">{{$t('타입')}}</p>
+              <el-switch
+                v-model="showResultType"
+                inline-prompt
+                size="large"
+                active-text="2"
+                inactive-text="1"
+              />
+            </div>
+          </div>
+          <div v-if="showResultType">
+            <el-tabs type="border-card">
+              <el-tab-pane 
+                v-for="(sample, index) of problem.samples"
+                :key="index"
+                :label="getRunResultLable(index)"
+              >
+                <div class="input-output-container">
+                  <div class="input-container">
+                    <p class="sub-title">{{$t('입력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.input}}</pre>
+                    </div>
+                  </div>
+                  <div class="output-container">
+                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <div class="text-box">
+                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
+                  </div>
+                  <div class="sample-output-container">
+                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.output}}</pre>
+                    </div>
+                  </div>
+                </div>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+          <div v-else>
+            <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
+              <div class="sample">
+                <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
+                  <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
+                  <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
+                  <p class="title">
+                      {{$t('테스트')}} {{index + 1}}
+                  </p>
+                  <div class="result-container">
+                      <p class="sub-title">{{$t('결과 >')}}</p>
+                      <div class="text-box"
+                      :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                        <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                      </div>
+                  </div>
+                </div>
+                <div v-if="isTestcaseSelected(index)" class="input-output-container">
+                  <div class="input-container">
+                    <p class="sub-title">{{$t('입력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.input}}</pre>
+                    </div>
+                  </div>
+                  <div class="output-container">
+                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <div class="text-box">
+                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
+                    </div>
+                  </div>
+                  <div class="sample-output-container">
+                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <div class="text-box">
+                      <pre>{{sample.output}}</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </Card>
       </div>
     </el-col>
     <div v-else></div>
 
     <el-col :span="2" id="right-column">
-      <Card id="page-mode">
-        <el-switch v-model="toggleValue" size="large" active-text="가로" inactive-text="세로" @change="toggleSwitch" />
+      <Card id="page-mode" :style="{ backgroundColor: 'var(--panelBackground)' }">
+        <el-switch v-model="toggleValue" size="large" active-text="가로" inactive-text="세로" @change="toggleSwitch"/>
 
       </Card>
       <br />
@@ -250,6 +498,11 @@
           <VerticalMenu-item :route="{ name: 'contest-details', params: { contestID: contestID } }">
             <Icon type="home"></Icon>
             {{ $t('m.View_Contest') }}
+          </VerticalMenu-item>
+          <VerticalMenu-item v-if="contestType === '대회' && this.lectureID"
+                             :route="{name: 'lecture-contest-exit'}">
+            <Icon type="android-exit"></Icon>
+            {{$t('m.Exit')}}
           </VerticalMenu-item>
         </template>
       </VerticalMenu>
@@ -302,20 +555,17 @@
           </li>
         </ul>
       </Card>
-
       <Card id="pieChart" :padding="0" v-if="!this.contestID || OIContestRealTimePermission">
         <div slot="title">
           <Icon type="ios-analytics"></Icon>
           <span class="card-title">{{ $t('m.Statistic') }}</span>
-          <Button type="ghost" size="small" id="detail" @click="graphVisible = !graphVisible">Details</Button>
+          <Button type="ghost" size="small" id="detail" @click="graphVisible = !graphVisible">{{ $t('m.Detail') }}</Button>
         </div>
         <div class="echarts">
           <ECharts :options="pie"></ECharts>
         </div>
       </Card>
     </el-col>
-
-
 
     <b-sidebar id="sidebar-right" title="Sidebar" width="500px" no-header right shadow>
       <div class="sidebar" id="wrapper">
@@ -324,13 +574,28 @@
         <hr />
         <div class="sidebar-content">
           <br />
-          <span>내용</span>
-          <el-input class="sidebar-content-margin" placeholder="제목을 입력해주세요." v-model="qnaContent.title"></el-input>
+          <span>{{ $t('m.Contents') }}</span>
+          <el-input class="sidebar-content-margin" :placeholder="$t('m.Please_enter_subject')" v-model="qnaContent.title"></el-input>
           <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
-          <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">저장하기</el-button>
+          <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">{{ $t('m.Save') }}</el-button>
         </div>
       </div>
     </b-sidebar>
+
+    <b-sidebar id="sidebar-airight" title="Sidebar" width="500px"no-header right shadow v-bind:visible="sidebarVisible">
+          <div class="sidebar" id="wrapper">
+            <el-button class="sidebar-margin" v-on:click="toggleSidebar" icon="el-icon-close" circle></el-button>
+            <h2 class="sidebar-header">{{$t('m.aianswer')}}</h2>
+            <hr/>
+            <div class="sidebar-content" top="50%" left="50%">
+              <br/>
+              <p style= "font-size:18px">{{AIrespone}}</p>
+            </div>
+            <br/>
+            <p style="font-weight: bold">commented by chatGPT </p>
+          </div>
+        </b-sidebar>
+
     <Modal v-model="graphVisible">
       <div id="pieChart-detail">
         <ECharts :options="largePie" :initOptions="largePieInitOpts"></ECharts>
@@ -343,7 +608,7 @@
 </template>
 
 <script>
-  import {mapGetters, mapActions} from 'vuex'
+  import {mapGetters, mapActions, mapState} from 'vuex'
   import {types} from '../../../../store'
   import CodeMirror from '@oj/components/CodeMirror.vue'
 
@@ -358,6 +623,7 @@
   import Vue from 'vue'
   import Simditor from '../../components/Simditor.vue'
   import axios from 'axios'
+  import { lightTheme, darkTheme } from '@/theme'
   
   Vue.use(SidebarPlugin)
 
@@ -373,7 +639,9 @@
     mixins: [FormMixin],
     data () {
       return {
-        toggleValue: false, // 가로 세로 모드 토글 버튼
+        selectedTestcase: [],
+        showResultType: false,
+        toggleValue: window.localStorage.getItem('viewMode') ? JSON.parse(window.localStorage.getItem('viewMode')) : false, // 가로 세로 모드 토글 버튼
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -385,8 +653,8 @@
         contestID: '',
         problemID: '',
         lectureID: '',
-        askbutton: false,
-        aiaskbutton: false,
+        askbutton: true,
+        aiaskbutton: true,
         aihelperflag: false,
         submitting: false,
         AIrespone: '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.',
@@ -424,7 +692,13 @@
         },
         contestEndtime: '',  // working by soojung
         contestExitStatus: false, // working by soojung
-        dynamicHeight: window.innerHeight
+        dynamicHeight: window.innerHeight,
+        outputdata: [],
+        runResultData: {},
+        running: false,
+        contestType: '',
+        isBlurred: false,
+        antiData: { copy: 0, focusScreen: 0 }
       }
     },
 
@@ -442,22 +716,57 @@
     },
     mounted () {
       this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
+      this.onChangeTheme(this.currentTheme)
       this.init()
       window.addEventListener('resize', this.handleResize)
+      window.addEventListener('keydown', this.handleKeyDown)
+      document.addEventListener('copy', this.handleCopy)
+      window.addEventListener('keydown', this.preventKeyCombinations)
+      window.addEventListener('blur', this.handleScreenBlur)
+      window.addEventListener('focus', this.handleScreenFocus)
+      document.addEventListener('contextmenu', this.handleRightClick)
+      window.addEventListener('keyup', this.handleKeyUp)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
+      window.removeEventListener('keydown', this.handleKeyDown)
+      document.removeEventListener('copy', this.handleCopy)
+      window.removeEventListener('keydown', this.preventKeyCombinations)
+      window.removeEventListener('blur', this.handleScreenBlur)
+      window.removeEventListener('focus', this.handleScreenFocus)
+      document.removeEventListener('contextmenu', this.handleRightClick)
+      window.removeEventListener('keyup', this.handleKeyUp)
     },
     methods: {
       handleResize () {
         this.dynamicHeight = window.innerHeight
       },
+      handleKeyDown (event) {
+        if (event.ctrlKey && event.key === 'Enter' && !this.problemSubmitDisabled && !this.submitted) {
+          this.runCode()
+        }
+      },
+      toggleDetails (index) {
+        const idx = this.selectedTestcase.indexOf(index)
+        if (idx > -1) {
+          this.selectedTestcase.splice(idx, 1)
+        } else {
+          this.selectedTestcase.push(index)
+        }
+      },
+      isTestcaseSelected (index) {
+        return this.selectedTestcase.includes(index)
+      },
+      showResultTypeSwithch (swithchValue) {
+        console.log(this.showResultType)
+      },
       toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
         this.toggleValue = newToggleValue
-        if (!newToggleValue) {
-          window.scrollTo(0, 0)
+        if (this.toggleValue) {
+          window.localStorage.setItem('viewMode', true)
+        } else {
+          window.localStorage.setItem('viewMode', false)
         }
-        console.log(newToggleValue)
       },
       ...mapActions(['changeDomTitle']),
       getLectureID () {
@@ -487,13 +796,19 @@
       },
       init () {
         this.$Loading.start()
-        this.CheckContestExit()
         this.contestID = this.$route.params.contestID // 실제 문제에 대한 정보를 얻기 위해서는 Contest의 id값과
         this.problemID_ = this.$route.params.problemID // Contest에 포함된 problem의 id값이 필요
         this.lectureID = this.$route.params.lectureID
         this.getLectureID()
         this.checkAllowedAIhelper()
+        this.checkContestExit()
         let func = this.$route.name === 'problem-details' ? 'getProblem' : 'getContestProblem'
+        if (func === 'getContestProblem') {
+          this.$store.dispatch('getContest').then(res => {
+            this.contestType = res.data.data.lecture_contest_type
+          }).catch(() => {
+          })
+        }
         api[func](this.problemID_, this.contestID).then(res => {
           this.$Loading.finish()
           let problem = res.data.data
@@ -526,31 +841,25 @@
           this.code = res.data.data.code
           this.submissionId = res.data.data.id
         }).catch(() => {
-          this.askbutton = true
-          this.aiaskbutton = true
         })
       },
-      CheckContestExit () {  // working by soojung
-        api.checkContestExit(this.$route.params.contestID).then(res => {
+      checkContestExit () {
+        api.checkContestExit(this.contestID).then(res => {
           this.contestEndtime = res.data.data.end_time
-          console.log('What is state')
-          console.log(this.contestEndtime)
           if (this.contestEndtime) {
             this.submitted = true
             this.contestExitStatus = true
           }
-          console.log(this.contestExitStatus)
           if (this.contestExitStatus) {
             this.$error('이미 퇴실하셨습니다.')
           }
-        }).catch(() => {
         })
       },
       // ContestTimeOverExit () {  // working by soojung (설정 시간 초과로 인한 시험 자동 종료의 경우)
       //   api.getContestTimeOverExit(this.$route.params.contestID).then(res => {
       //     console.log(this.contestID)
       //     console.log(this.lectureID)
-      //   }).catch(() => {
+      //   }).catch(() => {this.$error('이미 퇴실하셨습니다.')
       //   })
       // },
       QnAWrite () {
@@ -640,7 +949,7 @@
       checkSubmissionStatus () {
         // 使用setTimeout避免一些问题
         if (this.refreshStatus) {
-          // 如果之前的提交状态检查还没有停止,则停止,否则将会失去timeout的引用造成无限请求
+          // 如果之前的提交状态检查还没有停止, 则停止,否则将会失去timeout的引用造成无限请求
           clearTimeout(this.refreshStatus)
         }
         const checkStatus = () => {
@@ -731,18 +1040,158 @@
         this.askbutton = false
         this.aiaskbutton = false
       },
+      runCode () {
+        console.log('run 버튼 실행')
+        if (this.code.trim() === '') {
+          this.$error(this.$i18n.t('m.Code_can_not_be_empty'))
+          return
+        }
+        this.running = true
+        this.submitting = true
+        this.submissionId = ''
+        this.result = {result: 9}
+        this.runResultData = []
+        let data = {
+          problem_id: this.problem.id,
+          sample_test: true,
+          sample_count: this.problem.samples.length,
+          language: this.language,
+          code: this.code,
+          contest_id: this.contestID
+        }
+        api.submitCode(data).then(res => {
+          console.log(res)
+          this.outputdata = res.data.data.outputResultData.map(item => item.output)
+          let resultData = res.data.data.outputResultData.map(item => item.result)
+          for (let i = 0; i < resultData.length; i++) {
+            if (resultData[i] === -1) {
+              this.runResultData.push('오답')
+            } else if (resultData[i] === 0) {
+              this.runResultData.push('정답')
+            } else if (resultData[i] === 1) {
+              this.runResultData.push('오류(시간초과)')
+            } else {
+              this.runResultData.push('오류')
+            }
+          }
+        }).catch(() => {
+          this.$error('error')
+        }).finally(() => {
+          setTimeout(() => {
+            this.running = false
+            this.statusVisible = false
+            this.submitting = false
+          }, 3000)
+        })
+      },
+      getRunResultLable (index) {
+        if (this.runResultData[index]) {
+          return '테스트 ' + (index + 1) + ' > ' + this.runResultData[index]
+        } else {
+          return '테스트 ' + (index + 1) + ' > '
+        }
+      },
       onCopy (event) {
-        this.$success('Code copied')
+        this.$success(this.$i18n.t('m.Code_Copied'))
       },
       onCopyError (e) {
-        this.$error('Failed to copy code')
+        this.$error(this.$i18n.t('m.Failed_to_copy'))
       },
       toggleSidebar () {
         this.sidebarVisible = !this.sidebarVisible
         this.AIrespone = '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
+      },
+      isDarkMode () {
+        return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
+      },
+      // obfuscateText (text) { // 랜덤 문자 삽입입
+      //   let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
+      //   return text.split('').map(() => randomChars[Math.floor(Math.random() * randomChars.length)]).join('')
+      // },
+      handleCopy (event) {
+        if (event.target.closest('#submit-code')) {
+          return // 코드 입력 구간에서는 복사 방지 예외 처리
+        }
+        event.preventDefault() // 기본 복사 동작 방지
+        const problems = [
+          `설명\n\n2 ~ 9 사이의 값을 정수값을 입력받아 입력받은 수에 대한 구구단을 출력하는 프로그램을 작성하시오.\n정수에 대한 변수를 선언하고 변수(dan)에 입력값을 대입한다.\n입력값에 대한 변수를 '출력예시'와 같이 출력하시오.\n\n입력\n\n2 ~ 9 사이의 정수형 값을 입력받는다.\n입력 시 입력 문구는 작성하지 않는다.\n\n출력\n\n입력한 수에 해당하는 구구단을 출력한다.\n입력받은 값이 2 ~ 9 사이의 값이 아닌 경우 -1을 출력한다.\n즉, 입력한 값(dan)이 2보다 작거나 또는 9보다 큰 경우에는 -1을 출력한다.\n\n예시 입력 1 \n\n1\n예시 출력 1\n\n-1\n예시 입력 2 \n\n2\n예시 출력 2\n\n2 x 1 = 2\n2 x 2 = 4\n2 x 3 = 6\n2 x 4 = 8\n2 x 5 = 10\n2 x 6 = 12\n2 x 7 = 14\n2 x 8 = 16\n2 x 9 = 18`,
+          `설명\n\n이름, 나이, 키를 입력받은 후 아래와 같이 정리하여 출력해주는 프로그램을 작성하시오. 키는 소수점까지 입력받을 수 있도록 하고, 출력할 때 키는 소수점 둘째 자리까지 표시하도록 한다.\n입력 예시\n\nhong gil dong\n22\n139.4\n출력 예시\n\nname:hong gil dong\nage:22years old\nheight:139.40cm\n\n입력\n\n임의의 이름, 나이, 키를 입력받는다.\n\n출력\n\n위 설명에 맞게 코드를 작성하고 출력한다.\n출력은 print()를 이용하여 출력한다.\n\n예시 입력 1 \n\nHong gil dong\n22\n139.4\n예시 출력 1\n\nname:Hong gil dong\nage:22years old\nheight:139.40cm\n예시 입력 2 \n\nLee jae huek\n25\n188.333\n예시 출력 2\n\nname:Lee jae huek\nage:25years old\nheight:188.33cm`,
+          `설명\n\n점수를 키보드로부터 입력받아 80점 이상이면 A등급, 60점 이상이고 80점 미만이면 B등급, 60점 미만이면 C등급으로 출력하는 프로그램을 아래 설명과 입/출력 예시 참고 후 작성하시오.\n점수(score)에 대한 변수를 선언하고 변수에 입력값을 대입한다.\n변수에 저장된 입력값의 조건에 따라, '출력예시'와 같이 출력하시오.\n\n입력\n\n점수값 1개를 입력 받는다.\n입력 시 입력 문구는 작성하지 않는다.\n\n출력\n\n입력받은 점수에 따라 다음의 출력문을 출력한다.\n점수가 0 이하 또는 100을 초과하는 경우에는 -1을 출력한다.\n점수가 80점 이상인 경우 문자 'A'를 출력한다.\n점수가 60점 이상이고, 80점 미만인 경우 문자 'B'를 출력한다.\n점수가 60점 미만인 경우 문자 'C'를 출력한다.\n\n예시 입력 1 \n\n-13\n예시 출력 1\n\n-1\n예시 입력 2 \n\n100\n예시 출력 2\n\nA\n예시 입력 3 \n\n10\n예시 출력 3\n\nC\n예시 입력 4 \n\n-2\n예시 출력 4\n\n-1`
+        ]
+        const randomIndex = Math.floor(Math.random() * problems.length)
+        const replacementText = problems[randomIndex]
+        event.clipboardData.setData('text/plain', replacementText)
+        this.$message.error({
+          message: '⚠️페이지 내용을 복사하는 행위는 부정 행위로 의심될 수 있습니다. 로그 저장 완료',
+          duration: 5000
+        })
+        this.antiData.copy += 1
+      },
+      // preventKeyCombinations (event) {
+      //   if ((event.ctrlKey && event.key === 'p') ||
+      //       (event.metaKey && event.key === 'p') ||
+      //       (event.key === 'PrintScreen') ||
+      //       (event.shiftKey && event.key === 's') ||
+      //       (event.metaKey && event.shiftKey && event.key === 's') ||
+      //       (event.metaKey && event.shiftKey) ||
+      //       (event.altKey)) {
+      //     // event.preventDefault()
+      //     this.triggerBlurEffect()
+      //     this.isBlurred = true
+      //     // this.$message.warning('스크린샷 및 단축키가 차단되었습니다!')
+      //   }
+      // },
+      // handleKeyUp (event) {
+      //   // 특정 키 조합을 눌렀다가 떼면 블러 해제
+      //   if (
+      //     (event.key === 'PrintScreen') ||
+      //     (event.altKey) ||
+      //     (event.metaKey && event.shiftKey) ||
+      //     (event.metaKey && event.shiftKey && event.key === 's')
+      //   ) {
+      //     this.clearBlurEffect()
+      //     this.isBlurred = false
+      //   }
+      // },
+      // handleScreenBlur () {
+      //   this.triggerBlurEffect()
+      //   this.isBlurred = true
+      //   this.$message.error('⚠️ 창이 비활성화됨: 캡처 도구 실행 가능성 감지!')
+      // },
+      handleScreenFocus () {
+        if (this.isBlurred) {
+          // this.isBlurred = false
+          // this.clearBlurEffect()
+          // navigator.clipboard.writeText('스크린샷 차단').catch(() => console.warn('클립보드 초기화 실패'))
+        }
+        this.$message.error({
+          message: '화면 전환 감지되었습니다. 로그 데이터 저장 완료',
+          duration: 3000
+        })
+        setTimeout(() => {
+          this.$message.error({
+            message: '🚨화면을 캡처하면 캡처한 내용도 기록됩니다.',
+            duration: 3000
+          })
+        }, 500)
+        this.antiData.focusScreen += 1
+      },
+      triggerBlurEffect () {
+        document.body.style.filter = 'blur(10px)'
+      },
+      clearBlurEffect () {
+        document.body.style.filter = 'none'
+      },
+      handleRightClick (event) {
+        event.preventDefault()
+        // this.$message.warning('우클릭이 차단되었습니다.')
       }
     },
     computed: {
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? 'monokai' : 'solarized'
+      },
       ...mapGetters(['problemSubmitDisabled', 'contestRuleType', 'OIContestRealTimePermission', 'contestStatus']),
       contest () {
         return this.$store.state.contest.contest
@@ -782,6 +1231,10 @@
     watch: {
       '$route' () {
         this.init()
+      },
+      isDarkMode (newVal) {
+      // 다크모드 변경 시 자동으로 테마를 바꾸도록 함
+        this.onChangeTheme(this.currentTheme)
       }
     }
   }
@@ -825,7 +1278,7 @@
       font-size: 20px;
       font-weight: 400;
       margin: 25px 0 8px 0;
-      color: #3091f2;
+      color: var(--problem-text-color);
       .copy {
         padding-left: 8px;
       }
@@ -849,17 +1302,31 @@
         align-self: stretch;
         border-style: solid;
         background: transparent;
+        border: 1px solid var(--problem-example-box-color);
       }
     }
   }
 
   #submit-code {
+    background-color: var(--panelBackground);
+    color: var(--text-color); 
     .status {
       float: left;
       span {
         margin-right: 10px;
         margin-left: 10px;
       }
+    }
+    .run-btn {
+      background-color: #5DB85B;
+      float: right;
+      color: white;
+      margin-left: 5px;
+      margin-right: 5px;
+    }
+    .run-btn:disabled {
+      background-color: #f7f7f7;
+      color: #bbbec4;
     }
     .captcha-container {
       display: inline-block;
@@ -872,12 +1339,14 @@
   }
 
   #info {
+    background-color: var(--panelBackground);
     margin-bottom: 20px;
     margin-top: 20px;
+    color: var(--verticalMenu-item-color);
     ul {
       list-style-type: none;
       li {
-        border-bottom: 1px dotted #e9eaec;
+        border-bottom: 1px dotted var(--list-border-bottom);
         margin-bottom: 10px;
         p {
           display: inline-block;
@@ -897,11 +1366,14 @@
   }
 
   #pieChart {
+    background-color: var(--panelBackground);
+    color: var(--verticalMenu-item-color);
     .echarts {
       height: 250px;
       width: 210px;
     }
     #detail {
+      color: var(--verticalMenu-item-color);
       position: absolute;
       right: 10px;
       top: 10px;
@@ -913,6 +1385,7 @@
     width: 500px;
     height: 480px;
   }
+  
 </style>
 
 
@@ -975,5 +1448,80 @@
     float: right;
     margin-top: 5px;
     margin-right: 10px;
+  }
+  #run-code{
+    background-color: var(--panelBackground);
+    align-items: stretch;
+    .sample {
+      height: 50%;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      border: 1px solid #ccc;
+      margin: -1px;
+    }
+    .samples {
+      cursor: pointer;
+    }
+    .toggle-icon{
+      color: #3091f2;
+      margin-bottom: 1px;
+    }
+    .title {
+      font-weight: bold;
+      color: #3091f2;
+      margin-left: 8px;
+    }
+    .sub-title {
+      font-weight: bold;
+      color: #3091f2;
+      margin-left: 3px;
+    }
+    .result-tap {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .result-tap .sub-title {
+      margin-bottom: 3px;
+      margin-right: 5px;
+    }
+    .input-output-container {
+      display: flex;
+    }
+    .input-container,
+    .output-container,
+    .sample-output-container {
+      width: 50%;
+      height: 55%;
+      padding: 10px;
+    }
+    .result-container {
+      display: flex;
+      width: auto;
+      height: auto;
+      flex-wrap: wrap;
+    }
+    .output-container .text-box,
+    .input-container .text-box,
+    .sample-output-container .text-box {
+      height: 50%;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: auto;
+    }
+    .result-container .text-box {
+      border: none;
+      overflow: auto;
+      margin-left: 5px;
+      display: inline-block;
+      font-weight: 'bold';
+    }
+    pre {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      margin: 0;
+    }
   }
 </style>

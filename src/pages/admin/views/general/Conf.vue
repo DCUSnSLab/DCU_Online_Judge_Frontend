@@ -5,22 +5,22 @@
         <el-row :gutter="20">
           <el-col :span="12">
             <el-form-item :label="$t('m.Server')" required>
-              <el-input v-model="smtp.server" placeholder="SMTP Server Address"></el-input>
+              <el-input v-model="smtp.server" :placeholder="$t('m.SMTP_Server_Address')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('m.Port')" required>
-              <el-input type="number" v-model="smtp.port" placeholder="SMTP Server Port"></el-input>
+              <el-input type="number" v-model="smtp.port" :placeholder="$t('m.SMTP_Server_Port')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('m.Email')" required>
-              <el-input v-model="smtp.email" placeholder="Account Used To Send Email"></el-input>
+              <el-input v-model="smtp.email" :placeholder="$t('m.Account_Email')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('m.Password')" label-width="90px" required>
-              <el-input v-model="smtp.password" type="password" placeholder="SMTP 서버 비밀번호"></el-input>
+              <el-input v-model="smtp.password" type="password" :placeholder="$t('m.SMTP_Server_Password')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -32,9 +32,9 @@
           </el-col>
         </el-row>
       </el-form>
-      <el-button type="primary" @click="saveSMTPConfig">저장</el-button>
+      <el-button type="primary" @click="saveSMTPConfig">{{$t('m.Conf_Save')}}</el-button>
       <el-button type="warning" @click="testSMTPConfig"
-                 v-if="saved" :loading="loadingBtnTest">Send Test Email</el-button>
+                 v-if="saved" :loading="loadingBtnTest">{{$t('m.Send_Test_Email')}}</el-button>
     </Panel>
 
     <Panel :title="$t('m.Website_Config')">
@@ -42,23 +42,23 @@
         <el-row :gutter="20">
           <el-col :span="8">
             <el-form-item :label="$t('m.Base_Url')" required>
-              <el-input v-model="websiteConfig.website_base_url" placeholder="Website Base Url"></el-input>
+              <el-input v-model="websiteConfig.website_base_url" :placeholder="$t('m.Website_Base_Url')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item :label="$t('m.Name')" required>
-              <el-input v-model="websiteConfig.website_name" placeholder="Website Name"></el-input>
+              <el-input v-model="websiteConfig.website_name" :placeholder="$t('m.Website_Name')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="8">
             <el-form-item :label="$t('m.Shortcut')" required>
-              <el-input v-model="websiteConfig.website_name_shortcut" placeholder="Website Name Shortcut"></el-input>
+              <el-input v-model="websiteConfig.website_name_shortcut" :placeholder="$t('m.Website_Shortcut')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
             <el-form-item :label="$t('m.Footer')" required>
               <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 4}" v-model="websiteConfig.website_footer"
-                        placeholder="Website Footer HTML"></el-input>
+                :placeholder="$t('m.Website_Footer')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -114,7 +114,7 @@
           this.smtp = res.data.data
         } else {
           this.init = true
-          this.$warning('먼저 SMTP config를 설정하십시오')
+          this.$warning(this.$t('m.SMTPConfig_Alert'))
         }
       })
       api.getWebsiteConfig().then(res => {

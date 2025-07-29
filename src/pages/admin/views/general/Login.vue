@@ -1,9 +1,9 @@
 <template>
   <el-form :model="ruleForm2" :rules="rules2" ref="ruleForm2" label-position="left" label-width="0px"
            class="demo-ruleForm login-container">
-    <h3 class="title">{{$t('돌아오신것을 환영합니다 !')}}</h3>
+    <h3 class="title">{{$t('m.Welcome_to_Login')}}</h3>
     <el-form-item prop="account">
-      <el-input type="text" v-model="ruleForm2.account" auto-complete="off" :placeholder="$t('m.아이디')" @keyup.enter.native="handleLogin"></el-input>
+      <el-input type="text" v-model="ruleForm2.account" auto-complete="off" :placeholder="$t('m.username')" @keyup.enter.native="handleLogin"></el-input>
     </el-form-item>
     <el-form-item prop="password">
       <el-input type="password" v-model="ruleForm2.password" auto-complete="off" :placeholder="$t('m.password')" @keyup.enter.native="handleLogin"></el-input>
@@ -17,7 +17,7 @@
 
 <script>
   import api from '../../api'
-
+  import JSEncrypt from 'jsencrypt'
   export default {
     data () {
       return {
@@ -26,6 +26,7 @@
           account: '',
           password: ''
         },
+        public_key: '',
         rules2: {
           account: [
             {required: true, trigger: 'blur'}
@@ -38,11 +39,16 @@
       }
     },
     methods: {
-      handleLogin (ev) {
+      async handleLogin (ev) {
+        await api.getPublicKey().then(res => {
+          this.public_key = res.data.data.public_key
+        })
         this.$refs.ruleForm2.validate((valid) => {
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
           if (valid) {
             this.logining = true
-            api.login(this.ruleForm2.account, this.ruleForm2.password).then(data => {
+            api.login(this.ruleForm2.account, encrypt.encrypt(this.ruleForm2.password)).then(data => {
               this.logining = false
               this.$router.push({name: 'dashboard'})
             }, () => {

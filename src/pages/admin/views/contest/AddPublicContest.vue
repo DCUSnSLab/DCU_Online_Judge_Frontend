@@ -1,16 +1,23 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="4">
+      <!--실습, 과제, 대회 목록에서 실습,과제 가져오기 페이지 -->
+      <el-col :span="2">
         <el-select v-model="year">
+          <!-- 현재 년도를 기준으로 년도 출력 -->
+          <el-option v-for="year in years" :key="year" :value="year">
+            {{ year }}
+          </el-option>
+        </el-select>
+        <!-- <el-select v-model="year">
           <el-option value="2020">2020년도</el-option>
           <el-option value="2021">2021년도</el-option>
           <el-option value="2022">2022년도</el-option>
           <el-option value="2023">2023년도</el-option>
           <el-option value="2024">2024년도</el-option>
-        </el-select>
+        </el-select> -->
       </el-col>
-      <el-col :span="2">
+      <el-col :span="1">
         <el-select v-model="semester">
           <el-option value="1">{{$t('m.First_Semester')}}</el-option>
           <el-option value="2">{{$t('m.Second_Semester')}}</el-option>
@@ -20,16 +27,23 @@
       <el-col :span="12">
         <el-input
           v-model="keyword"
-          placeholder="$t('m.Lecture_Search')"
+          :placeholder="$t('m.Lecture_Search')"
           width="100">
         </el-input>
       </el-col>
       <el-col :span="2">
-        <el-button @click="searchLecture">{{$t('m.Search')}}</el-button>
+        <el-button @click="searchLecture">{{$t('m.Lecture_Search')}}</el-button>
       </el-col>
-      <el-col :span="4">
-        <el-checkbox @change="handleVisibleSwitch" v-model="showPublic" label="전체 실습 보기" border></el-checkbox>
+      <el-col :span="3">
+        <el-checkbox @change="handleVisibleSwitch" v-model="showPublic" :label="$t('m.AddPublickContest_All_Practice')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
+      </el-col>
+      <el-col :span="3">
+        <el-date-picker
+          v-model="start_time"
+          type="datetime"
+          :placeholder="$t('실습 시작 시간')">
+        </el-date-picker>
       </el-col>
     </el-row>
     <el-table :data="contests" v-loading="loading">
@@ -39,28 +53,28 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="$t('m.Maker')"
+        :label="$t('m.StudentList_Creator')"
         width="70"
         prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="$t('m.Make_Date')"
+        :label="$t('m.ProblemList_Creation_Date')"
         width="150">
         <template slot-scope="props">
           {{ props.row.create_time | localtime }}
         </template>
       </el-table-column>
       <el-table-column
-        label="$t('m.InCourses')"
+        :label="$t('m.Lecture_title')"
         width="200"
         prop="lecture_title">
       </el-table-column>
       <el-table-column
-        label="$t('m.PublicTitle')"
+        :label="$t('m.Contest_title')"
         prop="title">
       </el-table-column>
       <el-table-column
-        label="$t('m.DetailSet')"
+        :label="$t('m.DetailSet')"
         align="center"
         width="200"
         fixed="right">
@@ -84,7 +98,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="$t('m.Add')"
+        :label="$t('m.Add')"
         align="center"
         width="100"
         fixed="right">
@@ -107,7 +121,7 @@
   import api from '@admin/api'
   import vueMultiSelect from 'vue-multi-select'
   import 'vue-multi-select/dist/lib/vue-multi-select.css'
-
+  
   export default {
     name: 'add-contest-from-public',
     props: ['lectureID'],
@@ -152,7 +166,19 @@
         contests: [],
         lecture: {},
         keyword: '',
-        dropdown: ''
+        dropdown: '',
+        start_time: ''
+      }
+    },
+    computed: {
+      years () {
+        const startYear = 2019 // 2019년도부터
+        const endYear = new Date().getFullYear() // 현재 년도
+        const yearArray = []
+        for (let i = startYear; i <= endYear; i++) {
+          yearArray.push(i)
+        }
+        return yearArray
       }
     },
     mounted () {
@@ -210,15 +236,21 @@
         for (let val in this.values) {
           selectProb.push(this.data[0].elements_id[this.data[0].elements.indexOf(this.values[val])])
         }
+        if (this.start_time === '') {
+          this.$error('실습 시작 시간을 입력해 주세요.(실습 시작 시간 입력 시, 해당 시작 시간 기준으로 실습시간이 변경됩니다.)')
+          return
+        }
         let data = {
           prob_id: selectProb,
           contest_id: contestID,
-          lecture_id: this.lectureID
+          lecture_id: this.lectureID,
+          start_time: this.start_time
         }
         // initialize values
         this.data[0].elements = []
         this.data[0].elements_id = []
         // data send to server
+        console.log(data)
         api.addContestFromPublic(data).then(() => {
           this.$emit('on-change')
         }, () => {

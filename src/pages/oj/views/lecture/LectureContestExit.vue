@@ -1,9 +1,9 @@
 <template>
-  <div class="flex-container" v-if="isAdmin">
+  <div class="flex-container" v-if="isAdminRole">
     <div id="manage">
       <Panel :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
-          <Button @click.native="ExitStudent()" style="float:right">전체 퇴실 처리</Button>
+          <Button @click.native="exitAllStudent()" style="float:right">전체 퇴실 처리</Button>
         </div>
         <template>
           <el-table
@@ -32,22 +32,41 @@
                   </span>
               </template>
             </el-table-column>
-
-<!--            <el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
-            <el-table-column prop="exit_status" label="퇴실 유무" align="center">
-              <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
-                <span v-if="scope.row.exit_status" style="color:green"> <!--true인 경우-->
-                    <b>퇴실 완료</b>
+            <el-table-column prop="startTime" label="입실시간" align="center">
+              <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
+                <span v-if="scope.row.start_time"> <!--해당 값을 출력하고-->
+                    {{ formatDate(scope.row.start_time) }}
                   </span>
-                <span v-else style="color:red"> <!--false인 경우-->
-                    <b>미완료</b>
+                <span v-else><!--아닌 경우에는 User 테이블에 있는 schoolssn 값을 출력한다.-->
                   </span>
               </template>
             </el-table-column>
-
-            <el-table-column fixed="right" label="퇴실 철회" width="200" align="center">
+            <el-table-column prop="endTime" label="퇴실시간" align="center">
+              <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
+                <span v-if="scope.row.end_time"> <!--해당 값을 출력하고-->
+                    {{ formatDate(scope.row.end_time) }}
+                  </span>
+                <span v-else><!--아닌 경우에는 User 테이블에 있는 schoolssn 값을 출력한다.-->
+                  </span>
+              </template>
+            </el-table-column>
+<!--            <el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
+            <el-table-column prop="exit_status" label="시험 상태" align="center">
+              <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
+                <span v-if="scope.row.exit_status" style="color:green">
+                  <b>응시완료</b>
+                </span>
+                <span v-else-if="scope.row.start_time" style="color:blue">
+                  <b>응시중</b>
+                </span>
+                <span v-else style="color:red">
+                  <b>미응시</b>
+                </span>
+              </template>
+            </el-table-column>
+            <el-table-column fixed="right" label="응시 상태 변경" width="200" align="center">
               <template slot-scope="{row}">
-                <icon-btn name="철회" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
+                <icon-btn name="변경" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
               </template>
             </el-table-column>
           </el-table>
@@ -70,9 +89,11 @@
       <div v-if="contestExitStatus">
         <Panel shadow>
           <div slot="title">퇴실 완료 안내</div>
-          <div slot="title" align="center"><br/><h1><b>퇴실 완료</b></h1></div>
-          <div align="center"><h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2><h3>가채점 결과이므로 변경될 수 있습니다.<br/>
-            실습실을 나가기 전 조교에게 확인을 받으시기 바랍니다.<br/></h3><br/></div>
+          <div slot="title"><br/>{{formatDate(contestEndtime)}} 퇴실 하였습니다.</div>
+          <div align="center">
+            <!-- <h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2>
+            <h3>가채점 결과이므로 변경될 수 있습니다.<br/></h3><br/> -->
+          </div>
         </Panel>
       </div>
       <div v-else>
@@ -90,6 +111,7 @@
 <script>
 import api from '../../api.js'
 import { mapGetters } from 'vuex'
+import moment from 'moment'
 
 export default {
   name: 'lecturecontestExit',
@@ -166,17 +188,18 @@ export default {
       api.getContestExit(this.$route.params.contestID).then(res => {
         console.log(this.contestID)
         console.log(this.lectureID)
-      }).catch(() => {
-      })
-      this.$router.push({name: 'home'})
-    },
-    contestScore () {
-      api.checkContestScore(this.$route.params.contestID).then(res => {
-        this.userTotalScore = res.data.data.total_score
-        console.log(this.userTotalScore)
+        console.log(res.data)
+        window.location.reload()
       }).catch(() => {
       })
     },
+    // contestScore () {
+    //   api.checkContestScore(this.$route.params.contestID).then(res => {
+    //     this.userTotalScore = res.data.data.total_score
+    //     console.log(this.userTotalScore)
+    //   }).catch(() => {
+    //   })
+    // },
     /* 관리 전용 (교수, 관리자) */
     currentChange (page) {
       this.currentPage = page
@@ -190,6 +213,17 @@ export default {
       let data = {
         contest_id: this.contestID,
         user_id: userid
+      }
+      console.log(data)
+      api.exitStudent(data).then(res => {
+        this.getUserList(this.page)
+        this.$success('Success')
+      })
+    },
+    exitAllStudent () {
+      let data = {
+        lec_stu_userID: this.userList.map(item => item.user.id).join(','),
+        contest_id: this.contestID
       }
       console.log(data)
       api.exitStudent(data).then(res => {
@@ -218,6 +252,9 @@ export default {
                 var userinfo = {}
                 userinfo['realname'] = user.realname
                 userinfo['schoolssn'] = user.schoolssn
+                userinfo['startTime'] = user.start_time
+                userinfo['endTime'] = user.end_time
+                console.log(userinfo)
                 // console.log(user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score)
               }
             }
@@ -236,13 +273,15 @@ export default {
             // // this.userList[k] = Object.assign({}, this.userList[k], {userScore: user.score.ContestAnalysis.대회.contests[this.$route.params.contestID].Info.score})
           })
         }
-        console.log(this.userList)
       }, res => {
         this.loadingTable = false
       })
     },
     handleSelectionChange (val) {
       this.selectedUsers = val
+    },
+    formatDate (datetime) {
+      return moment(datetime).format('YY년 MM월 DD일 HH시 mm분')
     }
   },
   computed: {

@@ -6,7 +6,7 @@
         <Card :padding="20" class="flex-child">
           <span slot="title" style="line-height: 20px">{{session.ip}}</span>
           <div slot="extra">
-            <Tag v-if="session.current_session" color="green">현재</Tag>
+            <Tag v-if="session.current_session" color="green">{{$t('m.Now')}}</Tag>
             <Button v-else
                     type="warning"
                     size="small"
@@ -14,13 +14,13 @@
             </Button>
           </div>
           <Form :label-width="100">
-            <FormItem label="운영체제 :" class="item">
+            <FormItem :label="$t('m.OS')" class="item">
               {{session.user_agent | platform}}
             </FormItem>
-            <FormItem label="브라우저 :" class="item">
+            <FormItem :label="$t('m.Browser')" class="item">
               {{session.user_agent | browser}}
             </FormItem>
-            <FormItem label="마지막 활동 :" class="item">
+            <FormItem :label="$t('m.Last_activity')" class="item">
               {{session.last_activity | localtime }}
             </FormItem>
           </Form>

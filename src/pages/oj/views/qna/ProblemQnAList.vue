@@ -1,13 +1,12 @@
 <template>
   <div>
     <Panel id="lecture-card" shadow>
-      <div slot="title"><b>DCU Code 질문/답변</b>
+      <div slot="title"><b>{{$t('m.DCUCode_qna') }}</b>
         <i-switch class="switch" size="large" @on-change="handleTagsVisible">
           <span slot="open">{{$t('m.Solved')}}</span>
           <span slot="close">{{$t('m.Solved')}}</span>
         </i-switch>
       </div>
-
       <el-row>
         <el-col>
           <el-card class="box-card" v-for="qna in qnaList">
@@ -41,8 +40,10 @@
                 <el-pagination
                   class="page"
                   layout="prev, pager, next"
-                  @current-change="currentChange"
-                  :total="total" :pageSize="limit">
+                  @current-change="pushRouter"
+                  :page-size="limit"
+                  :total="total"
+                  :current-page.sync="query.page">
                 </el-pagination>
               </div>
             </el-col>
@@ -62,10 +63,10 @@
           <hr/>
           <div class="sidebar-content">
             <br/>
-            <span>내용</span>
-            <el-input class="sidebar-content-margin" placeholder="제목을 입력해주세요." v-model="qnaContent.title"></el-input>
+            <span>{{$t('m.Contents') }}</span>
+            <el-input class="sidebar-content-margin" :placeholder="$t('m.Please_enter_subject')" v-model="qnaContent.title"></el-input>
             <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
-            <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">저장하기</el-button>
+            <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">{{$t('m.Save') }}</el-button>
           </div>
         </div>
       </b-sidebar>
@@ -101,6 +102,7 @@
   import 'bootstrap-vue/dist/bootstrap-vue.css'
   import Vue from 'vue'
   import Simditor from '../../components/Simditor.vue'
+  import utils from '@/utils/utils'
   Vue.use(SidebarPlugin)
 
   export default {
@@ -123,7 +125,10 @@
         contestID: '',
         isEmpty: false,
         limit: 5,
-        total: 0
+        total: 0,
+        query: {
+          page: parseInt(this.$route.query.page) || 1
+        }
       }
     },
     mounted () {
@@ -135,32 +140,34 @@
         let params = ''
         this.contestID = this.$route.params.contestID
         this.LectureID = this.$route.params.lectureID
-        console.log(this.LectureID)
+        this.query.page = parseInt(this.$route.query.page) || 1
+        if (this.query.page < 1) {
+          this.query.page = 1
+        }
         if (this.$route.name === 'constest-problem-qna') {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
           params = {contestID: this.contestID,
             LectureID: this.LectureID,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit,
             visible: false}
         } else if (this.$route.name === 'constest-problem-public-qna') {
           params = {contestID: this.contestID,
             LectureID: this.LectureID,
             problemID: this.$route.params.problemID,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit,
             visible: false}
         } else {
           params = {all: 'all',
             visible: false,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit}
         }
         // this.contestID = this.$route.params.contestID
         // let params = {contestID: this.contestID, visible: false}
         api.getQnAPost(params).then(res => {
-          console.log(res)
           this.qnaList = res.data.data.results
           // if (this.LectureID === undefined) {
           if (this.$route.name === 'constest-problem-qna') {
@@ -182,10 +189,16 @@
               'content': '안녕하세요. DCU Code 관리자 입니다.<br/>본 공개 질문 페이지에서는 프로그래밍 문법 등에 대하여 질문하는 페이지이며, <b>자신이 푼 실습, 과제 코드 공유가 금지되어 있습니다.</b><br/>과제, 실습관련 질문은 해당 과목 페이지 질문을 이용해주세요.<br/><b>코드 공유시 미통보 삭제됩니다.</b><br/>감사합니다.'
             })
           }
-          console.log(this.qnaList)
           this.total = res.data.data.total
         })
         this.$Loading.finish()
+      },
+      pushRouter () {
+        this.$router.push({
+          name: this.$route.name,
+          query: utils.filterEmptyValue(this.query)
+        })
+        this.getLectureList()
       },
       handleTagsVisible (value) {
         let params = {}
@@ -194,18 +207,17 @@
           // params = {LectureID: this.LectureID, visible: false}
           params = {contestID: this.contestID,
             LectureID: this.LectureID,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit,
             visible: value}
         } else {
           params = {all: 'all',
             visible: value,
-            offset: 0,
+            offset: (this.query.page - 1) * this.limit,
             limit: this.limit}
         }
         api.getQnAPost(params).then(res => {
           this.qnaList = res.data.data.results
-          console.log(res.data.data.results)
           this.total = res.data.data.total
         })
       },
@@ -229,13 +241,13 @@
         this.currentPage = page
         this.getLectureList(page)
       },
-      getLectureList (page) {
+      getLectureList () {
         let params = {}
         this.loading = true
         if (this.$route.name === 'constest-problem-qna') {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
-          params = {offset: (page - 1) * this.limit,
+          params = {offset: (this.query.page - 1) * this.limit,
             LectureID: this.LectureID,
             contestID: this.contestID,
             limit: this.limit,
@@ -244,7 +256,7 @@
           params = {all: 'all',
             visible: false,
             limit: this.limit,
-            offset: (page - 1) * this.limit}
+            offset: (this.query.page - 1) * this.limit}
         }
         api.getQnAPost(params).then(res => {
           this.loading = false
@@ -292,7 +304,7 @@
   }
 
   .article-title {
-    color: #444444;
+    color: var(--text-color); 
   }
 
   a.article-title:hover {
@@ -317,6 +329,9 @@
   }
 
   .box-card {
+    background-color: var(--qna-card-backgound);
+    color: var(--qna-text-color);
+    border: 1px solid var(--qna-card-border-color);
     margin-left: 10px;
     margin-right: 10px;
     margin-bottom: 10px;

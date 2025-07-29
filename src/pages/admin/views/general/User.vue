@@ -25,47 +25,47 @@
 
         <el-table-column prop="id" label="ID"></el-table-column>
 
-        <el-table-column prop="realname" label="이름"></el-table-column>
+        <el-table-column prop="realname" :label="$t('m.User_Real_Name')"></el-table-column>
 
-        <el-table-column prop="username" label="ID"></el-table-column>
+        <el-table-column prop="username" :label="$t('m.User_Username')"></el-table-column>
 
-        <el-table-column prop="schoolssn" label="학번 / 교직번호"></el-table-column>
+        <el-table-column prop="schoolssn" :label="$t('m.User_Schoolssn')"></el-table-column>
 
-        <el-table-column prop="create_time" label="계정 생성일">
+        <el-table-column prop="create_time" :label="$t('m.User_Create_Date')">
           <template slot-scope="scope">
             {{scope.row.create_time | localtime }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="last_login" label="마지막 접속일">
+        <el-table-column prop="last_login" :label="$t('m.User_Last_Login_Date')">
           <template slot-scope="scope">
             {{scope.row.last_login | localtime }}
           </template>
         </el-table-column>
 
-        <el-table-column prop="email" label="Email"></el-table-column>
+        <el-table-column prop="email" :label="$t('m.User_Email')"></el-table-column>
 
-        <el-table-column prop="admin_type" label="사용자 권한">
+        <el-table-column prop="admin_type" :label="$t('m.User_Permissions')">
           <template slot-scope="scope">
             <span v-if="scope.row.admin_type === 'Regular User'">
-              학생
+              {{ $t('m.User_Type_Student') }}
             </span>
             <span v-else-if="scope.row.admin_type === 'TA_Admin'">
               TA/RA
             </span>
             <span v-else-if="scope.row.admin_type === 'Admin'">
-              교수
+              {{ $t('m.User_Type_Professor') }}
             </span>
             <span v-else>
-              관리자
+              {{ $t('m.User_Type_Admin') }}
             </span>
           </template>
         </el-table-column>
 
-        <el-table-column fixed="right" label="선택사항" width="200">
+        <el-table-column fixed="right" :label="$t('m.User_Options')" width="200">
           <template slot-scope="{row}">
-            <icon-btn name="편집" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
-            <icon-btn name="삭제" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
+            <icon-btn :name="$t('m.User_Options_Edit')" icon="edit" @click.native="openUserDialog(row.id)"></icon-btn>
+            <icon-btn :name="$t('m.User_Options_Delete')" icon="trash" @click.native="deleteUsers([row.id])"></icon-btn>
           </template>
         </el-table-column>
       </el-table>
@@ -73,9 +73,10 @@
         <el-pagination
           class="page"
           layout="prev, pager, next"
-          @current-change="currentChange"
+          @current-change="pushRouter"
           :page-size="pageSize"
-          :total="total">
+          :total="total"
+          :current-page.sync="query.page">
         </el-pagination>
       </div>
     </Panel>
@@ -83,8 +84,8 @@
     <Panel>
       <span slot="title">{{$t('m.Import_User')}}
         <el-popover placement="right" trigger="hover">
-          <p>헤더가없는 CSV 파일 만 선택하십시오. 자세한 내용은 <a
-            href="http://docs.onlinejudge.me/#/onlinejudge/guide/import_users">링크</a> 를 확인 하십시오</p>
+          <p> {{ $t('m.Alert_Import_User') }} <a
+            href="http://docs.onlinejudge.me/#/onlinejudge/guide/import_users">{{ $t('m.Alert_Import_User_Link') }}</a></p>
           <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
         </el-popover>
       </span>
@@ -93,7 +94,7 @@
                  :show-file-list="false"
                  accept=".csv"
                  :before-upload="handleUsersCSV">
-        <el-button size="small" icon="el-icon-fa-upload" type="primary">파일 선택</el-button><!--엑셀 형태의 사용자 정보 파일 가져오는 기능-->
+        <el-button size="small" icon="el-icon-fa-upload" type="primary">{{ $t('m.Select_File') }}</el-button><!--엑셀 형태의 사용자 정보 파일 가져오는 기능-->
       </el-upload>
       <template v-else>
         <el-table :data="uploadUsersPage">
@@ -137,35 +138,35 @@
       <el-form :model="formGenerateUser" ref="formGenerateUser">
         <el-row type="flex" justify="space-between">
           <el-col :span="4">
-            <el-form-item label="접두어" prop="prefix">
-              <el-input v-model="formGenerateUser.prefix" placeholder="접두어"></el-input>
+            <el-form-item :label="$t('m.Usergenerate_prefix')" prop="prefix">
+              <el-input v-model="formGenerateUser.prefix" :placeholder="$t('m.Usergenerate_prefix')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="접미어" prop="suffix">
-              <el-input v-model="formGenerateUser.suffix" placeholder="접미어"></el-input>
+            <el-form-item :label="$t('m.Usergenerate_suffix')" prop="suffix">
+              <el-input v-model="formGenerateUser.suffix" :placeholder="$t('m.Usergenerate_suffix')"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="시작 번호" prop="number_from" required>
+            <el-form-item :label="$t('m.Usergenerate_number_from')" prop="number_from" required>
               <el-input-number v-model="formGenerateUser.number_from" style="width: 100%"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="끝 번호" prop="number_to" required>
+            <el-form-item :label="$t('m.Usergenerate_number_to')" prop="number_to" required>
               <el-input-number v-model="formGenerateUser.number_to" style="width: 100%"></el-input-number>
             </el-form-item>
           </el-col>
           <el-col :span="4">
-            <el-form-item label="비밀번호 길이" prop="password_length" required>
+            <el-form-item :label="$t('m.Usergenerate_passwd_len')" prop="password_length" required>
               <el-input v-model="formGenerateUser.password_length"
-                        placeholder="비밀번호 길이"></el-input>
+                        :placeholder="$t('m.Usergenerate_passwd_len')"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-form-item>
-          <el-button type="primary" @click="generateUser" icon="el-icon-fa-users" :loading="loadingGenerate">생성 및 내보내기
+          <el-button type="primary" @click="generateUser" icon="el-icon-fa-users" :loading="loadingGenerate"> {{ $t('m.Usergenerate_and_export') }}
           </el-button>
           <span class="userPreview" v-if="formGenerateUser.number_from && formGenerateUser.number_to &&
                                           formGenerateUser.number_from <= formGenerateUser.number_to">
@@ -207,19 +208,19 @@
           <el-col :span="12">
             <el-form-item :label="$t('m.User_Type')">
               <el-select v-model="user.admin_type">
-                <el-option label="학생" value="Regular User"></el-option>
-                <el-option label="TA/RA" value="TA_Admin"></el-option>
-                <el-option label="교수" value="Admin"></el-option>
-                <el-option label="관리자" value="Super Admin"></el-option>
+                <el-option :label="$t('m.Student')" value="Regular User"></el-option>
+                <el-option :label="$t('m.TA/RA')" value="TA_Admin"></el-option>
+                <el-option :label="$t('m.Professor')" value="Admin"></el-option>
+                <el-option :label="$t('m.Admin')" value="Super Admin"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item :label="$t('m.Problem_Permission')">
               <el-select v-model="user.problem_permission" :disabled="user.admin_type!=='Admin|TA_Admin'">
-                <el-option label="승인불가" value="None"></el-option>
-                <el-option label="자신만" value="Own"></el-option>
-                <el-option label="모든사람" value="All"></el-option>
+                <el-option :label="$t('m.Permission_None')" value="None"></el-option>
+                <el-option :label="$t('m.Own')" value="Own"></el-option>
+                <el-option :label="$t('m.Permission_All')" value="All"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -263,7 +264,8 @@
   import papa from 'papaparse'
   import api from '../../api.js'
   import utils from '@/utils/utils'
-
+  import JSEncrypt from 'jsencrypt'
+  
   export default {
     name: 'User',
     data () {
@@ -295,11 +297,20 @@
           number_from: 0,
           number_to: 0,
           password_length: 8
-        }
+        },
+        query: {
+          page: parseInt(this.$route.query.page) || 1
+        },
+        public_key: ''
       }
     },
     mounted () {
-      this.getUserList(1)
+      // this.getUserList(1)
+      this.query.page = parseInt(this.$route.query.page) || 1
+      if (this.query.page < 1) {
+        this.query.page = 1
+      }
+      this.getUserList(this.query.page)
     },
     methods: {
       // 切换页码回调
@@ -307,8 +318,23 @@
         this.currentPage = page
         this.getUserList(page)
       },
+      pushRouter () {
+        this.$router.push({
+          name: 'student-list',
+          query: utils.filterEmptyValue(this.query)
+        })
+        this.getUserList()
+      },
       // 提交修改用户的信息
-      saveUser () {
+      async saveUser () {
+        if (this.user.password !== '') {
+          await api.getPublicKey().then(res => {
+            this.public_key = res.data.data.public_key
+          })
+          const encrypt = new JSEncrypt()
+          encrypt.setPublicKey(this.public_key)
+          this.user.password = encrypt.encrypt(this.user.password)
+        }
         api.editUser(this.user).then(res => {
           // 更新列表
           this.getUserList(this.currentPage)
@@ -329,7 +355,7 @@
       // 获取用户列表
       getUserList (page) {
         this.loadingTable = true
-        api.getUserList((page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
+        api.getUserList((this.query.page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
           this.loadingTable = false
           this.total = res.data.data.total
           this.userList = res.data.data.results

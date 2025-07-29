@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-container">
+  <div class="flex-container" :style="currentTheme">
     <div id="contest-main">
       <!--children-->
       <transition name="fadeInUp">
@@ -9,7 +9,7 @@
       <div class="flex-container" v-if="route_name === 'lecture-contest-details'">
         <template>
           <div v-if="isvisible" id="contest-desc">
-            <Panel :padding="20" shadow>
+            <Panel :padding="50" shadow>
               <div slot="title">
                 {{contest.title}}
               </div>
@@ -25,8 +25,20 @@
                        @on-enter="checkPassword"/>
                 <Button type="info" @click="checkPassword">Enter</Button>
               </div>
+              <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
+              <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
+                <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
+                <el-button
+                  v-if="contestCheckInOutStatus==='notCheck'"
+                  type="info"
+                  size="small"
+                  @click="checkInContest" 
+                  :disabled="contestCheckInOutStatus!=='notCheck' || contestMenuDisabled"
+                >
+                  <span>{{$t('시험 시작')}}</span>
+                </el-button>
+              </div>
             </Panel>
-            <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 40px;"></Table>
           </div>
         </template>
       </div>
@@ -38,20 +50,20 @@
           {{$t('m.Overview')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled"
+        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-announcement-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="chatbubble-working"></Icon>
           {{$t('m.Announcements')}}
         </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled"
+        <VerticalMenu-item :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-problem-list', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="ios-photos"></Icon>
           {{$t('m.Problems')}}
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-submission-list'}">
           <Icon type="navicon-round"></Icon>
           {{$t('m.Submissions')}}
@@ -63,7 +75,7 @@
         </VerticalMenu-item>
 
         <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus === 'checkOut' || contestCheckInOutStatus === 'notCheck'"
                            :route="{name: 'lecture-contest-rank', params: {contestID: contestID, lectureID: lectureID}}">
           <Icon type="stats-bars"></Icon>
           {{$t('m.Rankings')}}
@@ -77,12 +89,12 @@
 
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
-        <!--<VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회'"
-                           :disabled="contestMenuDisabled"
+        <VerticalMenu-item v-if="OIContestRealTimePermission && contestType === '대회' && this.lectureID"
+                           :disabled="contestMenuDisabled || contestCheckInOutStatus !== 'checkIn' && contestCheckInOutStatus !== 'notStudent'"
                            :route="{name: 'lecture-contest-exit'}">
           <Icon type="android-exit"></Icon>
           {{$t('m.Exit')}}
-        </VerticalMenu-item>-->
+        </VerticalMenu-item>
       </VerticalMenu>
     </div>
   </div>
@@ -95,7 +107,9 @@
   import { types } from '@/store'
   import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
-
+  import { compareIdentifiers } from 'semver'
+  import { lightTheme, darkTheme } from '@/theme'
+  
   export default {
     name: 'ContestDetail',
     components: {},
@@ -112,6 +126,8 @@
         contestPassword: '',
         isvisible: false,
         dialogFormVisible: false,
+        contestcheckInOutStatusWord: '',
+        contestcheckInOutStatus: '',
         columns: [ // 수강과목 세부 페이지의 내부 항목 제목
           // {
           //   title: this.$i18n.t('Id'),
@@ -120,31 +136,31 @@
           //   }
           // },
           {
-            title: this.$i18n.t('시작일'),
+            title: this.$i18n.t('m.StartDate'),
             render: (h, params) => {
               return h('span', time.utcToLocal(params.row.start_time))
             }
           },
           {
-            title: this.$i18n.t('종료일'),
+            title: this.$i18n.t('m.EndDate'),
             render: (h, params) => {
               return h('span', time.utcToLocal(params.row.end_time))
             }
           },
           {
-            title: this.$i18n.t('공개유형'),
+            title: this.$i18n.t('m.PublicType'),
             render: (h, params) => {
               return h('span', this.$i18n.t('m.' + params.row.contest_type))
             }
           },
           {
-            title: this.$i18n.t('대회 진행 방식'),
+            title: this.$i18n.t('m.Rule'),
             render: (h, params) => {
               return h('span', this.$i18n.t('m.' + params.row.rule_type))
             }
           },
           {
-            title: this.$i18n.t('출제자'),
+            title: this.$i18n.t('m.Created'),
             render: (h, data) => {
               return h('span', data.row.created_by.username)
             }
@@ -161,7 +177,7 @@
         let data = res.data.data
         this.isvisible = res.data.data.visible
         if (this.isvisible === false) {
-          this.$error('잘못된 경로로 진입했습니다.')
+          this.$error(this.$i18n.t('m.WrongPath'))
         }
         this.lectureID = res.data.data.lecture
         this.contestType = res.data.data.lecture_contest_type // working by soojung
@@ -170,6 +186,9 @@
           this.timer = setInterval(() => {
             this.$store.commit(types.NOW_ADD_1S)
           }, 1000)
+        }
+        if (this.contestType === '대회') {
+          this.contestCheckInOutStatus()
         }
       })
     },
@@ -180,16 +199,41 @@
       },
       checkPassword () {
         if (this.contestPassword === '') {
-          this.$error('Password can\'t be empty')
+          this.$error(this.$i18n.t('m.No_empty_Password'))
           return
         }
         this.btnLoading = true
         api.checkContestPassword(this.contestID, this.contestPassword).then((res) => {
-          this.$success('Succeeded')
+          this.$success(this.$i18n.t('m.Succeeded'))
           this.$store.commit(types.CONTEST_ACCESS, {access: true})
           this.btnLoading = false
         }, (res) => {
           this.btnLoading = false
+        })
+      },
+      contestCheckInOutStatus () {
+        api.checkContestExit(this.contestID).then(res => {
+          if (res.data.data.data === 'notStudent') {
+            this.contestCheckInOutStatus = 'notStudent'
+            this.contestcheckInOutStatusWord = '관리자'
+          } else if (res.data.data.end_time) {
+            this.contestCheckInOutStatus = 'checkOut'
+            this.contestcheckInOutStatusWord = '퇴실완료'
+          } else if (res.data.data.start_time) {
+            this.contestCheckInOutStatus = 'checkIn'
+            this.contestcheckInOutStatusWord = '입실완료'
+          } else {
+            this.contestCheckInOutStatus = 'notCheck'
+            this.contestcheckInOutStatusWord = '입실 전'
+          }
+        })
+      },
+      checkInContest () {
+        let data = {
+          contest_id: this.contestID
+        }
+        api.checkInContest(data).then(res => {
+          window.location.reload()
         })
       }
       // ,
@@ -208,6 +252,10 @@
         contest_table: state => [state.contest.contest],
         now: state => state.contest.now
       }),
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      },
       ...mapGetters(
         ['contestMenuDisabled', 'contestRuleType', 'contestStatus', 'countdown', 'isContestAdmin',
           'OIContestRealTimePermission', 'passwordFormVisible']
@@ -267,5 +315,16 @@
         margin-right: 10px;
       }
     }
+    .check-in {
+      flex: auto;
+      display: flex;
+      float: right;
+    }
+    .sub-title {
+      font-weight: bold;
+      margin-top: 7px;
+      margin-right: 10px;
+    }
   }
+  
 </style>

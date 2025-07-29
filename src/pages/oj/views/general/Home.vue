@@ -1,29 +1,48 @@
 <template>
   <Row type="flex" justify="space-around">
+    <!-- 1열 -->
     <Col :span="22">
-      <panel v-if="(month == 3) || (month == 4)">
+      <panel v-if="(month == 3)">
         <div slot="title">
           <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
-          <h2>[신입생 개인정보 변경 안내]</h2><br/>
+          <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
           DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
           반드시 개인정보를 수정해주시기 바랍니다.<br/>
         </div>
       </panel>
+      <el-dialog title="개인정보 변경" :modal=false :visible.sync="dialogFormVisible">
+        <Form ref="formProfile" :model="formProfile">
+          <Row type="flex" :gutter="30" justify="space-around">
+            <Col :span="30" align="center">
+              <h4 align="center">DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
+                반드시 전화번호를 학번으로 변경해주시기 바랍니다.</h4><br/>
+              <Form-item label="학번">
+                <Input v-model="formProfile.schoolssn"/>
+              </Form-item>
+              <Form-item>
+                <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">{{$t('m.Save')}}</Button>
+              </Form-item>
+            </Col>
+          </Row>
+        </Form>
+      </el-dialog>
     </Col>
     <Col :span="22">
       <panel>
         <div slot="title">
-          DCU Code 사용 메뉴얼 (학생용)
-          <Button style="float: right" type="info"><a href="/static/manual.pdf" download>다운로드</a></Button>
+          {{$t('m.DCU_Code_Usage_manual_student')}}
+          <!-- DCU Code 사용 메뉴얼 (학생용) -->
+          <Button style="float: right" type="info"><a href="/static/manual.pdf" download>{{$t('m.Download')}}</a></Button>
         </div>
       </panel>
     </Col>
     <Col :span="22">
       <panel>
         <div slot="title">
-          DCU Code 소개 영상
-          <Button style="float: right" type="info" v-if="!detail" @click="showDetail">자세히 보기</Button>
-          <Button style="float: right" type="info" v-else @click="showDetail">페이지 최소화</Button>
+          {{$t('m.DCU_Code_Intro_video')}}
+          <!-- DCU Code 소개 영상 -->
+          <Button style="float: right" type="info" v-if="!detail" @click="showDetail">{{$t('m.Detail')}}</Button>
+          <Button style="float: right" type="info" v-else @click="showDetail">{{$t('m.Minimization')}}</Button>
         </div>
         <p v-if="detail" align="middle">
           <iframe width="789" height="444" src="https://www.youtube.com/embed/6kaNUXN951c" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -33,7 +52,8 @@
     <Col :span="22">
       <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
         <div slot="title">
-          나의 수강과목 진행 현황
+          {{$t('m.My_Course_Progress')}}
+          <!-- 나의 수강과목 진행 현황 -->
         </div>
         <!-- DivTable.com -->
         <!-- <template v-for="pie in pielist"> -->
@@ -42,8 +62,7 @@
             <el-tab-pane :label="pie.title" :name="pie.title">
               <el-Card class="lecture-card">
                 <h2 style="margin-bottom:10px">{{ pie.title }}</h2>
-                <el-table-column
-                  align="center">
+                <el-table-column align="center">
                   <el-row :gutter="12">
                     <el-col :span="12">
                       <el-card shadow="always">
@@ -53,24 +72,24 @@
                       </el-card>
                     </el-col>
                     <el-col :span="12">
-                      <h2 style="padding-bottom:10px">진행중인 실습 및 과제</h2>
+                      <h2 style="padding-bottom:10px">{{$t('m.Ongoing_practice_assignments')}}</h2>
                       <el-card v-if="clsize > 0" shadow="always">
                         <ul class="announcements-container" key="list">
                           <li>
                             <div class="flex-container">
                               <div class="title">
                                 <div class="entry">
-                                  <strong>실습/과제</strong>
+                                  <strong>{{$t('m.Practice_assignment')}}</strong>
                                 </div>
                               </div>
                               <div class="date">
-                                <strong>종료일</strong>
+                                <strong>{{$t('m.EndDate')}}</strong>
                               </div>
                               <div class="creator">
-                                <strong>남은 기간</strong>
+                                <strong>{{$t('m.Remaining_Day')}}</strong>
                               </div>
                               <div class="problem">
-                                <strong>남은 문제 수</strong>
+                                <strong>{{$t('m.Num_of_Problem_Remaining')}}</strong>
                               </div>
                             </div>
                           </li>
@@ -95,7 +114,7 @@
                         </ul>
                       </el-card>
                       <el-card v-else style="text-align:center">
-                        <strong>없음</strong>
+                        <strong>{{$t('m.No_Ongoing')}}</strong>
                       </el-card>
                     </el-col>
                   </el-row>
@@ -106,30 +125,8 @@
         </el-tabs>
         <!-- </template> -->
       </panel>
-      <el-dialog title="개인정보 변경" :modal=false :visible.sync="dialogFormVisible">
-        <Form ref="formProfile" :model="formProfile">
-          <Row type="flex" :gutter="30" justify="space-around">
-            <Col :span="30" align="center">
-              <h4 align="center">DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
-                반드시 전화번호를 학번으로 변경해주시기 바랍니다.</h4><br/>
-              <Form-item label="학번">
-                <Input v-model="formProfile.schoolssn"/>
-              </Form-item>
-              <Form-item>
-                <Button type="primary" @click="updateProfile" :loading="loadingSaveBtn">저장하기</Button>
-              </Form-item>
-            </Col>
-          </Row>
-        </Form>
-      </el-dialog>
-      <!--
-      <panel shadow v-if="contests.length" class="contest">
-        <div slot="title">
-          <Button type="text"  class="contest-title" @click="goContest">{{contests[index].title}}</Button>
-        </div>
-        <Table stripe :loading="loading" :disabled-hover="true" :columns="columns" :data="dashboard"></Table>
-      </panel>
-      -->
+    </Col>
+    <Col :span="22">
       <Announcements class="announcement"></Announcements>
     </Col>
   </Row>
@@ -141,11 +138,12 @@ import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import Announcements from './Announcements.vue'
 import api from '@oj/api'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapState } from 'vuex'
 import time from '@/utils/time'
 import { CONTEST_STATUS } from '@/utils/constants'
 import utils from '@/utils/utils'
 import {types} from '@/store'
+import { lightTheme, darkTheme } from '@/theme'
 
 Vue.use(Element)
 
@@ -176,6 +174,10 @@ export default {
         return '/' + 'CourseList'
       }
       return '/' + this.$route.path.split('/')[1]
+    },
+    ...mapState('theme', ['isDarkMode']),
+    currentTheme () {
+      return this.isDarkMode ? darkTheme : lightTheme
     },
     modalVisible: {
       get () {
@@ -408,6 +410,7 @@ export default {
         this.$success('Success')
         this.$store.commit(types.CHANGE_PROFILE, {profile: res.data.data})
         this.loadingSaveBtn = false
+        this.dialogFormVisible = false
       }, _ => {
         this.loadingSaveBtn = false
       })
@@ -431,6 +434,9 @@ h3 {
 }
 
 .lecture-card {
+  background: var(--table-body-background);
+  border-color: var(--table-border-color);
+  color: var(--table-text-color);
   margin-left:20px;
   margin-right:20px;
   margin-bottom:10px

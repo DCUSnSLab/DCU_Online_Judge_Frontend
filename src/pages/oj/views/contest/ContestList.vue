@@ -73,7 +73,7 @@
         </li>
       </ol>
     </Panel>
-    <Pagination :total="total" :pageSize="limit" @on-change="getContestList" :current.sync="page"></Pagination>
+    <Pagination :total="total" :page-size="limit" @on-change="pushRouter" :current.sync="query.page"></Pagination>
     </Col>
   </Row>
 
@@ -100,7 +100,8 @@
         query: {
           status: '',
           keyword: '',
-          rule_type: ''
+          rule_type: '',
+          page: 1
         },
         limit: limit,
         total: 0,
@@ -122,20 +123,33 @@
         next()
       })
     },
+    mounted () {
+      this.init()
+    },
     methods: {
       init () {
         let route = this.$route.query
         this.query.status = route.status || ''
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
+        this.query.page = parseInt(route.page) || 1
+        if (this.query.page < 1) {
+          this.query.page = 1
+        }
         this.page = parseInt(route.page) || 1
         this.getContestList()
       },
       getContestList (page = 1) {
-        let offset = (page - 1) * this.limit
+        let offset = (this.query.page - 1) * this.limit
         api.getContestList(offset, this.limit, this.query).then((res) => {
           this.contests = res.data.data.results
           this.total = res.data.data.total
+        })
+      },
+      pushRouter () {
+        this.$router.push({
+          name: 'contest-list',
+          query: utils.filterEmptyValue(this.query)
         })
       },
       changeRoute () {

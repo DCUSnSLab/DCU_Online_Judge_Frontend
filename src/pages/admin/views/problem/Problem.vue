@@ -1,6 +1,5 @@
 <template>
   <div class="problem">
-
     <Panel :title="title">
       <el-form ref="form" :model="problem" :rules="rules" label-position="top" label-width="70px">
         <el-row :gutter="20">
@@ -115,9 +114,6 @@
         <div>
           <el-form-item v-for="(sample, index) in problem.samples" :key="'sample'+index">
             <Accordion :title="'Sample' + (index + 1)">
-              <el-button type="warning" size="small" icon="el-icon-delete" slot="header" @click="deleteSample(index)">
-                Delete
-              </el-button>
               <el-row :gutter="20">
                 <el-col :span="12">
                   <el-form-item :label="$t('m.Input_Samples')" required>
@@ -125,7 +121,8 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Input_Samples')"
-                      v-model="sample.input">
+                      v-model="sample.input"
+                      :disabled="true">
                     </el-input>
                   </el-form-item>
                 </el-col>
@@ -135,17 +132,14 @@
                       :rows="5"
                       type="textarea"
                       :placeholder="$t('m.Output_Samples')"
-                      v-model="sample.output">
+                      v-model="sample.output"
+                      :disabled="true">
                     </el-input>
                   </el-form-item>
                 </el-col>
               </el-row>
             </Accordion>
           </el-form-item>
-        </div>
-        <div class="add-sample-btn">
-          <button type="button" class="add-samples" @click="addSample()"><i class="el-icon-plus"></i>{{$t('m.Add_Sample')}}
-          </button>
         </div>
         <el-form-item style="margin-top: 20px" :label="$t('m.Hint')">
           <Simditor v-model="problem.hint" placeholder=""></Simditor>
@@ -216,7 +210,6 @@
               </el-radio-group>
             </el-form-item>
           </el-col>
-
           <el-col :span="4" v-if="problem.io_mode.io_mode == 'File IO'">
             <el-form-item :label="$t('m.InputFileName')" required>
               <el-input type="text" v-model="problem.io_mode.input"></el-input>
@@ -227,11 +220,18 @@
               <el-input type="text" v-model="problem.io_mode.output"></el-input>
             </el-form-item>
           </el-col>
-
           <el-col :span="24">
             <el-table
               :data="problem.test_case_score"
-              style="width: 100%">
+              :default-selection="sampleTestcasedata"
+              style="width: 100%"
+              ref="multipleTable">
+              <el-table-column type="selection"
+                width="55"
+                prop="sample"
+                :label="$t('sample')"
+                :selectable="sampleSelect">
+              </el-table-column>
               <el-table-column
                 prop="input_name"
                 :label="$t('m.Input')">
@@ -253,6 +253,17 @@
                 </template>
               </el-table-column>
             </el-table>
+            <el-tooltip
+              class="sample-select-tooltip"
+              content="예시는 최대 5개 선택 가능하며 버튼 클릭시 테스트케이스가 예시로 등록됩니다."
+              placement="top-start">
+              <el-button
+                  class="sample-button"
+                  size="small"
+                  @click="sampleButtonClick">
+                  <span>예시 선택</span>
+              </el-button>
+            </el-tooltip>
           </el-col>
         </el-row>
 
@@ -306,6 +317,8 @@
         spjMode: '',
         disableRuleType: false,
         routeName: '',
+        inputName: [],
+        selectedRows: [],
         error: {
           tags: '',
           spj: '',
@@ -336,7 +349,7 @@
           tags: [],
           languages: [],
           template: {},
-          samples: [{input: '', output: ''}],
+          samples: [],
           spj: false,
           spj_language: '',
           spj_code: '',
@@ -375,6 +388,11 @@
             data.spj_language = data.spj_language || 'C'
             this.problem = data
             this.testCaseUploaded = true
+            this.$nextTick(() => {
+              for (let i = 0; i < this.problem.samples.length; i++) {
+                this.$refs.multipleTable.toggleRowSelection(this.problem.test_case_score[i], true)
+              }
+            })
           })
         } else {
           this.title = this.$i18n.t('m.Add_Problem')
@@ -430,6 +448,43 @@
         } else {
           this.problem.spj = !this.problem.spj
         }
+      },
+      sampleTestcasedata () {
+        console.log('test')
+        return this.test_case_score[this.problem.samples.length]
+      },
+      sampleButtonClick () {
+        const selectedItems = this.$refs.multipleTable.selection
+        if (selectedItems.length === 0) {
+          this.$message({
+            message: '예시가 선택 안됨',
+            type: 'warning'
+          })
+          return false
+        } else {
+          this.$message({
+            message: '예시가 선택되었습니다',
+            type: 'success'
+          })
+        }
+        this.inputName = selectedItems.map(item => item.input_name).join(',')
+        api.getTestcase(this.problem.test_case_id, this.inputName).then(res => {
+          console.log(res)
+          let testCaseData = res.data.data.testCaseData
+          this.problem.samples = []
+          for (let i = 0; i < testCaseData.length; i++) {
+            if (!testCaseData[i].inData) {
+              testCaseData[i].inData = '없음'
+            }
+            if (!testCaseData[i].outData) {
+              testCaseData[i].outData = '없음'
+            }
+            this.problem.samples.push({
+              input: testCaseData[i].inData,
+              output: testCaseData[i].outData
+            })
+          }
+        })
       },
       querySearch (queryString, cb) {
         api.getProblemTagList().then(res => {
@@ -507,6 +562,18 @@
           })
         })
       },
+      sampleSelect (row, index) {
+        const maxSelections = 5
+        const selectedRows = this.$refs.multipleTable.selection
+        if (selectedRows.includes(row)) {
+          return true
+        } else {
+          if (selectedRows.length === maxSelections) {
+            return false
+          }
+        }
+        return true
+      },
       submit () {
         if (!this.problem.samples.length) {
           this.$error('Sample is required')
@@ -575,12 +642,14 @@
         if (funcName === 'editContestProblem') {
           this.problem.contest_id = this.contest.id
         }
+        api.renameTestcaseFile(this.problem.test_case_id, this.inputName)
         api[funcName](this.problem).then(res => {
-          if (this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem') {
-            this.$router.push({name: 'contest-problem-list', params: {contestId: this.$route.params.contestId}})
-          } else {
-            this.$router.push({name: 'problem-list'})
-          }
+          // if (this.routeName === 'create-contest-problem' || this.routeName === 'edit-contest-problem') {
+          //   this.$router.push({name: 'contest-problem-list', params: {contestId: this.$route.params.contestId}})
+          // } else {
+          //   this.$router.push({name: 'problem-list'})
+          // }
+          this.$router.go(-1)
         }).catch(() => {
         })
       }
@@ -635,7 +704,13 @@
     .add-sample-btn {
       margin-bottom: 10px;
     }
-
+    .sample-button {
+      background-color: #409EFF;
+      color: #FFFFFF;
+      border-radius: 5px;
+      padding: 12px 24px;
+      margin-top: 10px;
+    }
   }
 </style>
 
@@ -646,4 +721,3 @@
     overflow-x: scroll;
   }
 </style>
-

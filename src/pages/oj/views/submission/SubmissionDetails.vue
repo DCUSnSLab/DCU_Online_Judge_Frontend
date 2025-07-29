@@ -37,7 +37,14 @@
           {{$t('m.Share')}}
         </Button>
         -->
-
+        <!-- add github button-->
+        <el-input class="sidebar-content-margin" placeholder="토큰을 입력해주세요." v-model="Githubtoken"></el-input>
+        <el-input class="sidebar-content-margin" placeholder="GithubID를 입력해주세요." v-model="GithubID"></el-input>
+        <el-input class="sidebar-content-margin" placeholder="저장소 이름을 입력해주세요." v-model="GithubRepo"></el-input>
+        <el-button type="primary" size="large" @click="githubpush">
+          <i class="fab fa-github"></i>
+          <span>{{$t('m.PushGithub')}}</span>
+        </el-button>
         <el-button type="primary" v-b-toggle.sidebar-right>{{$t('m.qna')}}</el-button>
         <b-sidebar id="sidebar-right" title="Sidebar" width="500px" no-header right shadow>
           <div class="sidebar" id="wrapper">
@@ -110,6 +117,9 @@
         aiaskbutton: true,
         input: '',
         lectureID: '',
+        Githubtoken: '',
+        GithubID: '',
+        GithubRepo: '',
         qnaContent: {
           title: '',
           content: ''
@@ -208,6 +218,23 @@
         api.askQuAAI(params).then(res => {
           console.log(params)
           this.AIrespone = res.data.data
+          console.log(res)
+        })
+      },
+      githubpush () {
+        let params = {contestID: this.contestID,
+          problem: this.$route.params.problemID,
+          id: this.submission.id,
+          code: this.submission.code,
+          content: this.qnaContent,
+          submission: this.submission.info,
+          status: this.status,
+          Githubtoken: this.Githubtoken,
+          GithubID: this.GithubID,
+          GithubRepo: this.GithubRepo
+        }
+        api.pushgithub(params).then(res => {
+          console.log(params)
           console.log(res)
         })
       },

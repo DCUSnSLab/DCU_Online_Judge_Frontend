@@ -21,6 +21,9 @@ export default {
   logout () {
     return ajax('logout', 'get')
   },
+  getPublicKey () {
+    return ajax('get_public_key', 'get')
+  },
   getProfile () {
     return ajax('profile', 'get')
   },
@@ -459,10 +462,9 @@ export default {
       params
     })
   },
-  LectureCopy (params) {
-    params = utils.filterEmptyValue(params)
+  LectureCopy (data) {
     return ajax('admin/lecture/add_lecture_copy', 'post', {
-      params
+      data
     })
   },
   getReleaseNotes () {
@@ -477,6 +479,22 @@ export default {
   exportProblems (data) {
     return ajax('export_problem', 'post', {
       data
+    })
+  },
+  getTestcase (testcaseId, inputName) {
+    return ajax('admin/test_case_data', 'get', {
+      params: {
+        test_case_id: testcaseId,
+        input_name: inputName
+      }
+    })
+  },
+  renameTestcaseFile (testcaseId, inputName) {
+    return ajax('admin/test_case/rename', 'put', {
+      params: {
+        test_case_id: testcaseId,
+        input_name: inputName
+      }
     })
   }
 }

@@ -1,13 +1,12 @@
 <template>
   <Panel shadow :padding="10">
-    <div slot="title">
+    <div slot="title" :style="currentTheme">
       {{title}}
     </div>
     <div slot="extra">
       <Button v-if="listVisible" type="info" @click="init" :loading="btnLoading">{{$t('m.Refresh')}}</Button>
-      <Button v-else type="ghost" icon="ios-undo" @click="goBack">{{$t('m.Back')}}</Button>
+      <Button v-else type="ghost" icon="ios-undo" class="btn-back" @click="goBack">{{$t('m.Back')}}</Button>
     </div>
-
     <transition-group name="announcement-animate" mode="in-out">
       <div class="no-announcement" v-if="!announcements.length" key="no-announcement">
         <p>{{$t('m.No_Announcements')}}</p>
@@ -27,10 +26,10 @@
                     key="page"
                     :total="total"
                     :page-size="limit"
+                    :current="page"
                     @on-change="getAnnouncementList">
         </Pagination>
       </template>
-
       <template v-else>
         <div v-katex v-html="announcement.content" key="content" class="content-container markdown-body"></div>
       </template>
@@ -38,9 +37,14 @@
   </Panel>
 </template>
 
+
+
 <script>
   import api from '@oj/api'
   import Pagination from '@oj/components/Pagination'
+  import { mapState } from 'vuex'
+  import { lightTheme, darkTheme } from '@/theme'
+  import { page } from 'vue-analytics'
 
   export default {
     name: 'Announcement',
@@ -49,7 +53,7 @@
     },
     data () {
       return {
-        limit: 10,
+        limit: 10, // 페이지당 보여주는 공지사항 수
         total: 10,
         btnLoading: false,
         announcements: [],
@@ -61,14 +65,15 @@
       this.init()
     },
     methods: {
-      init () {
+      init () { // 초기화
         if (this.isContest) {
           this.getContestAnnouncementList()
         } else {
           this.getAnnouncementList()
         }
       },
-      getAnnouncementList (page = 1) {
+      getAnnouncementList (page = 1) { // 원래 page = 1, 공지사항 새로고침? 페이지 2로 이동 ㄱㄴ 문제 : 새로고침 누르면 페이지 1로 이동 문제는 하단 공지 사항 페이지 번호가 1로 안바뀜
+        this.page = page
         this.btnLoading = true
         api.getAnnouncementList((page - 1) * this.limit, this.limit).then(res => {
           this.btnLoading = false
@@ -91,8 +96,9 @@
         this.announcement = announcement
         this.listVisible = false
       },
+      // 공지사항 페이지로 돌아가기, 문제 : 공지사항 페이지 번호가 1로 바뀜
       goBack () {
-        this.listVisible = true
+        this.listVisible = true // 공지 리스트 보여주는거
         this.announcement = ''
       }
     },
@@ -106,6 +112,12 @@
       },
       isContest () {
         return !!this.$route.params.contestID
+      },
+      computed: {
+        ...mapState('theme', ['isDarkMode']),
+        currentTheme () {
+          return this.isDarkMode ? darkTheme : lightTheme
+        }
       }
     }
   }
@@ -121,7 +133,7 @@
       padding-bottom: 15px;
       margin-left: 20px;
       font-size: 16px;
-      border-bottom: 1px solid rgba(187, 187, 187, 0.5);
+      border-bottom: 1px solid var(--list-border-bottom);
       &:last-child {
         border-bottom: none;
       }
@@ -131,10 +143,10 @@
           text-align: left;
           padding-left: 10px;
           a.entry {
-            color: #495060;
+            color: var(--announcement-title-color);
             &:hover {
-              color: #2d8cf0;
-              border-bottom: 1px solid #2d8cf0;
+              color: var(--announcement-title-hover-color);
+              border-bottom: 1px solid var(--announcement-title-hover-color);
             }
           }
         }
@@ -152,6 +164,10 @@
     }
   }
 
+  .btn-back {
+    color: var(--button-text-color);
+  }
+  
   .content-container {
     padding: 0 20px 20px 20px;
   }

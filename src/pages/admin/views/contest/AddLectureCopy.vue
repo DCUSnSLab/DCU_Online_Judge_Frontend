@@ -1,16 +1,22 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="4">
+      <!--실습, 과제, 대회 목록에서 과목 전체 복사 페이지 -->
+      <el-col :span="2">
         <el-select v-model="year">
+          <el-option v-for="year in years" :key="year" :value="year">
+            {{ year }}
+          </el-option>
+        </el-select>
+        <!-- <el-select v-model="year">
           <el-option value="2020">2020년도</el-option>
           <el-option value="2021">2021년도</el-option>
           <el-option value="2022">2022년도</el-option>
           <el-option value="2023">2023년도</el-option>
           <el-option value="2024">2024년도</el-option>
-        </el-select>
+        </el-select> -->
       </el-col>
-      <el-col :span="2">
+      <el-col :span="1">
         <el-select v-model="semester">
           <el-option value="1">{{$t('m.First_Semester')}}</el-option>
           <el-option value="2">{{$t('m.Second_Semester')}}</el-option>
@@ -20,16 +26,23 @@
       <el-col :span="12">
         <el-input
           v-model="keyword"
-          placeholder="$t('m.Lecture_Search')"
+          :placeholder="$t('m.Lecture_Search')"
           width="100">
         </el-input>
       </el-col>
       <el-col :span="2">
-        <el-button @click="searchLecture">{{$t('m.Search')}}</el-button>
+        <el-button @click="searchLecture">{{$t('m.Lecture_Search')}}</el-button>
       </el-col>
-      <el-col :span="4">
-        <el-checkbox v-model="showPublic" label="$t('m.See_All_Lecture')" border></el-checkbox>
+      <el-col :span="3">
+        <el-checkbox v-model="showPublic" :label="$t('m.CopyPublickContest_All_Lecture')" border></el-checkbox>
         <!-- <el-checkbox-button :label="showPublicCont"></el-checkbox-button> -->
+      </el-col>
+      <el-col :span="3">
+        <el-date-picker
+          v-model="start_time"
+          type="datetime"
+          :placeholder="$t('첫 번째 실습 시작 시간')">
+        </el-date-picker>
       </el-col>
     </el-row>
     <el-table :data="contests" v-loading="loading">
@@ -39,16 +52,16 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="$t('m.Maker')"
+        :label="$t('m.StudentList_Creator')"
         width="70"
         prop="created_by.realname">
       </el-table-column>
       <el-table-column
-        label="$t('m.LectureTitle')"
+        :label="$t('m.Lecture_title')"
         prop="title">
       </el-table-column>
       <el-table-column
-        label="$t('m.Add')"
+        :label="$t('m.Add')"
         align="center"
         width="100"
         fixed="right">
@@ -83,7 +96,19 @@
         total: 0,
         loading: false,
         contests: [],
-        keyword: ''
+        keyword: '',
+        start_time: ''
+      }
+    },
+    computed: {
+      years () {
+        const startYear = 2019 // 2019년도부터
+        const endYear = new Date().getFullYear() // 현재 년도
+        const yearArray = []
+        for (let i = startYear; i <= endYear; i++) {
+          yearArray.push(i)
+        }
+        return yearArray
       }
     },
     mounted () {
@@ -129,8 +154,13 @@
       },
       handleAddContest (lectureID) {
         let data = {
-          selectLectureID: lectureID,
-          lecture_id: this.lectureID
+          select_lecture_ID: lectureID,
+          lecture_id: this.lectureID,
+          start_time: this.start_time
+        }
+        if (this.start_time === '') {
+          this.$error('첫 번째 실습 시작 시간을 입력해 주세요.(첫 번째 실습 시작 시간 입력 시, 해당 시작 시간 기준으로 모든 실습시간이 변경됩니다.)')
+          return
         }
         api.LectureCopy(data).then(() => {
           this.$emit('on-change')

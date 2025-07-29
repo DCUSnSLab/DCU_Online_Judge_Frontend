@@ -7,10 +7,10 @@
         <hr/>
         <div class="sidebar-content">
           <br/>
-          <span>내용</span>
-          <el-input class="sidebar-content-margin" placeholder="제목을 입력해주세요." v-model="qnaContent.title"></el-input>
+          <span>{{$t('m.Contents') }}</span>
+          <el-input class="sidebar-content-margin" :placeholder="$t('m.Please_enter_subject')" v-model="qnaContent.title"></el-input>
           <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
-          <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">저장하기</el-button>
+          <el-button type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">{{$t('m.Save') }}</el-button>
         </div>
       </div>
     </b-sidebar>
@@ -48,5 +48,4 @@
     margin-top: 20px;
     text-align: right
   }
-
 </style>

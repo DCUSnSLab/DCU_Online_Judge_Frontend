@@ -2,12 +2,12 @@
   <div>
     <div style="padding-bottom: 10px;">
     </div>
-    <panel title="문제 추출 (beta)">
+    <panel :title="$t('m.ImportOrExport_Problem_Extract')">
       <div slot="header">
         <el-input
           v-model="keyword"
           prefix-icon="el-icon-search"
-          placeholder="Keywords">
+          :placeholder="$t('m.ImportOrExport_Keywords_Placeholder')">
         </el-input>
       </div>
       <el-table :data="problems"
@@ -27,16 +27,16 @@
           prop="_id">
         </el-table-column>
         <el-table-column
-          label="제목"
+          :label="$t('m.ImportOrExport_Title')"
           prop="title">
         </el-table-column>
         <el-table-column
           prop="created_by.username"
-          label="작성자">
+          :label="$t('m.ImportOrExport_Author')">
         </el-table-column>
         <el-table-column
           prop="create_time"
-          label="작성 시간">
+          :label="$t('m.ImportOrExport_Creation_Time')">
           <template slot-scope="scope">
             {{scope.row.create_time | localtime }}
           </template>
@@ -45,7 +45,7 @@
 
       <div class="panel-options">
         <el-button type="primary" size="small" v-show="selected_problems.length"
-                   @click="exportProblems" icon="el-icon-fa-arrow-down">Export
+                   @click="exportProblems" icon="el-icon-fa-arrow-down"> {{$t('m.ImportOrExport_Export')}}
         </el-button>
         <el-pagination
           class="page"
@@ -56,7 +56,7 @@
         </el-pagination>
       </div>
     </panel>
-    <panel title="QDUOJ 문제 가져 오기 (beta)">
+    <panel :title="$t('m.ImportOrExport_Import_QDUOJ')">
       <el-upload
         ref="QDU"
         action="/api/admin/import_problem"
@@ -69,12 +69,12 @@
         :auto-upload="false"
         :on-success="uploadSucceeded"
         :on-error="uploadFailed">
-        <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">파일 선택</el-button>
-        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('QDU')">업로드</el-button>
+        <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">{{$t('m.ImportOrExport_Select_File')}}</el-button>
+        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('QDU')">{{$t('m.ImportOrExport_Upload')}}</el-button>
       </el-upload>
     </panel>
 
-    <panel title="FPS 문제 가져 오기 (beta)">
+    <panel :title="$t('m.ImportOrExport_Import_FPS')">
       <el-upload
         ref="FPS"
         action="/api/admin/import_fps"
@@ -87,8 +87,8 @@
         :auto-upload="false"
         :on-success="uploadSucceeded"
         :on-error="uploadFailed">
-        <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">파일 선택</el-button>
-        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('FPS')">업로드</el-button>
+        <el-button size="small" type="primary" icon="el-icon-fa-upload" slot="trigger">{{$t('m.ImportOrExport_Select_File')}}</el-button>
+        <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload('FPS')">{{$t('m.ImportOrExport_Upload')}}</el-button>
       </el-upload>
     </panel>
   </div>

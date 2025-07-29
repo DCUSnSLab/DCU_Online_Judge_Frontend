@@ -13,6 +13,11 @@ export default {
       data
     })
   },
+  tokenRefresh (data) {
+    return ajax('token_refresh', 'post', {
+      data
+    })
+  },
   getAIhelperflag (data) {
     return ajax('lecture/aihelperflag', 'post', {
       data
@@ -78,6 +83,11 @@ export default {
       data
     })
   },
+  pushgithub (params) {
+    return ajax('githubpush', 'get', {
+      params
+    })
+  },
   askQuAAI (params) {
     return ajax('aihelper', 'get', {
       params
@@ -106,6 +116,9 @@ export default {
     return ajax('announcement', 'get', {
       params
     })
+  },
+  getPublicKey () {
+    return ajax('get_public_key', 'get')
   },
   login (data) {
     return ajax('login', 'post', {
@@ -463,7 +476,12 @@ export default {
       data
     })
   },
-  checkContestExit (contestId) {    // working by soojung
+  checkInContest (data) {
+    return ajax('contest/check_in', 'post', {
+      data
+    })
+  },
+  checkContestExit (contestId) {
     return ajax('problem/contest_exit_info', 'get', {
       params: {
         contest_id: contestId

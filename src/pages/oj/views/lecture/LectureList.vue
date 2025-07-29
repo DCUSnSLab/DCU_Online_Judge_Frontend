@@ -1,7 +1,7 @@
 <template>
   <Row type="flex">
     <Col :span="24">
-    <Panel id="lecture-card" shadow>
+    <Panel id="lecture-card" shadow :style="currentTheme">
       <div slot="title"><b>{{$t('m.Lectures')}}</b></div>
       <div slot="extra">
         <ul class="filter">
@@ -15,22 +15,22 @@
         <li><!--표시될 개설과목 수가 0이 아닌 경우에만 출력-->
           <Row id="tb-column" type="flex" justify="space-between" align="middle">
             <Col :span="2" style="text-align: center">
-                <span>{{ yearsort }} 년도</span>
+                <span>{{ yearsort }} {{$t('m.Year')}}</span>
             </Col>
             <Col v-if="semestersort < 3" :span="1" style="text-align: center">
-                <span>{{ semestersort }} 학기</span>
+                <span>{{ semestersort }} {{$t('m.Semester')}}</span>
             </Col>
             <Col v-else :span="1" style="text-align: center">
               <span style="font-size: 15px">입학 전 <br>프로그램</span>
             </Col>
             <Col :span="12">
-              <p>과목명</p>
+              <p>{{$t('m.Subject')}}</p>
             </Col>
             <Col :span="1">
-              <p>담당교수</p>
+              <p>{{$t('m.Professors')}}</p>
 			      </Col>
             <Col :span="4" style="text-align: center">
-              수강신청 상태
+              {{$t('m.Lecture_registration_status')}}
 			      </Col>
           </Row>
         </li>
@@ -53,14 +53,14 @@
               {{ lecture.created_by.realname }}
 			      </Col>
             <Col :span="4" style="text-align: center">
-              <Button @click="applylecture(lecture)">수강신청</Button>
+              <Button @click="applylecture(lecture)">{{$t('m.Lecture_Apply')}}</Button>
 			      </Col>
           </Row>
         </li>
       </ol>
       <p id="no-lecture" v-if="lectures.length == 0">{{$t('m.No_lecture')}}</p>
     </Panel>
-    <Pagination :total="total" :pageSize="limit" @on-change="getLectureList" :current.sync="page"></Pagination>
+    <Pagination :total="total" :pageSize="limit" @on-change="pushRouter" :current.sync="query.page"></Pagination>
     </Col>
   </Row>
 
@@ -68,10 +68,11 @@
 
 <script>
   import api from '@oj/api'
-  import { mapGetters } from 'vuex'
+  import { mapState, mapGetters } from 'vuex'
   import utils from '@/utils/utils'
   import Pagination from '@/pages/oj/components/Pagination'
   import time from '@/utils/time'
+  import { lightTheme, darkTheme } from '@/theme'
 
   const limit = 8
 
@@ -88,7 +89,8 @@
         query: {
           status: '',
           keyword: '',
-          rule_type: ''
+          rule_type: '',
+          page: 1
         },
         limit: limit,
         total: 0,
@@ -113,22 +115,26 @@
     mounted () {
       let d = new Date()
       this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
-      console.log(this.semestersort)
       this.yearsort = d.getFullYear()
+      this.init()
     },
     methods: {
       init () {
         let route = this.$route.query
+        let query = this.$route.query
         this.query.rule_type = route.rule_type || ''
         this.query.keyword = route.keyword || ''
-        this.page = parseInt(route.page) || 1
+        this.query.page = parseInt(query.page) || 1
+        if (this.query.page < 1) {
+          this.query.page = 1
+        }
         let d = new Date()
         this.yearsort = d.getFullYear()
         this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
         this.getLectureList()
       },
-      getLectureList (page = 1) {
-        let offset = (page - 1) * this.limit
+      getLectureList () {
+        let offset = (this.query.page - 1) * this.limit
         api.getLectureList(offset, this.limit, this.query).then((res) => {
           this.lectures = res.data.data.results
           this.total = res.data.data.total
@@ -142,6 +148,12 @@
           query: utils.filterEmptyValue(query)
         })
       },
+      pushRouter () {
+        this.$router.push({
+          name: 'lecture-list',
+          query: utils.filterEmptyValue(this.query)
+        })
+      },
       onStatusChange (status) {
         this.query.status = status
         this.page = 1
@@ -153,7 +165,7 @@
       },
       applylecture (lecture) {
         if (!this.user.username) {
-          this.$error('로그인 후 가능합니다.')
+          this.$error(this.$i18n.t('m.Please_login_first'))
         } else {
           let data = {
             lecture_id: lecture.id,
@@ -165,7 +177,7 @@
           console.log(data)
           api.applyLecture(data).then(res => {
             this.getLectureList(this.page)
-            this.$success('Success')
+            this.$success(this.$i18n.t('m.Succeeded'))
           })
         }
       },
@@ -174,7 +186,11 @@
       }
     },
     computed: {
-      ...mapGetters(['isAuthenticated', 'user'])
+      ...mapGetters(['isAuthenticated', 'user']),
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
+      }
     },
     watch: {
       '$route' (newVal, oldVal) {
@@ -188,6 +204,7 @@
 </script>
 <style lang="less" scoped>
   #lecture-card {
+    color: var(--text-color);
     #keyword {
       width: 80%;
       margin-right: 30px;
@@ -200,7 +217,7 @@
     #lecture-list {
       > li {
         padding: 20px;
-        border-bottom: 1px solid rgba(187, 187, 187, 0.5);
+        border-bottom: 1px solid var(--list-border-bottom);
         list-style: none;
 
         .trophy {
