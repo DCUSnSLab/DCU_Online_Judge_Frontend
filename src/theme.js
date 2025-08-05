@@ -28,7 +28,8 @@ export const lightTheme = {
   '--problem-example-box-color': '#e9eaec',
   '--qna-card-backgound': '#fff',
   '--qna-text-color': '#495060',
-  '--qna-card-border-color': 'ebeef5'
+  '--qna-card-border-color': 'ebeef5',
+  '--hyperlink-text-color': '#000000'
   // 추가적인 스타일 정의
 }
 export const darkTheme = {
@@ -60,6 +61,7 @@ export const darkTheme = {
   '--problem-example-box-color': '#444',
   '--qna-card-backgound': '#444',
   '--qna-text-color': '#fff',
-  '--qna-card-border-color': '222'
+  '--qna-card-border-color': '222',
+  '--hyperlink-text-color': '#fff'
   // 추가적인 스타일 정의
 }
