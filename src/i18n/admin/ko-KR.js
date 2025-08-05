@@ -62,8 +62,8 @@ export const m = {
   Alert_Import_User: '헤더가 없는 CSV 파일을 선택하십시오. 자세한 내용은 링크 를 확인 하십시오',
   Alert_Import_User_Link: '링크',
   Select_File: '파일 선택',
-  Usergenerate_prefix: '접두어',
-  Usergenerate_suffix: '접미어',
+  Usergenerate_prefix: '아이디 접두어',
+  Usergenerate_suffix: '아이디 접미어',
   Usergenerate_number_from: '시작 번호',
   Usergenerate_number_to: '끝 번호',
   Usergenerate_passwd_len: '비밀번호 길이',
@@ -382,5 +382,9 @@ export const m = {
   // 수강과목 학생
   Student: '학생',
   Student_List: '학생 목록',
-  Alert_Warning: '경고'
+  Alert_Warning: '경고',
+  TA_RA: 'TA/RA',
+  Permission_None: 'Permission_None',
+  Own: 'Own',
+  Permission_All: 'Permission_All'
 }

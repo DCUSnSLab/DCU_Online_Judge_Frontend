@@ -354,5 +354,9 @@ export const m = {
   LectureList_Student_List: 'Student List',
   LectureList_Delete_Lecture: 'Delete Lecture',
   LectureList_Delete_Alert_Msg: 'Are you sure you want to delete this course?',
-  LectureList_Delete_Alert_Confirm: 'Delete Course'
+  LectureList_Delete_Alert_Confirm: 'Delete Course',
+  TA_RA: 'TA/RA',
+  Permission_None: 'Permission_None',
+  Own: 'Own',
+  Permission_All: 'Permission_All'
 }

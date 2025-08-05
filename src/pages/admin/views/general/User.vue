@@ -208,10 +208,10 @@
           <el-col :span="12">
             <el-form-item :label="$t('m.User_Type')">
               <el-select v-model="user.admin_type">
-                <el-option :label="$t('m.Student')" value="Regular User"></el-option>
-                <el-option :label="$t('m.TA/RA')" value="TA_Admin"></el-option>
-                <el-option :label="$t('m.Professor')" value="Admin"></el-option>
-                <el-option :label="$t('m.Admin')" value="Super Admin"></el-option>
+                <el-option :label="$t('m.User_Type_Student')" value="Regular User"></el-option>
+                <el-option :label="$t('m.TA_RA')" value="TA_Admin"></el-option>
+                <el-option :label="$t('m.User_Type_Professor')" value="Admin"></el-option>
+                <el-option :label="$t('m.User_Type_Admin')" value="Super Admin"></el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -265,7 +265,7 @@
   import api from '../../api.js'
   import utils from '@/utils/utils'
   import JSEncrypt from 'jsencrypt'
-  
+
   export default {
     name: 'User',
     data () {
