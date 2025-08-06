@@ -43,6 +43,7 @@
     <template slot="title"><Icon type="information-circled"></Icon>{{$t('m.About')}}</template>
     <el-menu-item index="/about">{{$t('m.Judger')}}</el-menu-item>
     <el-menu-item index="/FAQ">{{$t('m.FAQ')}}</el-menu-item>
+    <el-menu-item index="/contributors">{{$t('m.Contributors')}}</el-menu-item>
   </el-submenu>
   <div style="float: right; margin-right: 15px; margin-top: 15px;">
     <ThemeToggle />

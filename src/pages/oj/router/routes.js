@@ -9,6 +9,7 @@ import {
   Login_,
   Logout,
   Container,
+  Contributors,
   NotFound,
   OIRank,
   Problem,
@@ -301,6 +302,12 @@ export default [
     name: 'faq',
     meta: {title: 'FAQ'},
     component: FAQ
+  },
+  {
+    path: '/contributors',
+    name: 'contributors',
+    meta: {title: 'Contributors'},
+    component: Contributors
   },
   {
     path: '/ide',
