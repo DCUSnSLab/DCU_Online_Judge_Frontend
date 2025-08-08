@@ -1,5 +1,5 @@
 <template>
-  <Row type="flex" justify="space-around">
+  <Row type="flex" justify="space-around" style="flex-wrap: wrap;">
     <!-- 1열 -->
     <Col :span="22">
       <panel v-if="(month == 3)">
@@ -27,7 +27,7 @@
         </Form>
       </el-dialog>
     </Col>
-    <Col :span="22">
+    <Col :span="22" style="flex-grow: 1;">
       <panel>
         <div slot="title">
           {{$t('m.DCU_Code_Usage_manual_student')}}
@@ -36,7 +36,7 @@
         </div>
       </panel>
     </Col>
-    <Col :span="22">
+    <Col :span="22" style="flex-grow: 1;">
       <panel>
         <div slot="title">
           <!--{{$t('m.DCU_Code_Intro_video')}}-->
@@ -55,7 +55,7 @@
         </p>
       </panel>
     </Col>
-    <Col :span="22">
+    <Col :span="22" style="flex-grow: 1;">
       <panel class="lecture" v-if="$store.state.user.profile.id !== undefined && !isAdmin">
         <div slot="title">
           {{$t('m.My_Course_Progress')}}
@@ -132,7 +132,7 @@
         <!-- </template> -->
       </panel>
     </Col>
-    <Col :span="22">
+    <Col :span="22" style="flex-grow: 1;">
       <Announcements class="announcement"></Announcements>
     </Col>
   </Row>
@@ -218,7 +218,7 @@ export default {
       loadingSaveBtn: false,
       month: 0,
       term: null,
-      apiUrl: 'http://203.250.33.193:11434/api/generate',
+      apiUrl: 'http://203.250.35.27:31320/llm/generate',
       userInput: ''
     }
   },
@@ -226,15 +226,29 @@ export default {
     this.setDashboard()
     let today = new Date()
     this.month = today.getMonth() + 1
+    this.adjustTerminalSize()
+    window.addEventListener('resize', this.adjustTerminalSize)
     this.initTerminal()
   },
+  beforeDestroy () {
+    window.removeEventListener('resize', this.adjustTerminalSize) // 이벤트 리스너 정리
+  },
   methods: {
+    adjustTerminalSize () {
+      const windowWidth = window.innerWidth
+      this.termCols = Math.floor(windowWidth / 10)  // 예: 윈도우 너비를 10으로 나누어 컬럼 수 결정
+      this.termFontSize = 16 // 폰트 크기는 최소 10, 윈도우 너비의 1%로 계산
+      if (this.term) {
+        this.term.resize(this.termCols, Math.floor(window.innerHeight / 30)) // 줄 수는 대충 30으로 나누어 계산
+        this.term.setOption('fontSize', this.termFontSize) // 폰트 크기 설정
+      }
+    },
     initTerminal () {
       this.term = new Terminal({
         cursorBlink: true, // 커서 깜박임 활성화
-        cols: 140,
-        rows: 25,
-        fontSize: 14,
+        cols: this.termCols,
+        rows: 24,
+        fontSize: this.termFontSize,
         wordWrap: true,
         theme: {
           background: '#000000',
@@ -267,7 +281,7 @@ export default {
       this.term.write('\x1b[0m') // 색상 초기화
       this.term.write('모집 공고 : https://gleaming-wound-252.notion.site/Recruit-e6aa63beb7ea463dacfcd755e2e3c04c\r\n')
       this.term.write('↓↓↓ 궁금한게 있으면 바로 물어보세요 (질문을 입력하고 Enter를 누르세요.)↓↓↓\r\n')
-      this.term.write('\x1b[32mDCU Llama Chat - Ollama API 연결됨\r\n')
+      this.term.write('\x1b[32mDCUCODE에서 제공하는 LLM(Llama) Chat API 연결됨, 첫 질의는 대답에 시간이 조금 걸릴 수 있습니다.\r\n')
     },
     promptUser () {
       this.userInput = ''
@@ -276,16 +290,77 @@ export default {
     async sendToOllama (userInput) {
       if (!userInput.trim()) return
       const prePrompt = `
-        지금부터 프롬프트는 아래 조건에 따라 수행되어야 함
+        이 질의 이후부터는 아래 조건에 따라 수행되어야 하니 꼭 지키기 바래
         - 대답은 무조건 한국어로만 한다. 필요에 따라 영어를 쓸 수 있음.
-        - 내가 제공 해주는 연구실 관련된 대답만 해야함.
+        - 아래 제공 해주는 "연구실 정보"와 관련된 대답만 해야함.
         - 연구실 정보 이외에 대한 대답은 모두 거부하십시오.
         - 연구실 정보:
         - 연구실이름 : 소프트웨어시스템연구실(Software&System Lab.)
         - 지도교수: 전수빈, 서동만
-        - 프로젝트: 자율주행, 딥러닝, 딥러닝시스템, 딥러닝응용시스템
-        - 연구생정보 : 박준홍, 권혁규, 조준현, 문지원, 박보은, 임찬아, 윤재이, 정하연
-        `
+        - 연구실 소속: 대구가톨릭대학교 컴퓨터소프트웨어학부
+        - 연구실 위치 : 공학관(D2) 521호
+        - 연구생정보 : 박준홍, 권혁규, 조준현, 문지원, 박보은, 임찬아, 윤재이, 정하연, 최유정, 박한백, 배경민, 박근우
+        - 주요 연구 분야:
+          1. 자율주행(Autonomous Driving) - LiDAR, GPS, 카메라 센서를 활용한 자율주행 알고리즘 연구(객체인식, 추적, 경로주행, 위치인식, 차량제어, 로봇제어 등)
+          2. 로봇시스템(Robot System)
+          3. 딥러닝(Deep Learning) - AI 모델 개발 및 응용
+          4. 쿠버네티스 기반 클라우드시스템 - 쿠버네티스 시스템 연구, 풀스택 개발, 실습시스템 개발(DCUCODE, 리눅스 및 딥러닝 가상화시스템 개발 제공 등)
+          5. 기계 학습(Machine Learning) - 데이터 분석 및 최적화 알고리즘 연구
+          6. 소프트웨어 공학(Software Engineering) - 소프트웨어 시스템 설계 및 개발
+          7. 지능형 교통 시스템(Intelligent Transportation System, ITS) - 신호 제어 및 교통 분석 연구
+          8. 사물인터넷(Internet of Things, IoT) - 임베디드 시스템 및 IoT 기술 연구
+        - 주요 연구 프로젝트:
+          1. 탄소저감 신호제어 알고리즘 평가 시뮬레이션 SW 개발
+          2. 엣지 디바이스를 활용한 교차로 교통신호 측정 시스템
+          3. 센서 퓨전 기반 도로 노면 및 시설물 파손 탐지 시스템 연구
+          4. 딥러닝을 이용한 병변 분석 및 화장품 성분 스코어링을 통한 맞춤형 화장품 추천
+          5. 쿠버네티스 기반 다수 사용자용 소프트웨어 실습 가상화 시스템 구축
+          6. 국제 대학생 EV 자율주행 경진대회 참가 및 연구
+        - 주요 연구 논문 (최근 연구 포함):
+          1. "Implementation of Re-Simulation-Based Integrated Analysis System to Evaluate and Improve Autonomous Driving Algorithms" (2024) - S Jeon, J Park, D Seo (SCIE)
+          2. "쿠버네티스 기반의 사용자 맞춤형 작업 공간 제공 서비스" (2024) - 임찬아, 배경민, 문지원, 박준홍, 서동만, 전수빈 (국내 학회)
+          3. "자율주행을 위한 깊이 카메라 기반 차선 탐지 및 좌표 변환 정확성 향상 기법" (2024) - 배경민, 박한백, 문지원, 박준홍, 서동만, 전수빈 (국내 학회)
+          4. "GPS 기반 자율주행 경로 시각화 및 행동계획 설정 도구 개발" (2024) - 정하연, 문지원, 박준홍, 전수빈, 서동만 (국내 학회)
+          5. "딥러닝을 이용한 병변 분석 및 화장품 성분 스코어링을 통한 맞춤형 화장품 추천 방법" (2024) - 윤재이, 박준홍, 권혁규, 조준현, 서동만, 전수빈 (국내 학회)
+          6. "Deep Learning-Based Pothole Detection System with Aerial Image" (2023) - S Jeon, S Kim, J Park, D Seo (국제 학회)
+          7. "Design and Implementation of Cheating Prevention Features for Online Code Judge System" (2023) - S Kim, J Park, S Kim, S Jeon, D Seo (국제 학회)
+          8. "Improvement of Tiny Object Segmentation Accuracy in Aerial Images for Asphalt Pavement Pothole Detection" (2023) - S Kim, D Seo, S Jeon (SCIE)
+          9. "Design and implementation of object detection and re-simulation system based on lidar" (2023) - H Jo, S Park, J Park, D Seo, S Jeon (IEEE 국제 학회)
+          10. "Web-based online judge system for online programming education" (2022) - S Kim, J Park, S Jeon, D Seo (IEEE 국제 학회)
+        - 주요 연구 장비:
+          1. A6000 GPU 클러스터
+          2. NVIDIA RTX 서버
+          3. LiDAR 센서
+          4. RGB-D 카메라
+          5. 자율주행 차량 플랫폼(SCV)
+        - 협력 기관:
+          1. 한국도로공사
+          3. 과학기술정보통신부
+          4. 국토교통부
+          5. 대구광역시
+          6. 한국건설기술연구원
+          7. 대구경북지역혁신플랫폼
+          8. (주)아토맘코리아
+          9. (주)지오비전
+        - 연구생 모집 공고
+          **모집 대상**
+          - 2학년 **이상,** 남녀노소 누구나
+          - 남자는 군필 or 미필(**면제**, **전문연구**)
+          - **몰라도 배우려는 의지**를 보유한 사람
+
+          **연구 분야**
+          - **자율주행&로봇 시스템**
+              - 객체인식&추적,경로주행,제어,센서
+          - **인공지능 시스템**
+              - 인공지능모델, 응용시스템
+          - 프론트엔드, 백엔드, 풀스택, 디자인
+              - **DCU CODE 개발 및 관리**
+          - 클라우드시스템
+              - 쿠버네티스기반의 클라우드 시스템 관리 및 개발 (컨테이너 가상화, GPU스캐쥴러 등)
+
+          **신청 방법**
+          사이트 접속 후 신청 폼 작성 : https://gleaming-wound-252.notion.site/Recruit-e6aa63beb7ea463dacfcd755e2e3c04c
+      `
       const fullPrompt = prePrompt + '\n\n' + 'Q: ' + userInput
       this.term.write('\x1b[36m[Llama]:\x1b[37m 생각중...\r\n')
       try {
@@ -325,7 +400,7 @@ export default {
     },
     async sendToOllama2 (userInput) {
       if (!userInput.trim()) return
-      this.term.write('\x1b[36m[Llama]:\x1b[37m 생각중...\r\n')
+      this.term.write('\x1b[36m[Llama]:\x1b[37m ')
       try {
         const response = await axios.post(this.apiUrl, {
           model: 'llama3.3',  // 사용할 모델 (Ollama 서버에 설정된 모델명 확인)
