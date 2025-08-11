@@ -72,5 +72,5 @@ package-lock.json
 vendor-manifest.json
 vendor.dll*.js
 
-
-
+# testcase
+*.zip

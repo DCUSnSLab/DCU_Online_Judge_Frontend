@@ -90,8 +90,8 @@
         <!--submission student list (working by soojung)-->
         <!-- view case, disappear case, route -->
         <VerticalMenu-item
-          v-if="(OIContestRealTimePermission && contestType === '대회' && lectureID) || (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta)"
-          :disabled="!((this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta)) && (contestMenuDisabled || (ContestInOutStatus  !== 'checkIn' && ContestInOutStatus  !== 'notStudent'))"
+          v-if="(this.$store.getters.isAdmin || (this.$store.getters.isSemiAdmin && this.Ta)) || (OIContestRealTimePermission && contestType === '대회' && lectureID)"
+          :disabled="!(this.$store.getters.isAdmin || (this.$store.getters.isSemiAdmin && this.Ta)) && (contestMenuDisabled || (ContestInOutStatus  !== 'checkIn' && ContestInOutStatus  !== 'notStudent'))"
           :route="{
             name: 'lecture-contest-exit',
             params: {
@@ -103,7 +103,7 @@
             }
           }">
           <Icon type="android-exit"></Icon>
-          {{$t('m.Exit')}}
+          {{ (this.$store.getters.isAdmin || (this.$store.getters.isSemiAdmin && this.Ta)) ? '관리' : $t('m.Exit') }}
         </VerticalMenu-item>
       </VerticalMenu>
     </div>
@@ -277,7 +277,7 @@
       },
       ...mapGetters(
         ['contestMenuDisabled', 'contestRuleType', 'contestStatus', 'countdown', 'isContestAdmin',
-          'OIContestRealTimePermission', 'passwordFormVisible']
+          'OIContestRealTimePermission', 'passwordFormVisible', 'isAdminRole']
       ),
       countdownColor () {
         if (this.contestStatus) {
@@ -290,7 +290,6 @@
       showAdminHelper () {
         return this.typeIs && this.contestRuleType === 'ACM'
       }
-
       // if (this.contestRuleType === 'ACM') {
       //     api.checkContestExit(this.contestID).then(res => {
       //       if (res.data.data.data === 'notStudent') {
