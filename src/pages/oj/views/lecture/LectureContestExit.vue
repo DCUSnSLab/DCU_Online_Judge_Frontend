@@ -1,8 +1,16 @@
 <template>
   <div class="flex-container" v-if="accsessR && (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)">
     <div id="manage">
-      <Panel v-if="isContestMode" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
+      <Panel v-show="chkContesttype" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
         <div slot="title"><b>사용자 퇴실 관리</b>
+          <el-input
+            type="text"
+            v-model="keyword"
+            @input="currentChange(1)"
+            prefix-icon="el-icon-search"
+            :placeholder="$t('m.User_Search')"
+            style="width: 200px; margin-left: 10px; display: inline-flex; align-items: center;">
+          </el-input>
           <Button @click.native="exitAllStudent()" style="float:right">전체 퇴실 처리</Button>
         </div>
         <template>
@@ -10,7 +18,7 @@
             v-loading="loadingTable"
             element-loading-text="loading"
             @selection-change="handleSelectionChange"
-            :data="userList"
+            :data="filteredUserList"
             style="width: 100%">
             <el-table-column prop="realname" label="이름" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
@@ -50,7 +58,7 @@
                   </span>
               </template>
             </el-table-column>
-<!--            <el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
+            <!--<el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
             <el-table-column prop="exit_status" label="시험 상태" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
                 <span v-if="scope.row.exit_status" style="color:green">
@@ -66,7 +74,10 @@
             </el-table-column>
             <el-table-column fixed="right" label="응시 상태 변경" width="200" align="center">
               <template slot-scope="{row}">
-                <icon-btn name="변경" icon="edit" @click.native="ExitStudent(row.user.id)"></icon-btn>
+                <select v-model="row.exit_status" @change="ExitStudent(row.user.id)" class="custom-select">
+                  <option value="true">응시완료</option>
+                  <option value="false">미응시</option>
+                </select>
               </template>
             </el-table-column>
           </el-table>
@@ -226,7 +237,8 @@ export default {
       problemList: [], // 문제 ID 또는 이름 목록
       studentProblemData: {}, // { userID: { problemID: { score, copied, focusing } } }
       Ta: null,
-      accsessR: false
+      accsessR: false,
+      chkContesttype: false // 대회 여부 확인
     }
   },
   mounted () {
@@ -236,6 +248,9 @@ export default {
     this.lectureFounder = this.$route.params.lectureFounder
     console.log(this.isAdminRole)
     console.log(this.isSemiAdmin)
+    this.$store.dispatch('getContest').then(res => {
+      this.chkContesttype = res.data.data.lecture_contest_type === '대회' // 대회 여부 확인
+    })
     api.getTAList(this.lectureID).then(res => {
       console.log(res)
       this.Ta = res.data.data
@@ -289,6 +304,7 @@ export default {
     },
     // 퇴실 철회 (수정 필요)
     ExitStudent (userid) {
+      alert('응시 상태가 변경되었습니다.')
       if (userid === undefined) {
         userid = null
       }
@@ -381,6 +397,15 @@ export default {
     }
   },
   computed: {
+    filteredUserList () {
+      const keyword = this.keyword.trim()
+      if (!keyword) return this.userList
+
+      return this.userList.filter(user => {
+        const name = user.realname || (user.user && user.user.realname) || ''
+        return name.includes(keyword)
+      })
+    },
     ...mapGetters(['isAdmin', 'isSemiAdmin']),
     selectedUserIDs () {
       let ids = []
@@ -426,6 +451,7 @@ export default {
 <style scoped lang="less">
 .flex-container {
   #manage {
+    overflow-x: auto;
     flex: auto;
     margin-right: 18px;
     .filter {
@@ -480,5 +506,14 @@ th, td {
 
 .el-checkbox-group { // el 로 시작하는 tag들은 class에 css를 적용하는것과 비슷하게 적용하면 된다.
   padding-bottom: 20px;
+}
+
+.custom-select {
+  // text-align: center;
+  width: 100px;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1px solid rgba(220, 220, 220, 0.5);
 }
 </style>

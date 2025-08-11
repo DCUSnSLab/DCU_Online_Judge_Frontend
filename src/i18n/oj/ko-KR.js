@@ -315,5 +315,6 @@ export const m = {
   Browser: '브라우저',
   Last_activity: '마지막 활동',
   PushGithub: 'Github에 업로드',
-  Container: 'DCU Shell'
+  Container: 'DCU Shell',
+  User_Search: '사용자 검색'
 }
