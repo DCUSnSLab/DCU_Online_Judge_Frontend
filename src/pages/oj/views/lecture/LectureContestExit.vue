@@ -304,18 +304,25 @@ export default {
     },
     // 퇴실 철회 (수정 필요)
     ExitStudent (userid) {
-      alert('응시 상태가 변경되었습니다.')
-      if (userid === undefined) {
-        userid = null
-      }
-      let data = {
-        contest_id: this.contestID,
-        user_id: userid
-      }
-      console.log(data)
-      api.exitStudent(data).then(res => {
-        this.getUserList(this.page)
-        this.$success('Success')
+      this.$confirm('정말로 응시 상태를 변경하시겠습니까?', '확인', {
+        confirmButtonText: '네',
+        cancelButtonText: '아니요',
+        type: 'warning'
+      }).then(() => {
+        if (userid === undefined) {
+          userid = null
+        }
+        let data = {
+          contest_id: this.contestID,
+          user_id: userid
+        }
+        console.log(data)
+        api.exitStudent(data).then(res => {
+          this.getUserList(this.page)
+          this.$success('응시 상태가 변경되었습니다.')
+        })
+      }).catch(() => {
+        this.$info('취소되었습니다.')
       })
     },
     exitAllStudent () {
