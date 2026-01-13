@@ -30,6 +30,11 @@ export const m = {
   Day: '일',
   Hour: '시간',
   Minute: '분',
+  // ContestDetail.vue
+  Creator: 'Creator',
+  StartAt: 'StartAt',
+  EndAt: 'EndAt',
+  ContestType: 'ContestType',
   // ACMContestRank.vue
   Menu: '메뉴',
   Chart: '차트',
@@ -95,9 +100,23 @@ export const m = {
   You_have_submitted_a_solution: '솔루션을 제출하셨습니다.',
   Contest_has_ended: '종료되었습니다.',
   Already_Submitted: '이미 제출됨',  // working by soojung
+  Test: '테스트',
+  Execution_Result: '실행 결과',
+  Execution: '실행',
+  Running: '실행중',
+  Type: '타입',
+  Your_Output: '당신의 출력',
+  DCU_Output: '디쿠의 출력',
+  // CodeMirror.vue
   Theme: '색상 테마',
+  Reset_to_default_code_definition: 'Reset to default code definition',
+  Upload_file: '파일 업로드',
+  Monokai: 'Monokai',
+  Solarized_Light: 'Solarized Light',
+  Material: 'Material',
   Please_enter_subject: '제목을 입력해주세요',
   Close: '닫기',
+  View_Contest: 'View Contest',
   Are_you_sure_you_want_to_reset_your_code: '코드를 초기화 하시겠습니까?',
   Code_can_not_be_empty: '코드는 비워둘 수 없습니다.',
   Submit_code_successfully: '코드 제출 성공',
@@ -105,6 +124,7 @@ export const m = {
   Failed_to_copy: '복사를 실패했습니다.',
   // About.vue
   Result_Explanation: '결과 설명',
+  Result: '결과',
   Pending_Juding: '곧 채점 될 예정입니다. 잠시만 기다려주세요.',
   Compile_Error: '소스코드 컴파일에 실패했습니다. 컴파일 오류 내용을 확인하세요.',
   Accepted: '정답입니다.',
@@ -159,6 +179,7 @@ export const m = {
   Settings: '설정',
   Management: '관리',
   Logout: '로그아웃',
+  Welcome_to: 'Welcome to',
   // announcements.vue
   Refresh: '새로고침',
   Back: '뒤로가기',
@@ -224,7 +245,6 @@ export const m = {
   UserHomeScore: '점수',
   List_Solved_Problems: '푼 문제들',
   UserHomeIntro: '아직 어떠한 문제도 풀지 않았습니다.',
-  Test: '테스트',
   Regenerate: '갱신',
   // Lecture
   Signup_Lectures: '수강 과목',
@@ -261,8 +281,11 @@ export const m = {
   Search_Author: '코드 작성자 검색',
   Succeeded: '성공',
   No_empty_Password: '비밀번호는 비워둘 수 없습니다.',
+  Select_Problem: '문제 선택',
   // Save.vue
   Save: '저장',
+  // Simditor.vue
+  Uploading_is_in_progress: 'Uploading is in progress, are you sure to leave this page?',
   DCUCode_qna: 'DCU Code 질문/답변',
   qna_solved: '해결 완료',
   qna_delete: '삭제 하기',
@@ -292,5 +315,6 @@ export const m = {
   Browser: '브라우저',
   Last_activity: '마지막 활동',
   PushGithub: 'Github에 업로드',
-  Container: 'DCU Shell'
+  Container: 'DCU Shell',
+  User_Search: '사용자 검색'
 }

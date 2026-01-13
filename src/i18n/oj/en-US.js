@@ -57,9 +57,17 @@ export const m = {
   You_have_submission_in_this_problem_sure_to_cover_it: 'You have submission in this problem, sure to cover it?',
   Code_Copied: 'Code copied.',
   Failed_to_copy: 'Failed to copy code',
+  Test: 'Test',
+  Execution_Result: 'Execution Result',
+  Execution: 'Execution',
+  Running: 'Running',
+  Type: 'Type',
+  Your_Output: 'Your output',
+  DCU_Output: 'DCU\'s output',
   // About.vue
   Compiler: 'Compiler',
   Result_Explanation: 'Result Explanation',
+  Result: 'Result',
   Pending_Judging_Description: 'You solution will be judged soon, please wait for result.',
   Compile_Error_Description: "Failed to compile your source code. Click on the link to see compiler's output.",
   Accepted_Description: 'Congratulations. Your solution is correct.',
@@ -289,6 +297,7 @@ export const m = {
   Partial_Accepted: 'Partial Accepted',
   Compile_Error: 'Compile Error',
   Rejudge: 'Rejudge',
+  Select_Problem: 'Select a Problem',
   // UserHome.vue
   UserHomeSolved: 'Solved',
   UserHomeserSubmissions: 'Submissions',
@@ -348,5 +357,6 @@ export const m = {
   Browser: 'Browser',
   Last_activity: 'Last Activity',
   PushGithub: 'Upload to Github',
-  Container: 'DCU Shell'
+  Container: 'DCU Shell',
+  User_Search: 'User Search'
 }

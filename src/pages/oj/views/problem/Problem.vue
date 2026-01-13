@@ -18,9 +18,8 @@
               <div class="flex-container sample">
                 <div class="sample-input">
                   <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
-                    <a class="copy" v-clipboard:copy="sample.input" v-clipboard:success="onCopy"
-                      v-clipboard:error="onCopyError">
-                      <Icon type="clipboard"></Icon>
+                    <a class="copy" @click="handleSampleCopy(sample.input)">
+<!--                      <Icon type="clipboard"></Icon>-->
                     </a>
                   </p>
                   <pre>{{ sample.input }}</pre>
@@ -56,7 +55,7 @@
       <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
         <!--problem main end-->
         <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
-      </iframe>-->  
+      </iframe>-->
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
             @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight*0.9" :ToggleValue="toggleValue"></CodeMirror>
@@ -108,8 +107,8 @@
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-                <span v-if="running">실행</span>
-                <span v-else>실행</span>
+                <span v-if="running">{{$t('m.Running')}}</span>
+                <span v-else>{{$t('m.Execution')}}</span>
               </Button>
             </el-tooltip>
             <el-tooltip v-if="aiaskbutton" >
@@ -146,9 +145,9 @@
           </Row>
           <Card :padding="20" id="run-code" dis-hover>
             <div class="result-tap">
-              <p class="title">{{$t('실행 결과')}}</p>
+              <p class="title">{{$t('m.Execution_Result')}}</p>
               <div class="input-output-container">
-                <p class="sub-title">{{$t('타입')}}</p>
+                <p class="sub-title">{{$t('m.Type')}}</p>
                 <el-switch
                   v-model="showResultType"
                   inline-prompt
@@ -160,26 +159,26 @@
             </div>
             <div v-if="showResultType">
               <el-tabs type="border-card">
-                <el-tab-pane 
+                <el-tab-pane
                   v-for="(sample, index) of problem.samples"
                   :key="index"
                   :label="getRunResultLable(index)"
                 >
                   <div class="input-output-container">
                     <div class="input-container">
-                      <p class="sub-title">{{$t('입력')}}</p>
+                      <p class="sub-title">{{$t('m.Input')}}</p>
                       <div class="text-box">
                         <pre>{{sample.input}}</pre>
                       </div>
                     </div>
                     <div class="output-container">
-                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.Your_Output')}}</p>
                       <div class="text-box">
                         <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                       </div>
                     </div>
                     <div class="sample-output-container">
-                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                       <div class="text-box">
                         <pre>{{sample.output}}</pre>
                       </div>
@@ -195,10 +194,10 @@
                     <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
                     <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
                     <p class="title">
-                        {{$t('테스트')}} {{index + 1}}
+                        {{$t('m.Test')}} {{index + 1}}
                     </p>
                     <div class="result-container">
-                        <p class="sub-title">{{$t('결과 >')}}</p>
+                        <p class="sub-title">{{$t('m.Result')}} ></p>
                         <div class="text-box"
                         :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
                           <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
@@ -207,19 +206,19 @@
                   </div>
                   <div v-if="isTestcaseSelected(index)" class="input-output-container">
                     <div class="input-container">
-                      <p class="sub-title">{{$t('입력')}}</p>
+                      <p class="sub-title">{{$t('m.Input')}}</p>
                       <div class="text-box">
                         <pre>{{sample.input}}</pre>
                       </div>
                     </div>
                     <div class="output-container">
-                      <p class="sub-title">{{$t('당신의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.Your_Output')}}</p>
                       <div class="text-box">
                         <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                       </div>
                     </div>
                     <div class="sample-output-container">
-                      <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                      <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                       <div class="text-box">
                         <pre>{{sample.output}}</pre>
                       </div>
@@ -250,9 +249,8 @@
               <div class="flex-container sample">
                 <div class="sample-input">
                   <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
-                    <a class="copy" v-clipboard:copy="sample.input" v-clipboard:success="onCopy"
-                      v-clipboard:error="onCopyError">
-                      <Icon type="clipboard"></Icon>
+                    <a class="copy" @click="handleSampleCopy(sample.input)">
+<!--                      <Icon type="clipboard"></Icon>-->
                     </a>
                   </p>
                   <pre>{{ sample.input }}</pre>
@@ -335,8 +333,8 @@
               <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
                     :disabled="problemSubmitDisabled || submitted"
                     class="run-btn">
-                <span v-if="running">실행중</span>
-                <span v-else>실행</span>
+                <span v-if="running">{{$t('m.Running')}}</span>
+                <span v-else>{{$t('m.Execution')}}</span>
               </Button>
             </el-tooltip>
             <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
@@ -374,9 +372,9 @@
         </Card>
         <Card :padding="20" id="run-code" dis-hover>
           <div class="result-tap">
-            <p class="title">{{$t('실행 결과')}}</p>
+            <p class="title">{{$t('m.Execution_Result')}}</p>
             <div class="input-output-container">
-              <p class="sub-title">{{$t('타입')}}</p>
+              <p class="sub-title">{{$t('m.Type')}}</p>
               <el-switch
                 v-model="showResultType"
                 inline-prompt
@@ -388,26 +386,26 @@
           </div>
           <div v-if="showResultType">
             <el-tabs type="border-card">
-              <el-tab-pane 
+              <el-tab-pane
                 v-for="(sample, index) of problem.samples"
                 :key="index"
                 :label="getRunResultLable(index)"
               >
                 <div class="input-output-container">
                   <div class="input-container">
-                    <p class="sub-title">{{$t('입력')}}</p>
+                    <p class="sub-title">{{$t('m.Input')}}</p>
                     <div class="text-box">
                       <pre>{{sample.input}}</pre>
                     </div>
                   </div>
                   <div class="output-container">
-                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.Your_Output')}}</p>
                     <div class="text-box">
                       <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                     </div>
                   </div>
                   <div class="sample-output-container">
-                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                     <div class="text-box">
                       <pre>{{sample.output}}</pre>
                     </div>
@@ -423,10 +421,10 @@
                   <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
                   <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
                   <p class="title">
-                      {{$t('테스트')}} {{index + 1}}
+                      {{$t('m.Test')}} {{index + 1}}
                   </p>
                   <div class="result-container">
-                      <p class="sub-title">{{$t('결과 >')}}</p>
+                      <p class="sub-title">{{$t('m.Result')}} ></p>
                       <div class="text-box"
                       :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
                         <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
@@ -435,19 +433,19 @@
                 </div>
                 <div v-if="isTestcaseSelected(index)" class="input-output-container">
                   <div class="input-container">
-                    <p class="sub-title">{{$t('입력')}}</p>
+                    <p class="sub-title">{{$t('m.Input')}}</p>
                     <div class="text-box">
                       <pre>{{sample.input}}</pre>
                     </div>
                   </div>
                   <div class="output-container">
-                    <p class="sub-title">{{$t('당신의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.Your_Output')}}</p>
                     <div class="text-box">
                       <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
                     </div>
                   </div>
                   <div class="sample-output-container">
-                    <p class="sub-title">{{$t('디쿠의 출력')}}</p>
+                    <p class="sub-title">{{$t('m.DCU_Output')}}</p>
                     <div class="text-box">
                       <pre>{{sample.output}}</pre>
                     </div>
@@ -624,11 +622,18 @@
   import Simditor from '../../components/Simditor.vue'
   import axios from 'axios'
   import { lightTheme, darkTheme } from '@/theme'
-  
+
   Vue.use(SidebarPlugin)
 
   // 只显示这些状态的图形占用
   const filtedStatus = ['-1', '-2', '0', '1', '2', '3', '4', '8']
+
+  function getCookie (name) {
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop().split(';').shift()
+    return null
+  }
 
   export default {
     name: 'Problem',
@@ -698,7 +703,8 @@
         running: false,
         contestType: '',
         isBlurred: false,
-        antiData: { copy: 0, focusScreen: 0 }
+        antiData: { copy: 0, focusScreen: 0 },
+        initialAntiData: { copy: 0, focusScreen: 0 }
       }
     },
 
@@ -726,6 +732,7 @@
       window.addEventListener('focus', this.handleScreenFocus)
       document.addEventListener('contextmenu', this.handleRightClick)
       window.addEventListener('keyup', this.handleKeyUp)
+      window.addEventListener('beforeunload', this.handleBeforeUnload)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
@@ -736,8 +743,46 @@
       window.removeEventListener('focus', this.handleScreenFocus)
       document.removeEventListener('contextmenu', this.handleRightClick)
       window.removeEventListener('keyup', this.handleKeyUp)
+      window.removeEventListener('beforeunload', this.handleBeforeUnload)
     },
     methods: {
+      logUserEvent (problemID, ruleType, contestID, focusing, copied) {
+        return api.logUserEvent(problemID, ruleType, contestID, focusing, copied)
+      },
+      handleBeforeUnload (event) {
+        console.log('Before unload event triggered')
+
+        const copiedDiff = this.antiData.copy - this.initialAntiData.copy
+        const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
+
+        if (copiedDiff > 0 || focusDiff > 0) {
+          const logData = {
+            problem_id: this.problem.id,
+            rule_type: this.rule_type,
+            contest_id: this.contestID,
+            focusing: focusDiff,
+            copied: copiedDiff
+          }
+
+          console.log('Sending log data with fetch:', logData)
+
+          const csrfToken = getCookie('csrftoken')  // ✅ 쿠키에서 CSRF 토큰 가져오기
+
+          fetch('/api/user/event_log', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken               // ✅ CSRF 헤더 추가
+            },
+            body: JSON.stringify(logData),
+            keepalive: true,
+            credentials: 'include'                   // ✅ 쿠키 동봉 필수
+          })
+        }
+
+        event.preventDefault()
+        event.returnValue = ''
+      },
       handleResize () {
         this.dynamicHeight = window.innerHeight
       },
@@ -822,6 +867,11 @@
           problem.languages = problem.languages.sort()
           this.problem = problem
           this.changePie(problem)
+          this.antiData.copy = problem.copied || 0
+          this.antiData.focusScreen = problem.focusing || 0
+          this.initialAntiData.copy = this.antiData.copy
+          this.initialAntiData.focusScreen = this.antiData.focusScreen
+          this.rule_type = problem.rule_type
 
           // 在beforeRouteEnter中修改了, 说明本地有code，无需加载template
           if (this.code !== '') {
@@ -980,11 +1030,15 @@
         this.submissionId = ''
         this.result = {result: 9}
         this.submitting = true
+
         let data = {
           problem_id: this.problem.id,
           language: this.language,
           code: this.code,
-          contest_id: this.contestID
+          contest_id: this.contestID,
+          copied: this.antiData.copy,               // 안티 데이터 추가
+          focusing: this.antiData.focusScreen,      // 안티 데이터 추가
+          rule_type: this.problem.rule_type
         }
         if (this.captchaRequired) {
           data.captcha = this.captchaCode
@@ -1108,7 +1162,26 @@
       //   let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
       //   return text.split('').map(() => randomChars[Math.floor(Math.random() * randomChars.length)]).join('')
       // },
+      handleSampleCopy (text) {
+        this.ignoreNextCopy = true // 🔥 이 플래그를 세워서 다음 copy 이벤트 무시
+        // 직접 복사
+        navigator.clipboard.writeText(text)
+          .then(() => {
+            this.$message.success(this.$t('m.Code_Copied'))
+          })
+          .catch(() => {
+            this.$message.error(this.$t('m.Failed_to_copy'))
+          })
+        // 🔥 잠시 후 플래그 해제
+        setTimeout(() => {
+          this.ignoreNextCopy = false
+        }, 50)
+      },
       handleCopy (event) {
+        if (this.ignoreNextCopy) {
+          // ❗복사 버튼에서 발생한 copy 이벤트는 무시
+          return
+        }
         if (event.target.closest('#submit-code')) {
           return // 코드 입력 구간에서는 복사 방지 예외 처리
         }
@@ -1210,7 +1283,7 @@
       },
       submissionRoute () {
         if (this.contestID) {
-          return {name: 'contest-submission-list', query: {problemID: this.problem.id}}
+          return {name: 'contest-submission-list', query: {problemID: this.problemID_}}
         } else {
           return {name: 'submission-list', query: {problemID: this.problem.id}}
         }
@@ -1226,6 +1299,20 @@
         language: this.language,
         theme: this.theme
       })
+
+      const copiedDiff = this.antiData.copy - this.initialAntiData.copy
+      const focusDiff = this.antiData.focusScreen - this.initialAntiData.focusScreen
+
+      if (copiedDiff > 0 || focusDiff > 0) {
+        this.logUserEvent(
+          this.problem.id,
+          this.rule_type,
+          this.contestID,
+          focusDiff,
+          copiedDiff
+        )
+      }
+
       next()
     },
     watch: {
@@ -1255,7 +1342,7 @@
       flex: 5; /* 5:7 비율로 나누기 위해 5로 설정 */
       margin-right: 9px;
       overflow: scroll;
- 
+
     }
     #problem-main-height {
       flex: auto;
@@ -1309,7 +1396,7 @@
 
   #submit-code {
     background-color: var(--panelBackground);
-    color: var(--text-color); 
+    color: var(--text-color);
     .status {
       float: left;
       span {
@@ -1385,7 +1472,7 @@
     width: 500px;
     height: 480px;
   }
-  
+
 </style>
 
 

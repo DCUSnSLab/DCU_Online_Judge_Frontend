@@ -108,7 +108,7 @@
         contestType: '',
         columns: [
           {
-            title: this.$i18n.t('m.Id'),
+            title: this.$i18n.t('m.ID'),
             render: (h, params) => {
               return h('span', params.row.id)
             }

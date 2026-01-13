@@ -16,7 +16,7 @@
   </el-menu-item>
   <el-menu-item index="/container">
     <Icon type="monitor"></Icon>
-    {{$t('DCU Shell')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
+    {{$t('m.Container')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
   </el-menu-item>
   <el-menu-item index="/contest">
     <Icon type="ios-book"></Icon>
@@ -360,7 +360,8 @@
       font-size: 16px;
       float: right;
       margin-right: 10px;
-      margin-top: 15px;
+      margin-left: -40px;
+      margin-top: 10px;
     }
     .el-menu-item1 {
       padding-right: 0 !important;
@@ -391,4 +392,5 @@
   .notify {
       display: flex;
   }
+
 </style>
