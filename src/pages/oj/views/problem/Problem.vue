@@ -1,10 +1,10 @@
 <template>
   <div class="flex-container" :style="currentTheme">
     <el-col :span="10" v-if="problemRes" id="view-mode">
-      <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: dynamicHeight-150 + 'px' }"> <!--가로 모드 문제란-->
-        <Panel :padding="40" shadow>
+      <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: paneHeight + 'px', overflow: 'hidden' }"> <!--가로 모드 문제란-->
+        <Panel :padding="40" shadow style="height: 100%">
           <div slot="title">{{ problem.title }}</div>
-          <div id="problem-content" class="markdown-body" v-katex>
+          <div id="problem-content" class="markdown-body" v-katex :style="{ height: (paneHeight - 60) + 'px', overflowY: 'auto' }">
             <p class="title">{{ $t('m.Description') }}</p>
             <p class="content" v-html=problem.description></p>
             <!-- {{$t('m.music')}} -->
@@ -52,13 +52,13 @@
           </div>
         </Card>
       </el-col>
-      <el-col :span="7" v-if="toggleValue" id="problem-source"> <!--가로 모드 소스코드 제출란-->
+      <el-col :span="7" v-if="toggleValue" id="problem-source" :style="{ height: paneHeight + 'px', overflowY: 'auto' }"> <!--가로 모드 소스코드 제출란-->
         <!--problem main end-->
         <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
       </iframe>-->
         <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
-            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="dynamicHeight*0.9" :ToggleValue="toggleValue"></CodeMirror>
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="codeMirrorHeight" :ToggleValue="toggleValue"></CodeMirror>
           <Row type="flex" justify="space-between">
             <Col :span="10">
             <div class="status" v-if="statusVisible">
@@ -227,29 +227,38 @@
                 </div>
               </div>
             </div>
-          </Card>
-          <!-- LLM Hint Card (가로 모드) -->
-          <Card v-if="llmHintVisible" id="llm-hint" dis-hover>
-            <div class="hint-header" @click="llmHintExpanded = !llmHintExpanded">
-              <div class="hint-header-left">
-                <span class="hint-icon">💡</span>
-                <span class="hint-title">AI 힌트</span>
-              </div>
-              <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
-            </div>
-            <div v-if="llmHintExpanded" class="hint-body">
-              <div v-if="llmHintLoading" class="hint-loading">
-                <Spin size="large"/>
-                <p>힌트를 생성하고 있습니다...</p>
-              </div>
-              <div v-else class="hint-content">
-                <pre>{{ llmHintText }}</pre>
-              </div>
-            </div>
-          </Card>
         </Card>
+      </Card>
       </el-col>
-      <div v-else id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
+      
+      <!-- LLM Hint Card (가로 모드 - 전체 너비) -->
+      <Card v-if="llmHintVisible && toggleValue" id="llm-hint" dis-hover>
+        <div class="hint-header" @click="llmHintExpanded = !llmHintExpanded">
+          <div class="hint-header-left">
+            <span class="hint-icon">💡</span>
+            <span class="hint-title">AI 힌트</span>
+          </div>
+          <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
+        </div>
+        <div v-if="llmHintExpanded" class="hint-body">
+          <div class="hint-chat-area" ref="hintChatArea">
+            <div v-for="(msg, idx) in llmChatMessages" :key="idx" :class="['chat-bubble', msg.role === 'user' ? 'chat-user' : 'chat-assistant']">
+              <div class="chat-role">{{ msg.role === 'user' ? '🙋 나' : '🤖 AI' }}</div>
+              <div class="chat-msg-body" v-html="renderMarkdown(msg.content)"></div>
+            </div>
+            <div v-if="llmHintLoading" class="hint-loading">
+              <Spin size="small"/>
+              <span>응답 생성 중...</span>
+            </div>
+          </div>
+          <div class="hint-input-area">
+            <Input v-model="llmFollowUpInput" placeholder="추가 질문을 입력하세요..." @on-enter="sendFollowUpQuestion" :disabled="llmHintLoading" />
+            <Button type="warning" icon="ios-send" :loading="llmHintLoading" :disabled="!llmFollowUpInput.trim()" @click="sendFollowUpQuestion">전송</Button>
+          </div>
+        </div>
+      </Card>
+
+      <div v-if="!toggleValue" id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
         <Panel :padding="40" shadow>
           <div slot="title">{{ problem.title }}</div>
           <div id="problem-content" class="markdown-body" v-katex>
@@ -484,12 +493,19 @@
             <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
           </div>
           <div v-if="llmHintExpanded" class="hint-body">
-            <div v-if="llmHintLoading" class="hint-loading">
-              <Spin size="large"/>
-              <p>힌트를 생성하고 있습니다...</p>
+            <div class="hint-chat-area" ref="hintChatAreaVertical">
+              <div v-for="(msg, idx) in llmChatMessages" :key="idx" :class="['chat-bubble', msg.role === 'user' ? 'chat-user' : 'chat-assistant']">
+                <div class="chat-role">{{ msg.role === 'user' ? '🙋 나' : '🤖 AI' }}</div>
+                <div class="chat-msg-body" v-html="renderMarkdown(msg.content)"></div>
+              </div>
+              <div v-if="llmHintLoading" class="hint-loading">
+                <Spin size="small"/>
+                <span>응답 생성 중...</span>
+              </div>
             </div>
-            <div v-else class="hint-content">
-              <pre>{{ llmHintText }}</pre>
+            <div class="hint-input-area">
+              <Input v-model="llmFollowUpInput" placeholder="추가 질문을 입력하세요..." @on-enter="sendFollowUpQuestion" :disabled="llmHintLoading" />
+              <Button type="warning" icon="ios-send" :loading="llmHintLoading" :disabled="!llmFollowUpInput.trim()" @click="sendFollowUpQuestion">전송</Button>
             </div>
           </div>
         </Card>
@@ -640,6 +656,15 @@
         <Button type="ghost" @click="graphVisible = false">{{ $t('m.Close') }}</Button>
       </div>
     </Modal>
+    </Modal>
+    
+    <transition name="fade">
+      <div v-if="showHintNotification" class="ai-hint-notification" @click="scrollToHint">
+        <span class="notify-icon">👇</span>
+        <span class="notify-text">AI 힌트가 도착했습니다!</span>
+        <Icon type="close" class="notify-close" @click.stop="showHintNotification = false" />
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -746,7 +771,12 @@
         llmHintVisible: false,
         llmHintExpanded: true,
         llmHintLoading: false,
-        llmHintText: ''
+        llmHintText: '',
+        llmChatMessages: [],
+        llmConversationHistory: [],
+        llmFollowUpInput: '',
+        showHintNotification: false,
+        scrollTimeout: null
       }
     },
 
@@ -775,6 +805,7 @@
       document.addEventListener('contextmenu', this.handleRightClick)
       window.addEventListener('keyup', this.handleKeyUp)
       window.addEventListener('beforeunload', this.handleBeforeUnload)
+      window.addEventListener('scroll', this.handleMainScroll)
     },
     beforeDestroy () {
       window.removeEventListener('resize', this.handleResize)
@@ -786,6 +817,7 @@
       document.removeEventListener('contextmenu', this.handleRightClick)
       window.removeEventListener('keyup', this.handleKeyUp)
       window.removeEventListener('beforeunload', this.handleBeforeUnload)
+      window.removeEventListener('scroll', this.handleMainScroll)
     },
     methods: {
       logUserEvent (problemID, ruleType, contestID, focusing, copied) {
@@ -1215,6 +1247,8 @@
         this.llmHintExpanded = true
         this.llmHintLoading = true
         this.llmHintText = ''
+        this.llmChatMessages = []
+        this.llmFollowUpInput = ''
 
         // 문제 설명 구성
         const problemDesc = [
@@ -1249,37 +1283,136 @@
 
         const userPrompt = `## 문제 설명\n${problemDesc}\n\n## 샘플 입출력\n${sampleInfo}\n\n## 제출한 코드 (${this.language})\n${this.code}\n\n## 실행 결과\n${resultDesc}`
 
+        const systemMsg = { role: 'system', content: '당신은 프로그래밍 교육 조교입니다. 학생이 제출한 코드가 틀렸습니다. 반드시 아래 규칙을 지키세요:\n1. 절대로 정답 코드, 수정된 코드, 또는 문제를 풀 수 있는 코드 조각을 제공하지 마세요.\n2. 코드 블록(```)을 사용하여 코드를 직접 작성하지 마세요.\n3. 어디가 잘못되었는지 개념적 힌트와 방향만 제시하세요.\n4. 학생이 스스로 문제를 해결하도록 유도하세요.\n5. 한국어로 답변하세요.\n6. 답변은 간결하게 3~5문장으로 해주세요.' }
+        const firstUserMsg = { role: 'user', content: userPrompt }
+
+        this.llmConversationHistory = [systemMsg, firstUserMsg]
+
+        this.streamLLMRequest([systemMsg, firstUserMsg])
+      },
+      sendFollowUpQuestion () {
+        const question = this.llmFollowUpInput.trim()
+        if (!question || this.llmHintLoading) return
+
+        this.llmChatMessages.push({ role: 'user', content: question })
+        this.llmConversationHistory.push({ role: 'user', content: question })
+        this.llmFollowUpInput = ''
+        this.llmHintLoading = true
+        this.scrollChatToBottom()
+
+        this.streamLLMRequest(this.llmConversationHistory)
+      },
+      async streamLLMRequest (messages) {
+        this.llmHintLoading = true
+
+        // 빈 assistant 메시지를 먼저 추가 (스트리밍으로 채워짐)
+        const assistantMsg = { role: 'assistant', content: '' }
+        this.llmChatMessages.push(assistantMsg)
+        const msgIndex = this.llmChatMessages.length - 1
+        this.scrollChatToBottom()
+
         const requestBody = {
           model: 'Qwen/Qwen2.5-Coder-7B-Instruct',
-          messages: [
-            {
-              role: 'system',
-              content: '당신은 프로그래밍 교육 조교입니다. 학생이 제출한 코드가 틀렸습니다. 정답 코드를 직접 알려주지 마세요. 대신 학생이 스스로 문제를 해결할 수 있도록 힌트를 제공해주세요. 어디가 잘못되었는지 방향을 잡아주되, 수정된 코드를 제공하지 마세요. 한국어로 답변하세요. 답변은 간결하게 3~5문장으로 해주세요.'
-            },
-            {
-              role: 'user',
-              content: userPrompt
-            }
-          ],
+          messages: messages,
           max_tokens: 512,
-          temperature: 0.7
+          temperature: 0.7,
+          stream: true
         }
 
-        axios.post('http://203.250.33.77/v1/chat/completions', requestBody, {
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 30000
-        }).then(res => {
-          if (res.data && res.data.choices && res.data.choices.length > 0) {
-            this.llmHintText = res.data.choices[0].message.content
-          } else {
-            this.llmHintText = '힌트를 생성하지 못했습니다. 다시 시도해주세요.'
+        try {
+          const response = await fetch('http://203.250.33.77/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
+          })
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`)
           }
-        }).catch(err => {
-          console.error('LLM hint error:', err)
-          this.llmHintText = '힌트 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'
-        }).finally(() => {
+
+          const reader = response.body.getReader()
+          const decoder = new TextDecoder('utf-8')
+          let buffer = ''
+          let fullContent = ''
+
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+
+            buffer += decoder.decode(value, { stream: true })
+
+            // SSE 형식 파싱: "data: {...}\n\n"
+            const lines = buffer.split('\n')
+            buffer = lines.pop() || ''
+
+            for (const line of lines) {
+              const trimmed = line.trim()
+              if (!trimmed || !trimmed.startsWith('data:')) continue
+              const jsonStr = trimmed.slice(5).trim()
+              if (jsonStr === '[DONE]') continue
+
+              try {
+                const chunk = JSON.parse(jsonStr)
+                const delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta
+                if (delta && delta.content) {
+                  fullContent += delta.content
+                  this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: fullContent })
+                  this.scrollChatToBottom()
+                }
+              } catch (e) {
+                // JSON 파싱 실패 무시 (불완전한 청크)
+              }
+            }
+          }
+
+          // 대화 히스토리에 최종 응답 저장
+          if (fullContent) {
+            this.llmHintText = fullContent
+            this.llmConversationHistory.push({ role: 'assistant', content: fullContent })
+          } else if (!this.llmChatMessages[msgIndex].content) {
+            this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: '힌트를 생성하지 못했습니다. 다시 시도해주세요.' })
+          }
+        } catch (err) {
+          console.error('LLM streaming error:', err)
+          this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: '힌트 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.' })
+        } finally {
           this.llmHintLoading = false
+          this.scrollChatToBottom()
+        }
+      },
+      scrollChatToBottom () {
+        this.$nextTick(() => {
+          const el = this.$refs.hintChatArea || this.$refs.hintChatAreaVertical
+          if (el) el.scrollTop = el.scrollHeight
         })
+      },
+      renderMarkdown (text) {
+        if (!text) return ''
+        // HTML 특수문자 이스케이프
+        const escapeHtml = (str) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+
+        // 펜스드 코드 블록 (```lang ... ```) — 완성된 블록
+        let result = text.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
+          const langLabel = lang ? `<span class="code-lang">${escapeHtml(lang)}</span>` : ''
+          return `<div class="md-code-block">${langLabel}<pre><code>${escapeHtml(code.replace(/\n$/, ''))}</code></pre></div>`
+        })
+
+        // 스트리밍 중 아직 닫히지 않은 코드 블록 (```lang\ncode... 끝에 ``` 없음)
+        result = result.replace(/```(\w*)\n([\s\S]*)$/g, (match, lang, code) => {
+          const langLabel = lang ? `<span class="code-lang">${escapeHtml(lang)}</span>` : ''
+          return `<div class="md-code-block">${langLabel}<pre><code>${escapeHtml(code.replace(/\n$/, ''))}</code></pre></div>`
+        })
+
+        // 인라인 코드 (`code`)
+        result = result.replace(/`([^`]+)`/g, '<code class="md-inline-code">$1</code>')
+
+        // 굵은 텍스트 (**bold**)
+        result = result.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+
+        // 줄바꾼 처리
+        result = result.replace(/\n/g, '<br>')
+
+        return result
       },
       isDarkMode () {
         return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
@@ -1384,12 +1517,33 @@
       handleRightClick (event) {
         event.preventDefault()
         // this.$message.warning('우클릭이 차단되었습니다.')
+      },
+      handleMainScroll () {
+        if (this.showHintNotification) {
+          this.showHintNotification = false
+          if (this.scrollTimeout) clearTimeout(this.scrollTimeout)
+        }
+      },
+      scrollToHint () {
+        const el = document.getElementById('llm-hint') || document.querySelector('#llm-hint')
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+          this.showHintNotification = false
+          // Open hint if closed
+          this.llmHintExpanded = true
+        }
       }
     },
     computed: {
       ...mapState('theme', ['isDarkMode']),
       currentTheme () {
         return this.isDarkMode ? 'monokai' : 'solarized'
+      },
+      paneHeight () {
+        return this.dynamicHeight - 80
+      },
+      codeMirrorHeight () {
+        return Math.max(this.paneHeight - 100, 400)
       },
       ...mapGetters(['problemSubmitDisabled', 'contestRuleType', 'OIContestRealTimePermission', 'contestStatus']),
       contest () {
@@ -1442,6 +1596,17 @@
       next()
     },
     watch: {
+      llmHintVisible (val) {
+        if (val) {
+          // Show notification if hint becomes visible
+          this.showHintNotification = true
+          // Auto hide after 10s
+          if (this.scrollTimeout) clearTimeout(this.scrollTimeout)
+          this.scrollTimeout = setTimeout(() => {
+            this.showHintNotification = false
+          }, 10000)
+        }
+      },
       '$route' () {
         this.init()
       },
@@ -1461,22 +1626,22 @@
   .flex-container {
     display: flex;
     #view-mode {
-      flex: 1; /* 부모가 자식 요소를 꽉 채울 수 있도록 설정 */
-      display: flex; /* 내부 요소를 가로로 정렬 */
+      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
     }
     #problem-main-width {
-      flex: 5; /* 5:7 비율로 나누기 위해 5로 설정 */
+      flex: 5;
       margin-right: 9px;
       overflow: scroll;
-
     }
     #problem-main-height {
       flex: auto;
       margin-right: 18px;
     }
     #problem-source {
-      flex: 7; /* 5:7 비율로 나누기 위해 7로 설정 */
-      height: 100%;
+      flex: 7;
       margin-right: 18px;
     }
     #right-column {
@@ -1743,7 +1908,10 @@
     border: 1px solid #ffc107;
     border-radius: 8px;
     margin-top: 10px;
+    margin-right: 18px;
     transition: all 0.3s ease;
+    flex: 0 0 100%;
+    width: 100%;
 
     .hint-header {
       display: flex;
@@ -1775,28 +1943,133 @@
       padding-top: 12px;
       border-top: 1px dashed #ffc107;
     }
-    .hint-loading {
-      text-align: center;
-      padding: 20px 0;
-      p {
-        margin-top: 10px;
-        color: #795548;
-        font-size: 14px;
-      }
+    .hint-chat-area {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 4px 0;
     }
-    .hint-content {
-      pre {
-        white-space: pre-wrap;
-        word-wrap: break-word;
+    .chat-bubble {
+      margin-bottom: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      .chat-role {
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .chat-msg-body {
         font-family: 'Noto Sans KR', 'Helvetica Neue', sans-serif;
         font-size: 14px;
         line-height: 1.7;
-        color: #3e2723;
-        margin: 0;
-        background: transparent;
-        border: none;
-        padding: 0;
+        word-wrap: break-word;
       }
     }
+    .chat-assistant {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid #ffe082;
+      .chat-role { color: #e65100; }
+      .chat-msg-body { color: #3e2723; }
+    }
+    .chat-user {
+      background: #fff3e0;
+      border: 1px solid #ffcc80;
+      margin-left: 20%;
+      .chat-role { color: #1565c0; }
+      .chat-msg-body { color: #1a237e; }
+    }
+    .md-code-block {
+      position: relative;
+      margin: 8px 0;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #263238;
+      border: 2px solid #37474f;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      .code-lang {
+        display: block;
+        padding: 4px 12px;
+        font-size: 11px;
+        color: #80cbc4;
+        background: #1a2327;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid #37474f;
+      }
+      pre {
+        margin: 0;
+        padding: 12px;
+        overflow-x: auto;
+        background: transparent;
+        border: none;
+      }
+      code {
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #eeffff;
+        white-space: pre;
+        background: transparent;
+      }
+    }
+    .md-inline-code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 12px;
+      background: rgba(0,0,0,0.08);
+      color: #c62828;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+    .hint-loading {
+      text-align: center;
+      padding: 10px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      span {
+        color: #795548;
+        font-size: 13px;
+      }
+    }
+    .hint-input-area {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #ffe082;
+    }
+  }
+  .ai-hint-notification {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+    background: #ff9900;
+    padding: 12px 24px;
+    border-radius: 50px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: bounce 1s infinite alternate;
+  }
+  .notify-close {
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  @keyframes bounce {
+    from { transform: translate(-50%, 0); }
+    to { transform: translate(-50%, -10px); }
+  }
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.5s;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
   }
 </style>
