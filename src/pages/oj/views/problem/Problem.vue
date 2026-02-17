@@ -228,6 +228,25 @@
               </div>
             </div>
           </Card>
+          <!-- LLM Hint Card (가로 모드) -->
+          <Card v-if="llmHintVisible" id="llm-hint" dis-hover>
+            <div class="hint-header" @click="llmHintExpanded = !llmHintExpanded">
+              <div class="hint-header-left">
+                <span class="hint-icon">💡</span>
+                <span class="hint-title">AI 힌트</span>
+              </div>
+              <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
+            </div>
+            <div v-if="llmHintExpanded" class="hint-body">
+              <div v-if="llmHintLoading" class="hint-loading">
+                <Spin size="large"/>
+                <p>힌트를 생성하고 있습니다...</p>
+              </div>
+              <div v-else class="hint-content">
+                <pre>{{ llmHintText }}</pre>
+              </div>
+            </div>
+          </Card>
         </Card>
       </el-col>
       <div v-else id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
@@ -452,6 +471,25 @@
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </Card>
+        <!-- LLM Hint Card (세로 모드) -->
+        <Card v-if="llmHintVisible" id="llm-hint" dis-hover>
+          <div class="hint-header" @click="llmHintExpanded = !llmHintExpanded">
+            <div class="hint-header-left">
+              <span class="hint-icon">💡</span>
+              <span class="hint-title">AI 힌트</span>
+            </div>
+            <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
+          </div>
+          <div v-if="llmHintExpanded" class="hint-body">
+            <div v-if="llmHintLoading" class="hint-loading">
+              <Spin size="large"/>
+              <p>힌트를 생성하고 있습니다...</p>
+            </div>
+            <div v-else class="hint-content">
+              <pre>{{ llmHintText }}</pre>
             </div>
           </div>
         </Card>
@@ -704,7 +742,11 @@
         contestType: '',
         isBlurred: false,
         antiData: { copy: 0, focusScreen: 0 },
-        initialAntiData: { copy: 0, focusScreen: 0 }
+        initialAntiData: { copy: 0, focusScreen: 0 },
+        llmHintVisible: false,
+        llmHintExpanded: true,
+        llmHintLoading: false,
+        llmHintText: ''
       }
     },
 
@@ -1010,6 +1052,12 @@
               this.submitting = false
               this.submitted = false
               clearTimeout(this.refreshStatus)
+              // 채점 완료 후 실패시 LLM 힌트 요청
+              if (res.data.data.result !== 0) {
+                this.fetchLLMHint('submit', res.data.data.result)
+              } else {
+                this.llmHintVisible = false
+              }
               this.init()
             } else {
               this.refreshStatus = setTimeout(checkStatus, 2000)
@@ -1128,6 +1176,13 @@
               this.runResultData.push('오류')
             }
           }
+          // 실행 완료 후 오답/오류 있으면 LLM 힌트 요청
+          const hasFailure = resultData.some(r => r !== 0)
+          if (hasFailure) {
+            this.fetchLLMHint('run', resultData)
+          } else {
+            this.llmHintVisible = false
+          }
         }).catch(() => {
           this.$error('error')
         }).finally(() => {
@@ -1154,6 +1209,77 @@
       toggleSidebar () {
         this.sidebarVisible = !this.sidebarVisible
         this.AIrespone = '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
+      },
+      fetchLLMHint (mode, resultInfo) {
+        this.llmHintVisible = true
+        this.llmHintExpanded = true
+        this.llmHintLoading = true
+        this.llmHintText = ''
+
+        // 문제 설명 구성
+        const problemDesc = [
+          this.problem.description ? this.problem.description.replace(/<[^>]*>/g, '') : '',
+          this.problem.input_description ? '입력: ' + this.problem.input_description.replace(/<[^>]*>/g, '') : '',
+          this.problem.output_description ? '출력: ' + this.problem.output_description.replace(/<[^>]*>/g, '') : ''
+        ].filter(Boolean).join('\n')
+
+        // 샘플 입출력 구성
+        let sampleInfo = ''
+        if (this.problem.samples && this.problem.samples.length > 0) {
+          sampleInfo = this.problem.samples.map((s, i) =>
+            `예시 ${i + 1}:\n입력: ${s.input}\n기대 출력: ${s.output}`
+          ).join('\n')
+        }
+
+        // 결과 정보 구성
+        let resultDesc = ''
+        if (mode === 'run') {
+          const resultNames = { '-1': '오답', '0': '정답', '1': '시간초과', '2': '시간초과', '3': '메모리초과', '4': '런타임에러', '5': '시스템에러' }
+          const details = resultInfo.map((r, i) => {
+            const name = resultNames[String(r)] || '오류'
+            const output = this.outputdata[i] || '(출력 없음)'
+            const expected = this.problem.samples[i] ? this.problem.samples[i].output : '(알 수 없음)'
+            return `테스트 ${i + 1}: ${name} (출력: ${output}, 기대: ${expected})`
+          }).join('\n')
+          resultDesc = details
+        } else {
+          const statusNames = { '-2': '컴파일 에러', '-1': '오답', '1': '시간초과', '2': '시간초과', '3': '메모리초과', '4': '런타임에러', '5': '시스템에러', '8': '부분정답' }
+          resultDesc = '채점 결과: ' + (statusNames[String(resultInfo)] || '실패')
+        }
+
+        const userPrompt = `## 문제 설명\n${problemDesc}\n\n## 샘플 입출력\n${sampleInfo}\n\n## 제출한 코드 (${this.language})\n${this.code}\n\n## 실행 결과\n${resultDesc}`
+
+        const requestBody = {
+          model: 'Qwen/Qwen2.5-Coder-7B-Instruct',
+          messages: [
+            {
+              role: 'system',
+              content: '당신은 프로그래밍 교육 조교입니다. 학생이 제출한 코드가 틀렸습니다. 정답 코드를 직접 알려주지 마세요. 대신 학생이 스스로 문제를 해결할 수 있도록 힌트를 제공해주세요. 어디가 잘못되었는지 방향을 잡아주되, 수정된 코드를 제공하지 마세요. 한국어로 답변하세요. 답변은 간결하게 3~5문장으로 해주세요.'
+            },
+            {
+              role: 'user',
+              content: userPrompt
+            }
+          ],
+          max_tokens: 512,
+          temperature: 0.7
+        }
+
+        axios.post('http://203.250.33.77/v1/chat/completions', requestBody, {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 30000
+        }).then(res => {
+          if (res.data && res.data.choices && res.data.choices.length > 0) {
+            this.llmHintText = res.data.choices[0].message.content
+          } else {
+            this.llmHintText = '힌트를 생성하지 못했습니다. 다시 시도해주세요.'
+          }
+        }).catch(err => {
+          console.error('LLM hint error:', err)
+          this.llmHintText = '힌트 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.'
+        }).finally(() => {
+          this.llmHintLoading = false
+        })
       },
       isDarkMode () {
         return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
@@ -1609,6 +1735,68 @@
       white-space: pre-wrap;
       word-wrap: break-word;
       margin: 0;
+    }
+  }
+
+  #llm-hint {
+    background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+
+    .hint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 4px 0;
+      user-select: none;
+    }
+    .hint-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hint-icon {
+      font-size: 22px;
+    }
+    .hint-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #e65100;
+    }
+    .hint-toggle {
+      color: #e65100;
+      font-size: 16px;
+    }
+    .hint-body {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed #ffc107;
+    }
+    .hint-loading {
+      text-align: center;
+      padding: 20px 0;
+      p {
+        margin-top: 10px;
+        color: #795548;
+        font-size: 14px;
+      }
+    }
+    .hint-content {
+      pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: 'Noto Sans KR', 'Helvetica Neue', sans-serif;
+        font-size: 14px;
+        line-height: 1.7;
+        color: #3e2723;
+        margin: 0;
+        background: transparent;
+        border: none;
+        padding: 0;
+      }
     }
   }
 </style>
