@@ -197,6 +197,30 @@ export default {
       data
     })
   },
+  getLLMKeyList (offset, limit) {
+    return ajax('admin/llm/keys', 'get', {
+      params: {
+        paging: true,
+        offset,
+        limit
+      }
+    })
+  },
+  createLLMKey (data) {
+    return ajax('admin/llm/keys', 'post', {
+      data
+    })
+  },
+  revokeLLMKey (id) {
+    return ajax('admin/llm/keys/revoke', 'post', {
+      data: {id}
+    })
+  },
+  getLLMKey (id) {
+    return ajax('admin/llm/keys', 'get', {
+      params: {id}
+    })
+  },
   getInvalidTestCaseList () {
     return ajax('admin/prune_test_case', 'get')
   },
