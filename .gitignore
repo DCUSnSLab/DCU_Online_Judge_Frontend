@@ -74,3 +74,5 @@ vendor.dll*.js
 
 # testcase
 *.zip
+
+data/

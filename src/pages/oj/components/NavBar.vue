@@ -75,8 +75,8 @@
         <el-button class="drop-menu-bell" style="float:right; margin-right: 10px;margin-top: 10px;" icon="el-icon-bell" @click="dialogFormVisible = true"></el-button>
       </span>
     </div>
-    <el-submenu style="float:right;">
-      <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" ><span :style="{ color: 'var(--text-color)', fontWeight: 'bold' }">{{ user.username }}</span></template>
+    <el-submenu index="user-menu" style="float:right;">
+      <template slot="title" trigger="click" ><span :style="{ color: 'var(--text-color)', fontWeight: 'bold' }">{{ user.username }}</span></template>
         <el-menu-item index="/user-home">
           {{$t('m.MyHome')}}
         </el-menu-item>
@@ -216,7 +216,7 @@
       }
     },
     methods: {
-      ...mapActions(['getProfile', 'changeModalStatus', 'isAdminRole']),
+      ...mapActions(['getProfile', 'changeModalStatus']),
       handleRoute (route) {
         if (route && route.indexOf('admin') < 0) {
           this.$router.push(route)

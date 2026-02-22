@@ -24,7 +24,7 @@
                       </el-form-item>
                   </el-col>
                   <el-col :span="4">
-                    <el-form-item :label="$t('m.Lecture_Founder')">
+                    <el-form-item :label="$t('m.Lecture_Founder')" required="required">
                       <el-select v-model="lecture.created_by_id">
                         <el-option v-for="professor in this.professor_list" v-bind:value="professor.id" v-bind:label="professor.realname" :key="professor.id">
                           {{ professor.realname }}
@@ -87,15 +87,28 @@ export default {
       this.$forceUpdate() // Vue에서는 시스템의 모든 변화를 감지하지 못합니다. 해당 코드가 있어야 불러온 교수님 리스트를 현재 화면에 적용할 수 있습니다.
     })
     if (this.$route.name === 'edit-lecture') {
-      this.title = 'Edit Lecture'
-      api.getLecture(this.$route.params.lectureId).then(res => {
+      this.title = '과목 수정'
+      api.getProfessorList().then(res => {
+        this.professor_list = res.data.data.results.map(prof => ({
+          id: prof.id,
+          realname: prof.realname
+        }))
+        return api.getLecture(this.$route.params.lectureId)
+      }).then(res => {
         let data = res.data.data
         this.lecture = data
-        // this.lecture.created_by_id = data.created_by.realname
-      }).catch(() => {
-      })
+        if (data.created_by && data.created_by.id) {
+          this.lecture.created_by_id = data.created_by.id
+        }
+      }).catch(() => {})
     } else if (this.$route.name === 'lecture-contest-list') {
-      this.title = 'Add Lecture'
+      this.title = '개설과목 생성'
+      api.getProfessorList().then(res => {
+        this.professor_list = res.data.data.results.map(prof => ({
+          id: prof.id,
+          realname: prof.realname
+        }))
+      })
     }
   },
   data () {

@@ -293,27 +293,6 @@
       adjustRejudgeColumn () {
         if (!this.rejudgeColumnVisible || this.rejudge_column) { // rejudge 권한 확인 및 rejudge 컬럼 값 확인
           console.log('adjustRejudgeColumn called.')
-          const judgeColumn = {
-            title: this.$i18n.t('m.Option'),
-            fixed: 'right',
-            align: 'center',
-            width: 90,
-            render: (h, params) => {
-              return h('Button', {
-                props: {
-                  type: 'primary',
-                  size: 'small',
-                  loading: params.row.loading
-                },
-                on: {
-                  click: () => {
-                    this.handleRejudge(params.row.id, params.index)
-                  }
-                }
-              }, this.$i18n.t('m.Rejudge'))
-            }
-          }
-          // this.columns.push(judgeColumn)
           this.rejudge_column = true
         }
       },

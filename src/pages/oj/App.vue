@@ -1,7 +1,7 @@
 <template>
   <div :style="currentTheme">
     <NavBar ref="navbar"></NavBar>
-    <div class="content-app" v-bind:style="navbarmargin">
+    <div :class="contentClass" v-bind:style="navbarmargin">
       <transition name="fadeInUp" mode="out-in">
         <router-view></router-view>
       </transition>
@@ -13,7 +13,7 @@
           </el-col>
         </div>
         <el-col :span="8">
-          <p>신고 및 문의 : <a href="mailto:dcucode@gmail.com">dcucode@gmail.com</a></p>
+          <p>신고 및 문의 : <a href="mailto:dcucode@gmail.com">dcucode@gmail.com</a> | <a href="https://www.cu.ac.kr/support/privacy" style="color: #000000;">개인정보처리방침</a> </p>
           <p>Powered by <a href="https://gleaming-wound-252.notion.site/Software-and-System-Laboratory-b0507f8d36584dad8d0b0a2100466085?pvs=74" target="_blank">Software&System Lab.</a>, <a href="https://cu.ac.kr" target="_blank">Daegu Catholic university</a> and <a href="https://github.com/QingdaoU" target="_blank">Qingdao University</a>
           </p>
         </el-col>
@@ -93,7 +93,12 @@
     },
     methods: {
       getInfoHeight () {
-        var margin = this.$refs.navbar.$el.scrollHeight + 30 + 'px'
+        let margin = this.$refs.navbar.$el.scrollHeight
+        if (this.$route && (this.$route.name === 'problem-details' || this.$route.name === 'contest-problem-details')) {
+          margin = margin + 'px'
+        } else {
+          margin = margin + 30 + 'px'
+        }
         Vue.set(this.navbarmargin, 'marginTop', margin)
       },
       ...mapActions(['getWebsiteConfig', 'changeDomTitle'])
@@ -104,6 +109,12 @@
       // isDarkMode 값에 따라 현재 테마를 선택합니다
       currentTheme () {
         return this.isDarkMode ? darkTheme : lightTheme
+      },
+      contentClass () {
+        if (this.$route && (this.$route.name === 'problem-details' || this.$route.name === 'contest-problem-details')) {
+          return 'content-app-full'
+        }
+        return 'content-app'
       }
     },
     watch: {
@@ -130,7 +141,7 @@
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
   }
-  
+
   body {
     background-color: var(--background-color) !important;
     color: var(--text-color) !important;
@@ -152,6 +163,11 @@
 
   .content-app {
     padding: 0 2%;
+    margin-top: '80px';
+  }
+
+  .content-app-full {
+    padding: 0;
     margin-top: '80px';
   }
 

@@ -44,7 +44,7 @@
   import Pagination from '@oj/components/Pagination'
   import { mapState } from 'vuex'
   import { lightTheme, darkTheme } from '@/theme'
-  import { page } from 'vue-analytics'
+  import 'vue-analytics'
 
   export default {
     name: 'Announcement',
@@ -113,11 +113,9 @@
       isContest () {
         return !!this.$route.params.contestID
       },
-      computed: {
-        ...mapState('theme', ['isDarkMode']),
-        currentTheme () {
-          return this.isDarkMode ? darkTheme : lightTheme
-        }
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
       }
     }
   }
