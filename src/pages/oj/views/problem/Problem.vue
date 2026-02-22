@@ -18,7 +18,11 @@
             </VerticalMenu-item>
             <ul v-show="problemListExpanded" class="problem-list-menu">
               <li v-for="(p, index) in problemList" :key="p._id" @click="handleRoute({ name: $route.name, params: { lectureID: lectureID, contestID: contestID, problemID: p._id }})" :class="{'active-problem': p._id === problem._id}">
-                {{index + 1}}. {{p.title || p._id}}
+                <span v-if="p.my_status === 0" class="status-label status-completed">[완료]</span>
+                <span v-else-if="p.my_status !== null && p.my_status !== undefined" class="status-label status-error">[오류]</span>
+                <span>
+                  {{index + 1}}. {{p.title || p._id}}
+                </span>
               </li>
             </ul>
           </div>
@@ -568,6 +572,13 @@
       window.addEventListener('scroll', this.handleMainScroll)
     },
     beforeDestroy () {
+      if (this.$route.params.problemID) {
+        storage.set(buildProblemCodeKey(this.$route.params.problemID, this.$route.params.contestID), {
+          code: this.code,
+          language: this.language,
+          theme: this.theme
+        })
+      }
       window.removeEventListener('resize', this.handleResize)
       window.removeEventListener('keydown', this.handleKeyDown)
       document.removeEventListener('copy', this.handleCopy)
@@ -709,14 +720,26 @@
           if (template && template[this.language]) {
             this.code = template[this.language]
           }
+          // Fetch problem submission log
+          let params = {lectureID: this.lectureID, contestID: this.contestID, problemID: problem.id}
+          api.checkSubmissionLog(params).then(res => {
+            if (res.data.data) {
+              if (this.code === '') { // Only populate if not already set by storage
+                this.code = res.data.data.code
+              }
+              this.submissionId = res.data.data.id
+              // Fetch latest result to show status
+              api.getSubmission(this.submissionId).then(res => {
+                this.result = res.data.data
+                if (this.result.result !== null && this.result.result !== undefined) {
+                  this.statusVisible = true
+                }
+              })
+            }
+          }).catch(() => {
+          })
         }, () => {
           this.$Loading.error()
-        })
-        let params = {lectureID: this.lectureID, contestID: this.contestID, problemID: this.problem.id}
-        api.checkSubmissionLog(params).then(res => {
-          this.code = res.data.data.code
-          this.submissionId = res.data.data.id
-        }).catch(() => {
         })
 
         // Fetch problem list for the contest/lecture menu
@@ -1341,7 +1364,9 @@
     },
     beforeRouteLeave (to, from, next) {
       // 防止切换组件后仍然不断请求
-      clearInterval(this.refreshStatus)
+      if (this.refreshStatus) {
+        clearTimeout(this.refreshStatus)
+      }
 
       this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: true})
       storage.set(buildProblemCodeKey(this.problem._id, from.params.contestID), {
@@ -1377,7 +1402,39 @@
           }, 10000)
         }
       },
-      '$route' () {
+      '$route' (newVal, oldVal) {
+        if (oldVal.params.problemID) {
+          storage.set(buildProblemCodeKey(oldVal.params.problemID, oldVal.params.contestID), {
+            code: this.code,
+            language: this.language,
+            theme: this.theme
+          })
+        }
+
+        if (this.refreshStatus) {
+          clearTimeout(this.refreshStatus)
+        }
+
+        this.code = ''
+        this.statusVisible = false
+        this.submissionId = ''
+        this.submitted = false
+        this.result = { result: 9 }
+        this.outputdata = []
+        this.runResultData = {}
+        this.running = false
+        this.submitting = false
+        this.llmHintVisible = false
+        this.llmChatMessages = []
+        this.llmFollowUpInput = ''
+
+        let problemCode = storage.get(buildProblemCodeKey(newVal.params.problemID, newVal.params.contestID))
+        if (problemCode) {
+          this.language = problemCode.language
+          this.code = problemCode.code
+          this.theme = problemCode.theme
+        }
+
         this.init()
       },
       isDarkMode (newVal) {
@@ -1999,7 +2056,7 @@
     overflow-y: auto;
   }
   .problem-list-menu li {
-    padding: 8px 10px 8px 30px;
+    padding: 8px 10px 8px 15px;
     cursor: pointer;
     font-size: 13px;
     border-bottom: 1px dotted #ebeef5;
@@ -2018,4 +2075,15 @@
     background-color: rgba(64,158,255,0.1);
   }
 
+  .status-label {
+    font-size: 11px;
+    font-weight: normal;
+    margin-right: 5px;
+  }
+  .status-completed {
+    color: #19be6b;
+  }
+  .status-error {
+    color: #ed3f14;
+  }
 </style>
