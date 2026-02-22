@@ -36,6 +36,8 @@
         <el-table-column prop="name" :label="$t('m.LLM_Name')" min-width="160"/>
         <el-table-column prop="key_prefix" :label="$t('m.LLM_Key_Prefix')" min-width="150"/>
         <el-table-column prop="status" :label="$t('m.LLM_Status')" min-width="100"/>
+        <el-table-column prop="total_requests" :label="$t('m.LLM_Total_Requests')" min-width="130"/>
+        <el-table-column prop="total_prompt_tokens" :label="$t('m.LLM_Total_Prompt_Tokens')" min-width="160"/>
         <el-table-column prop="created_by.username" :label="$t('m.User_Username')" min-width="140"/>
         <el-table-column prop="created_at" :label="$t('m.Create_Time')" min-width="180">
           <template slot-scope="scope">{{ scope.row.created_at | localtime }}</template>
@@ -58,9 +60,65 @@
           class="page"
           layout="prev, pager, next"
           :page-size="limit"
-          :current-page.sync="page"
+          :current-page.sync="keyPage"
           :total="total"
           @current-change="loadKeys"/>
+      </div>
+    </Panel>
+
+    <Panel :title="$t('m.LLM_Route_Create')">
+      <el-form inline>
+        <el-form-item :label="$t('m.LLM_Model_Name')">
+          <el-input v-model="routeForm.model_name" style="width: 260px"/>
+        </el-form-item>
+        <el-form-item :label="$t('m.LLM_Upstream_URL')">
+          <el-input v-model="routeForm.upstream_url" style="width: 420px"/>
+        </el-form-item>
+        <el-form-item :label="$t('m.LLM_Priority')">
+          <el-input-number v-model="routeForm.priority" :min="0" :step="1"/>
+        </el-form-item>
+        <el-form-item :label="$t('m.LLM_Weight')">
+          <el-input-number v-model="routeForm.weight" :min="0" :step="1"/>
+        </el-form-item>
+        <el-form-item :label="$t('m.LLM_Enabled')">
+          <el-switch v-model="routeForm.enabled"/>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="saveRoute" :loading="routeSaving">{{ $t('m.LLM_Save') }}</el-button>
+          <el-button v-if="routeForm.id" @click="resetRouteForm">{{ $t('m.LLM_Cancel') }}</el-button>
+        </el-form-item>
+      </el-form>
+    </Panel>
+
+    <Panel :title="$t('m.LLM_Route_List')">
+      <el-table :data="routeRows" v-loading="routeLoading">
+        <el-table-column prop="model_name" :label="$t('m.LLM_Model_Name')" min-width="220"/>
+        <el-table-column prop="upstream_url" :label="$t('m.LLM_Upstream_URL')" min-width="380"/>
+        <el-table-column prop="priority" :label="$t('m.LLM_Priority')" width="120"/>
+        <el-table-column prop="weight" :label="$t('m.LLM_Weight')" width="120"/>
+        <el-table-column :label="$t('m.LLM_Enabled')" width="120">
+          <template slot-scope="scope">
+            <el-tag :type="scope.row.enabled ? 'success' : 'info'">
+              {{ scope.row.enabled ? $t('m.LLM_Enabled_On') : $t('m.LLM_Enabled_Off') }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('m.User_Options')" width="200">
+          <template slot-scope="scope">
+            <el-button size="mini" @click="startEditRoute(scope.row)">{{ $t('m.User_Options_Edit') }}</el-button>
+            <el-button size="mini" type="danger" @click="deleteRoute(scope.row.id)">{{ $t('m.User_Options_Delete') }}</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div class="panel-options">
+        <el-pagination
+          class="page"
+          layout="prev, pager, next"
+          :page-size="routeLimit"
+          :current-page.sync="routePage"
+          :total="routeTotal"
+          @current-change="loadRoutes"/>
       </div>
     </Panel>
   </div>
@@ -75,7 +133,7 @@ export default {
     return {
       loading: false,
       creating: false,
-      page: 1,
+      keyPage: 1,
       limit: 10,
       total: 0,
       rows: [],
@@ -83,15 +141,30 @@ export default {
       createForm: {
         name: '',
         models: '*'
+      },
+      routeLoading: false,
+      routeSaving: false,
+      routePage: 1,
+      routeLimit: 10,
+      routeTotal: 0,
+      routeRows: [],
+      routeForm: {
+        id: null,
+        model_name: '',
+        upstream_url: '',
+        priority: 100,
+        weight: 100,
+        enabled: true
       }
     }
   },
   mounted () {
     this.loadKeys(1)
+    this.loadRoutes(1)
   },
   methods: {
     async loadKeys (page) {
-      this.page = page
+      this.keyPage = page
       this.loading = true
       try {
         const offset = (page - 1) * this.limit
@@ -127,7 +200,77 @@ export default {
     },
     async revokeKey (id) {
       await api.revokeLLMKey(id)
-      await this.loadKeys(this.page)
+      await this.loadKeys(this.keyPage)
+    },
+    async loadRoutes (page) {
+      this.routePage = page
+      this.routeLoading = true
+      try {
+        const offset = (page - 1) * this.routeLimit
+        const res = await api.getLLMRouteList(offset, this.routeLimit)
+        this.routeRows = res.data.data.results
+        this.routeTotal = res.data.data.total
+      } finally {
+        this.routeLoading = false
+      }
+    },
+    resetRouteForm () {
+      this.routeForm = {
+        id: null,
+        model_name: '',
+        upstream_url: '',
+        priority: 100,
+        weight: 100,
+        enabled: true
+      }
+    },
+    startEditRoute (row) {
+      this.routeForm = {
+        id: row.id,
+        model_name: row.model_name,
+        upstream_url: row.upstream_url,
+        priority: row.priority,
+        weight: row.weight,
+        enabled: row.enabled
+      }
+    },
+    async saveRoute () {
+      const modelName = this.routeForm.model_name.trim()
+      const upstreamURL = this.routeForm.upstream_url.trim()
+      if (!modelName) {
+        this.$error(this.$t('m.LLM_Model_Name_Required'))
+        return
+      }
+      if (!upstreamURL) {
+        this.$error(this.$t('m.LLM_Upstream_Required'))
+        return
+      }
+
+      const payload = {
+        model_name: modelName,
+        upstream_url: upstreamURL,
+        priority: this.routeForm.priority,
+        weight: this.routeForm.weight,
+        enabled: this.routeForm.enabled
+      }
+
+      this.routeSaving = true
+      try {
+        if (this.routeForm.id) {
+          await api.updateLLMRoute(Object.assign({id: this.routeForm.id}, payload))
+          await this.loadRoutes(this.routePage)
+        } else {
+          await api.createLLMRoute(payload)
+          await this.loadRoutes(1)
+        }
+        this.resetRouteForm()
+      } finally {
+        this.routeSaving = false
+      }
+    },
+    async deleteRoute (id) {
+      await api.deleteLLMRoute(id)
+      await this.loadRoutes(this.routePage)
     }
   }
 }

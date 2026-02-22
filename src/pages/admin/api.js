@@ -221,6 +221,35 @@ export default {
       params: {id}
     })
   },
+  getLLMRouteList (offset, limit, modelName) {
+    let params = {
+      paging: true,
+      offset,
+      limit
+    }
+    if (modelName) {
+      params.model_name = modelName
+    }
+    return ajax('admin/llm/routes', 'get', {
+      params
+    })
+  },
+  createLLMRoute (data) {
+    return ajax('admin/llm/routes', 'post', {
+      data
+    })
+  },
+  updateLLMRoute (data) {
+    return ajax('admin/llm/routes', 'put', {
+      data
+    })
+  },
+  deleteLLMRoute (id) {
+    return ajax('admin/llm/routes', 'delete', {
+      params: {id},
+      data: {id}
+    })
+  },
   getInvalidTestCaseList () {
     return ajax('admin/prune_test_case', 'get')
   },
