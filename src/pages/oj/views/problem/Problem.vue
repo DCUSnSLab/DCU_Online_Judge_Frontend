@@ -179,7 +179,7 @@
     <div class="pane code-pane pane-scroll">
       <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
-            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="codeMirrorHeight" :ToggleValue="toggleValue"></CodeMirror>
+            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="codeMirrorHeight"></CodeMirror>
           <Row type="flex" justify="space-between">
             <Col :span="10">
             <div class="status" v-if="statusVisible">
@@ -321,8 +321,8 @@
                     <div class="result-container">
                         <p class="sub-title">{{$t('m.Result')}} ></p>
                         <div class="text-box"
-                        :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
-                          <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
+                        :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'red' : (runResultData[index] === '정답' ? 'green' : 'red')}">
+                          <pre v-if="runResultData[index]">{{runResultData[index]}}</pre>
                         </div>
                     </div>
                   </div>
@@ -534,8 +534,9 @@
         llmHintExpanded: true,
         llmFollowUpInput: '',
         scrollTimeout: null,
+        showHintNotification: false,
         problemList: [],
-        problemListExpanded: false
+        problemListExpanded: true
       }
     },
 
@@ -975,8 +976,19 @@
           } else {
             this.llmHintVisible = false
           }
-        }).catch(() => {
-          this.$error('error')
+        }).catch((err) => {
+          console.error(err)
+          let errMsg = '컴파일 에러 혹은 서버 오류가 발생했습니다.'
+          if (err.response && err.response.data) {
+            errMsg = err.response.data.data || err.response.data.error || errMsg
+          }
+          // 컴파일 실패 시 모든 테스트 케이스 결과 란에 에러 메시지를 채웁니다.
+          for (let i = 0; i < this.problem.samples.length; i++) {
+            this.runResultData.push('오류')
+            this.outputdata.push(errMsg)
+          }
+          // 컴파일 에러 상태(전부 '오류')를 AI Hint 패널로 넘깁니다.
+          this.fetchLLMHint('run', this.runResultData.map(() => -2))
         }).finally(() => {
           setTimeout(() => {
             this.running = false
@@ -1174,9 +1186,7 @@
 
         return result
       },
-      isDarkMode () {
-        return document.body.classList.contains('dark-mode') // 예시로 다크 모드가 'dark-mode' 클래스일 경우
-      },
+
       // obfuscateText (text) { // 랜덤 문자 삽입입
       //   let randomChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
       //   return text.split('').map(() => randomChars[Math.floor(Math.random() * randomChars.length)]).join('')

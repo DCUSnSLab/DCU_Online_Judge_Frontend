@@ -113,11 +113,9 @@
       isContest () {
         return !!this.$route.params.contestID
       },
-      computed: {
-        ...mapState('theme', ['isDarkMode']),
-        currentTheme () {
-          return this.isDarkMode ? darkTheme : lightTheme
-        }
+      ...mapState('theme', ['isDarkMode']),
+      currentTheme () {
+        return this.isDarkMode ? darkTheme : lightTheme
       }
     }
   }
