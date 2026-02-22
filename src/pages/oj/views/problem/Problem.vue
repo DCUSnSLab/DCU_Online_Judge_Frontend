@@ -1496,7 +1496,7 @@
     }
   }
   .sidebar {
-    background: white;
+    background-color: var(--panelBackground);
     border: 2px solid #bcbcbc;
   }
   .sidebar-header {
@@ -1575,6 +1575,7 @@
       margin-right: 5px;
     }
     .input-output-container {
+      background-color: var(--panelBackground);
       display: flex;
     }
     .input-container,
