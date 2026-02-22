@@ -1,8 +1,129 @@
 <template>
-  <div class="flex-container" :style="currentTheme">
-    <el-col :span="10" v-if="problemRes" id="view-mode">
-      <el-col :span="5" v-if="toggleValue" id="problem-main-width" :style="{ height: paneHeight + 'px', overflow: 'hidden' }"> <!--가로 모드 문제란-->
-        <Panel :padding="40" shadow style="height: 100%">
+  <div class="problem-layout-container" :style="currentTheme">
+    
+    <!-- 1. Menu Pane -->
+    <div class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
+      <div v-show="menuExpanded" class="pane-content pane-scroll">
+        <div class="pane-header">
+          <span class="title" style="font-weight: bold; margin-left: 10px;">메뉴</span>
+          <icon type="chevron-left" @click="menuExpanded = false" class="toggle-btn"></icon>
+        </div>
+        <VerticalMenu @on-click="handleRoute">
+        <template v-if="this.contestID">
+          <div class="menu-collapsible-wrapper">
+            <VerticalMenu-item @click.native="problemListExpanded = !problemListExpanded">
+              <Icon type="ios-photos"></Icon>
+              {{ $t('m.Problems') }}
+              <Icon :type="problemListExpanded ? 'chevron-up' : 'chevron-down'" style="float: right; margin-top: 3px; font-size: 14px; color: #999;"></Icon>
+            </VerticalMenu-item>
+            <ul v-show="problemListExpanded" class="problem-list-menu">
+              <li v-for="(p, index) in problemList" :key="p._id" @click="handleRoute({ name: $route.name, params: { lectureID: lectureID, contestID: contestID, problemID: p._id }})" :class="{'active-problem': p._id === problem._id}">
+                {{index + 1}}. {{p.title || p._id}}
+              </li>
+            </ul>
+          </div>
+
+          <VerticalMenu-item :route="{ name: 'contest-announcement-list', params: { contestID: contestID } }">
+            <Icon type="chatbubble-working"></Icon>
+            {{ $t('m.Announcements') }}
+          </VerticalMenu-item>
+        </template>
+
+        <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission" :route="submissionRoute">
+          <Icon type="navicon-round"></Icon>
+          {{ $t('m.Submissions') }}
+        </VerticalMenu-item>
+
+        <template v-if="this.contestID">
+          <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission"
+            :route="{ name: 'contest-rank', params: { contestID: contestID } }">
+            <Icon type="stats-bars"></Icon>
+            {{ $t('m.Rankings') }}
+          </VerticalMenu-item>
+          <VerticalMenu-item @click.native="goContestQnA">
+            <Icon type="help"></Icon>
+            {{ $t('m.qa') }}
+          </VerticalMenu-item>
+          <VerticalMenu-item :route="{ name: 'contest-details', params: { contestID: contestID } }">
+            <Icon type="home"></Icon>
+            {{ $t('m.View_Contest') }}
+          </VerticalMenu-item>
+          <VerticalMenu-item v-if="contestType === '대회' && this.lectureID"
+                             :route="{name: 'lecture-contest-exit'}">
+            <Icon type="android-exit"></Icon>
+            {{$t('m.Exit')}}
+          </VerticalMenu-item>
+        </template>
+      </VerticalMenu>
+        <br />
+        <Card id="info" :padding="10">
+        <div slot="title" class="header" style="font-size: 14px;">
+          <Icon type="information-circled"></Icon>
+          <span class="card-title">{{ $t('m.Information') }}</span>
+        </div>
+        <ul style="font-size: 13px;">
+          <li>
+            <p>ID</p>
+            <p>{{ problem._id }}</p>
+          </li>
+          <li>
+            <p>{{ $t('m.Time_Limit') }}</p>
+            <p>{{ problem.time_limit }}MS</p>
+          </li>
+          <li>
+            <p>{{ $t('m.Memory_Limit') }}</p>
+            <p>{{ problem.memory_limit }}MB</p>
+          </li>
+
+          <li>
+            <p>{{ $t('m.IOMode') }}</p>
+            <p>{{ problem.io_mode.io_mode }}</p>
+          </li>
+          <li>
+            <p>{{ $t('m.Created') }}</p>
+            <p>{{ problem.created_by.username }}</p>
+          </li>
+          <li v-if="problem.difficulty">
+            <p>{{ $t('m.Level') }}</p>
+            <p>{{ $t('m.' + problem.difficulty) }}</p>
+          </li>
+          <li v-if="problem.total_score">
+            <p>{{ $t('m.Score') }}</p>
+            <p>{{ problem.total_score }}</p>
+          </li>
+          <li>
+            <p>{{ $t('m.Tags') }}</p>
+            <p>
+              <Poptip trigger="hover" placement="left-end">
+                <a>{{ $t('m.Show') }}</a>
+                <div slot="content">
+                  <Tag v-for="tag in problem.tags" :key="tag">{{ tag }}</Tag>
+                </div>
+              </Poptip>
+            </p>
+          </li>
+        </ul>
+        </Card>
+        <br />
+        <Card id="pieChart" :padding="10" v-if="!this.contestID || OIContestRealTimePermission">
+        <div slot="title" style="font-size: 14px;">
+          <Icon type="ios-analytics"></Icon>
+          <span class="card-title">{{ $t('m.Statistic') }}</span>
+          <Button type="ghost" size="small" id="detail" style="float: right; margin-top: -3px;" @click="graphVisible = !graphVisible">{{ $t('m.Detail') }}</Button>
+        </div>
+        <div class="echarts">
+          <ECharts :options="pie"></ECharts>
+        </div>
+      </Card>
+      </div>
+      <div v-show="!menuExpanded" class="pane-collapsed-content" @click="menuExpanded = true">
+        <icon type="navicon-round" size="24"></icon>
+      </div>
+    </div>
+
+    <!-- 2. Problem Pane -->
+    <div class="pane problem-pane">
+      <Panel :padding="40" shadow style="height: 100%">
           <div slot="title">{{ problem.title }}</div>
           <div id="problem-content" class="markdown-body" v-katex :style="{ height: (paneHeight - 60) + 'px', overflowY: 'auto' }">
             <p class="title">{{ $t('m.Description') }}</p>
@@ -45,18 +166,18 @@
 
           </div>
         </Panel>
-        <Card dis-hover>
+      <br />
+      <Card dis-hover>
           <div style="display: flex; justify-content: flex-end; gap: 10px;">
             <p>Problem copied({{ antiData.copy }}),</p>
             <p>Screen focusing({{ antiData.focusScreen }})</p>
           </div>
         </Card>
-      </el-col>
-      <el-col :span="7" v-if="toggleValue" id="problem-source" :style="{ height: paneHeight + 'px', overflowY: 'auto' }"> <!--가로 모드 소스코드 제출란-->
-        <!--problem main end-->
-        <!--<iframe src="https://www.onlinegdb.com/" style="width:100%; height:750px">
-      </iframe>-->
-        <Card id="submit-code" dis-hover>
+    </div>
+
+    <!-- 3. Code Pane -->
+    <div class="pane code-pane pane-scroll">
+      <Card id="submit-code" dis-hover>
           <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
             @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang" :newHeight="codeMirrorHeight" :ToggleValue="toggleValue"></CodeMirror>
           <Row type="flex" justify="space-between">
@@ -146,8 +267,8 @@
           <Card :padding="20" id="run-code" dis-hover>
             <div class="result-tap">
               <p class="title">{{$t('m.Execution_Result')}}</p>
-              <div class="input-output-container">
-                <p class="sub-title">{{$t('m.Type')}}</p>
+              <div class="type-switch-container">
+                <span class="sub-title" style="margin-right: 8px;">{{$t('m.Type')}}</span>
                 <el-switch
                   v-model="showResultType"
                   inline-prompt
@@ -157,6 +278,7 @@
                 />
               </div>
             </div>
+            <div class="run-code-content-wrapper">
             <div v-if="showResultType">
               <el-tabs type="border-card">
                 <el-tab-pane
@@ -227,23 +349,23 @@
                 </div>
               </div>
             </div>
-        </Card>
+            </div>
+          </Card>
       </Card>
-      </el-col>
-      
-      <!-- LLM Hint Card (가로 모드 - 전체 너비) -->
-      <Card v-if="llmHintVisible && toggleValue" id="llm-hint" dis-hover>
-        <div class="hint-header" @click="llmHintExpanded = !llmHintExpanded">
-          <div class="hint-header-left">
-            <span class="hint-icon">💡</span>
-            <span class="hint-title">AI 힌트</span>
-          </div>
-          <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
+    </div>
+
+    <!-- 4. AI Hint Pane -->
+    <div class="pane ai-pane" :class="{'pane-collapsed': !aiHintExpanded}" v-show="llmHintVisible">
+      <div v-show="aiHintExpanded" class="pane-content pane-scroll" style="height: 100%">
+        <div class="pane-header">
+          <span class="title">AI 힌트</span>
+          <icon type="chevron-right" @click="aiHintExpanded = false" class="toggle-btn"></icon>
         </div>
-        <div v-if="llmHintExpanded" class="hint-body">
+        <Card id="llm-hint" dis-hover>
+        <div class="hint-body">
           <div class="hint-chat-area" ref="hintChatArea">
             <div v-for="(msg, idx) in llmChatMessages" :key="idx" :class="['chat-bubble', msg.role === 'user' ? 'chat-user' : 'chat-assistant']">
-              <div class="chat-role">{{ msg.role === 'user' ? '🙋 나' : '🤖 AI' }}</div>
+              <div class="chat-role">{{ msg.role === 'user' ? '나' : 'AI' }}</div>
               <div class="chat-msg-body" v-html="renderMarkdown(msg.content)"></div>
             </div>
             <div v-if="llmHintLoading" class="hint-loading">
@@ -257,367 +379,11 @@
           </div>
         </div>
       </Card>
-
-      <div v-if="!toggleValue" id="problem-main-height"> <!--세로 모드 문제, 소스코드 제출란-->
-        <Panel :padding="40" shadow>
-          <div slot="title">{{ problem.title }}</div>
-          <div id="problem-content" class="markdown-body" v-katex>
-            <p class="title">{{ $t('m.Description') }}</p>
-            <p class="content" v-html=problem.description></p>
-            <!-- {{$t('m.music')}} -->
-            <p class="title">{{ $t('m.Input') }} <span v-if="problem.io_mode.io_mode == 'File IO'">({{ $t('m.FromFile') }}: {{
-              problem.io_mode.input }})</span></p>
-            <p class="content" v-html=problem.input_description></p>
-
-            <p class="title">{{ $t('m.Output') }} <span v-if="problem.io_mode.io_mode == 'File IO'">({{ $t('m.ToFile') }}: {{
-              problem.io_mode.output }})</span></p>
-            <p class="content" v-html=problem.output_description></p>
-
-            <div v-for="(sample, index) of problem.samples" :key="index">
-              <div class="flex-container sample">
-                <div class="sample-input">
-                  <p class="title">{{ $t('m.Sample_Input') }} {{ index + 1 }}
-                    <a class="copy" @click="handleSampleCopy(sample.input)">
-<!--                      <Icon type="clipboard"></Icon>-->
-                    </a>
-                  </p>
-                  <pre>{{ sample.input }}</pre>
-                </div>
-                <div class="sample-output">
-                  <p class="title">{{ $t('m.Sample_Output') }} {{ index + 1 }}</p>
-                  <pre>{{ sample.output }}</pre>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="problem.hint">
-              <p class="title">{{ $t('m.Hint') }}</p>
-              <Card dis-hover>
-                <div class="content" v-html=problem.hint></div>
-              </Card>
-            </div>
-
-            <div v-if="problem.source">
-              <p class="title">{{ $t('m.Source') }}</p>
-              <p class="content">{{ problem.source }}</p>
-            </div>
-
-          </div>
-        </Panel>
-        <Card dis-hover>
-          <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <p>Problem copied({{ antiData.copy }}),</p>
-            <p>Screen focusing({{ antiData.focusScreen }})</p>
-          </div>
-        </Card>
-        <br>
-        <Card :padding="20" id="submit-code" dis-hover>
-          <CodeMirror :value.sync="code" :languages="problem.languages" :language="language" :theme="theme"
-            @resetCode="onResetToTemplate" @changeTheme="onChangeTheme" @changeLang="onChangeLang"></CodeMirror>
-          <Row type="flex" justify="space-between">
-            <Col :span="10">
-            <div class="status" v-if="statusVisible">
-              <template v-if="!this.contestID || (this.contestID && OIContestRealTimePermission)">
-                <span>{{ $t('m.Status') }}</span>
-                <Tag type="dot" :color="submissionStatus.color" @click.native="handleRoute('/status/' + submissionId)">
-                  {{ $t('m.' + submissionStatus.text.replace(/ /g, "_")) }}
-                </Tag>
-              </template>
-              <template v-else-if="this.contestID && !OIContestRealTimePermission">
-                <Alert type="success" show-icon>{{ $t('m.Submitted_successfully') }}</Alert>
-              </template>
-            </div>
-            <div v-else-if="problem.my_status === 0">
-              <Alert type="success" show-icon>{{ $t('m.You_have_solved_the_problem') }}</Alert>
-            </div>
-            <div v-else-if="this.contestID && !OIContestRealTimePermission && submissionExists">
-              <Alert type="success" show-icon>{{ $t('m.You_have_submitted_a_solution') }}</Alert>
-            </div>
-            <div v-if="contestEnded">
-              <Alert type="warning" show-icon>{{ $t('m.Contest_has_ended') }}</Alert>
-            </div>
-            <div v-else-if="contestExitStatus"> <!--working by soojung-->
-              <Alert type="warning" show-icon>{{ $t('m.Already_Submitted') }}</Alert>
-            </div>
-            </Col>
-            <Col :span="12">
-            <template v-if="captchaRequired">
-              <div class="captcha-container">
-                <Tooltip v-if="captchaRequired" content="Click to refresh" placement="top">
-                  <img :src="captchaSrc" @click="getCaptchaSrc" />
-                </Tooltip>
-                <Input v-model="captchaCode" class="captcha-code" />
-              </div>
-            </template>
-            <Button v-if="problemRes" type="success" icon="edit" :loading="submitting" @click="submitCode"
-              :disabled="problemSubmitDisabled || submitted" class="fl-right"> <!--제출(비활성화)-->
-              <span v-if="submitting">{{ $t('m.Submitting') }}</span> <!--제출중-->
-              <span v-else>{{ $t('m.Submit') }}</span> <!--제출(평소)-->
-            </Button>
-            <Button v-else="problemRes" class="fl-right" disabled>{{ $t('m.WrongPath') }}</Button>
-            <el-tooltip
-              content="실행 버튼 클릭시 실행 결과가 아래 테스트칸에 출력됩니다. (ctrl + enter)"
-              placement="top">
-              <Button v-if="problemRes" icon="play" :loading="running" @click="runCode"
-                    :disabled="problemSubmitDisabled || submitted"
-                    class="run-btn">
-                <span v-if="running">{{$t('m.Running')}}</span>
-                <span v-else>{{$t('m.Execution')}}</span>
-              </Button>
-            </el-tooltip>
-            <el-tooltip v-if="aiaskbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
-              <Button @click="toggleSidebar"
-                      v-if="aihelperflag"
-                      :disabled="aiaskbutton"
-                      class="fl-right">
-                <span>{{$t('m.callai')}}</span>
-              </Button>
-            </el-tooltip>
-            <!-- aiaskbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
-            <Button v-if="aihelperflag && !aiaskbutton" @click="toggleSidebar"
-                    :disabled="aiaskbutton"
-                    @click.native="askAI"
-                    class="fl-right">
-              <span>{{$t('m.callai')}}</span>
-            </Button>
-
-            <!-- Tara 버튼에 대한 툴팁, askbutton이 true일 때만 툴팁 표시 -->
-            <el-tooltip v-if="askbutton" content="제출 시 버튼이 활성화됩니다." placement="top">
-              <Button v-b-toggle.sidebar-right
-                      :disabled="askbutton"
-                      class="fl-right">
-                <span>{{$t('m.calltara')}}</span>
-              </Button>
-            </el-tooltip>
-            <!-- askbutton이 false일 때는 툴팁 없이 버튼만 표시 -->
-            <Button v-if="!askbutton" v-b-toggle.sidebar-right
-                    :disabled="askbutton"
-                    class="fl-right">
-              <span>{{$t('m.calltara')}}</span>
-            </Button>
-            </Col>
-          </Row>
-        </Card>
-        <Card :padding="20" id="run-code" dis-hover>
-          <div class="result-tap">
-            <p class="title">{{$t('m.Execution_Result')}}</p>
-            <div class="input-output-container">
-              <p class="sub-title">{{$t('m.Type')}}</p>
-              <el-switch
-                v-model="showResultType"
-                inline-prompt
-                size="large"
-                active-text="2"
-                inactive-text="1"
-              />
-            </div>
-          </div>
-          <div v-if="showResultType">
-            <el-tabs type="border-card">
-              <el-tab-pane
-                v-for="(sample, index) of problem.samples"
-                :key="index"
-                :label="getRunResultLable(index)"
-              >
-                <div class="input-output-container">
-                  <div class="input-container">
-                    <p class="sub-title">{{$t('m.Input')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.input}}</pre>
-                    </div>
-                  </div>
-                  <div class="output-container">
-                    <p class="sub-title">{{$t('m.Your_Output')}}</p>
-                    <div class="text-box">
-                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
-                    </div>
-                  </div>
-                  <div class="sample-output-container">
-                    <p class="sub-title">{{$t('m.DCU_Output')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.output}}</pre>
-                    </div>
-                  </div>
-                </div>
-              </el-tab-pane>
-            </el-tabs>
-          </div>
-          <div v-else>
-            <div v-for="(sample, index) of problem.samples" :key="index" class="sample-container">
-              <div class="sample">
-                <div class="samples" @click="toggleDetails(index)" style="display: flex; align-items: center;">
-                  <icon v-if="isTestcaseSelected(index)" class="toggle-icon" type="arrow-down-b" size="20"></icon>
-                  <icon v-else class="toggle-icon" type="arrow-right-b" size="20"></icon>
-                  <p class="title">
-                      {{$t('m.Test')}} {{index + 1}}
-                  </p>
-                  <div class="result-container">
-                      <p class="sub-title">{{$t('m.Result')}} ></p>
-                      <div class="text-box"
-                      :style="{color: (runResultData[index] === '오류' || runResultData[index] === '오류(시간초과)') ? 'black' : (runResultData[index] === '정답' ? 'green' : 'red')}">
-                        <pre v-if="runResultData[index]">{{$t(runResultData[index].replace(/ /g, "_"))}}</pre>
-                      </div>
-                  </div>
-                </div>
-                <div v-if="isTestcaseSelected(index)" class="input-output-container">
-                  <div class="input-container">
-                    <p class="sub-title">{{$t('m.Input')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.input}}</pre>
-                    </div>
-                  </div>
-                  <div class="output-container">
-                    <p class="sub-title">{{$t('m.Your_Output')}}</p>
-                    <div class="text-box">
-                      <pre v-if="outputdata[index]">{{outputdata[index].replace(/ /g, "&nbsp;")}}</pre>
-                    </div>
-                  </div>
-                  <div class="sample-output-container">
-                    <p class="sub-title">{{$t('m.DCU_Output')}}</p>
-                    <div class="text-box">
-                      <pre>{{sample.output}}</pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </Card>
-        <!-- LLM Hint Card (세로 모드) -->
-        <Card v-if="llmHintVisible" id="llm-hint" dis-hover>
-          <div class="hint-header" @click="llmHintExpanded = !llmHintExpanded">
-            <div class="hint-header-left">
-              <span class="hint-icon">💡</span>
-              <span class="hint-title">AI 힌트</span>
-            </div>
-            <icon :type="llmHintExpanded ? 'arrow-down-b' : 'arrow-right-b'" class="hint-toggle"/>
-          </div>
-          <div v-if="llmHintExpanded" class="hint-body">
-            <div class="hint-chat-area" ref="hintChatAreaVertical">
-              <div v-for="(msg, idx) in llmChatMessages" :key="idx" :class="['chat-bubble', msg.role === 'user' ? 'chat-user' : 'chat-assistant']">
-                <div class="chat-role">{{ msg.role === 'user' ? '🙋 나' : '🤖 AI' }}</div>
-                <div class="chat-msg-body" v-html="renderMarkdown(msg.content)"></div>
-              </div>
-              <div v-if="llmHintLoading" class="hint-loading">
-                <Spin size="small"/>
-                <span>응답 생성 중...</span>
-              </div>
-            </div>
-            <div class="hint-input-area">
-              <Input v-model="llmFollowUpInput" placeholder="추가 질문을 입력하세요..." @on-enter="sendFollowUpQuestion" :disabled="llmHintLoading" />
-              <Button type="warning" icon="ios-send" :loading="llmHintLoading" :disabled="!llmFollowUpInput.trim()" @click="sendFollowUpQuestion">전송</Button>
-            </div>
-          </div>
-        </Card>
       </div>
-    </el-col>
-    <div v-else></div>
-
-    <el-col :span="2" id="right-column">
-      <Card id="page-mode" :style="{ backgroundColor: 'var(--panelBackground)' }">
-        <el-switch v-model="toggleValue" size="large" active-text="가로" inactive-text="세로" @change="toggleSwitch"/>
-
-      </Card>
-      <br />
-      <VerticalMenu @on-click="handleRoute">
-        <template v-if="this.contestID">
-          <VerticalMenu-item :route="{ name: 'contest-problem-list', params: { contestID: contestID } }">
-            <Icon type="ios-photos"></Icon>
-            {{ $t('m.Problems') }}
-          </VerticalMenu-item>
-
-          <VerticalMenu-item :route="{ name: 'contest-announcement-list', params: { contestID: contestID } }">
-            <Icon type="chatbubble-working"></Icon>
-            {{ $t('m.Announcements') }}
-          </VerticalMenu-item>
-        </template>
-
-        <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission" :route="submissionRoute">
-          <Icon type="navicon-round"></Icon>
-          {{ $t('m.Submissions') }}
-        </VerticalMenu-item>
-
-        <template v-if="this.contestID">
-          <VerticalMenu-item v-if="!this.contestID || OIContestRealTimePermission"
-            :route="{ name: 'contest-rank', params: { contestID: contestID } }">
-            <Icon type="stats-bars"></Icon>
-            {{ $t('m.Rankings') }}
-          </VerticalMenu-item>
-          <VerticalMenu-item @click.native="goContestQnA">
-            <Icon type="help"></Icon>
-            {{ $t('m.qa') }}
-          </VerticalMenu-item>
-          <VerticalMenu-item :route="{ name: 'contest-details', params: { contestID: contestID } }">
-            <Icon type="home"></Icon>
-            {{ $t('m.View_Contest') }}
-          </VerticalMenu-item>
-          <VerticalMenu-item v-if="contestType === '대회' && this.lectureID"
-                             :route="{name: 'lecture-contest-exit'}">
-            <Icon type="android-exit"></Icon>
-            {{$t('m.Exit')}}
-          </VerticalMenu-item>
-        </template>
-      </VerticalMenu>
-
-      <Card id="info">
-        <div slot="title" class="header">
-          <Icon type="information-circled"></Icon>
-          <span class="card-title">{{ $t('m.Information') }}</span>
-        </div>
-        <ul>
-          <li>
-            <p>ID</p>
-            <p>{{ problem._id }}</p>
-          </li>
-          <li>
-            <p>{{ $t('m.Time_Limit') }}</p>
-            <p>{{ problem.time_limit }}MS</p>
-          </li>
-          <li>
-            <p>{{ $t('m.Memory_Limit') }}</p>
-            <p>{{ problem.memory_limit }}MB</p>
-          </li>
-
-          <li>
-            <p>{{ $t('m.IOMode') }}</p>
-            <p>{{ problem.io_mode.io_mode }}</p>
-          </li>
-          <li>
-            <p>{{ $t('m.Created') }}</p>
-            <p>{{ problem.created_by.username }}</p>
-          </li>
-          <li v-if="problem.difficulty">
-            <p>{{ $t('m.Level') }}</p>
-            <p>{{ $t('m.' + problem.difficulty) }}</p>
-          </li>
-          <li v-if="problem.total_score">
-            <p>{{ $t('m.Score') }}</p>
-            <p>{{ problem.total_score }}</p>
-          </li>
-          <li>
-            <p>{{ $t('m.Tags') }}</p>
-            <p>
-              <Poptip trigger="hover" placement="left-end">
-                <a>{{ $t('m.Show') }}</a>
-                <div slot="content">
-                  <Tag v-for="tag in problem.tags" :key="tag">{{ tag }}</Tag>
-                </div>
-              </Poptip>
-            </p>
-          </li>
-        </ul>
-      </Card>
-      <Card id="pieChart" :padding="0" v-if="!this.contestID || OIContestRealTimePermission">
-        <div slot="title">
-          <Icon type="ios-analytics"></Icon>
-          <span class="card-title">{{ $t('m.Statistic') }}</span>
-          <Button type="ghost" size="small" id="detail" @click="graphVisible = !graphVisible">{{ $t('m.Detail') }}</Button>
-        </div>
-        <div class="echarts">
-          <ECharts :options="pie"></ECharts>
-        </div>
-      </Card>
-    </el-col>
+      <div v-show="!aiHintExpanded" class="pane-collapsed-content" @click="aiHintExpanded = true">
+        <span class="vertical-text">AI 힌트 열기...</span>
+      </div>
+    </div>
 
     <b-sidebar id="sidebar-right" title="Sidebar" width="500px" no-header right shadow>
       <div class="sidebar" id="wrapper">
@@ -633,7 +399,6 @@
         </div>
       </div>
     </b-sidebar>
-
     <b-sidebar id="sidebar-airight" title="Sidebar" width="500px"no-header right shadow v-bind:visible="sidebarVisible">
           <div class="sidebar" id="wrapper">
             <el-button class="sidebar-margin" v-on:click="toggleSidebar" icon="el-icon-close" circle></el-button>
@@ -647,7 +412,6 @@
             <p style="font-weight: bold">commented by chatGPT </p>
           </div>
         </b-sidebar>
-
     <Modal v-model="graphVisible">
       <div id="pieChart-detail">
         <ECharts :options="largePie" :initOptions="largePieInitOpts"></ECharts>
@@ -656,11 +420,8 @@
         <Button type="ghost" @click="graphVisible = false">{{ $t('m.Close') }}</Button>
       </div>
     </Modal>
-    </Modal>
-    
     <transition name="fade">
       <div v-if="showHintNotification" class="ai-hint-notification" @click="scrollToHint">
-        <span class="notify-icon">👇</span>
         <span class="notify-text">AI 힌트가 도착했습니다!</span>
         <Icon type="close" class="notify-close" @click.stop="showHintNotification = false" />
       </div>
@@ -669,7 +430,7 @@
 </template>
 
 <script>
-  import {mapGetters, mapActions, mapState} from 'vuex'
+  import { mapGetters, mapActions, mapState } from 'vuex'
   import {types} from '../../../../store'
   import CodeMirror from '@oj/components/CodeMirror.vue'
 
@@ -683,8 +444,6 @@
   import 'bootstrap-vue/dist/bootstrap-vue.css'
   import Vue from 'vue'
   import Simditor from '../../components/Simditor.vue'
-  import axios from 'axios'
-  import { lightTheme, darkTheme } from '@/theme'
 
   Vue.use(SidebarPlugin)
 
@@ -707,9 +466,10 @@
     mixins: [FormMixin],
     data () {
       return {
+        menuExpanded: true,
+        aiHintExpanded: true,
         selectedTestcase: [],
         showResultType: false,
-        toggleValue: window.localStorage.getItem('viewMode') ? JSON.parse(window.localStorage.getItem('viewMode')) : false, // 가로 세로 모드 토글 버튼
         sidebarVisible: false,
         statusVisible: false,
         captchaRequired: false,
@@ -769,14 +529,13 @@
         antiData: { copy: 0, focusScreen: 0 },
         initialAntiData: { copy: 0, focusScreen: 0 },
         llmHintVisible: false,
-        llmHintExpanded: true,
         llmHintLoading: false,
-        llmHintText: '',
         llmChatMessages: [],
-        llmConversationHistory: [],
+        llmHintExpanded: true,
         llmFollowUpInput: '',
-        showHintNotification: false,
-        scrollTimeout: null
+        scrollTimeout: null,
+        problemList: [],
+        problemListExpanded: false
       }
     },
 
@@ -879,14 +638,6 @@
       showResultTypeSwithch (swithchValue) {
         console.log(this.showResultType)
       },
-      toggleSwitch (newToggleValue) { // toggle 버튼 이벤트 감지
-        this.toggleValue = newToggleValue
-        if (this.toggleValue) {
-          window.localStorage.setItem('viewMode', true)
-        } else {
-          window.localStorage.setItem('viewMode', false)
-        }
-      },
       ...mapActions(['changeDomTitle']),
       getLectureID () {
         if (this.lectureID === undefined) {
@@ -966,6 +717,15 @@
           this.submissionId = res.data.data.id
         }).catch(() => {
         })
+
+        // Fetch problem list for the contest/lecture menu
+        if (this.contestID) {
+          api.getContestProblemList(this.contestID).then(res => {
+            this.problemList = res.data.data || []
+          }).catch(() => {
+            this.problemList = []
+          })
+        }
       },
       checkContestExit () {
         api.checkContestExit(this.contestID).then(res => {
@@ -1718,14 +1478,16 @@
 
   #info {
     background-color: var(--panelBackground);
-    margin-bottom: 20px;
-    margin-top: 20px;
+    margin-bottom: 5px;
+    margin-top: 5px;
     color: var(--verticalMenu-item-color);
     ul {
       list-style-type: none;
+      margin: 0;
+      padding: 0;
       li {
         border-bottom: 1px dotted var(--list-border-bottom);
-        margin-bottom: 10px;
+        margin-bottom: 5px;
         p {
           display: inline-block;
         }
@@ -1747,8 +1509,8 @@
     background-color: var(--panelBackground);
     color: var(--verticalMenu-item-color);
     .echarts {
-      height: 250px;
-      width: 210px;
+      height: 180px;
+      width: 100%;
     }
     #detail {
       color: var(--verticalMenu-item-color);
@@ -1829,14 +1591,17 @@
   }
   #run-code{
     background-color: var(--panelBackground);
-    align-items: stretch;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     .sample {
-      height: 50%;
+      flex: 1;
       display: flex;
       flex-direction: column;
       padding: 10px;
       border: 1px solid #ccc;
       margin: -1px;
+      max-height: 48vh;
     }
     .samples {
       cursor: pointer;
@@ -1860,20 +1625,32 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 10px;
+      flex: none;
     }
     .result-tap .sub-title {
       margin-bottom: 3px;
       margin-right: 5px;
     }
+    .run-code-content-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--panelBackground);
+    }
     .input-output-container {
       display: flex;
+      flex: 1;
+      height: auto;
+      max-height: 250px;
     }
     .input-container,
     .output-container,
     .sample-output-container {
       width: 50%;
-      height: 55%;
+      height: 100%;
       padding: 10px;
+      display: flex;
+      flex-direction: column;
     }
     .result-container {
       display: flex;
@@ -1884,7 +1661,7 @@
     .output-container .text-box,
     .input-container .text-box,
     .sample-output-container .text-box {
-      height: 50%;
+      flex: 1;
       border: 1px solid #ccc;
       border-radius: 4px;
       overflow: auto;
@@ -1904,7 +1681,7 @@
   }
 
   #llm-hint {
-    background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%);
+    background-color: var(--panelBackground);
     border: 1px solid #ffc107;
     border-radius: 8px;
     margin-top: 10px;
@@ -1932,10 +1709,10 @@
     .hint-title {
       font-size: 16px;
       font-weight: 700;
-      color: #e65100;
+      color: var(--text-color);
     }
     .hint-toggle {
-      color: #e65100;
+      color: var(--text-color);
       font-size: 16px;
     }
     .hint-body {
@@ -1944,7 +1721,7 @@
       border-top: 1px dashed #ffc107;
     }
     .hint-chat-area {
-      max-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
       padding: 4px 0;
     }
@@ -1965,17 +1742,17 @@
       }
     }
     .chat-assistant {
-      background: rgba(255,255,255,0.7);
+      background: rgba(128,128,128,0.1);
       border: 1px solid #ffe082;
       .chat-role { color: #e65100; }
-      .chat-msg-body { color: #3e2723; }
+      .chat-msg-body { color: var(--text-color); }
     }
     .chat-user {
-      background: #fff3e0;
+      background: rgba(128,128,128,0.2);
       border: 1px solid #ffcc80;
       margin-left: 20%;
       .chat-role { color: #1565c0; }
-      .chat-msg-body { color: #1a237e; }
+      .chat-msg-body { color: var(--text-color); }
     }
     .md-code-block {
       position: relative;
@@ -2072,4 +1849,163 @@
   .fade-enter, .fade-leave-to {
     opacity: 0;
   }
+
+  /* ====== New Layout System ====== */
+  .problem-layout-container {
+    display: flex;
+    width: 100%;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    background-color: var(--background-color);
+  }
+
+  .pane {
+    height: 100%;
+    border-right: 1px solid #dcdfe6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.3s ease, flex 0.3s ease;
+  }
+
+  /* Dark mode border adjustment */
+  body[theme='dark'] .pane {
+    border-right-color: #4c4e52;
+  }
+
+  .pane:last-child {
+    border-right: none;
+  }
+
+  .pane-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+  }
+
+  .pane-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ebeef5;
+  }
+
+  body[theme='dark'] .pane-header {
+    border-bottom-color: #4c4e52;
+  }
+
+  .pane-header .title {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .toggle-btn {
+    cursor: pointer;
+    font-size: 18px;
+    color: #909399;
+  }
+
+  .toggle-btn:hover {
+    color: #409eff;
+  }
+
+  .pane-collapsed {
+    width: 45px !important;
+    flex: none !important;
+    cursor: pointer;
+    background-color: var(--panelBackground);
+  }
+
+  .pane-collapsed:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  body[theme='dark'] .pane-collapsed:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+
+  .pane-collapsed-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    height: 100%;
+    color: var(--text-color);
+  }
+
+  .vertical-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    white-space: nowrap;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin-top: 15px;
+  }
+
+  /* Specific Pane Sizes */
+  .menu-pane {
+    width: 220px;
+    flex: none;
+    background-color: var(--panelBackground);
+  }
+
+  .problem-pane {
+    flex: 3.5;
+    min-width: 350px;
+  }
+
+  .code-pane {
+    flex: 6.5;
+    min-width: 500px;
+  }
+
+  .ai-pane {
+    width: 350px;
+    flex: none;
+    background-color: var(--panelBackground);
+  }
+
+  /* Override existing components spacing inside panes */
+  .problem-layout-container .ivu-card,
+  .problem-layout-container .ivu-panel {
+    margin-bottom: 10px;
+  }
+
+  .problem-list-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: var(--background-color);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .problem-list-menu li {
+    padding: 8px 10px 8px 30px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px dotted #ebeef5;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .problem-list-menu li:hover {
+    background-color: var(--panelBackground);
+    color: #409eff;
+  }
+  .problem-list-menu li.active-problem {
+    color: #409eff;
+    font-weight: bold;
+    background-color: rgba(64,158,255,0.1);
+  }
+
 </style>

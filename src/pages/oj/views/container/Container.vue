@@ -29,10 +29,7 @@ import { mapGetters } from 'vuex'
 import api from '@oj/api'
 /* global WebSocket */
 import { Terminal } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
 import 'xterm/css/xterm.css'
-import { WebLinksAddon } from 'xterm-addon-web-links'
-import { SerializeAddon } from 'xterm-addon-serialize'
 
 export default {
   name: 'Container',

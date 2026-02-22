@@ -117,7 +117,6 @@
   import { types } from '@/store'
   import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
-  import { compareIdentifiers } from 'semver'
   import { lightTheme, darkTheme } from '@/theme'
   
   export default {

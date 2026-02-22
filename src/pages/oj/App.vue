@@ -1,7 +1,7 @@
 <template>
   <div :style="currentTheme">
     <NavBar ref="navbar"></NavBar>
-    <div class="content-app" v-bind:style="navbarmargin">
+    <div :class="contentClass" v-bind:style="navbarmargin">
       <transition name="fadeInUp" mode="out-in">
         <router-view></router-view>
       </transition>
@@ -93,7 +93,12 @@
     },
     methods: {
       getInfoHeight () {
-        var margin = this.$refs.navbar.$el.scrollHeight + 30 + 'px'
+        let margin = this.$refs.navbar.$el.scrollHeight
+        if (this.$route && (this.$route.name === 'problem-details' || this.$route.name === 'contest-problem-details')) {
+          margin = margin + 'px'
+        } else {
+          margin = margin + 30 + 'px'
+        }
         Vue.set(this.navbarmargin, 'marginTop', margin)
       },
       ...mapActions(['getWebsiteConfig', 'changeDomTitle'])
@@ -104,6 +109,12 @@
       // isDarkMode 값에 따라 현재 테마를 선택합니다
       currentTheme () {
         return this.isDarkMode ? darkTheme : lightTheme
+      },
+      contentClass () {
+        if (this.$route && (this.$route.name === 'problem-details' || this.$route.name === 'contest-problem-details')) {
+          return 'content-app-full'
+        }
+        return 'content-app'
       }
     },
     watch: {
@@ -152,6 +163,11 @@
 
   .content-app {
     padding: 0 2%;
+    margin-top: '80px';
+  }
+
+  .content-app-full {
+    padding: 0;
     margin-top: '80px';
   }
 
