@@ -18,6 +18,10 @@
     <Icon type="monitor"></Icon>
     {{$t('m.Container')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
   </el-menu-item>
+  <el-menu-item index="/chat">
+    <Icon type="chatbox-working"></Icon>
+    AI Chat
+  </el-menu-item>
   <el-menu-item index="/contest">
     <Icon type="ios-book"></Icon>
     {{$t('m.Public_Contests')}}
@@ -169,9 +173,11 @@
       register,
       ThemeToggle
     },
-    mounted () {
-      this.getProfile()
-      this.qnapushlist()
+    async mounted () {
+      await this.getProfile()
+      if (this.isAuthenticated) {
+        this.qnapushlist()
+      }
     },
     data () {
       return {
@@ -229,6 +235,9 @@
         this.toggleTheme()
       },
       qnapushlist () {
+        if (!this.isAuthenticated) {
+          return
+        }
         let params = { offset: 0,
           limit: this.limit }
         api.PostListPushSerializer(params).then((res) => {
@@ -237,6 +246,9 @@
         })
       },
       currentChange (page) {
+        if (!this.isAuthenticated) {
+          return
+        }
         let params = { offset: (page - 1) * this.limit,
           limit: this.limit }
         api.PostListPushSerializer(params).then((res) => {

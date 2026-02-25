@@ -221,6 +221,14 @@ export default {
       params: {id}
     })
   },
+  getLLMGatewayConfig () {
+    return ajax('admin/llm/gateway-config', 'get')
+  },
+  saveLLMGatewayConfig (data) {
+    return ajax('admin/llm/gateway-config', 'post', {
+      data
+    })
+  },
   getLLMRouteList (offset, limit, modelName) {
     let params = {
       paging: true,

@@ -537,6 +537,10 @@
         llmChatMessages: [],
         llmHintExpanded: true,
         llmFollowUpInput: '',
+        llmConversationHistory: [],
+        llmHintSessionId: '',
+        llmHintSessionTag: '',
+        llmHintSessionPromise: null,
         scrollTimeout: null,
         showHintNotification: false,
         problemList: [],
@@ -1085,6 +1089,51 @@
 
         this.streamLLMRequest([systemMsg, firstUserMsg])
       },
+      buildLLMHintSessionTag () {
+        const problemId = this.problem && this.problem.id ? this.problem.id : this.problemID_
+        const contestId = this.contestID || 0
+        if (!problemId) return ''
+        return `[PROBLEM_HINT] p=${problemId} c=${contestId}`
+      },
+      async ensureLLMHintSession () {
+        const tag = this.buildLLMHintSessionTag()
+        if (!tag) return ''
+
+        if (this.llmHintSessionId && this.llmHintSessionTag === tag) {
+          return this.llmHintSessionId
+        }
+
+        if (this.llmHintSessionPromise) {
+          return this.llmHintSessionPromise
+        }
+
+        this.llmHintSessionPromise = (async () => {
+          const listRes = await api.getLLMChatSessions()
+          const sessions = (listRes.data && listRes.data.data) || []
+          let target = sessions.find(session => session.title === tag)
+
+          if (!target) {
+            const createRes = await api.createLLMChatSession({
+              title: tag
+            })
+            target = createRes.data && createRes.data.data
+          }
+
+          if (!target || !target.id) {
+            throw new Error('Failed to prepare LLM chat session')
+          }
+
+          this.llmHintSessionId = target.id
+          this.llmHintSessionTag = tag
+          return target.id
+        })()
+
+        try {
+          return await this.llmHintSessionPromise
+        } finally {
+          this.llmHintSessionPromise = null
+        }
+      },
       sendFollowUpQuestion () {
         const question = this.llmFollowUpInput.trim()
         if (!question || this.llmHintLoading) return
@@ -1106,18 +1155,41 @@
         const msgIndex = this.llmChatMessages.length - 1
         this.scrollChatToBottom()
 
-        const requestBody = {
-          model: 'Qwen/Qwen2.5-Coder-7B-Instruct',
-          messages: messages,
-          max_tokens: 512,
-          temperature: 0.7,
-          stream: true
-        }
-
         try {
-          const response = await fetch('http://203.250.33.77/v1/chat/completions', {
+          const sessionId = await this.ensureLLMHintSession()
+          if (!sessionId) {
+            throw new Error('LLM session is not ready')
+          }
+
+          const systemMsg = (messages || []).find(msg => msg && msg.role === 'system' && typeof msg.content === 'string')
+          const userMessages = (messages || []).filter(msg => msg && msg.role === 'user' && typeof msg.content === 'string')
+          const latestUserContent = userMessages.length ? userMessages[userMessages.length - 1].content : ''
+
+          // 초기 요청은 기존 형식을 유지하면서 system 지침을 함께 전달한다.
+          const content = systemMsg && (messages || []).length <= 2
+            ? `[시스템 지침]\n${systemMsg.content}\n\n[사용자 요청]\n${latestUserContent}`
+            : latestUserContent
+
+          if (!content || !content.trim()) {
+            throw new Error('Empty LLM content')
+          }
+
+          const requestBody = {
+            session_id: sessionId,
+            content,
+            max_tokens: 512,
+            temperature: 0.7,
+            stream: true
+          }
+
+          const csrfToken = getCookie('csrftoken')
+          const response = await fetch('/api/llm/chat/completions', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
+            },
+            credentials: 'include',
             body: JSON.stringify(requestBody)
           })
 
@@ -1427,6 +1499,10 @@
         this.llmHintVisible = false
         this.llmChatMessages = []
         this.llmFollowUpInput = ''
+        this.llmConversationHistory = []
+        this.llmHintSessionId = ''
+        this.llmHintSessionTag = ''
+        this.llmHintSessionPromise = null
 
         let problemCode = storage.get(buildProblemCodeKey(newVal.params.problemID, newVal.params.contestID))
         if (problemCode) {

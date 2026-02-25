@@ -1,5 +1,27 @@
 <template>
   <div class="view">
+    <Panel :title="$t('m.LLM_Gateway_Config')">
+      <el-form inline>
+        <el-form-item :label="$t('m.LLM_Gateway_Default_Model')">
+          <el-input v-model="gatewayForm.default_model" style="width: 320px"/>
+        </el-form-item>
+        <el-form-item :label="$t('m.LLM_Gateway_API_Key')">
+          <el-input
+            v-model="gatewayForm.api_key"
+            type="password"
+            show-password
+            :placeholder="$t('m.LLM_Gateway_API_Key_Placeholder')"
+            style="width: 420px"/>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" :loading="gatewaySaving" @click="saveGatewayConfig">{{ $t('m.LLM_Save') }}</el-button>
+        </el-form-item>
+      </el-form>
+      <div v-if="gatewayMeta.api_key_configured" style="font-size: 12px; color: #606266; margin-top: 8px;">
+        {{ $t('m.LLM_Gateway_API_Key_Current') }}: {{ gatewayMeta.api_key_preview }}
+      </div>
+    </Panel>
+
     <Panel :title="$t('m.LLM_Key_Create')">
       <el-form inline>
         <el-form-item :label="$t('m.LLM_Name')">
@@ -142,6 +164,15 @@ export default {
         name: '',
         models: '*'
       },
+      gatewaySaving: false,
+      gatewayMeta: {
+        api_key_configured: false,
+        api_key_preview: ''
+      },
+      gatewayForm: {
+        default_model: '',
+        api_key: ''
+      },
       routeLoading: false,
       routeSaving: false,
       routePage: 1,
@@ -159,10 +190,44 @@ export default {
     }
   },
   mounted () {
+    this.loadGatewayConfig()
     this.loadKeys(1)
     this.loadRoutes(1)
   },
   methods: {
+    async loadGatewayConfig () {
+      const res = await api.getLLMGatewayConfig()
+      const data = res.data.data || {}
+      this.gatewayMeta = {
+        api_key_configured: !!data.api_key_configured,
+        api_key_preview: data.api_key_preview || ''
+      }
+      this.gatewayForm.default_model = data.default_model || ''
+      this.gatewayForm.api_key = ''
+    },
+    async saveGatewayConfig () {
+      const defaultModel = this.gatewayForm.default_model.trim()
+      if (!defaultModel) {
+        this.$error(this.$t('m.LLM_Model_Name_Required'))
+        return
+      }
+
+      const payload = {
+        default_model: defaultModel
+      }
+      const apiKey = this.gatewayForm.api_key.trim()
+      if (apiKey) {
+        payload.api_key = apiKey
+      }
+
+      this.gatewaySaving = true
+      try {
+        await api.saveLLMGatewayConfig(payload)
+        await this.loadGatewayConfig()
+      } finally {
+        this.gatewaySaving = false
+      }
+    },
     async loadKeys (page) {
       this.keyPage = page
       this.loading = true

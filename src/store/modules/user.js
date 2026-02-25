@@ -53,10 +53,11 @@ const mutations = {
 
 const actions = {
   getProfile ({commit}) {
-    api.getUserInfo().then(res => {
+    return api.getUserInfo().then(res => {
       commit(types.CHANGE_PROFILE, {
         profile: res.data.data || {}
       })
+      return res
     })
   },
   clearProfile ({commit}) {

@@ -30,6 +30,33 @@ export default {
       data
     })
   },
+  getLLMChatSessions () {
+    return ajax('llm/chat/sessions', 'get')
+  },
+  createLLMChatSession (data) {
+    return ajax('llm/chat/sessions', 'post', {
+      data
+    })
+  },
+  updateLLMChatSession (data) {
+    return ajax('llm/chat/sessions', 'put', {
+      data
+    })
+  },
+  deleteLLMChatSession (id) {
+    return ajax('llm/chat/sessions', 'delete', {
+      params: { id }
+    })
+  },
+  getLLMChatMessages (sessionId, offset = 0, limit = 100) {
+    return ajax('llm/chat/messages', 'get', {
+      params: {
+        session_id: sessionId,
+        offset,
+        limit
+      }
+    })
+  },
   deleteComment (id) {
     return ajax('comment', 'delete', {
       params: {
