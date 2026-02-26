@@ -1161,14 +1161,9 @@
             throw new Error('LLM session is not ready')
           }
 
-          const systemMsg = (messages || []).find(msg => msg && msg.role === 'system' && typeof msg.content === 'string')
           const userMessages = (messages || []).filter(msg => msg && msg.role === 'user' && typeof msg.content === 'string')
           const latestUserContent = userMessages.length ? userMessages[userMessages.length - 1].content : ''
-
-          // 초기 요청은 기존 형식을 유지하면서 system 지침을 함께 전달한다.
-          const content = systemMsg && (messages || []).length <= 2
-            ? `[시스템 지침]\n${systemMsg.content}\n\n[사용자 요청]\n${latestUserContent}`
-            : latestUserContent
+          const content = latestUserContent
 
           if (!content || !content.trim()) {
             throw new Error('Empty LLM content')
@@ -1177,6 +1172,7 @@
           const requestBody = {
             session_id: sessionId,
             content,
+            mode: 'problem_hint',
             max_tokens: 512,
             temperature: 0.7,
             stream: true

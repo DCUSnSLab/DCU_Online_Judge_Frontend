@@ -142,6 +142,13 @@ export default {
       const d = new Date(iso)
       return `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
     },
+    resolveLLMMode () {
+      const session = this.activeSession
+      if (session && typeof session.title === 'string' && session.title.startsWith('[PROBLEM_HINT]')) {
+        return 'problem_hint'
+      }
+      return 'chat'
+    },
     async sendMessage () {
       const content = this.inputText.trim()
       if (!content || this.loading) return
@@ -163,6 +170,7 @@ export default {
       const payload = {
         session_id: this.activeSessionId,
         content,
+        mode: this.resolveLLMMode(),
         temperature: 0.7,
         max_tokens: 1024,
         stream: true
