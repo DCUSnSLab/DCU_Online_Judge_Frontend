@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 引入 view 组件
-import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, Login,
+import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, LLMKeys, Login,
   Problem, ProblemList, CopyKiller, User, PruneTestCase, Dashboard, ProblemImportOrExport, Lecture, LectureList, StudentList, ContStudentList } from './views'
 Vue.use(VueRouter)
 
@@ -43,6 +43,11 @@ export default new VueRouter({
           path: '/judge-server',
           name: 'judge-server',
           component: JudgeServer
+        },
+        {
+          path: '/llm-keys',
+          name: 'llm-keys',
+          component: LLMKeys
         },
         {
           path: '/prune-test-case',

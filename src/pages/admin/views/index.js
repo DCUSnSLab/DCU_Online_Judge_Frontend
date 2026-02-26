@@ -3,6 +3,7 @@ import Announcement from './general/Announcement.vue'
 import User from './general/User.vue'
 import Conf from './general/Conf.vue'
 import JudgeServer from './general/JudgeServer.vue'
+import LLMKeys from './general/LLMKeys.vue'
 import PruneTestCase from './general/PruneTestCase.vue'
 import Problem from './problem/Problem.vue'
 import ProblemList from './problem/ProblemList.vue'
@@ -18,7 +19,7 @@ import ContStudentList from './contest/StudentList.vue'
 import CopyKiller from './problem/CopyKiller.vue'
 
 export {
-  Announcement, User, Conf, JudgeServer, Problem, ProblemList, Contest,
+  Announcement, User, Conf, JudgeServer, LLMKeys, Problem, ProblemList, Contest,
   ContestList, Login, Home, PruneTestCase, Dashboard, ProblemImportOrExport,
   Lecture, LectureList, StudentList, ContStudentList, CopyKiller
 }

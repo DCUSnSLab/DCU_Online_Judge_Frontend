@@ -30,6 +30,33 @@ export default {
       data
     })
   },
+  getLLMChatSessions () {
+    return ajax('llm/chat/sessions', 'get')
+  },
+  createLLMChatSession (data) {
+    return ajax('llm/chat/sessions', 'post', {
+      data
+    })
+  },
+  updateLLMChatSession (data) {
+    return ajax('llm/chat/sessions', 'put', {
+      data
+    })
+  },
+  deleteLLMChatSession (id) {
+    return ajax('llm/chat/sessions', 'delete', {
+      params: { id }
+    })
+  },
+  getLLMChatMessages (sessionId, offset = 0, limit = 100) {
+    return ajax('llm/chat/messages', 'get', {
+      params: {
+        session_id: sessionId,
+        offset,
+        limit
+      }
+    })
+  },
   deleteComment (id) {
     return ajax('comment', 'delete', {
       params: {
@@ -503,7 +530,7 @@ export default {
     })
   },
   getLectureUserList (offset, limit, keyword, lectureid, contestid) {  // working by soojung
-    let params = {paging: true, offset, limit}
+    let params = { paging: true, offset, limit }
     if (keyword) {
       params.keyword = keyword
     }
@@ -539,7 +566,7 @@ export default {
  */
 function ajax (url, method, options) {
   if (options !== undefined) {
-    var {params = {}, data = {}} = options
+    var { params = {}, data = {} } = options
   } else {
     params = data = {}
   }
@@ -556,7 +583,7 @@ function ajax (url, method, options) {
         reject(res)
         // 若后端返回为登录，则为session失效，应退出当前登录用户
         if (res.data.data.startsWith('Please login')) {
-          store.dispatch('changeModalStatus', {'mode': 'login', 'visible': true})
+          store.dispatch('changeModalStatus', { 'mode': 'login', 'visible': true })
         }
       } else {
         resolve(res)
@@ -564,10 +591,16 @@ function ajax (url, method, options) {
         //   Vue.prototype.$success('Succeeded')
         // }
       }
-    }, res => {
+    }, err => {
       // API请求异常，一般为Server error 或 network error
-      reject(res)
-      Vue.prototype.$error(res.data.data)
+      reject(err)
+      if (err.response && err.response.data && err.response.data.data) {
+        Vue.prototype.$error(err.response.data.data)
+      } else if (err.response && err.response.data && err.response.data.error) {
+        Vue.prototype.$error(err.response.data.error)
+      } else {
+        Vue.prototype.$error('서버 오류가 발생했습니다.')
+      }
     })
   })
 }

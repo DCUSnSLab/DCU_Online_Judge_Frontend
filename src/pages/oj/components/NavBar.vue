@@ -18,6 +18,10 @@
     <Icon type="monitor"></Icon>
     {{$t('m.Container')}} <span style="font-size: 11px; opacity: 0.7;">(beta ver.)</span>
   </el-menu-item>
+  <el-menu-item index="/chat">
+    <Icon type="chatbox-working"></Icon>
+    AI Chat
+  </el-menu-item>
   <el-menu-item index="/contest">
     <Icon type="ios-book"></Icon>
     {{$t('m.Public_Contests')}}
@@ -75,8 +79,8 @@
         <el-button class="drop-menu-bell" style="float:right; margin-right: 10px;margin-top: 10px;" icon="el-icon-bell" @click="dialogFormVisible = true"></el-button>
       </span>
     </div>
-    <el-submenu style="float:right;">
-      <template index="/user-home" @on-click="handleRoute" slot="title" trigger="click" ><span :style="{ color: 'var(--text-color)', fontWeight: 'bold' }">{{ user.username }}</span></template>
+    <el-submenu index="user-menu" style="float:right;">
+      <template slot="title" trigger="click" ><span :style="{ color: 'var(--text-color)', fontWeight: 'bold' }">{{ user.username }}</span></template>
         <el-menu-item index="/user-home">
           {{$t('m.MyHome')}}
         </el-menu-item>
@@ -169,9 +173,11 @@
       register,
       ThemeToggle
     },
-    mounted () {
-      this.getProfile()
-      this.qnapushlist()
+    async mounted () {
+      await this.getProfile()
+      if (this.isAuthenticated) {
+        this.qnapushlist()
+      }
     },
     data () {
       return {
@@ -216,7 +222,7 @@
       }
     },
     methods: {
-      ...mapActions(['getProfile', 'changeModalStatus', 'isAdminRole']),
+      ...mapActions(['getProfile', 'changeModalStatus']),
       handleRoute (route) {
         if (route && route.indexOf('admin') < 0) {
           this.$router.push(route)
@@ -229,6 +235,9 @@
         this.toggleTheme()
       },
       qnapushlist () {
+        if (!this.isAuthenticated) {
+          return
+        }
         let params = { offset: 0,
           limit: this.limit }
         api.PostListPushSerializer(params).then((res) => {
@@ -237,6 +246,9 @@
         })
       },
       currentChange (page) {
+        if (!this.isAuthenticated) {
+          return
+        }
         let params = { offset: (page - 1) * this.limit,
           limit: this.limit }
         api.PostListPushSerializer(params).then((res) => {

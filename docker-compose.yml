@@ -1,0 +1,63 @@
+version: "3"
+services:
+
+  oj-redis:
+    image: redis:4.0-alpine
+    restart: always
+    volumes:
+      - ./data/redis:/data
+
+  oj-postgres:
+    image: postgres:10-alpine
+    restart: always
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=onlinejudge
+      - POSTGRES_USER=onlinejudge
+      - POSTGRES_PASSWORD=onlinejudge
+
+  oj-backend:
+    build:
+      context: ../DCU_Online_Judge_Backend
+      dockerfile: ../DCU_Online_Judge_Frontend/Dockerfile.backend-local
+    restart: always
+    depends_on:
+      - oj-redis
+      - oj-postgres
+      - judge-server
+    volumes:
+      - ./data/backend:/data
+      - ./data/backend-nginx-locations.conf:/app/deploy/nginx/locations.conf:ro
+      - ./data/backend-nginx.conf:/app/deploy/nginx/nginx.conf:ro
+    environment:
+      - POSTGRES_DB=onlinejudge
+      - POSTGRES_USER=onlinejudge
+      - POSTGRES_PASSWORD=onlinejudge
+      - POSTGRES_HOST=oj-postgres
+      - POSTGRES_PORT=5432
+      - REDIS_URL=redis://oj-redis:6379
+      - JUDGE_SERVER_TOKEN=CHANGE_THIS
+      - MAX_WORKER_NUM=4
+    ports:
+      - "0.0.0.0:8000:8000"
+
+  judge-server:
+    image: marsberry/dcucode-judgeserver:latest
+    privileged: true
+    security_opt:
+      - seccomp:unconfined
+    tmpfs:
+      - /tmp
+    volumes:
+      - ./data/backend/test_case:/data/test_case:ro
+      - ./data/judge_server/log:/log
+      - ./data/judge_server/run:/judger
+      - ./data/judger_patch/__init__.py:/usr/local/lib/python3.6/dist-packages/_judger/__init__.py:ro
+    environment:
+      - SERVICE_URL=http://judge-server:8080
+      - BACKEND_URL=http://oj-backend:8000/api/judge_server_heartbeat/
+      - TOKEN=CHANGE_THIS
+      - judger_debug=1
+    ports:
+      - "0.0.0.0:12358:8080"

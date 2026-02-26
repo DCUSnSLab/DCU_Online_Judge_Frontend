@@ -22,6 +22,7 @@ const ResetPassword = () => import(/* webpackChunkName: "password" */ '@oj/views
 const Problem = () => import(/* webpackChunkName: "Problem" */ '@oj/views/problem/Problem.vue')
 const ProblemQnA = () => import(/* webpackChunkName: "Problem" */ '@oj/views/qna/ProblemQnAList.vue')
 const ProblemQnADetail = () => import(/* webpackChunkName: "Problem" */ '@oj/views/qna/ProblemQnADetail.vue')
+const ChatHome = () => import(/* webpackChunkName: "chat" */ '@oj/views/chat/ChatHome.vue')
 
 const LectureContestExit = () => import(/* webpackChunkName: "submission" */ '@oj/views/lecture/LectureContestExit.vue')  // working by soojung
 
@@ -29,6 +30,7 @@ export {
   Home, NotFound, Announcements,
   Login_, Logout, UserHome, About, FAQ, Container,
   ProblemList, Problem,
+  ChatHome,
   ACMRank, OIRank,
   SubmissionList, SubmissionDetails, LectureContestExit,
   ApplyResetPassword, ResetPassword, ProblemQnA, ProblemQnADetail

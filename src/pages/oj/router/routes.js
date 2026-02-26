@@ -12,6 +12,7 @@ import {
   NotFound,
   OIRank,
   Problem,
+  ChatHome,
   ProblemQnA,
   ProblemList,
   ResetPassword,
@@ -83,6 +84,12 @@ export default [
     path: '/problem/:problemID',
     meta: {title: 'Problem Details'},
     component: Problem
+  },
+  {
+    name: 'llm-chat',
+    path: '/chat',
+    meta: {requiresAuth: true, title: 'LLM Chat'},
+    component: ChatHome
   },
   {
     name: 'submission-list',
