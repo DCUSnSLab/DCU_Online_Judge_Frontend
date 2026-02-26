@@ -1,36 +1,5 @@
 <template>
   <div class="flex-container">
-    <div id="contest-main">
-      <!--children-->
-      <transition name="fadeInUp">
-        <router-view></router-view>
-      </transition>
-      <!--children end-->
-      <div class="flex-container" v-if="route_name === 'contest-details'">
-        <template>
-          <div v-if="isvisible" id="contest-desc">
-            <Panel :padding="20" shadow>
-              <div slot="title">
-                {{contest.title}}
-              </div>
-              <div slot="extra">
-                <Tag type="dot" :color="countdownColor">
-                  <span id="countdown">{{countdown}}</span>
-                </Tag>
-              </div>
-              <div v-html="contest.description" class="markdown-body"></div>
-              <div v-if="passwordFormVisible" class="contest-password">
-                <Input v-model="contestPassword" type="password"
-                       placeholder="contest password" class="contest-password-input"
-                       @on-enter="checkPassword"/>
-                <Button type="info" @click="checkPassword">Enter</Button>
-              </div>
-            </Panel>
-            <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 40px;"></Table>
-          </div>
-        </template>
-      </div>
-    </div>
     <div v-if="isvisible" v-show="showMenu" id="contest-menu">
       <VerticalMenu @on-click="handleRoute">
         <VerticalMenu-item :route="{name: 'contest-details', params: {contestID: contestID, lectureID: lectureID}}">
@@ -80,6 +49,37 @@
           {{$t('m.Exit')}}
         </VerticalMenu-item>
       </VerticalMenu>
+    </div>
+    <div id="contest-main">
+      <!--children-->
+      <transition name="fadeInUp">
+        <router-view></router-view>
+      </transition>
+      <!--children end-->
+      <div class="flex-container" v-if="route_name === 'contest-details'">
+        <template>
+          <div v-if="isvisible" id="contest-desc">
+            <Panel :padding="20" shadow>
+              <div slot="title">
+                {{contest.title}}
+              </div>
+              <div slot="extra">
+                <Tag type="dot" :color="countdownColor">
+                  <span id="countdown">{{countdown}}</span>
+                </Tag>
+              </div>
+              <div v-html="contest.description" class="markdown-body"></div>
+              <div v-if="passwordFormVisible" class="contest-password">
+                <Input v-model="contestPassword" type="password"
+                       placeholder="contest password" class="contest-password-input"
+                       @on-enter="checkPassword"/>
+                <Button type="info" @click="checkPassword">Enter</Button>
+              </div>
+            </Panel>
+            <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 40px;"></Table>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -243,7 +243,7 @@
     #contest-menu {
       flex: none;
       width: 210px;
-      margin-left: 20px;
+      margin-right: 20px;
     }
     .contest-password {
       margin-top: 20px;

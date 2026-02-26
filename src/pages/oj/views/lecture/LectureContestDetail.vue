@@ -1,48 +1,5 @@
 <template>
   <div class="flex-container" :style="currentTheme">
-    <div id="contest-main">
-      <!--children-->
-      <transition name="fadeInUp">
-        <router-view></router-view>
-      </transition>
-      <!--children end-->
-      <div class="flex-container" v-if="route_name === 'lecture-contest-details'">
-        <template>
-          <div v-if="isvisible" id="contest-desc">
-            <Panel :padding="50" shadow>
-              <div slot="title">
-                {{contest.title}}
-              </div>
-              <div slot="extra">
-                <Tag type="dot" :color="countdownColor">
-                  <span id="countdown">{{countdown}}</span>
-                </Tag>
-              </div>
-              <div v-html="contest.description" class="markdown-body"></div>
-              <div v-if="passwordFormVisible" class="contest-password">
-                <Input v-model="contestPassword" type="password"
-                       placeholder="contest password" class="contest-password-input"
-                       @on-enter="checkPassword"/>
-                <Button type="info" @click="checkPassword">Enter</Button>
-              </div>
-              <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
-              <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
-                <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
-                <el-button
-                  v-if="ContestInOutStatus ==='notCheck'"
-                  type="info"
-                  size="small"
-                  @click="checkInContest" 
-                  :disabled="ContestInOutStatus !=='notCheck' || contestMenuDisabled"
-                >
-                  <span>{{$t('시험 시작')}}</span>
-                </el-button>
-              </div>
-            </Panel>
-          </div>
-        </template>
-      </div>
-    </div>
     <div v-if="isvisible" v-show="showMenu" id="contest-menu">
       <VerticalMenu @on-click="handleRoute">
         <VerticalMenu-item :route="{name: 'lecture-contest-details', params: {contestID: contestID, lectureID: lectureID}}">
@@ -106,6 +63,49 @@
           {{ (this.$store.getters.isAdmin || (this.$store.getters.isSemiAdmin && this.Ta)) ? '관리' : $t('m.Exit') }}
         </VerticalMenu-item>
       </VerticalMenu>
+    </div>
+    <div id="contest-main">
+      <!--children-->
+      <transition name="fadeInUp">
+        <router-view></router-view>
+      </transition>
+      <!--children end-->
+      <div class="flex-container" v-if="route_name === 'lecture-contest-details'">
+        <template>
+          <div v-if="isvisible" id="contest-desc">
+            <Panel :padding="50" shadow>
+              <div slot="title">
+                {{contest.title}}
+              </div>
+              <div slot="extra">
+                <Tag type="dot" :color="countdownColor">
+                  <span id="countdown">{{countdown}}</span>
+                </Tag>
+              </div>
+              <div v-html="contest.description" class="markdown-body"></div>
+              <div v-if="passwordFormVisible" class="contest-password">
+                <Input v-model="contestPassword" type="password"
+                       placeholder="contest password" class="contest-password-input"
+                       @on-enter="checkPassword"/>
+                <Button type="info" @click="checkPassword">Enter</Button>
+              </div>
+              <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
+              <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
+                <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
+                <el-button
+                  v-if="ContestInOutStatus ==='notCheck'"
+                  type="info"
+                  size="small"
+                  @click="checkInContest" 
+                  :disabled="ContestInOutStatus !=='notCheck' || contestMenuDisabled"
+                >
+                  <span>{{$t('시험 시작')}}</span>
+                </el-button>
+              </div>
+            </Panel>
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -344,7 +344,7 @@
       flex-shrink: 0;
       flex: none;
       width: 210px;
-      margin-left: 20px;
+      margin-right: 20px;
     }
     .contest-password {
       margin-top: 20px;
