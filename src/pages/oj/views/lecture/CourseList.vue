@@ -140,9 +140,7 @@
     },
     mounted () {
       let d = new Date()
-      console.log(d)
       this.semestersort = (d.getMonth() + 1 >= 3 && d.getMonth() + 1 <= 7) ? 1 : (d.getMonth() + 1 >= 8 && d.getMonth() + 1 <= 12) ? 2 : (d.getMonth() + 1 === 2 && d.getDate() >= 20) ? 1 : 3
-      console.log(this.semestersort)
       this.yearsort = d.getFullYear()
       this.init()
       this.initSelectableYears()
