@@ -1669,7 +1669,7 @@
   }
 
   #pieChart-detail {
-    margin-top: 20px;
+    margin-top: 100px;
     width: 500px;
     height: 480px;
   }

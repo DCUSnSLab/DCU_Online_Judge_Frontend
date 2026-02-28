@@ -476,6 +476,11 @@
     flex: none;
     background-color: var(--panelBackground);
     height: 100%;
+
+    /deep/ .ivu-menu-item {
+      padding: 8px 8px !important;
+      font-size: 13px !important;
+    }
     border-right: 1px solid #dcdfe6;
     display: flex;
     flex-direction: column;
@@ -488,7 +493,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: 10px;
+    padding: 5px;
   }
 
   .pane-scroll {
@@ -500,13 +505,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    margin-bottom: 10px;
+    padding: 5px 0;
+    margin-bottom: 5px;
     border-bottom: 1px solid #ebeef5;
   }
 
   .pane-header .title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
   }
 

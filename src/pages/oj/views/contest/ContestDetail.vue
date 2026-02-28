@@ -28,7 +28,7 @@
               <li v-for="(p, index) in problemList" :key="p._id"
                   @click="selectProblem(p)"
                   :class="{'active-problem': selectedProblem && p._id === selectedProblem._id}">
-                <span v-if="p.my_status === 0" class="status-label status-completed">[완료]</span>
+                <span v-if="p.my_status === 0" class="status-label status-completed">[해결]</span>
                 <span v-else-if="p.my_status !== null && p.my_status !== undefined" class="status-label status-error">[오류]</span>
                 <span>{{index + 1}}. {{p.title || p._id}}</span>
               </li>
@@ -398,6 +398,11 @@
     flex: none;
     background-color: var(--panelBackground);
     height: 100%;
+
+    /deep/ .ivu-menu-item {
+      padding: 8px 15px !important;
+      font-size: 13px !important;
+    }
     border-right: 1px solid #dcdfe6;
     display: flex;
     flex-direction: column;
@@ -410,7 +415,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    padding: 10px;
+    padding: 5px;
   }
 
   .pane-scroll {
@@ -422,13 +427,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    margin-bottom: 10px;
+    padding: 5px 0;
+    margin-bottom: 5px;
     border-bottom: 1px solid #ebeef5;
   }
 
   .pane-header .title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
   }
 
