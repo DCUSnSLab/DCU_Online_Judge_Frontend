@@ -34,117 +34,117 @@ export default [
   {
     name: 'home',
     path: '/',
-    meta: {title: 'Home'},
+    meta: { title: 'Home' },
     component: Home
   },
   {
     name: 'logout',
     path: '/logout',
-    meta: {title: 'Logout'},
+    meta: { title: 'Logout' },
     component: Logout
   },
   {
     name: 'problem-qna-list',
     path: '/question',
-    meta: {requiresAuth: true, title: 'questions'},
+    meta: { requiresAuth: true, title: 'questions' },
     component: ProblemQnA
   },
   {
     name: 'problem-qna-detail',
     path: '/question/:questionID',
-    meta: {requiresAuth: true, title: 'questions'},
+    meta: { requiresAuth: true, title: 'questions' },
     component: ProblemQnADetail
   },
   {
     name: 'login',
     path: '/login',
-    meta: {title: 'Login_'},
+    meta: { title: 'Login_' },
     component: Login_
   },
   {
     name: 'apply-reset-password',
     path: '/apply-reset-password',
-    meta: {title: 'Apply Reset Password'},
+    meta: { title: 'Apply Reset Password' },
     component: ApplyResetPassword
   },
   {
     name: 'reset-password',
     path: '/reset-password/:token',
-    meta: {title: 'Reset Password'},
+    meta: { title: 'Reset Password' },
     component: ResetPassword
   },
   {
     name: 'problem-list',
     path: '/problem',
-    meta: {title: 'Problem List'},
+    meta: { title: 'Problem List' },
     component: ProblemList
   },
   {
     name: 'problem-details',
     path: '/problem/:problemID',
-    meta: {title: 'Problem Details'},
+    meta: { title: 'Problem Details' },
     component: Problem
   },
   {
     name: 'llm-chat',
     path: '/chat',
-    meta: {requiresAuth: true, title: 'LLM Chat'},
+    meta: { requiresAuth: true, title: 'LLM Chat' },
     component: ChatHome
   },
   {
     name: 'submission-list',
     path: '/status',
-    meta: {title: 'Submission List'},
+    meta: { title: 'Submission List' },
     component: SubmissionList
   },
   {
     name: 'submission-details',
     path: '/status/:id/',
-    meta: {title: 'Submission Details'},
+    meta: { title: 'Submission Details' },
     component: SubmissionDetails
   }, // contest를 포괄하는 lecture 시작
   {
     name: 'course-list',
     path: '/CourseList',
-    meta: {title: 'Course List'},
+    meta: { title: 'Course List' },
     component: Lecture.CourseList
   },
   {
     name: 'lecture-list',
     path: '/lecture',
-    meta: {title: 'Lecture List'},
+    meta: { title: 'Lecture List' },
     component: Lecture.LectureList
   },
   {
     name: 'lecture-details',
     path: '/CourseList/:lectureID/',
     component: Lecture.LectureDetails,
-    meta: {title: 'Lecture Details'}
+    meta: { title: 'Lecture Details' }
   },
   {
     name: 'lecture-submission-detail',
     path: '/CourseList/:lectureID/submissions',
     component: Lecture.LectureSubmissionDetails,
-    meta: {title: 'Lecture Details'}
+    meta: { title: 'Lecture Details' }
   },
   {
     name: 'constest-problem-qna',
     path: '/CourseList/:lectureID/:contestID/question',
-    meta: {title: 'Problem QnA'},
+    meta: { title: 'Problem QnA' },
     props: true,
     component: ProblemQnA
   },
   {
     name: 'constest-problem-public-qna',
     path: '/CourseList/:lectureID/:contestID/question/public',
-    meta: {title: 'Public Problem QnA'},
+    meta: { title: 'Public Problem QnA' },
     props: true,
     component: ProblemQnA
   },
   {
     name: 'constest-problem-qna-detail',
     path: '/CourseList/:lectureID/:contestID/question/:questionID',
-    meta: {title: 'Problem QnA Detail'},
+    meta: { title: 'Problem QnA Detail' },
 
     component: ProblemQnADetail
   },
@@ -153,7 +153,7 @@ export default [
     path: '/CourseList/:lectureID/:contestID/',
     component: Lecture.LectureContestDetails,
     props: true,
-    meta: {title: 'Contest Details'},
+    meta: { title: 'Contest Details' },
     children: [
       {
         name: 'lecture-contest-submission-list',
@@ -190,20 +190,32 @@ export default [
         name: 'lecture-acm-helper',
         path: 'helper',
         component: Lecture.LectureACMContestHelper
+      },
+      {
+        name: 'lecture-contest-qna',
+        path: 'question',
+        meta: { title: 'Problem QnA' },
+        component: ProblemQnA
+      },
+      {
+        name: 'lecture-contest-qna-detail',
+        path: 'question/:questionID',
+        meta: { title: 'Problem QnA Detail' },
+        component: ProblemQnADetail
       }
     ]
   }, // lecture 끝
   {
     name: 'contest-list',
     path: '/contest',
-    meta: {title: 'Contest List'},
+    meta: { title: 'Contest List' },
     component: Contest.ContestList
   },
   {
     name: 'contest-details',
     path: '/contest/:contestID/',
     component: Contest.ContestDetails,
-    meta: {title: 'Contest Details'},
+    meta: { title: 'Contest Details' },
     children: [
       {
         name: 'contest-submission-list',
@@ -234,26 +246,38 @@ export default [
         name: 'acm-helper',
         path: 'helper',
         component: Contest.ACMContestHelper
+      },
+      {
+        name: 'contest-qna',
+        path: 'question',
+        meta: { title: 'Problem QnA' },
+        component: ProblemQnA
+      },
+      {
+        name: 'contest-qna-detail',
+        path: 'question/:questionID',
+        meta: { title: 'Problem QnA Detail' },
+        component: ProblemQnADetail
       }
     ]
   },
   {
     name: 'acm-rank',
     path: '/acm-rank',
-    meta: {title: 'ACM Rankings'},
+    meta: { title: 'ACM Rankings' },
     component: ACMRank
   },
   {
     name: 'oi-rank',
     path: '/oi-rank',
-    meta: {title: 'OI Rankings'},
+    meta: { title: 'OI Rankings' },
     component: OIRank
   },
   {
     name: 'user-home',
     path: '/user-home',
     component: UserHome,
-    meta: {requiresAuth: true, title: 'User Home'}
+    meta: { requiresAuth: true, title: 'User Home' }
   },
   {
     path: '/setting',
@@ -262,31 +286,31 @@ export default [
       {
         name: 'default-setting',
         path: '',
-        meta: {requiresAuth: true, title: 'Default Settings'},
+        meta: { requiresAuth: true, title: 'Default Settings' },
         component: Setting.ProfileSetting
       },
       {
         name: 'profile-setting',
         path: 'profile',
-        meta: {requiresAuth: true, title: 'Profile Settings'},
+        meta: { requiresAuth: true, title: 'Profile Settings' },
         component: Setting.ProfileSetting
       },
       {
         name: 'account-setting',
         path: 'account',
-        meta: {requiresAuth: true, title: 'Account Settings'},
+        meta: { requiresAuth: true, title: 'Account Settings' },
         component: Setting.AccountSetting
       },
       {
         name: 'security-setting',
         path: 'security',
-        meta: {requiresAuth: true, title: 'Security Settings'},
+        meta: { requiresAuth: true, title: 'Security Settings' },
         component: Setting.SecuritySetting
       },
       {
         name: 'test-setting',
         path: 'test',
-        meta: {requiresAuth: true, title: 'Test Settings'},
+        meta: { requiresAuth: true, title: 'Test Settings' },
         component: Setting.TestSetting
       }
     ]
@@ -294,25 +318,25 @@ export default [
   {
     path: '/about',
     name: 'about',
-    meta: {title: 'About'},
+    meta: { title: 'About' },
     component: About
   },
   {
     path: '/container',
     name: 'container',
-    meta: {title: 'Container'},
+    meta: { title: 'Container' },
     component: Container
   },
   {
     path: '/faq',
     name: 'faq',
-    meta: {title: 'FAQ'},
+    meta: { title: 'FAQ' },
     component: FAQ
   },
   {
     path: '/ide',
     name: 'ide',
-    meta: {title: 'ide'},
+    meta: { title: 'ide' },
     component: ide
   },
   {
@@ -321,7 +345,7 @@ export default [
   },
   {
     path: '/404',
-    meta: {title: '404'},
+    meta: { title: '404' },
     component: NotFound
   }
 ]

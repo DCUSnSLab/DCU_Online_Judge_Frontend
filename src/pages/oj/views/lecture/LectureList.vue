@@ -113,9 +113,6 @@
       })
     },
     mounted () {
-      let d = new Date()
-      this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : (((d.getMonth() + 1) <= 2 && (d.getMonth() + 1) >= 1) ? 3 : 2))
-      this.yearsort = d.getFullYear()
       this.init()
     },
     methods: {
@@ -129,8 +126,8 @@
           this.query.page = 1
         }
         let d = new Date()
+        this.semestersort = (d.getMonth() + 1 >= 3 && d.getMonth() + 1 <= 7) ? 1 : (d.getMonth() + 1 >= 8 && d.getMonth() + 1 <= 12) ? 2 : (d.getMonth() + 1 === 2 && d.getDate() >= 20) ? 1 : 3
         this.yearsort = d.getFullYear()
-        this.semestersort = (((d.getMonth() + 1) <= 7 && (d.getMonth() + 1) >= 3) ? 1 : 2)
         this.getLectureList()
       },
       getLectureList () {

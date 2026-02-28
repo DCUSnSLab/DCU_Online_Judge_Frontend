@@ -56,7 +56,8 @@
     color: var(--verticalMenu-item-color);
     display: block;
     text-align: left;
-    padding: 15px 20px;
+    padding: 10px 15px;
+    font-size: 13px;
     background-color: var(--verticalMenu-item-backgound);
     &:hover {
       background: var(--vertivalMenu-item-hover-color);
@@ -64,8 +65,8 @@
       color: var(--text-hover-color);
     }
     & > .ivu-icon {
-      font-size: 16px;
-      margin-right: 8px;
+      font-size: 14px;
+      margin-right: 6px;
     }
     &:last-child {
       border-bottom: none;
