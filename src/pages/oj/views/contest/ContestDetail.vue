@@ -1,54 +1,123 @@
 <template>
   <div class="flex-container">
-    <div v-if="isvisible" v-show="showMenu" id="contest-menu">
-      <VerticalMenu @on-click="handleRoute">
-        <VerticalMenu-item :route="{name: 'contest-details', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="home"></Icon>
-          {{$t('m.Overview')}}
-        </VerticalMenu-item>
+    <div v-if="isvisible" v-show="showMenu" class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
+      <div v-show="menuExpanded" class="pane-content pane-scroll">
+        <div class="pane-header">
+          <span class="title" style="font-weight: bold; margin-left: 10px;">메뉴</span>
+          <icon type="chevron-left" @click="menuExpanded = false" class="toggle-btn"></icon>
+        </div>
+        <VerticalMenu @on-click="handleRoute">
+          <VerticalMenu-item :route="{name: 'contest-details', params: {contestID: contestID, lectureID: lectureID}}">
+            <Icon type="home"></Icon>
+            {{$t('m.Overview')}}
+          </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled"
-                           :route="{name: 'contest-announcement-list', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="chatbubble-working"></Icon>
-          {{$t('m.Announcements')}}
-        </VerticalMenu-item>
+          <VerticalMenu-item :disabled="contestMenuDisabled"
+                             :route="{name: 'contest-announcement-list', params: {contestID: contestID, lectureID: lectureID}}">
+            <Icon type="chatbubble-working"></Icon>
+            {{$t('m.Announcements')}}
+          </VerticalMenu-item>
 
-        <VerticalMenu-item :disabled="contestMenuDisabled"
-                           :route="{name: 'contest-problem-list', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="ios-photos"></Icon>
-          {{$t('m.Problems')}}
-        </VerticalMenu-item>
+          <div class="menu-collapsible-wrapper">
+            <VerticalMenu-item :disabled="contestMenuDisabled" @click.native="problemListExpanded = !problemListExpanded">
+              <Icon type="ios-photos"></Icon>
+              {{$t('m.Problems')}}
+              <Icon :type="problemListExpanded ? 'chevron-up' : 'chevron-down'" style="float: right; margin-top: 3px; font-size: 14px; color: #999;"></Icon>
+            </VerticalMenu-item>
+            <ul v-show="problemListExpanded && !contestMenuDisabled" class="problem-list-menu">
+              <li v-for="(p, index) in problemList" :key="p._id"
+                  @click="selectProblem(p)"
+                  :class="{'active-problem': selectedProblem && p._id === selectedProblem._id}">
+                <span v-if="p.my_status === 0" class="status-label status-completed">[완료]</span>
+                <span v-else-if="p.my_status !== null && p.my_status !== undefined" class="status-label status-error">[오류]</span>
+                <span>{{index + 1}}. {{p.title || p._id}}</span>
+              </li>
+            </ul>
+          </div>
 
-        <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled"
-                           :route="{name: 'contest-submission-list'}">
-          <Icon type="navicon-round"></Icon>
-          {{$t('m.Submissions')}}
-        </VerticalMenu-item>
-        <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :route="{name: 'constest-problem-qna', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="help"></Icon>
-          {{$t('m.qa')}}
-        </VerticalMenu-item>
+          <VerticalMenu-item v-if="OIContestRealTimePermission"
+                             :disabled="contestMenuDisabled"
+                             :route="{name: 'contest-submission-list'}">
+            <Icon type="navicon-round"></Icon>
+            {{$t('m.Submissions')}}
+          </VerticalMenu-item>
+          <VerticalMenu-item v-if="OIContestRealTimePermission"
+                             :route="{name: 'constest-problem-qna', params: {contestID: contestID, lectureID: lectureID}}">
+            <Icon type="help"></Icon>
+            {{$t('m.qa')}}
+          </VerticalMenu-item>
 
-        <VerticalMenu-item v-if="OIContestRealTimePermission"
-                           :disabled="contestMenuDisabled"
-                           :route="{name: 'contest-rank', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="stats-bars"></Icon>
-          {{$t('m.Rankings')}}
-        </VerticalMenu-item>
+          <VerticalMenu-item v-if="OIContestRealTimePermission"
+                             :disabled="contestMenuDisabled"
+                             :route="{name: 'contest-rank', params: {contestID: contestID, lectureID: lectureID}}">
+            <Icon type="stats-bars"></Icon>
+            {{$t('m.Rankings')}}
+          </VerticalMenu-item>
 
-        <VerticalMenu-item v-if="showAdminHelper"
-                           :route="{name: 'acm-helper', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="ios-paw"></Icon>
-          {{$t('m.Admin_Helper')}}
-        </VerticalMenu-item>
-        <VerticalMenu-item v-if="contestType === '대회' && this.lectureID"
-                           :route="{name: 'lecture-contest-exit', params: {contestID: contestID, lectureID: lectureID}}">
-          <Icon type="android-exit"></Icon>
-          {{$t('m.Exit')}}
-        </VerticalMenu-item>
-      </VerticalMenu>
+          <VerticalMenu-item v-if="showAdminHelper"
+                             :route="{name: 'acm-helper', params: {contestID: contestID, lectureID: lectureID}}">
+            <Icon type="ios-paw"></Icon>
+            {{$t('m.Admin_Helper')}}
+          </VerticalMenu-item>
+          <VerticalMenu-item v-if="contestType === '대회' && this.lectureID"
+                             :route="{name: 'lecture-contest-exit', params: {contestID: contestID, lectureID: lectureID}}">
+            <Icon type="android-exit"></Icon>
+            {{$t('m.Exit')}}
+          </VerticalMenu-item>
+        </VerticalMenu>
+
+        <br />
+        <Card v-if="selectedProblem" id="info" :padding="10">
+          <div slot="title" class="header" style="font-size: 14px;">
+            <Icon type="information-circled"></Icon>
+            <span class="card-title">{{ $t('m.Information') }}</span>
+          </div>
+          <ul style="font-size: 13px;">
+            <li>
+              <p>ID</p>
+              <p>{{ selectedProblem._id }}</p>
+            </li>
+            <li>
+              <p>{{ $t('m.Time_Limit') }}</p>
+              <p>{{ selectedProblem.time_limit }}MS</p>
+            </li>
+            <li>
+              <p>{{ $t('m.Memory_Limit') }}</p>
+              <p>{{ selectedProblem.memory_limit }}MB</p>
+            </li>
+            <li v-if="selectedProblem.io_mode">
+              <p>{{ $t('m.IOMode') }}</p>
+              <p>{{ selectedProblem.io_mode.io_mode }}</p>
+            </li>
+            <li v-if="selectedProblem.created_by">
+              <p>{{ $t('m.Created') }}</p>
+              <p>{{ selectedProblem.created_by.username }}</p>
+            </li>
+            <li v-if="selectedProblem.difficulty">
+              <p>{{ $t('m.Level') }}</p>
+              <p>{{ $t('m.' + selectedProblem.difficulty) }}</p>
+            </li>
+            <li v-if="selectedProblem.total_score">
+              <p>{{ $t('m.Score') }}</p>
+              <p>{{ selectedProblem.total_score }}</p>
+            </li>
+            <li v-if="selectedProblem.tags && selectedProblem.tags.length">
+              <p>{{ $t('m.Tags') }}</p>
+              <p>
+                <Poptip trigger="hover" placement="left-end">
+                  <a>{{ $t('m.Show') }}</a>
+                  <div slot="content">
+                    <Tag v-for="tag in selectedProblem.tags" :key="tag">{{ tag }}</Tag>
+                  </div>
+                </Poptip>
+              </p>
+            </li>
+          </ul>
+        </Card>
+      </div>
+      <div v-show="!menuExpanded" class="pane-collapsed-content" @click="menuExpanded = true">
+        <icon type="navicon-round" size="24"></icon>
+      </div>
     </div>
     <div id="contest-main">
       <!--children-->
@@ -106,6 +175,10 @@
         isvisible: false,
         isSubmit: false,
         contestType: '',
+        menuExpanded: true,
+        problemListExpanded: true,
+        problemList: [],
+        selectedProblem: null,
         columns: [
           {
             title: this.$i18n.t('m.ID'),
@@ -169,6 +242,8 @@
           }, 1000)
         }
       })
+      this.loadProblemList()
+      this.loadCurrentProblem()
     },
     methods: {
       ...mapActions(['changeDomTitle']),
@@ -188,6 +263,33 @@
         }, (res) => {
           this.btnLoading = false
         })
+      },
+      loadProblemList () {
+        if (this.contestID) {
+          api.getContestProblemList(this.contestID).then(res => {
+            this.problemList = res.data.data || []
+          }).catch(() => {
+            this.problemList = []
+          })
+        }
+      },
+      selectProblem (problem) {
+        this.selectedProblem = problem
+        this.$router.push({
+          name: 'contest-problem-details',
+          params: {
+            contestID: this.contestID,
+            problemID: problem._id
+          }
+        })
+      },
+      loadCurrentProblem () {
+        let problemID = this.$route.params.problemID
+        if (problemID && this.contestID) {
+          api.getContestProblem(problemID, this.contestID).then(res => {
+            this.selectedProblem = res.data.data
+          }).catch(() => {})
+        }
       }
     },
     computed: {
@@ -215,6 +317,7 @@
         this.route_name = newVal.name
         this.contestID = newVal.params.contestID
         this.changeDomTitle({title: this.contest.title})
+        this.loadCurrentProblem()
       }
     },
     beforeDestroy () {
@@ -240,17 +343,140 @@
         flex: auto;
       }
     }
-    #contest-menu {
-      flex: none;
-      width: 210px;
-      margin-right: 20px;
-    }
     .contest-password {
       margin-top: 20px;
       margin-bottom: -10px;
       &-input {
         width: 200px;
         margin-right: 10px;
+      }
+    }
+  }
+
+  /* ====== Collapsible Menu Pane ====== */
+  .menu-pane {
+    width: 220px;
+    flex: none;
+    background-color: var(--panelBackground);
+    height: 100%;
+    border-right: 1px solid #dcdfe6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: width 0.3s ease, flex 0.3s ease;
+  }
+
+  .pane-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 10px;
+  }
+
+  .pane-scroll {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ebeef5;
+  }
+
+  .pane-header .title {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .toggle-btn {
+    cursor: pointer;
+    font-size: 18px;
+    color: #909399;
+  }
+
+  .toggle-btn:hover {
+    color: #409eff;
+  }
+
+  .pane-collapsed {
+    width: 45px !important;
+    flex: none !important;
+    cursor: pointer;
+    background-color: var(--panelBackground);
+  }
+
+  .pane-collapsed:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .pane-collapsed-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    height: 100%;
+    color: var(--text-color);
+  }
+
+  /* ====== Problem List Menu ====== */
+  .problem-list-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background-color: var(--background-color);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .problem-list-menu li {
+    padding: 8px 10px 8px 15px;
+    cursor: pointer;
+    font-size: 13px;
+    border-bottom: 1px dotted #ebeef5;
+    color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .problem-list-menu li:hover {
+    background-color: var(--panelBackground);
+    color: #409eff;
+  }
+  .problem-list-menu li.active-problem {
+    color: #409eff;
+    font-weight: bold;
+    background-color: rgba(64,158,255,0.1);
+  }
+
+  .status-label {
+    font-size: 11px;
+    font-weight: normal;
+    margin-right: 5px;
+  }
+  .status-completed {
+    color: #19be6b;
+  }
+  .status-error {
+    color: #ed3f14;
+  }
+
+  /* ====== Info Card ====== */
+  #info {
+    ul {
+      list-style: none;
+      padding: 0;
+      li {
+        display: flex;
+        justify-content: space-between;
+        padding: 5px 0;
+        border-bottom: 1px dashed #ebeef5;
+        &:last-child {
+          border-bottom: none;
+        }
       }
     }
   }

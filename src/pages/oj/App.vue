@@ -5,7 +5,7 @@
       <transition name="fadeInUp" mode="out-in">
         <router-view></router-view>
       </transition>
-      <div class="footer">
+      <div class="footer" v-if="!isFullWidthRoute()">
         <el-row  type="flex" class="row-bg" justify="center">
         <div v-for="img in imgList">
           <el-col :span="4" >
@@ -92,9 +92,30 @@
       }
     },
     methods: {
+      isFullWidthRoute () {
+        const fullWidthRoutes = [
+          'problem-details',
+          'contest-problem-details',
+          'lecture-contest-problem-details',
+          'contest-details',
+          'contest-problem-list',
+          'contest-submission-list',
+          'contest-announcement-list',
+          'contest-rank',
+          'acm-helper',
+          'lecture-contest-details',
+          'lecture-contest-problem-list',
+          'lecture-contest-submission-list',
+          'lecture-contest-announcement-list',
+          'lecture-contest-rank',
+          'lecture-acm-helper',
+          'lecture-contest-exit'
+        ]
+        return this.$route && fullWidthRoutes.indexOf(this.$route.name) > -1
+      },
       getInfoHeight () {
         let margin = this.$refs.navbar.$el.scrollHeight
-        if (this.$route && (this.$route.name === 'problem-details' || this.$route.name === 'contest-problem-details')) {
+        if (this.isFullWidthRoute()) {
           margin = margin + 'px'
         } else {
           margin = margin + 30 + 'px'
@@ -111,7 +132,7 @@
         return this.isDarkMode ? darkTheme : lightTheme
       },
       contentClass () {
-        if (this.$route && (this.$route.name === 'problem-details' || this.$route.name === 'contest-problem-details')) {
+        if (this.isFullWidthRoute()) {
           return 'content-app-full'
         }
         return 'content-app'
@@ -123,6 +144,9 @@
       },
       '$route' () {
         this.changeDomTitle()
+        this.$nextTick(() => {
+          this.getInfoHeight()
+        })
       },
       currentTheme: {
         immediate: true,
@@ -167,8 +191,9 @@
   }
 
   .content-app-full {
-    padding: 0;
-    margin-top: '80px';
+    padding: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   .footer {
