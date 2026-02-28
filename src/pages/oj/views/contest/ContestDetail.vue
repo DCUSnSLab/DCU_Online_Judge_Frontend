@@ -374,6 +374,7 @@
   .flex-container {
     height: calc(100vh - 60px);
     overflow: hidden;
+    background-color: #fff;
     #contest-main {
       flex: 1 1;
       overflow-y: auto;
@@ -467,8 +468,6 @@
     padding: 0;
     margin: 0;
     background-color: var(--background-color);
-    max-height: 200px;
-    overflow-y: auto;
   }
   .problem-list-menu li {
     padding: 8px 10px 8px 15px;

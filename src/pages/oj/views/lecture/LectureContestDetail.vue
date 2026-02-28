@@ -440,6 +440,7 @@
     height: calc(100vh - 60px);
     min-width: 0;
     overflow: hidden;
+    background-color: #fff;
 
     #contest-main {
       flex: 1 1 auto;
@@ -545,13 +546,11 @@
     padding: 0;
     margin: 0;
     background-color: var(--background-color);
-    max-height: 200px;
-    overflow-y: auto;
   }
   .problem-list-menu li {
     padding: 8px 10px 8px 15px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 12px;
     border-bottom: 1px dotted #ebeef5;
     color: var(--text-color);
     white-space: nowrap;

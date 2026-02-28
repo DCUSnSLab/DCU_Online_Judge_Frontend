@@ -2005,7 +2005,7 @@
     width: 100%;
     height: calc(100vh - 60px);
     overflow: hidden;
-    background-color: var(--background-color);
+    background-color: #fff;
   }
 
   .pane {
