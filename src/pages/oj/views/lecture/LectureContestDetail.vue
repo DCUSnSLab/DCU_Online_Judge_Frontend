@@ -43,7 +43,7 @@
             {{$t('m.Submissions')}}
           </VerticalMenu-item>
           <VerticalMenu-item v-if="OIContestRealTimePermission"
-                             :route="{name: 'constest-problem-qna', params: {contestID: contestID, lectureID: lectureID}}">
+                             :route="{name: 'lecture-contest-qna', params: {contestID: contestID, lectureID: lectureID}}">
             <Icon type="help"></Icon>
             {{$t('m.qa')}}
           </VerticalMenu-item>
@@ -129,6 +129,16 @@
             </li>
           </ul>
         </Card>
+        <br />
+        <Card v-if="selectedProblem" id="statistic" :padding="10">
+          <div slot="title" class="header" style="font-size: 14px;">
+            <Icon type="ios-analytics"></Icon>
+            <span class="card-title">{{ $t('m.Statistic') }}</span>
+          </div>
+          <div class="echarts">
+            <ECharts :options="pie"></ECharts>
+          </div>
+        </Card>
       </div>
       <div v-show="!menuExpanded" class="pane-collapsed-content" @click="menuExpanded = true">
         <icon type="navicon-round" size="24"></icon>
@@ -185,16 +195,22 @@
   import api from '@oj/api'
   import { mapState, mapGetters, mapActions } from 'vuex'
   import { types } from '@/store'
-  import { CONTEST_STATUS_REVERSE, CONTEST_STATUS } from '@/utils/constants'
+  import { CONTEST_STATUS_REVERSE, CONTEST_STATUS, JUDGE_STATUS } from '@/utils/constants'
   import time from '@/utils/time'
   import { lightTheme, darkTheme } from '@/theme'
+  import { pie } from '../problem/chartData'
+  import ECharts from 'vue-echarts/components/ECharts'
+  import 'echarts/lib/chart/pie'
   
   export default {
     name: 'ContestDetail',
-    components: {},
+    components: {
+      ECharts
+    },
     data () {
       return {
         CONTEST_STATUS: CONTEST_STATUS,
+        JUDGE_STATUS: JUDGE_STATUS,
         route_name: '',
         btnLoading: false,
         contestID: '',
@@ -206,6 +222,7 @@
         problemListExpanded: true,
         problemList: [],
         selectedProblem: null,
+        pie: pie,
         columns: [
           {
             title: this.$i18n.t('m.StartDate'),
@@ -276,6 +293,7 @@
       })
       this.loadProblemList()
       this.loadCurrentProblem()
+      this.$root.$on('submission-judged', this.loadProblemList)
     },
     methods: {
       ...mapActions(['changeDomTitle']),
@@ -332,6 +350,7 @@
       },
       selectProblem (problem) {
         this.selectedProblem = problem
+        this.changePie(problem)
         this.$router.push({
           name: 'lecture-contest-problem-details',
           params: {
@@ -341,11 +360,21 @@
           }
         })
       },
+      changePie (problemData) {
+        if (!problemData) return
+        let acNum = problemData.accepted_number || 0
+        let totalNum = problemData.submission_number || 0
+        this.pie.series[0].data = [
+          {name: 'WA', value: totalNum - acNum},
+          {name: 'AC', value: acNum}
+        ]
+      },
       loadCurrentProblem () {
         let problemID = this.$route.params.problemID
         if (problemID && this.contestID) {
           api.getContestProblem(problemID, this.contestID).then(res => {
             this.selectedProblem = res.data.data
+            this.changePie(res.data.data)
           }).catch(() => {})
         }
       }
@@ -379,12 +408,18 @@
         this.route_name = newVal.name
         this.contestID = newVal.params.contestID
         this.changeDomTitle({title: this.contest.title})
-        this.loadCurrentProblem()
+        this.loadProblemList()
+        if (newVal.params.problemID) {
+          this.loadCurrentProblem()
+        } else {
+          this.selectedProblem = null
+        }
       }
     },
     beforeDestroy () {
       clearInterval(this.timer)
       this.$store.commit(types.CLEAR_CONTEST)
+      this.$root.$off('submission-judged', this.loadProblemList)
     }
   }
 </script>
@@ -402,13 +437,14 @@
     display: flex;
     flex-direction: row;
     width: 100%;
+    height: calc(100vh - 60px);
     min-width: 0;
-    overflow-x: hidden;
-    overflow-y: hidden;
+    overflow: hidden;
 
     #contest-main {
       flex: 1 1 auto;
       min-width: 0;
+      overflow-y: auto;
       #contest-desc {
         flex: auto;
       }
@@ -545,7 +581,7 @@
   }
 
   /* ====== Info Card ====== */
-  #info {
+  #info, #statistic {
     ul {
       list-style: none;
       padding: 0;
@@ -558,6 +594,10 @@
           border-bottom: none;
         }
       }
+    }
+    .echarts {
+      height: 180px;
+      width: 100%;
     }
   }
 </style>

@@ -109,7 +109,11 @@
           'lecture-contest-announcement-list',
           'lecture-contest-rank',
           'lecture-acm-helper',
-          'lecture-contest-exit'
+          'lecture-contest-exit',
+          'lecture-contest-qna',
+          'lecture-contest-qna-detail',
+          'contest-qna',
+          'contest-qna-detail'
         ]
         return this.$route && fullWidthRoutes.indexOf(this.$route.name) > -1
       },
