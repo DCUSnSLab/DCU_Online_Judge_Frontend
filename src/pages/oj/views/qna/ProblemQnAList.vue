@@ -144,7 +144,7 @@
         if (this.query.page < 1) {
           this.query.page = 1
         }
-        if (this.$route.name === 'constest-problem-qna') {
+        if ((this.$route.name === 'constest-problem-qna' || this.$route.name === 'lecture-contest-qna' || this.$route.name === 'contest-qna')) {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
           params = {contestID: this.contestID,
@@ -170,7 +170,7 @@
         api.getQnAPost(params).then(res => {
           this.qnaList = res.data.data.results
           // if (this.LectureID === undefined) {
-          if (this.$route.name === 'constest-problem-qna') {
+          if ((this.$route.name === 'constest-problem-qna' || this.$route.name === 'lecture-contest-qna' || this.$route.name === 'contest-qna')) {
             this.qnaList.unshift({
               'author': {'realname': '관리자'},
               'problem': {'title': '비공개 질문&답변', 'contest': {lecture_title: undefined}},
@@ -202,7 +202,7 @@
       },
       handleTagsVisible (value) {
         let params = {}
-        if (this.$route.name === 'constest-problem-qna') {
+        if ((this.$route.name === 'constest-problem-qna' || this.$route.name === 'lecture-contest-qna' || this.$route.name === 'contest-qna')) {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
           params = {contestID: this.contestID,
@@ -244,7 +244,7 @@
       getLectureList () {
         let params = {}
         this.loading = true
-        if (this.$route.name === 'constest-problem-qna') {
+        if ((this.$route.name === 'constest-problem-qna' || this.$route.name === 'lecture-contest-qna' || this.$route.name === 'contest-qna')) {
           // this.routeName = true
           // params = {LectureID: this.LectureID, visible: false}
           params = {offset: (this.query.page - 1) * this.limit,

@@ -1,8 +1,8 @@
 <template>
   <div class="problem-layout-container" :style="currentTheme">
     
-    <!-- 1. Menu Pane -->
-    <div class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
+    <!-- 1. Menu Pane (only shown when Problem.vue is standalone, not a child of ContestDetail) -->
+    <div v-if="!isContestChildRoute" class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
       <div v-show="menuExpanded" class="pane-content pane-scroll">
         <div class="pane-header">
           <span class="title" style="font-weight: bold; margin-left: 10px;">메뉴</span>
@@ -561,7 +561,9 @@
       }
     },
     mounted () {
-      this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
+      if (!this.isContestChildRoute) {
+        this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: false})
+      }
       this.onChangeTheme(this.currentTheme)
       this.init()
       window.addEventListener('resize', this.handleResize)
@@ -879,6 +881,7 @@
                 this.llmHintVisible = false
               }
               this.init()
+              this.$root.$emit('submission-judged')
             } else {
               this.refreshStatus = setTimeout(checkStatus, 2000)
             }
@@ -1396,6 +1399,10 @@
       }
     },
     computed: {
+      isContestChildRoute () {
+        const childRouteNames = ['contest-problem-details', 'lecture-contest-problem-details']
+        return childRouteNames.indexOf(this.$route.name) > -1
+      },
       ...mapState('theme', ['isDarkMode']),
       currentTheme () {
         return this.isDarkMode ? 'monokai' : 'solarized'
@@ -1436,7 +1443,9 @@
         clearTimeout(this.refreshStatus)
       }
 
-      this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: true})
+      if (!this.isContestChildRoute) {
+        this.$store.commit(types.CHANGE_CONTEST_ITEM_VISIBLE, {menu: true})
+      }
       storage.set(buildProblemCodeKey(this.problem._id, from.params.contestID), {
         code: this.code,
         language: this.language,
