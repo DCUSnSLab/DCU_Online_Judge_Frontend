@@ -1669,7 +1669,7 @@
   }
 
   #pieChart-detail {
-    margin-top: 20px;
+    margin-top: 100px;
     width: 500px;
     height: 480px;
   }
@@ -2005,7 +2005,7 @@
     width: 100%;
     height: calc(100vh - 60px);
     overflow: hidden;
-    background-color: var(--background-color);
+    background-color: #fff;
   }
 
   .pane {
