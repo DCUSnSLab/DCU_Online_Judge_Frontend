@@ -14,7 +14,7 @@
           </el-tooltip>
         </el-row>
       </div>
-      <strong>{{ $t('m.StudentList_Total_Students') }} : {{ userList.length }} / {{ RegistUser }} / {{ noRegistUser }}</strong>
+      <strong>{{ $t('m.StudentList_Total_Students') }} : {{ total }} / {{ RegistUser }} / {{ noRegistUser }}</strong>
       <!--<div style="padding-top:10px">
         <el-checkbox v-model="persentage">실습, 과제, 시험 점수 진행도(%)로 보기</el-checkbox>
       </div>-->
@@ -567,6 +567,19 @@
           this.loadingTable = false
           this.total = res.data.data.total
           this.userList = res.data.data.results
+          // Count registered/unregistered - use backend counts if available, fallback to page data
+          if (res.data.data.registered_count !== undefined) {
+            this.RegistUser = res.data.data.registered_count
+            this.noRegistUser = res.data.data.unregistered_count
+          } else {
+            this.noRegistUser = 0
+            for (let uu of this.userList) {
+              if (uu.isallow === false) {
+                this.noRegistUser = this.noRegistUser + 1
+              }
+            }
+            this.RegistUser = this.userList.length - this.noRegistUser
+          }
           if (this.userList.length === 0) {
             console.log('null')
           } else {
@@ -634,13 +647,6 @@
               }
             })
           }
-          this.noRegistUser = 0
-          for (let uu of this.userList) {
-            if (uu.isallow === false) {
-              this.noRegistUser = this.noRegistUser + 1
-            }
-          }
-          this.RegistUser = this.userList.length - this.noRegistUser
           // console.log(this.userList)
         }, res => {
           this.loadingTable = false
