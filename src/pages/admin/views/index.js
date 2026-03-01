@@ -17,9 +17,10 @@ import LectureList from './lecture/LectureList.vue'
 import StudentList from './lecture/StudentList.vue'
 import ContStudentList from './contest/StudentList.vue'
 import CopyKiller from './problem/CopyKiller.vue'
+import BatchMigrate from './lecture/BatchMigrate.vue'
 
 export {
   Announcement, User, Conf, JudgeServer, LLMKeys, Problem, ProblemList, Contest,
   ContestList, Login, Home, PruneTestCase, Dashboard, ProblemImportOrExport,
-  Lecture, LectureList, StudentList, ContStudentList, CopyKiller
+  Lecture, LectureList, StudentList, ContStudentList, CopyKiller, BatchMigrate
 }

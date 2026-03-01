@@ -1,14 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 引入 view 组件
-import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, LLMKeys, Login,
-  Problem, ProblemList, CopyKiller, User, PruneTestCase, Dashboard, ProblemImportOrExport, Lecture, LectureList, StudentList, ContStudentList } from './views'
+import {
+  Announcement, Conf, Contest, ContestList, Home, JudgeServer, LLMKeys, Login,
+  Problem, ProblemList, CopyKiller, User, PruneTestCase, Dashboard, ProblemImportOrExport, Lecture, LectureList, StudentList, ContStudentList, BatchMigrate
+} from './views'
 Vue.use(VueRouter)
 
 export default new VueRouter({
   mode: 'history',
   base: '/admin/',
-  scrollBehavior: () => ({y: 0}),
+  scrollBehavior: () => ({ y: 0 }),
   routes: [
     {
       path: '/login',
@@ -148,6 +150,12 @@ export default new VueRouter({
           path: '/lecture/:lectureId/edit',
           name: 'edit-lecture',
           component: Lecture
+        },
+        {
+          path: '/lecture/batch-migrate',
+          name: 'batch-migrate',
+          component: BatchMigrate,
+          meta: { requireSuperAdmin: true }
         }, // 강의 페이지 경로 끝
         { // 사용자 페이지 경로 명시
           path: '/student',
