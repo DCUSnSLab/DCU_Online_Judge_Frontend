@@ -122,6 +122,7 @@
               <span v-if="scope.row._migrate_status === 'done'">
                 <i class="el-icon-success" style="color: #67C23A; font-size: 16px;"></i>
                 <span style="color: #67C23A; font-size: 12px; margin-left: 3px;">{{ scope.row._migrate_students }}명</span>
+                <span v-if="scope.row._migrate_elapsed" style="color: #909399; font-size: 11px; margin-left: 2px;">({{ scope.row._migrate_elapsed }}ms)</span>
               </span>
               <span v-else-if="scope.row._migrate_status === 'error'">
                 <el-tooltip :content="scope.row._migrate_error" placement="top">
@@ -206,7 +207,8 @@
         const done = this.lectures.filter(l => l._migrate_status === 'done').length
         const errors = this.lectures.filter(l => l._migrate_status === 'error').length
         const totalStudents = this.lectures.reduce((sum, l) => sum + (l._migrate_students || 0), 0)
-        let msg = `완료: ${done}개 교과목, ${totalStudents}명 학생 처리`
+        const totalElapsed = this.lectures.reduce((sum, l) => sum + (l._migrate_elapsed || 0), 0)
+        let msg = `완료: ${done}개 교과목, ${totalStudents}명 학생 처리 (총 ${(totalElapsed / 1000).toFixed(1)}초)`
         if (errors > 0) msg += ` (${errors}개 오류 발생)`
         return msg
       }
@@ -229,6 +231,7 @@
             l._migrate_status = ''
             l._migrate_students = 0
             l._migrate_error = ''
+            l._migrate_elapsed = 0
           })
           this.lectures = lectures
           this.summary = res.data.data.summary || null
@@ -268,6 +271,7 @@
           l._migrate_status = 'waiting'
           l._migrate_students = 0
           l._migrate_error = ''
+          l._migrate_elapsed = 0
         })
 
         // 순차적으로 각 교과목 처리
@@ -284,6 +288,7 @@
             lecture._migrate_status = data.error ? 'error' : 'done'
             lecture._migrate_students = data.student_count || 0
             lecture._migrate_error = data.error || ''
+            lecture._migrate_elapsed = data.elapsed_ms || 0
           } catch (e) {
             lecture._migrate_status = 'error'
             lecture._migrate_error = '요청 실패'
