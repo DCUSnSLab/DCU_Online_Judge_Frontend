@@ -457,6 +457,8 @@ export default {
 
 <style scoped lang="less">
 .flex-container {
+  height: auto;
+  overflow: visible;
   #manage {
     overflow-x: auto;
     flex: auto;

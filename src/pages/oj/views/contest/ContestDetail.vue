@@ -377,7 +377,10 @@
     background-color: #fff;
     #contest-main {
       flex: 1 1;
+      min-height: 0;
+      height: 100%;
       overflow-y: auto;
+      padding-bottom: 60px;
       #contest-desc {
         flex: auto;
       }
