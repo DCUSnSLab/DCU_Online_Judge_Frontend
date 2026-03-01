@@ -273,9 +273,12 @@
       <div class="panel-options">
         <el-pagination
           class="page"
-          layout="prev, pager, next"
+          layout="prev, pager, next, sizes"
           @current-change="currentChange"
-          :page-size="pageSize"
+          @size-change="pageSizeChange"
+          :page-sizes="[10, 30, 50, 100, 200]"
+          :page-size.sync="pageSize"
+          :current-page.sync="currentPage"
           :total="total">
         </el-pagination>
       </div>
@@ -423,7 +426,7 @@
         lectureId: '',
         lectureTitle: '',
         lectureCreator: '',
-        pageSize: 50,
+        pageSize: [10, 30, 50, 100, 200].includes(parseInt(this.$route.query.pageSize)) ? parseInt(this.$route.query.pageSize) : 50,
         total: 0,
         RegistUser: 0,
         noRegistUser: 0,
@@ -445,7 +448,7 @@
         user: {},
         loadingTable: false,
         loadingGenerate: false,
-        currentPage: 0,
+        currentPage: parseInt(this.$route.query.page) || 1,
         talist: [],
         selectedUsers: [],
         formGenerateUser: {
@@ -460,7 +463,7 @@
     mounted () {
       this.lectureId = this.$route.params.lectureId
       this.currentLectureInfo(this.lectureId)
-      this.getUserList(1)
+      this.getUserList(this.currentPage)
       this.getTAList(this.lectureId)
     },
     components: {
@@ -501,7 +504,21 @@
       },
       currentChange (page) {
         this.currentPage = page
+        this.pushRouter()
         this.getUserList(page)
+      },
+      pageSizeChange (size) {
+        this.pageSize = size
+        this.currentPage = 1
+        this.pushRouter()
+        this.getUserList(1)
+      },
+      pushRouter () {
+        this.$router.replace({
+          name: 'lecture-student-list',
+          params: { lectureId: this.lectureId },
+          query: { page: this.currentPage, pageSize: this.pageSize }
+        }).catch(() => {})
       },
       AcceptStudent (userid) {
         let data = {
