@@ -11,6 +11,9 @@
             <el-option label="2학기" :value="2"></el-option>
             <el-option label="입학전교육" :value="3"></el-option>
           </el-select>
+          <el-select v-model="filterProfessor" placeholder="담당교수" clearable size="small" style="width: 130px; margin-right: 8px;" @change="applyFilter">
+            <el-option v-for="p in professorOptions" :key="p" :label="p" :value="p"></el-option>
+          </el-select>
           <el-input
             v-model="keyword"
             prefix-icon="el-icon-search"
@@ -121,6 +124,7 @@
         keyword: '',
         filterYear: '',
         filterSemester: '',
+        filterProfessor: '',
         loading: false,
         excludeAdmin: true,
         currentPage: 1,
@@ -136,6 +140,12 @@
         const years = [...new Set(this.lectureList.map(l => l.year))].sort((a, b) => b - a)
         return years
       },
+      professorOptions () {
+        const names = this.lectureList
+          .map(l => l.created_by && l.created_by.realname)
+          .filter(n => n)
+        return [...new Set(names)].sort()
+      },
       filteredLectureList () {
         let list = this.lectureList
         if (this.filterYear) {
@@ -143,6 +153,9 @@
         }
         if (this.filterSemester) {
           list = list.filter(l => l.semester === this.filterSemester)
+        }
+        if (this.filterProfessor) {
+          list = list.filter(l => l.created_by && l.created_by.realname === this.filterProfessor)
         }
         return list
       }
