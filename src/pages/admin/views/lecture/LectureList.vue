@@ -2,17 +2,30 @@
   <div class="view">
     <Panel :title="$t('m.Lecture_List')">
       <div slot="header">
-        <el-input
-          v-model="keyword"
-          prefix-icon="el-icon-search"
-          placeholder="Keywords">
-        </el-input>
+        <div class="filter-row">
+          <el-select v-model="filterYear" placeholder="연도" clearable size="small" style="width: 110px; margin-right: 8px;" @change="applyFilter">
+            <el-option v-for="y in yearOptions" :key="y" :label="y + '년'" :value="y"></el-option>
+          </el-select>
+          <el-select v-model="filterSemester" placeholder="학기" clearable size="small" style="width: 120px; margin-right: 8px;" @change="applyFilter">
+            <el-option label="1학기" :value="1"></el-option>
+            <el-option label="2학기" :value="2"></el-option>
+            <el-option label="입학전교육" :value="3"></el-option>
+          </el-select>
+          <el-input
+            v-model="keyword"
+            prefix-icon="el-icon-search"
+            placeholder="Keywords"
+            size="small"
+            style="width: 200px;">
+          </el-input>
+        </div>
       </div>
       <el-table
         v-loading="loading"
         element-loading-text="loading"
         ref="table"
-        :data="lectureList"
+        :data="filteredLectureList"
+        :default-sort="{prop: 'id', order: 'descending'}"
         style="width: 100%">
         <el-table-column type="expand">
           <template slot-scope="props">
@@ -25,20 +38,24 @@
         <el-table-column
           prop="id"
           width="80"
+          sortable
           label="ID">
         </el-table-column>
         <el-table-column
           prop="year"
-          width="70"
+          width="80"
+          sortable
           :label="$t('m.Lecture_Year')">
         </el-table-column>
         <el-table-column
-          width="90"
+          prop="semester"
+          width="100"
+          sortable
           align="center"
           :label="$t('m.Lecture_Semester')">
           <template slot-scope="scope">
-            <p v-if="scope.row.semester < 3">{{scope.row.semester}}</p>
-            <p v-else>입학 전</p>
+            <span v-if="scope.row.semester < 3">{{scope.row.semester}}학기</span>
+            <span v-else>입학전</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -49,6 +66,7 @@
         </el-table-column>
         <el-table-column
           prop="title"
+          sortable
           :label="$t('m.Lecture_title')">
         </el-table-column>
         <el-table-column
@@ -69,7 +87,6 @@
           <div slot-scope="scope">
             <icon-btn :name="$t('m.LectureList_Edit_Lecture')" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
             <icon-btn :name="$t('m.LectureList_Practice_Assignment_List')" icon="list-ol" @click.native="goLectureContestList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></icon-btn>
-            <!--<icon-btn name="Student List" icon="list-ol" @click.native="goLectureStudentList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></icon-btn>-->
             <el-tooltip class="item" effect="dark" :content="$t('m.LectureList_Student_List')" placement="top">
               <el-button :name="$t('m.LectureList_Student_List')" size="mini" icon="el-icon-user" @click.native="goLectureStudentList(scope.row.id, scope.row.title, scope.row.created_by.realname)"></el-button>
             </el-tooltip>
@@ -102,6 +119,8 @@
         total: 0,
         lectureList: [],
         keyword: '',
+        filterYear: '',
+        filterSemester: '',
         loading: false,
         excludeAdmin: true,
         currentPage: 1,
@@ -110,6 +129,22 @@
         query: {
           page: parseInt(this.$route.query.page) || 1
         }
+      }
+    },
+    computed: {
+      yearOptions () {
+        const years = [...new Set(this.lectureList.map(l => l.year))].sort((a, b) => b - a)
+        return years
+      },
+      filteredLectureList () {
+        let list = this.lectureList
+        if (this.filterYear) {
+          list = list.filter(l => l.year === this.filterYear)
+        }
+        if (this.filterSemester) {
+          list = list.filter(l => l.semester === this.filterSemester)
+        }
+        return list
       }
     },
     mounted () {
@@ -123,6 +158,9 @@
       currentChange (page) {
         this.currentPage = page
         this.getLectureList(page)
+      },
+      applyFilter () {
+        // filters are computed, nothing extra needed
       },
       pushRouter () {
         this.$router.push({
@@ -168,7 +206,6 @@
       },
       filterHandler (value, row, column) {
         const property = column['property']
-        console.log(value, row, column)
         return row[property] === value
       },
       handleVisibleSwitch (row) {
@@ -182,3 +219,10 @@
     }
   }
 </script>
+
+<style scoped>
+  .filter-row {
+    display: flex;
+    align-items: center;
+  }
+</style>
