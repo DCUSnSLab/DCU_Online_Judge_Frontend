@@ -99,6 +99,14 @@
       <Panel style="margin-top: 20px;" title="학생별 문제 점수">
         <div slot="title" style="display: inline-flex; align-items: center;">
           <b>사용자 부정 행위 조회</b>
+          <el-input
+            type="text"
+            v-model="cheatKeyword"
+            @input="cheatCurrentChange(1)"
+            prefix-icon="el-icon-search"
+            :placeholder="$t('m.User_Search')"
+            style="width: 200px; margin-left: 10px; display: inline-flex; align-items: center;">
+          </el-input>
           <el-tooltip content="Problem copied: 복사 횟수, Screen focusing: 포커스 이탈 횟수" placement="top">
             <span
               style="
@@ -248,6 +256,7 @@ export default {
       cheatLoadingTable: false,
       cheatCurrentPage: parseInt(this.$route.query.cheatPage) || 1,
       cheatStudentProblemData: {},
+      cheatKeyword: '',
       Ta: null,
       accsessR: false,
       chkContesttype: false // 대회 여부 확인
@@ -431,7 +440,7 @@ export default {
     getCheatList (page) {
       console.log('getCheatList Called')
       this.cheatLoadingTable = true
-      api.getLectureUserList((page - 1) * this.cheatPageSize, this.cheatPageSize, '', this.lectureID, this.contestID).then(res => {
+      api.getLectureUserList((page - 1) * this.cheatPageSize, this.cheatPageSize, this.cheatKeyword, this.lectureID, this.contestID).then(res => {
         this.cheatLoadingTable = false
 
         // 문제 목록 (한 번만 설정)
@@ -512,6 +521,9 @@ export default {
   watch: {
     'keyword' () {
       this.currentChange(1)
+    },
+    'cheatKeyword' () {
+      this.cheatCurrentChange(1)
     },
     'user.admin_type' () {
       if (this.user.admin_type === 'Super Admin') {
