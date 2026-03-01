@@ -86,9 +86,12 @@
         <div class="panel-options">
           <el-pagination
             class="page"
-            layout="prev, pager, next"
+            layout="sizes, prev, pager, next"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            @size-change="pageSizeChange"
             @current-change="currentChange"
-            :page-size="pageSize"
+            :page-size.sync="pageSize"
+            :current-page.sync="currentPage"
             :total="total">
           </el-pagination>
         </div>
@@ -117,10 +120,9 @@
             </span>
           </el-tooltip>
         </div>
-        <el-table v-loading="loadingTable"
+        <el-table v-loading="cheatLoadingTable"
             element-loading-text="loading"
-            @selection-change="handleSelectionChange"
-            :data="userList"
+            :data="cheatUserList"
             style="width: 100%">
           <el-table-column prop="realname" label="이름" fixed width="120" align="center">
             <template slot-scope="scope">
@@ -138,12 +140,12 @@
             <template slot-scope="scope">
               <span>
                 {{
-                  studentProblemData[scope.row.user.id] &&
-                  studentProblemData[scope.row.user.id][problem.id]
+                  cheatStudentProblemData[scope.row.user.id] &&
+                  cheatStudentProblemData[scope.row.user.id][problem.id]
                     ?
-                    studentProblemData[scope.row.user.id][problem.id].copied +
+                    cheatStudentProblemData[scope.row.user.id][problem.id].copied +
                     ',' +
-                    studentProblemData[scope.row.user.id][problem.id].focusing
+                    cheatStudentProblemData[scope.row.user.id][problem.id].focusing
                     : '-'
                 }}
               </span>
@@ -153,10 +155,13 @@
         <div class="panel-options">
           <el-pagination
             class="page"
-            layout="prev, pager, next"
-            @current-change="currentChange"
-            :page-size="pageSize"
-            :total="total">
+            layout="sizes, prev, pager, next"
+            :page-sizes="[10, 20, 30, 50, 100]"
+            @size-change="cheatPageSizeChange"
+            @current-change="cheatCurrentChange"
+            :page-size.sync="cheatPageSize"
+            :current-page.sync="cheatCurrentPage"
+            :total="cheatTotal">
           </el-pagination>
         </div>
       </Panel>
@@ -210,7 +215,7 @@ export default {
       addTAUserDialogVisible: false,
       lectureFounder: '', // 강의 개설자 realname
       lectureTitle: '', // 수강과목 title
-      pageSize: 50,
+      pageSize: [10, 20, 30, 50, 100].includes(parseInt(this.$route.query.pageSize)) ? parseInt(this.$route.query.pageSize) : 50,
       total: 0,
       loading: false,
       border: false,
@@ -233,9 +238,16 @@ export default {
       showUserDialog: false,
       user: {},
       loadingTable: false,
-      currentPage: 0,
+      currentPage: parseInt(this.$route.query.page) || 1,
       problemList: [], // 문제 ID 또는 이름 목록
       studentProblemData: {}, // { userID: { problemID: { score, copied, focusing } } }
+      // 부정행위 조회 패널 전용
+      cheatPageSize: [10, 20, 30, 50, 100].includes(parseInt(this.$route.query.cheatPageSize)) ? parseInt(this.$route.query.cheatPageSize) : 50,
+      cheatTotal: 0,
+      cheatUserList: [],
+      cheatLoadingTable: false,
+      cheatCurrentPage: parseInt(this.$route.query.cheatPage) || 1,
+      cheatStudentProblemData: {},
       Ta: null,
       accsessR: false,
       chkContesttype: false // 대회 여부 확인
@@ -259,7 +271,8 @@ export default {
       this.accsessR = allow
       if (this.accsessR) {
         console.log('관리자')
-        this.getUserList(1)
+        this.getUserList(this.currentPage)
+        this.getCheatList(this.cheatCurrentPage)
       } else {
         console.log('학생')
         this.CheckContestExit()
@@ -300,7 +313,41 @@ export default {
     /* 관리 전용 (교수, 관리자) */
     currentChange (page) {
       this.currentPage = page
+      this.pushRouter()
       this.getUserList(page)
+    },
+    pageSizeChange (size) {
+      this.pageSize = size
+      this.currentPage = 1
+      this.pushRouter()
+      this.getUserList(1)
+    },
+    // 부정행위 조회 패널 전용
+    cheatCurrentChange (page) {
+      this.cheatCurrentPage = page
+      this.pushRouter()
+      this.getCheatList(page)
+    },
+    cheatPageSizeChange (size) {
+      this.cheatPageSize = size
+      this.cheatCurrentPage = 1
+      this.pushRouter()
+      this.getCheatList(1)
+    },
+    pushRouter () {
+      this.$router.replace({
+        name: 'lecture-contest-exit',
+        params: {
+          contestID: this.contestID,
+          lectureID: this.lectureID
+        },
+        query: {
+          page: this.currentPage,
+          pageSize: this.pageSize,
+          cheatPage: this.cheatCurrentPage,
+          cheatPageSize: this.cheatPageSize
+        }
+      }).catch(() => {})
     },
     // 퇴실 철회 (수정 필요)
     ExitStudent (userid) {
@@ -336,41 +383,25 @@ export default {
         this.$success('Success')
       })
     },
-    // 사용자 목록 가져오기
+    // 사용자 목록 가져오기 (퇴실 관리)
     getUserList (page) {
       console.log('getLectureUserList Called')
       this.loadingTable = true
       api.getLectureUserList((page - 1) * this.pageSize, this.pageSize, this.keyword, this.lectureID, this.contestID).then(res => {
         this.loadingTable = false
 
-        // 문제 목록
-        this.problemList = res.data.data.problem_list.map(problem => {
-          return {
-            id: problem.id.toString(),
-            title: problem.title
-          }
-        })
+        // 문제 목록 (한 번만 설정)
+        if (!this.problemList.length) {
+          this.problemList = res.data.data.problem_list.map(problem => {
+            return {
+              id: problem.id.toString(),
+              title: problem.title
+            }
+          })
+        }
 
         this.total = res.data.data.student_list.total
         this.userList = res.data.data.student_list.results
-
-        // 학생별 문제별 점수 초기화
-        this.studentProblemData = {}
-
-        this.userList.forEach(user => {
-          const uid = user.user.id
-          const cheatLog = user.cheat_log || {}
-          this.studentProblemData[uid] = {}
-
-          this.problemList.forEach(problem => {
-            const pid = problem.id
-            const log = cheatLog[pid]
-            this.studentProblemData[uid][pid] = {
-              copied: log && log.copied ? log.copied : 0,
-              focusing: log && log.focusing ? log.focusing : 0
-            }
-          })
-        })
 
         if (this.userList.length === 0) {
           console.log('null')
@@ -394,6 +425,47 @@ export default {
         }
       }, res => {
         this.loadingTable = false
+      })
+    },
+    // 사용자 목록 가져오기 (부정행위 조회)
+    getCheatList (page) {
+      console.log('getCheatList Called')
+      this.cheatLoadingTable = true
+      api.getLectureUserList((page - 1) * this.cheatPageSize, this.cheatPageSize, '', this.lectureID, this.contestID).then(res => {
+        this.cheatLoadingTable = false
+
+        // 문제 목록 (한 번만 설정)
+        if (!this.problemList.length) {
+          this.problemList = res.data.data.problem_list.map(problem => {
+            return {
+              id: problem.id.toString(),
+              title: problem.title
+            }
+          })
+        }
+
+        this.cheatTotal = res.data.data.student_list.total
+        this.cheatUserList = res.data.data.student_list.results
+
+        // 학생별 문제별 부정행위 데이터 초기화
+        this.cheatStudentProblemData = {}
+
+        this.cheatUserList.forEach(user => {
+          const uid = user.user.id
+          const cheatLog = user.cheat_log || {}
+          this.cheatStudentProblemData[uid] = {}
+
+          this.problemList.forEach(problem => {
+            const pid = problem.id
+            const log = cheatLog[pid]
+            this.cheatStudentProblemData[uid][pid] = {
+              copied: log && log.copied ? log.copied : 0,
+              focusing: log && log.focusing ? log.focusing : 0
+            }
+          })
+        })
+      }, res => {
+        this.cheatLoadingTable = false
       })
     },
     handleSelectionChange (val) {
