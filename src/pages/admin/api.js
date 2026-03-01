@@ -79,6 +79,19 @@ export default {
       data
     })
   },
+  batchMigrateLecture (data) {
+    return ajax('admin/batchmigrate', 'put', {
+      data
+    })
+  },
+  getBatchMigrateLectures (year, semester) {
+    return ajax('admin/batchmigrate', 'get', {
+      params: {
+        year,
+        semester
+      }
+    })
+  },
   getLectureUserList (offset, limit, keyword, lectureid) {
     let params = {paging: true, offset, limit}
     if (keyword) {
