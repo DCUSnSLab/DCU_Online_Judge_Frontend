@@ -66,7 +66,7 @@ export default {
     })
   },
   getUserList (offset, limit, keyword) {
-    let params = {paging: true, offset, limit}
+    let params = { paging: true, offset, limit }
     if (keyword) {
       params.keyword = keyword
     }
@@ -81,7 +81,8 @@ export default {
   },
   batchMigrateLecture (data) {
     return ajax('admin/batchmigrate', 'put', {
-      data
+      data,
+      silent: true
     })
   },
   getBatchMigrateLectures (year, semester) {
@@ -93,7 +94,7 @@ export default {
     })
   },
   getLectureUserList (offset, limit, keyword, lectureid) {
-    let params = {paging: true, offset, limit}
+    let params = { paging: true, offset, limit }
     if (keyword) {
       params.keyword = keyword
     }
@@ -105,7 +106,7 @@ export default {
     })
   },
   getContestUserList (offset, limit, keyword, contestid) {
-    let params = {paging: true, offset, limit}
+    let params = { paging: true, offset, limit }
     if (keyword) {
       params.keyword = keyword
     }
@@ -119,7 +120,7 @@ export default {
     })
   },
   getPublicContestUserList (offset, limit, contestid) {
-    let params = {paging: true, offset, limit, contest_id: contestid}
+    let params = { paging: true, offset, limit, contest_id: contestid }
     return ajax('admin/publicContest', 'get', {
       params: params
     })
@@ -226,12 +227,12 @@ export default {
   },
   revokeLLMKey (id) {
     return ajax('admin/llm/keys/revoke', 'post', {
-      data: {id}
+      data: { id }
     })
   },
   getLLMKey (id) {
     return ajax('admin/llm/keys', 'get', {
-      params: {id}
+      params: { id }
     })
   },
   getLLMGatewayConfig () {
@@ -267,8 +268,8 @@ export default {
   },
   deleteLLMRoute (id) {
     return ajax('admin/llm/routes', 'delete', {
-      params: {id},
-      data: {id}
+      params: { id },
+      data: { id }
     })
   },
   getInvalidTestCaseList () {
@@ -298,7 +299,7 @@ export default {
     })
   },
   updateTAuserPermit (permit, ssn, lectureID) {
-    let params = {permit: permit, ssn: ssn, lecture_id: lectureID}
+    let params = { permit: permit, ssn: ssn, lecture_id: lectureID }
     console.log(params)
     return ajax('admin/tauser', 'put', {
       params
@@ -338,7 +339,7 @@ export default {
     })
   },
   getLectureList (offset, limit, keyword) {
-    let params = {paging: true, offset, limit}
+    let params = { paging: true, offset, limit }
     if (keyword) {
       params.keyword = keyword
     }
@@ -581,8 +582,11 @@ export default {
  * @returns {Promise}
  */
 function ajax (url, method, options) {
+  var silent = false
   if (options !== undefined) {
-    var {params = {}, data = {}} = options
+    var params = options.params || {}
+    var data = options.data || {}
+    silent = options.silent || false
   } else {
     params = data = {}
   }
@@ -599,11 +603,11 @@ function ajax (url, method, options) {
         reject(res)
         // // 若后端返回为登录，则为session失效，应退出当前登录用户
         if (res.data.data.startsWith('Please login')) {
-          router.push({name: 'login'})
+          router.push({ name: 'login' })
         }
       } else {
         resolve(res)
-        if (method !== 'get') {
+        if (method !== 'get' && !silent) {
           Vue.prototype.$success('Succeeded')
         }
       }

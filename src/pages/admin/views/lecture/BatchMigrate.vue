@@ -28,14 +28,31 @@
         <p style="margin-top: 10px; color: #909399;">교과목 정보 조회 중...</p>
       </div>
 
-      <!-- 재계산 진행 중 -->
-      <div v-if="migrating" style="text-align: center; padding: 40px 0;">
-        <i class="el-icon-loading" style="font-size: 32px; color: #E6A23C;"></i>
-        <p style="margin-top: 10px; color: #909399;">재계산 진행 중... 강의 수에 따라 시간이 소요될 수 있습니다.</p>
+      <!-- 재계산 진행 상태 -->
+      <div v-if="migrating" style="margin-bottom: 20px;">
+        <div class="progress-container">
+          <div class="progress-header">
+            <span class="progress-title">
+              <i class="el-icon-loading" style="color: #E6A23C;"></i>
+              재계산 진행 중
+            </span>
+            <span class="progress-count">{{ migrateProgress.completed }} / {{ migrateProgress.total }} 교과목</span>
+          </div>
+          <el-progress
+            :percentage="migrateProgress.total > 0 ? Math.round(migrateProgress.completed / migrateProgress.total * 100) : 0"
+            :stroke-width="20"
+            :text-inside="true"
+            :color="progressColors"
+            style="margin: 10px 0;">
+          </el-progress>
+          <p v-if="migrateProgress.currentLecture" class="progress-current">
+            처리 중: <strong>{{ migrateProgress.currentLecture }}</strong>
+          </p>
+        </div>
       </div>
 
       <!-- 교과목 요약 정보 -->
-      <div v-if="summary && !loading && !migrating" style="margin-bottom: 20px;">
+      <div v-if="summary && !loading" style="margin-bottom: 20px;">
         <el-row :gutter="20">
           <el-col :span="4">
             <div class="summary-card">
@@ -71,8 +88,8 @@
       </div>
 
       <!-- 교과목 리스트 테이블 -->
-      <div v-if="lectures.length && !loading && !migrating">
-        <el-table :data="lectures" style="width: 100%" border stripe size="small">
+      <div v-if="lectures.length && !loading">
+        <el-table :data="lectures" style="width: 100%" border stripe size="small" :row-class-name="tableRowClassName">
           <el-table-column prop="id" label="ID" width="60" align="center"></el-table-column>
           <el-table-column prop="title" label="교과목명" min-width="200">
             <template slot-scope="scope">
@@ -100,49 +117,43 @@
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="성적 반영" width="100" align="center">
+          <el-table-column label="재계산" width="110" align="center">
             <template slot-scope="scope">
-              <el-progress
-                :percentage="scope.row.student_count > 0 ? Math.round(scope.row.scored_students / scope.row.student_count * 100) : 0"
-                :stroke-width="14"
-                :text-inside="true"
-                :color="scope.row.scored_students === scope.row.student_count ? '#67C23A' : '#E6A23C'"
-                style="width: 80px;">
-              </el-progress>
+              <span v-if="scope.row._migrate_status === 'done'">
+                <i class="el-icon-success" style="color: #67C23A; font-size: 16px;"></i>
+                <span style="color: #67C23A; font-size: 12px; margin-left: 3px;">{{ scope.row._migrate_students }}명</span>
+              </span>
+              <span v-else-if="scope.row._migrate_status === 'error'">
+                <el-tooltip :content="scope.row._migrate_error" placement="top">
+                  <i class="el-icon-warning" style="color: #F56C6C; font-size: 16px;"></i>
+                </el-tooltip>
+              </span>
+              <span v-else-if="scope.row._migrate_status === 'processing'">
+                <i class="el-icon-loading" style="color: #E6A23C; font-size: 16px;"></i>
+                <span style="color: #E6A23C; font-size: 12px; margin-left: 3px;">처리중</span>
+              </span>
+              <span v-else-if="scope.row._migrate_status === 'waiting'">
+                <i class="el-icon-time" style="color: #909399; font-size: 14px;"></i>
+                <span style="color: #909399; font-size: 12px; margin-left: 3px;">대기</span>
+              </span>
+              <span v-else style="color: #C0C4CC;">-</span>
             </template>
           </el-table-column>
         </el-table>
       </div>
 
-      <!-- 재계산 결과 -->
-      <div v-if="migrateResult && !migrating" style="margin-top: 20px;">
+      <!-- 재계산 완료 요약 -->
+      <div v-if="migrateCompleted && !migrating" style="margin-top: 15px;">
         <el-alert
-          :title="'완료: ' + migrateResult.total_lectures + '개 강의, ' + migrateResult.total_students + '명 학생 처리됨'"
-          type="success"
+          :title="migrateCompleteSummary"
+          :type="migrateHasErrors ? 'warning' : 'success'"
           show-icon
-          :closable="false"
-          style="margin-bottom: 15px;">
+          :closable="false">
         </el-alert>
-        <el-table :data="migrateResult.results" style="width: 100%" border size="small">
-          <el-table-column prop="lecture_id" label="강의 ID" width="80" align="center"></el-table-column>
-          <el-table-column prop="title" label="교과목명"></el-table-column>
-          <el-table-column label="처리 결과" width="150" align="center">
-            <template slot-scope="scope">
-              <el-tag v-if="!scope.row.error" type="success" size="small">{{ scope.row.student_count }}명 완료</el-tag>
-              <el-tag v-else type="danger" size="small">오류</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="상세">
-            <template slot-scope="scope">
-              <span v-if="scope.row.error" style="color: #F56C6C;">{{ scope.row.error }}</span>
-              <span v-else style="color: #67C23A;">정상 처리</span>
-            </template>
-          </el-table-column>
-        </el-table>
       </div>
 
       <!-- 초기 상태 -->
-      <div v-if="!lectures.length && !loading && !migrating && !migrateResult" style="text-align: center; padding: 60px 0; color: #909399;">
+      <div v-if="!lectures.length && !loading && !migrating" style="text-align: center; padding: 60px 0; color: #909399;">
         <i class="el-icon-s-data" style="font-size: 48px;"></i>
         <p style="margin-top: 15px;">년도와 학기를 선택하면 교과목 정보가 표시됩니다.</p>
         <p style="font-size: 12px; color: #C0C4CC;">교과목을 확인한 후 "재계산 시작" 버튼으로 일괄 재계산할 수 있습니다.</p>
@@ -162,9 +173,14 @@
         semester: 1,
         loading: false,
         migrating: false,
+        migrateCompleted: false,
         lectures: [],
         summary: null,
-        migrateResult: null
+        migrateProgress: {
+          total: 0,
+          completed: 0,
+          currentLecture: ''
+        }
       }
     },
     computed: {
@@ -175,6 +191,24 @@
           years.push(y)
         }
         return years
+      },
+      progressColors () {
+        return [
+          {color: '#E6A23C', percentage: 50},
+          {color: '#409EFF', percentage: 80},
+          {color: '#67C23A', percentage: 100}
+        ]
+      },
+      migrateHasErrors () {
+        return this.lectures.some(l => l._migrate_status === 'error')
+      },
+      migrateCompleteSummary () {
+        const done = this.lectures.filter(l => l._migrate_status === 'done').length
+        const errors = this.lectures.filter(l => l._migrate_status === 'error').length
+        const totalStudents = this.lectures.reduce((sum, l) => sum + (l._migrate_students || 0), 0)
+        let msg = `완료: ${done}개 교과목, ${totalStudents}명 학생 처리`
+        if (errors > 0) msg += ` (${errors}개 오류 발생)`
+        return msg
       }
     },
     mounted () {
@@ -186,40 +220,82 @@
         this.loading = true
         this.lectures = []
         this.summary = null
-        this.migrateResult = null
+        this.migrateCompleted = false
         api.getBatchMigrateLectures(this.year, this.semester).then(res => {
           this.loading = false
-          this.lectures = res.data.data.lectures || []
+          const lectures = res.data.data.lectures || []
+          // 각 lecture에 재계산 상태 필드 추가
+          lectures.forEach(l => {
+            l._migrate_status = ''
+            l._migrate_students = 0
+            l._migrate_error = ''
+          })
+          this.lectures = lectures
           this.summary = res.data.data.summary || null
         }).catch(() => {
           this.loading = false
         })
       },
-      startBatchMigrate () {
-        if (!this.lectures.length) {
-          this.$warning('조회된 교과목이 없습니다.')
-          return
+      tableRowClassName ({row}) {
+        if (row._migrate_status === 'done') return 'row-success'
+        if (row._migrate_status === 'error') return 'row-error'
+        if (row._migrate_status === 'processing') return 'row-processing'
+        return ''
+      },
+      async startBatchMigrate () {
+        if (!this.lectures.length) return
+
+        try {
+          await this.$confirm(
+            `${this.year}년 ${this.semester}학기의 ${this.lectures.length}개 교과목 성적을 재계산합니다. 계속하시겠습니까?`,
+            '일괄 재계산 확인',
+            { type: 'warning', confirmButtonText: '시작', cancelButtonText: '취소' }
+          )
+        } catch (e) {
+          return // 취소
         }
-        this.$confirm(
-          `${this.year}년 ${this.semester}학기의 ${this.lectures.length}개 교과목 성적을 재계산합니다. 계속하시겠습니까?`,
-          '일괄 재계산 확인',
-          {
-            type: 'warning',
-            confirmButtonText: '시작',
-            cancelButtonText: '취소'
+
+        this.migrating = true
+        this.migrateCompleted = false
+        this.migrateProgress = {
+          total: this.lectures.length,
+          completed: 0,
+          currentLecture: ''
+        }
+
+        // 모든 lecture를 대기 상태로
+        this.lectures.forEach(l => {
+          l._migrate_status = 'waiting'
+          l._migrate_students = 0
+          l._migrate_error = ''
+        })
+
+        // 순차적으로 각 교과목 처리
+        for (let i = 0; i < this.lectures.length; i++) {
+          const lecture = this.lectures[i]
+          lecture._migrate_status = 'processing'
+          this.migrateProgress.currentLecture = lecture.title
+          // Vue reactivity
+          this.$set(this.lectures, i, Object.assign({}, lecture))
+
+          try {
+            const res = await api.batchMigrateLecture({lecture_id: lecture.id})
+            const data = res.data.data
+            lecture._migrate_status = data.error ? 'error' : 'done'
+            lecture._migrate_students = data.student_count || 0
+            lecture._migrate_error = data.error || ''
+          } catch (e) {
+            lecture._migrate_status = 'error'
+            lecture._migrate_error = '요청 실패'
           }
-        ).then(() => {
-          this.migrating = true
-          this.migrateResult = null
-          api.batchMigrateLecture({year: this.year, semester: this.semester}).then(res => {
-            this.migrating = false
-            this.migrateResult = res.data.data
-            // 재계산 후 교과목 정보 새로고침
-            this.fetchLectures()
-          }).catch(() => {
-            this.migrating = false
-          })
-        }).catch(() => {})
+
+          this.migrateProgress.completed = i + 1
+          this.$set(this.lectures, i, Object.assign({}, lecture))
+        }
+
+        this.migrating = false
+        this.migrateCompleted = true
+        this.migrateProgress.currentLecture = ''
       }
     }
   }
@@ -242,5 +318,44 @@
     font-size: 12px;
     color: #909399;
     margin-top: 4px;
+  }
+  .progress-container {
+    background: #fdf6ec;
+    border: 1px solid #faecd8;
+    border-radius: 8px;
+    padding: 15px 20px;
+  }
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+  }
+  .progress-title {
+    font-weight: bold;
+    color: #E6A23C;
+    font-size: 14px;
+  }
+  .progress-count {
+    font-size: 16px;
+    font-weight: bold;
+    color: #303133;
+  }
+  .progress-current {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: #909399;
+  }
+</style>
+
+<style>
+  .el-table .row-success {
+    background: #f0f9eb !important;
+  }
+  .el-table .row-error {
+    background: #fef0f0 !important;
+  }
+  .el-table .row-processing {
+    background: #fdf6ec !important;
   }
 </style>

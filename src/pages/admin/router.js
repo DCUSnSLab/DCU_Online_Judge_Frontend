@@ -154,7 +154,8 @@ export default new VueRouter({
         {
           path: '/lecture/batch-migrate',
           name: 'batch-migrate',
-          component: BatchMigrate
+          component: BatchMigrate,
+          meta: { requireSuperAdmin: true }
         }, // 강의 페이지 경로 끝
         { // 사용자 페이지 경로 명시
           path: '/student',
