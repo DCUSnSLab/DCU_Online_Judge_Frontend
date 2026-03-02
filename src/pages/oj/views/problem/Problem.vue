@@ -1554,6 +1554,20 @@
         this.submissionId = ''
         this.submitted = false
         this.result = { result: 9 }
+        this.problem = {
+          title: '',
+          description: '',
+          hint: '',
+          my_status: '',
+          template: {},
+          languages: [],
+          samples: [],
+          created_by: {
+            username: ''
+          },
+          tags: [],
+          io_mode: {'io_mode': 'Standard IO'}
+        }
         this.outputdata = []
         this.runResultData = {}
         this.running = false
@@ -1618,7 +1632,7 @@
   #problem-content {
     margin-top: -50px;
     .title {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 400;
       margin: 25px 0 8px 0;
       color: var(--problem-text-color);
@@ -1629,7 +1643,7 @@
     p.content {
       margin-left: 25px;
       margin-right: 20px;
-      font-size: 15px
+      font-size: 12px
     }
     .sample {
       align-items: stretch;
@@ -1646,6 +1660,8 @@
         border-style: solid;
         background: transparent;
         border: 1px solid var(--problem-example-box-color);
+        white-space: pre;
+        overflow-x: auto;
       }
     }
   }
@@ -1853,6 +1869,7 @@
     .output-container,
     .sample-output-container {
       width: 50%;
+      min-width: 0;
       height: 100%;
       padding: 10px;
       display: flex;
@@ -1868,9 +1885,11 @@
     .input-container .text-box,
     .sample-output-container .text-box {
       flex: 1;
+      min-width: 0;
       border: 1px solid #ccc;
       border-radius: 4px;
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: auto;
     }
     .result-container .text-box {
       border: none;
@@ -1880,8 +1899,7 @@
       font-weight: 'bold';
     }
     pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      white-space: pre;
       margin: 0;
     }
   }
