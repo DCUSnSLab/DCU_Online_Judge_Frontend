@@ -24,6 +24,7 @@ export const m = {
   Prune_Test_Case: '테스트 케이스 가지치기',
   Problem: '문제',
   Problem_List: '문제 목록',
+  Public_Problem_List: '공개 문제 목록',
   Create_Problem: '문제 만들기',
   Export_Import_Problem: '문제 가져오기 및 내보내기',
   Contest: '강의',

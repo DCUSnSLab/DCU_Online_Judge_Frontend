@@ -62,6 +62,11 @@ export default new VueRouter({
           component: ProblemList
         },
         {
+          path: '/problems/public',
+          name: 'public-problem-list',
+          component: ProblemList
+        },
+        {
           path: '/problem/create',
           name: 'create-problem',
           component: Problem

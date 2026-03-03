@@ -1,6 +1,6 @@
 <template>
   <div class="view">
-    <Panel :title="contestId ? this.$i18n.t('m.Contest_Problem_List') : this.$i18n.t('m.Problem_List')">
+    <Panel :title="panelTitle">
       <div v-if=this.lectureTitle>
         {{ $t('m.Lecture_title') }} : {{ this.lectureTitle }}
       </div>
@@ -79,7 +79,7 @@
           width="250">
           <div slot-scope="scope">
             <icon-btn :name="$t('m.ProblemList_Edit')" icon="edit" @click.native="goEdit(scope.row.id)"></icon-btn>
-            <icon-btn v-if="contestId" :name="$t('m.ProblemList_Make_Public')" icon="clone"
+            <icon-btn v-if="contestId || routeName === 'problem-list'" :name="$t('m.ProblemList_Make_Public')" icon="clone"
                       @click.native="makeContestProblemPublic(scope.row.id)"></icon-btn>
             <icon-btn icon="download" :name="$t('m.ProblemList_Download_Test_Cases')"
                       @click.native="downloadTestCase(scope.row.id)"></icon-btn>
@@ -167,6 +167,17 @@
         }
       }
     },
+    computed: {
+      panelTitle () {
+        if (this.contestId) {
+          return this.$i18n.t('m.Contest_Problem_List')
+        } else if (this.routeName === 'public-problem-list') {
+          return this.$i18n.t('m.Public_Problem_List')
+        } else {
+          return this.$i18n.t('m.Problem_List')
+        }
+      }
+    },
     mounted () {
       this.routeName = this.$route.name
       this.query.page = parseInt(this.$route.query.page) || 1
@@ -182,7 +193,7 @@
         row.isEditing = true
       },
       goEdit (problemId) {
-        if (this.routeName === 'problem-list') {
+        if (this.routeName === 'problem-list' || this.routeName === 'public-problem-list') {
           this.$router.push({name: 'edit-problem', params: {problemId}})
         } else if (this.routeName === 'contest-problem-list') {
           this.$router.push({name: 'edit-contest-problem', params: {problemId: problemId, contestId: this.contestId}})
@@ -195,7 +206,7 @@
         })
       },
       goCreateProblem () {
-        if (this.routeName === 'problem-list') {
+        if (this.routeName === 'problem-list' || this.routeName === 'public-problem-list') {
           this.$router.push({name: 'create-problem'})
         } else if (this.routeName === 'contest-problem-list') {
           this.$router.push({name: 'create-contest-problem', params: {contestId: this.contestId}})
@@ -211,12 +222,13 @@
       },
       getProblemList () {
         this.loading = true
-        let funcName = this.routeName === 'problem-list' ? 'getProblemList' : 'getContestProblemList'
+        let isNonContest = this.routeName === 'problem-list' || this.routeName === 'public-problem-list'
+        let funcName = isNonContest ? 'getProblemList' : 'getContestProblemList'
         let params = {
           limit: this.pageSize,
           offset: (this.query.page - 1) * this.pageSize,
           keyword: this.keyword,
-          showPublic: this.routeName === 'problem-list' ? 'true' : 'false',
+          showPublic: this.routeName === 'public-problem-list' ? 'true' : 'false',
           contest_id: this.contestId
         }
         api[funcName](params).then(res => {
@@ -234,7 +246,7 @@
         this.$confirm(this.$t('m.ProblemList_Delete_Alert_Msg'), this.$t('m.ProblemList_Delete_Alert_Title'), {
           type: 'warning'
         }).then(() => {
-          let funcName = this.routeName === 'problem-list' ? 'deleteProblem' : 'deleteContestProblem'
+          let funcName = (this.routeName === 'problem-list' || this.routeName === 'public-problem-list') ? 'deleteProblem' : 'deleteContestProblem'
           api[funcName](id).then(() => [
             this.getProblemList(this.currentPage - 1)
           ]).catch(() => {
@@ -288,6 +300,7 @@
       '$route' (newVal, oldVal) {
         this.contestId = newVal.params.contestId
         this.routeName = newVal.name
+        this.query.page = parseInt(newVal.query.page) || 1
         this.getProblemList(this.currentPage)
       },
       'keyword' () {
