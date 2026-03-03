@@ -18,6 +18,7 @@ export const m = {
   ToFile: 'To File',
   ShareSubmission: 'Share Submission',
   Problem_List: 'Problem List',
+  Public_Problem_List: 'Public Problem List',
   Create_Problem: 'Create Problem',
   Export_Import_Problem: 'Export Or Import Problem',
   Contest: 'Contest',

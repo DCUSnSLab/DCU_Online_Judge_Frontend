@@ -1,14 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 // 引入 view 组件
-import { Announcement, Conf, Contest, ContestList, Home, JudgeServer, LLMKeys, Login,
-  Problem, ProblemList, CopyKiller, User, PruneTestCase, Dashboard, ProblemImportOrExport, Lecture, LectureList, StudentList, ContStudentList } from './views'
+import {
+  Announcement, Conf, Contest, ContestList, Home, JudgeServer, LLMKeys, Login,
+  Problem, ProblemList, CopyKiller, User, PruneTestCase, Dashboard, ProblemImportOrExport, Lecture, LectureList, StudentList, ContStudentList
+} from './views'
 Vue.use(VueRouter)
 
 export default new VueRouter({
   mode: 'history',
   base: '/admin/',
-  scrollBehavior: () => ({y: 0}),
+  scrollBehavior: () => ({ y: 0 }),
   routes: [
     {
       path: '/login',
@@ -57,6 +59,11 @@ export default new VueRouter({
         {
           path: '/problems',
           name: 'problem-list',
+          component: ProblemList
+        },
+        {
+          path: '/problems/public',
+          name: 'public-problem-list',
           component: ProblemList
         },
         {
