@@ -17,6 +17,7 @@
     <el-submenu index="problem" v-if="hasProblemPermission">
       <template slot="title"><i class="el-icon-fa-bars"></i>{{$t('m.Problem')}}</template>
       <el-menu-item index="/problems">{{$t('m.Problem_List')}}</el-menu-item>
+      <el-menu-item index="/problems/public">{{$t('m.Public_Problem_List')}}</el-menu-item>
       <el-menu-item index="/problem/create">{{$t('m.Create_Problem')}}</el-menu-item>
       <el-menu-item index="/problem/batch_ops">{{$t('m.Export_Import_Problem')}}</el-menu-item>
     </el-submenu>
@@ -29,6 +30,7 @@
       <template slot="title"><i class="el-icon-fa-book"></i>{{$t('m.Lecture')}}</template>
       <el-menu-item index="/lecture">{{$t('m.Lecture_List')}}</el-menu-item>
       <el-menu-item v-if="isAdmin" index="/lecture/create">{{$t('m.Create_Lecture')}}</el-menu-item>
+      <el-menu-item v-if="isSuperAdmin" index="/lecture/batch-migrate">데이터 일괄 재계산</el-menu-item>
     </el-submenu>
   </el-menu>
 </template>

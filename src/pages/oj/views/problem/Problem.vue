@@ -360,32 +360,88 @@
 
     <!-- 4. AI Hint Pane -->
     <div class="pane ai-pane" :class="{'pane-collapsed': !aiHintExpanded}" v-show="llmHintVisible">
-      <div v-show="aiHintExpanded" class="pane-content pane-scroll" style="height: 100%">
-        <div class="pane-header">
-          <span class="title">AI 힌트</span>
-          <icon type="chevron-right" @click="aiHintExpanded = false" class="toggle-btn"></icon>
-        </div>
-        <Card id="llm-hint" dis-hover>
-        <div class="hint-body">
-          <div class="hint-chat-area" ref="hintChatArea">
-            <div v-for="(msg, idx) in llmChatMessages" :key="idx" :class="['chat-bubble', msg.role === 'user' ? 'chat-user' : 'chat-assistant']">
-              <div class="chat-role">{{ msg.role === 'user' ? '나' : 'AI' }}</div>
-              <div class="chat-msg-body" v-html="renderMarkdown(msg.content)"></div>
+      <div v-show="aiHintExpanded" class="pane-content" style="height: 100%; padding: 0;">
+        <!-- Modern Header -->
+        <div class="ai-hint-header">
+          <div class="ai-hint-header-left">
+            <div class="ai-hint-logo">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
             </div>
-            <div v-if="llmHintLoading" class="hint-loading">
-              <Spin size="small"/>
-              <span>응답 생성 중...</span>
+            <span class="ai-hint-title">AI 힌트</span>
+          </div>
+          <icon type="chevron-right" @click="aiHintExpanded = false" class="ai-hint-close-btn"></icon>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="ai-hint-chat-area" ref="hintChatArea">
+          <!-- Welcome state -->
+          <div v-if="llmChatMessages.length === 0 && !llmHintLoading" class="ai-hint-welcome">
+            <div class="ai-hint-welcome-icon">✨</div>
+            <p class="ai-hint-welcome-title">AI 힌트 도우미</p>
+            <p class="ai-hint-welcome-desc">코드에 대한 힌트를 제공합니다.<br>추가 질문도 자유롭게 해주세요.</p>
+          </div>
+
+          <!-- Messages -->
+          <div v-for="(msg, idx) in llmChatMessages" :key="idx" :class="['ai-msg-row', msg.role === 'user' ? 'ai-msg-user' : 'ai-msg-assistant']">
+            <!-- AI Avatar -->
+            <div v-if="msg.role !== 'user'" class="ai-msg-avatar ai-avatar-bot">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="ai-msg-content">
+              <div class="ai-msg-body" v-html="renderMarkdown(msg.content)"></div>
+            </div>
+            <!-- User Avatar -->
+            <div v-if="msg.role === 'user'" class="ai-msg-avatar ai-avatar-user">나</div>
+          </div>
+
+          <!-- Typing Indicator -->
+          <div v-if="llmHintLoading" class="ai-msg-row ai-msg-assistant">
+            <div class="ai-msg-avatar ai-avatar-bot">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <div class="ai-msg-content">
+              <div class="ai-typing-indicator">
+                <span class="ai-typing-dot"></span>
+                <span class="ai-typing-dot"></span>
+                <span class="ai-typing-dot"></span>
+              </div>
             </div>
           </div>
-          <div class="hint-input-area">
-            <Input v-model="llmFollowUpInput" placeholder="추가 질문을 입력하세요..." @on-enter="sendFollowUpQuestion" :disabled="llmHintLoading" />
-            <Button type="warning" icon="ios-send" :loading="llmHintLoading" :disabled="!llmFollowUpInput.trim()" @click="sendFollowUpQuestion">전송</Button>
+        </div>
+
+        <!-- Input Area -->
+        <div class="ai-hint-input-wrap">
+          <div class="ai-hint-input-container">
+            <input
+              v-model="llmFollowUpInput"
+              class="ai-hint-input"
+              placeholder="추가 질문을 입력하세요..."
+              @keyup.enter="sendFollowUpQuestion"
+              :disabled="llmHintLoading"
+            />
+            <button
+              class="ai-hint-send-btn"
+              :class="{'ai-hint-send-active': llmFollowUpInput.trim() && !llmHintLoading}"
+              :disabled="!llmFollowUpInput.trim() || llmHintLoading"
+              @click="sendFollowUpQuestion"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
           </div>
         </div>
-      </Card>
       </div>
       <div v-show="!aiHintExpanded" class="pane-collapsed-content" @click="aiHintExpanded = true">
-        <span class="vertical-text">AI 힌트 열기...</span>
+        <div class="ai-collapsed-icon">✨</div>
+        <span class="vertical-text">AI 힌트</span>
       </div>
     </div>
 
@@ -424,8 +480,9 @@
         <Button type="ghost" @click="graphVisible = false">{{ $t('m.Close') }}</Button>
       </div>
     </Modal>
-    <transition name="fade">
+    <transition name="hint-notify">
       <div v-if="showHintNotification" class="ai-hint-notification" @click="scrollToHint">
+        <span class="notify-icon">✨</span>
         <span class="notify-text">AI 힌트가 도착했습니다!</span>
         <Icon type="close" class="notify-close" @click.stop="showHintNotification = false" />
       </div>
@@ -1497,6 +1554,20 @@
         this.submissionId = ''
         this.submitted = false
         this.result = { result: 9 }
+        this.problem = {
+          title: '',
+          description: '',
+          hint: '',
+          my_status: '',
+          template: {},
+          languages: [],
+          samples: [],
+          created_by: {
+            username: ''
+          },
+          tags: [],
+          io_mode: {'io_mode': 'Standard IO'}
+        }
         this.outputdata = []
         this.runResultData = {}
         this.running = false
@@ -1561,7 +1632,7 @@
   #problem-content {
     margin-top: -50px;
     .title {
-      font-size: 20px;
+      font-size: 16px;
       font-weight: 400;
       margin: 25px 0 8px 0;
       color: var(--problem-text-color);
@@ -1572,7 +1643,7 @@
     p.content {
       margin-left: 25px;
       margin-right: 20px;
-      font-size: 15px
+      font-size: 12px
     }
     .sample {
       align-items: stretch;
@@ -1589,6 +1660,8 @@
         border-style: solid;
         background: transparent;
         border: 1px solid var(--problem-example-box-color);
+        white-space: pre;
+        overflow-x: auto;
       }
     }
   }
@@ -1796,6 +1869,7 @@
     .output-container,
     .sample-output-container {
       width: 50%;
+      min-width: 0;
       height: 100%;
       padding: 10px;
       display: flex;
@@ -1811,9 +1885,11 @@
     .input-container .text-box,
     .sample-output-container .text-box {
       flex: 1;
+      min-width: 0;
       border: 1px solid #ccc;
       border-radius: 4px;
-      overflow: auto;
+      overflow-x: auto;
+      overflow-y: auto;
     }
     .result-container .text-box {
       border: none;
@@ -1823,180 +1899,393 @@
       font-weight: 'bold';
     }
     pre {
-      white-space: pre-wrap;
-      word-wrap: break-word;
+      white-space: pre;
       margin: 0;
     }
   }
 
-  #llm-hint {
-    background-color: var(--panelBackground);
-    border: 1px solid #ffc107;
-    border-radius: 8px;
-    margin-top: 10px;
-    margin-right: 18px;
-    transition: all 0.3s ease;
-    flex: 0 0 100%;
-    width: 100%;
+  /* ====== Modern AI Hint Panel (ChatGPT/Claude/Gemini inspired) ====== */
 
-    .hint-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      padding: 4px 0;
-      user-select: none;
-    }
-    .hint-header-left {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .hint-icon {
-      font-size: 22px;
-    }
-    .hint-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-color);
-    }
-    .hint-toggle {
-      color: var(--text-color);
-      font-size: 16px;
-    }
-    .hint-body {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed #ffc107;
-    }
-    .hint-chat-area {
-      max-height: 400px;
-      overflow-y: auto;
-      padding: 4px 0;
-    }
-    .chat-bubble {
-      margin-bottom: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      .chat-role {
-        font-size: 12px;
-        font-weight: 700;
-        margin-bottom: 4px;
-      }
-      .chat-msg-body {
-        font-family: 'Noto Sans KR', 'Helvetica Neue', sans-serif;
-        font-size: 14px;
-        line-height: 1.7;
-        word-wrap: break-word;
-      }
-    }
-    .chat-assistant {
-      background: rgba(128,128,128,0.1);
-      border: 1px solid #ffe082;
-      .chat-role { color: #e65100; }
-      .chat-msg-body { color: var(--text-color); }
-    }
-    .chat-user {
-      background: rgba(128,128,128,0.2);
-      border: 1px solid #ffcc80;
-      margin-left: 20%;
-      .chat-role { color: #1565c0; }
-      .chat-msg-body { color: var(--text-color); }
-    }
-    .md-code-block {
-      position: relative;
-      margin: 8px 0;
-      border-radius: 6px;
-      overflow: hidden;
-      background: #263238;
-      border: 2px solid #37474f;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      .code-lang {
-        display: block;
-        padding: 4px 12px;
-        font-size: 11px;
-        color: #80cbc4;
-        background: #1a2327;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 1px solid #37474f;
-      }
-      pre {
-        margin: 0;
-        padding: 12px;
-        overflow-x: auto;
-        background: transparent;
-        border: none;
-      }
-      code {
-        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-        font-size: 13px;
-        line-height: 1.5;
-        color: #eeffff;
-        white-space: pre;
-        background: transparent;
-      }
-    }
-    .md-inline-code {
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: 12px;
-      background: rgba(0,0,0,0.08);
-      color: #c62828;
-      padding: 2px 6px;
-      border-radius: 3px;
-    }
-    .hint-loading {
-      text-align: center;
-      padding: 10px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      span {
-        color: #795548;
-        font-size: 13px;
-      }
-    }
-    .hint-input-area {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed #ffe082;
+  .ai-hint-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 18px 12px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  body[theme='dark'] .ai-hint-header {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+  }
+  .ai-hint-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ai-hint-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #7c3aed, #6366f1, #818cf8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+  }
+  .ai-hint-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-color);
+    letter-spacing: -0.3px;
+  }
+  .ai-hint-close-btn {
+    cursor: pointer;
+    font-size: 18px;
+    color: #a0a0a0;
+    transition: color 0.2s;
+    &:hover {
+      color: #6366f1;
     }
   }
+
+  /* Chat Area */
+  .ai-hint-chat-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 14px;
+    scroll-behavior: smooth;
+
+    /* Custom scrollbar */
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: rgba(0, 0, 0, 0.12);
+      border-radius: 10px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  /* Welcome State */
+  .ai-hint-welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 20px;
+    text-align: center;
+  }
+  .ai-hint-welcome-icon {
+    font-size: 40px;
+    margin-bottom: 16px;
+    animation: welcomePulse 2s ease-in-out infinite;
+  }
+  @keyframes welcomePulse {
+    0%, 100% { transform: scale(1); opacity: 0.9; }
+    50% { transform: scale(1.1); opacity: 1; }
+  }
+  .ai-hint-welcome-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 8px;
+  }
+  .ai-hint-welcome-desc {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.6;
+  }
+
+  /* Message Row */
+  .ai-msg-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+    animation: msgFadeIn 0.3s ease;
+  }
+  @keyframes msgFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ai-msg-user {
+    flex-direction: row-reverse;
+  }
+
+  /* Avatar */
+  .ai-msg-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .ai-avatar-bot {
+    background: linear-gradient(135deg, #7c3aed, #6366f1);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(99, 102, 241, 0.25);
+  }
+  .ai-avatar-user {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+  }
+
+  /* Message Content */
+  .ai-msg-content {
+    max-width: 82%;
+    min-width: 0;
+  }
+  .ai-msg-assistant .ai-msg-content {
+    /* left-align for AI */
+  }
+  .ai-msg-user .ai-msg-content {
+    /* right-align for user */
+  }
+
+  .ai-msg-body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.7;
+    word-wrap: break-word;
+    color: var(--text-color);
+  }
+
+  /* AI message bubble */
+  .ai-msg-assistant .ai-msg-body {
+    background: var(--panelBackground, #f7f7f8);
+    border-radius: 4px 16px 16px 16px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  body[theme='dark'] .ai-msg-assistant .ai-msg-body {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  /* User message bubble */
+  .ai-msg-user .ai-msg-body {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    color: #fff;
+    border-radius: 16px 4px 16px 16px;
+    padding: 12px 16px;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+  }
+
+  /* Code blocks inside messages */
+  .ai-msg-body .md-code-block {
+    position: relative;
+    margin: 10px 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #1e1e2e;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    .code-lang {
+      display: block;
+      padding: 5px 14px;
+      font-size: 11px;
+      color: #a5b4fc;
+      background: rgba(0, 0, 0, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    pre {
+      margin: 0;
+      padding: 14px;
+      overflow-x: auto;
+      background: transparent;
+      border: none;
+    }
+    code {
+      font-family: 'SFMono-Regular', 'Fira Code', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      white-space: pre;
+      background: transparent;
+    }
+  }
+  .ai-msg-body .md-inline-code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 12px;
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .ai-msg-user .ai-msg-body .md-inline-code {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+  }
+
+  /* Typing Indicator */
+  .ai-typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 14px 18px;
+    background: var(--panelBackground, #f7f7f8);
+    border-radius: 4px 16px 16px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  body[theme='dark'] .ai-typing-indicator {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+  .ai-typing-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #a5b4fc;
+    animation: typingBounce 1.4s infinite ease-in-out;
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.2s; }
+    &:nth-child(3) { animation-delay: 0.4s; }
+  }
+  @keyframes typingBounce {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Input Area */
+  .ai-hint-input-wrap {
+    padding: 12px 14px 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    background: var(--panelBackground, #fafafa);
+  }
+  body[theme='dark'] .ai-hint-input-wrap {
+    border-top-color: rgba(255, 255, 255, 0.08);
+  }
+  .ai-hint-input-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--background-color, #fff);
+    border: 1.5px solid rgba(0, 0, 0, 0.1);
+    border-radius: 24px;
+    padding: 4px 6px 4px 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    &:focus-within {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.12);
+    }
+  }
+  body[theme='dark'] .ai-hint-input-container {
+    border-color: rgba(255, 255, 255, 0.12);
+    &:focus-within {
+      border-color: #818cf8;
+      box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.15);
+    }
+  }
+  .ai-hint-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--text-color);
+    padding: 8px 0;
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    &::placeholder {
+      color: #aaa;
+    }
+    &:disabled {
+      opacity: 0.5;
+    }
+  }
+  .ai-hint-send-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #e5e7eb;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: not-allowed;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+  .ai-hint-send-active {
+    background: linear-gradient(135deg, #6366f1, #818cf8);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    &:hover {
+      transform: scale(1.05);
+      box-shadow: 0 3px 12px rgba(99, 102, 241, 0.4);
+    }
+  }
+
+  /* Collapsed State */
+  .ai-collapsed-icon {
+    font-size: 20px;
+    margin-bottom: 6px;
+  }
+
+  /* Notification Banner */
   .ai-hint-notification {
     position: fixed;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 2000;
-    background: #ff9900;
+    background: linear-gradient(135deg, #6366f1, #818cf8);
     padding: 12px 24px;
     border-radius: 50px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
     color: white;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 14px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 10px;
-    animation: bounce 1s infinite alternate;
+    gap: 8px;
+    animation: notifyFloat 2s ease-in-out infinite;
+    transition: transform 0.2s, box-shadow 0.2s;
+    &:hover {
+      box-shadow: 0 6px 25px rgba(99, 102, 241, 0.45);
+    }
   }
-  .notify-close {
-    margin-left: 10px;
-    cursor: pointer;
+  .notify-icon {
     font-size: 16px;
   }
-  @keyframes bounce {
-    from { transform: translate(-50%, 0); }
-    to { transform: translate(-50%, -10px); }
+  .notify-close {
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    &:hover {
+      opacity: 1;
+    }
   }
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.5s;
+  @keyframes notifyFloat {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, -6px); }
   }
-  .fade-enter, .fade-leave-to {
+  .hint-notify-enter-active, .hint-notify-leave-active {
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  .hint-notify-enter, .hint-notify-leave-to {
     opacity: 0;
+    transform: translate(-50%, 20px) !important;
   }
 
   /* ====== New Layout System ====== */
