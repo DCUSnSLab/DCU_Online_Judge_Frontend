@@ -14,7 +14,7 @@
           </el-tooltip>
         </el-row>
       </div>
-      <strong>{{ $t('m.StudentList_Total_Students') }} : {{ userList.length }} / {{ RegistUser }} / {{ noRegistUser }}</strong>
+      <strong>{{ $t('m.StudentList_Total_Students') }} : {{ total }} / {{ RegistUser }} / {{ noRegistUser }}</strong>
       <!--<div style="padding-top:10px">
         <el-checkbox v-model="persentage">실습, 과제, 시험 점수 진행도(%)로 보기</el-checkbox>
       </div>-->
@@ -273,9 +273,12 @@
       <div class="panel-options">
         <el-pagination
           class="page"
-          layout="prev, pager, next"
+          layout="prev, pager, next, sizes"
           @current-change="currentChange"
-          :page-size="pageSize"
+          @size-change="pageSizeChange"
+          :page-sizes="[10, 30, 50, 100, 200]"
+          :page-size.sync="pageSize"
+          :current-page.sync="currentPage"
           :total="total">
         </el-pagination>
       </div>
@@ -423,7 +426,7 @@
         lectureId: '',
         lectureTitle: '',
         lectureCreator: '',
-        pageSize: 50,
+        pageSize: [10, 30, 50, 100, 200].includes(parseInt(this.$route.query.pageSize)) ? parseInt(this.$route.query.pageSize) : 50,
         total: 0,
         RegistUser: 0,
         noRegistUser: 0,
@@ -445,7 +448,7 @@
         user: {},
         loadingTable: false,
         loadingGenerate: false,
-        currentPage: 0,
+        currentPage: parseInt(this.$route.query.page) || 1,
         talist: [],
         selectedUsers: [],
         formGenerateUser: {
@@ -460,7 +463,7 @@
     mounted () {
       this.lectureId = this.$route.params.lectureId
       this.currentLectureInfo(this.lectureId)
-      this.getUserList(1)
+      this.getUserList(this.currentPage)
       this.getTAList(this.lectureId)
     },
     components: {
@@ -501,7 +504,21 @@
       },
       currentChange (page) {
         this.currentPage = page
+        this.pushRouter()
         this.getUserList(page)
+      },
+      pageSizeChange (size) {
+        this.pageSize = size
+        this.currentPage = 1
+        this.pushRouter()
+        this.getUserList(1)
+      },
+      pushRouter () {
+        this.$router.replace({
+          name: 'lecture-student-list',
+          params: { lectureId: this.lectureId },
+          query: { page: this.currentPage, pageSize: this.pageSize }
+        }).catch(() => {})
       },
       AcceptStudent (userid) {
         let data = {
@@ -550,6 +567,19 @@
           this.loadingTable = false
           this.total = res.data.data.total
           this.userList = res.data.data.results
+          // Count registered/unregistered - use backend counts if available, fallback to page data
+          if (res.data.data.registered_count !== undefined) {
+            this.RegistUser = res.data.data.registered_count
+            this.noRegistUser = res.data.data.unregistered_count
+          } else {
+            this.noRegistUser = 0
+            for (let uu of this.userList) {
+              if (uu.isallow === false) {
+                this.noRegistUser = this.noRegistUser + 1
+              }
+            }
+            this.RegistUser = this.userList.length - this.noRegistUser
+          }
           if (this.userList.length === 0) {
             console.log('null')
           } else {
@@ -617,13 +647,6 @@
               }
             })
           }
-          this.noRegistUser = 0
-          for (let uu of this.userList) {
-            if (uu.isallow === false) {
-              this.noRegistUser = this.noRegistUser + 1
-            }
-          }
-          this.RegistUser = this.userList.length - this.noRegistUser
           // console.log(this.userList)
         }, res => {
           this.loadingTable = false
