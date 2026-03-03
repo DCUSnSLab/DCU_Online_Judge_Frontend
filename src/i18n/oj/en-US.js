@@ -358,5 +358,13 @@ export const m = {
   Last_activity: 'Last Activity',
   PushGithub: 'Upload to Github',
   Container: 'DCU Shell',
-  User_Search: 'User Search'
+  User_Search: 'User Search',
+  // Missing keys
+  FromFile: 'From File',
+  Lecture_UserList: 'Lecture User List',
+  Problem: 'Problem',
+  ToFile: 'To File',
+  aianswer: 'AI Coding Helper Answer',
+  music: 'Music',
+  regenerate: 'Regenerate'
 }

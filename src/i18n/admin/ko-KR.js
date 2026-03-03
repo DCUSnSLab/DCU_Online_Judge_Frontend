@@ -415,5 +415,18 @@ export const m = {
   // 수강과목 학생
   Student: '학생',
   Student_List: '학생 목록',
-  Alert_Warning: '경고'
+  Alert_Warning: '경고',
+  // 누락된 키 추가
+  Admin: '관리자',
+  Cancel: '취소',
+  Enable: '활성화',
+  IOMode: 'IO 모드',
+  InputFileName: '입력 파일 이름',
+  Latex_Editor: 'LaTeX 에디터',
+  OutputFileName: '출력 파일 이름',
+  Own: '소유',
+  Permission_All: '전체 권한',
+  Permission_None: '권한 없음',
+  Professor: '교수',
+  ShareSubmission: '제출 공유'
 }
