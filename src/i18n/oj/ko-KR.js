@@ -421,5 +421,48 @@ export const m = {
   Save_Button: '저장하기',
   Close_Button: '닫기',
   AI_Loading: '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.',
-  File: '파일 '
+  File: '파일 ',
+  // NavBar.vue
+  QnA_Notification_Title: 'QnA 확인 알림 리스트',
+  NavBar_Course: '수강과목',
+  NavBar_Name: '이름',
+  NavBar_GoTo: '바로가기',
+  NavBar_Solved: '해결완료',
+  NavBar_Public_QnA: '공개질문',
+  // Simditor.vue
+  Simditor_Placeholder: '질문 내용을 입력해주세요.',
+  // ProblemQnADetail.vue
+  QnA_Cannot_Delete: '댓글이 작성되어 있어 삭제가 불가능 합니다.<br/>관리자에게 문의해주세요.',
+  QnA_Cannot_Delete_Title: '삭제 불가',
+  // Problem.vue
+  Already_Exited: '이미 퇴실하셨습니다.',
+  Run_Result_Wrong: '오답',
+  Run_Result_Correct: '정답',
+  Run_Result_Timeout: '오류(시간초과)',
+  Run_Result_Error: '오류',
+  Compile_Or_Server_Error: '컴파일 에러 혹은 서버 오류가 발생했습니다.',
+  Test_Label: '테스트 ',
+  Copy_Warning: '⚠️페이지 내용을 복사하는 행위는 부정 행위로 의심될 수 있습니다. 로그 저장 완료',
+  Focus_Change_Warning: '화면 전환 감지되었습니다. 로그 데이터 저장 완료',
+  Capture_Warning: '🚨화면을 캡처하면 캡처한 내용도 기록됩니다.',
+  LLM_Hint_Failed: '힌트를 생성하지 못했습니다. 다시 시도해주세요.',
+  LLM_Server_Error: '힌트 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.',
+  // LectureList.vue (oj)
+  Pre_Admission_Program: '입학 전 <br>프로그램',
+  // Home.vue
+  Home_Change_Info: '개인정보 변경',
+  Home_Freshman_Notice_Title: '[!신입생 개인정보 변경 안내!]',
+  Home_Freshman_Notice_Desc: 'DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>반드시 개인정보를 수정해주시기 바랍니다.',
+  Home_Dialog_Info_Desc: 'DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>반드시 전화번호를 학번으로 변경해주시기 바랍니다.',
+  Home_Student_ID: '학번',
+  Home_Chart_Success: '성공',
+  Home_Chart_Not_Started: '시작 전',
+  Home_Chart_In_Progress: '도전 중',
+  Home_Chart_Progress_Pct: '진행도(%)',
+  Home_Practice_Progress: '실습 진행 현황',
+  Home_Assignment_Progress: '과제 진행 현황',
+  Home_Ended: '종료됨',
+  Home_Days: '일 ',
+  Home_Hours: '시간 ',
+  Home_Minutes: '분'
 }

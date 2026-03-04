@@ -21,7 +21,7 @@
                 <span>{{ semestersort }} {{$t('m.Semester')}}</span>
             </Col>
             <Col v-else :span="1" style="text-align: center">
-              <span style="font-size: 15px">입학 전 <br>프로그램</span>
+              <span style="font-size: 15px" v-html="$t('m.Pre_Admission_Program')"></span>
             </Col>
             <Col :span="12">
               <p>{{$t('m.Subject')}}</p>

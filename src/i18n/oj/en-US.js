@@ -405,7 +405,6 @@ export const m = {
   Current_Status: 'Status: ',
   Start_Exam: 'Start Exam',
   // ProblemQnAList.vue
-  Public_Questions: 'Public Questions',
   Admin_Author: 'Admin',
   GPT_Placeholder: 'GPT response will be displayed here',
   QnA_Private_Title: 'Private Q&A',
@@ -432,5 +431,48 @@ export const m = {
   Save_Button: 'Save',
   Close_Button: 'Close',
   AI_Loading: 'Generating a response. Please wait. It takes about 10-30 seconds.',
-  File: 'File '
+  File: 'File ',
+  // NavBar.vue
+  QnA_Notification_Title: 'QnA Notification List',
+  NavBar_Course: 'Course',
+  NavBar_Name: 'Name',
+  NavBar_GoTo: 'Go to',
+  NavBar_Solved: 'Solved',
+  NavBar_Public_QnA: 'Public Q&A',
+  // Simditor.vue
+  Simditor_Placeholder: 'Please enter your question.',
+  // ProblemQnADetail.vue
+  QnA_Cannot_Delete: 'Cannot delete because comments exist.<br/>Please contact the administrator.',
+  QnA_Cannot_Delete_Title: 'Cannot Delete',
+  // Problem.vue
+  Already_Exited: 'You have already exited.',
+  Run_Result_Wrong: 'Wrong Answer',
+  Run_Result_Correct: 'Correct',
+  Run_Result_Timeout: 'Error (Time Limit)',
+  Run_Result_Error: 'Error',
+  Compile_Or_Server_Error: 'Compilation error or server error occurred.',
+  Test_Label: 'Test ',
+  Copy_Warning: '⚠️Copying page content may be considered cheating. Log saved.',
+  Focus_Change_Warning: 'Screen change detected. Log data saved.',
+  Capture_Warning: '🚨If you capture the screen, the captured content will also be recorded.',
+  LLM_Hint_Failed: 'Failed to generate hint. Please try again.',
+  LLM_Server_Error: 'Cannot connect to hint server. Please try again later.',
+  // LectureList.vue (oj)
+  Pre_Admission_Program: 'Pre-Admission<br>Program',
+  // Home.vue
+  Home_Change_Info: 'Change Personal Info',
+  Home_Freshman_Notice_Title: '[! Freshman Personal Info Change Notice !]',
+  Home_Freshman_Notice_Desc: 'Freshmen who participated in DCU Code pre-admission education<br/>must update their personal information.',
+  Home_Dialog_Info_Desc: 'Freshmen who participated in DCU Code pre-admission education<br/>must change their phone number to their student ID.',
+  Home_Student_ID: 'Student ID',
+  Home_Chart_Success: 'Solved',
+  Home_Chart_Not_Started: 'Not Started',
+  Home_Chart_In_Progress: 'In Progress',
+  Home_Chart_Progress_Pct: 'Progress(%)',
+  Home_Practice_Progress: 'Practice Progress',
+  Home_Assignment_Progress: 'Assignment Progress',
+  Home_Ended: 'Ended',
+  Home_Days: 'd ',
+  Home_Hours: 'h ',
+  Home_Minutes: 'm'
 }
