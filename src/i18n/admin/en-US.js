@@ -401,5 +401,9 @@ export const m = {
   Permission_None: 'No Permissions',
   Professor: 'Professor',
   Save: 'Save',
-  Student: 'Student'
+  Student: 'Student',
+  // StudentList.vue missing keys
+  StudentList_Score_Progress_View: 'View practice, assignment, exam score progress (%)',
+  StudentList_TA_Search_Placeholder: 'TA/RA student ID',
+  StudentList_Confirm_Delete_Enrollment: 'Are you sure you want to delete this student enrollment?'
 }

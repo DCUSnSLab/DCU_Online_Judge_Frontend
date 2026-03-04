@@ -287,7 +287,7 @@
       <div slot="header">
         <el-row :gutter="20">
           <el-col :span="selectedUsers.length ? 16: 24">
-            <el-input v-model="ta_name" @click.native="onEnter" v-on:keyup.native.enter="onEnter" prefix-icon="el-icon-search" placeholder="TA/RA 학생 학번"></el-input>
+            <el-input v-model="ta_name" @click.native="onEnter" v-on:keyup.native.enter="onEnter" prefix-icon="el-icon-search" :placeholder="$t('m.StudentList_TA_Search_Placeholder')"></el-input>
           </el-col>
         </el-row>
       </div>
@@ -531,7 +531,7 @@
         })
       },
       DenyStudent (id) {
-        this.$confirm('해당 학생의 수강신청을 삭제하시겠습니까?', 'confirm', {
+        this.$confirm(this.$t('m.StudentList_Confirm_Delete_Enrollment'), 'confirm', {
           type: 'warning'
         }).then(() => {
           api.denyStudent(id, this.lectureId).then(res => {

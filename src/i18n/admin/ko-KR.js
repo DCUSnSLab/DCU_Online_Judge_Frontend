@@ -428,5 +428,9 @@ export const m = {
   Permission_All: '전체 권한',
   Permission_None: '권한 없음',
   Professor: '교수',
-  ShareSubmission: '제출 공유'
+  ShareSubmission: '제출 공유',
+  // StudentList.vue 누락 키
+  StudentList_Score_Progress_View: '실습, 과제, 시험 점수 진행도(%)로 보기',
+  StudentList_TA_Search_Placeholder: 'TA/RA 학생 학번',
+  StudentList_Confirm_Delete_Enrollment: '해당 학생의 수강신청을 삭제하시겠습니까?'
 }
