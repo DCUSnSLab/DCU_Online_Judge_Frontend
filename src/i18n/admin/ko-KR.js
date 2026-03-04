@@ -432,5 +432,34 @@ export const m = {
   // StudentList.vue 누락 키
   StudentList_Score_Progress_View: '실습, 과제, 시험 점수 진행도(%)로 보기',
   StudentList_TA_Search_Placeholder: 'TA/RA 학생 학번',
-  StudentList_Confirm_Delete_Enrollment: '해당 학생의 수강신청을 삭제하시겠습니까?'
+  StudentList_Confirm_Delete_Enrollment: '해당 학생의 수강신청을 삭제하시겠습니까?',
+  // User.vue
+  User_Delete_Button: '삭제',
+  User_Delete_Confirm: '사용자를 삭제 하시겠습니까? 이 사용자가 생성 한 관련 리소스 (예 : 문제, 컨테스트, 발표 등)도 삭제됩니다.',
+  User_Confirm_Title: '확인',
+  User_Validate_Error: '오류 필드를 확인하십시오',
+  User_Generate_Success: '모든 사용자가 성공적으로 작성되었으며 사용자 시트가 디스크로 다운로드되었습니다.',
+  User_Notice: '알림',
+  // Lecture.vue
+  Lecture_Pre_Admission: '입학 전',
+  Lecture_Edit_Title: '과목 수정',
+  Lecture_Create_Title: '개설과목 생성',
+  // LectureList.vue
+  LectureList_Filter_Year: '연도',
+  LectureList_Filter_Semester: '학기',
+  LectureList_Semester_1: '1학기',
+  LectureList_Semester_2: '2학기',
+  LectureList_Pre_Admission_Education: '입학전교육',
+  LectureList_Filter_Professor: '담당교수',
+  LectureList_Semester_Suffix: '학기',
+  LectureList_Pre_Admission: '입학전',
+  LectureList_Year_Suffix: '년',
+  // addTAUserLecture.vue
+  TA_Search_Name: '이름',
+  TA_Search_StudentID: '학번',
+  TA_Search_Button: '검색',
+  TA_Add_Column: '추가하기',
+  TA_Register: 'TA 학생 등록',
+  // ScreenFull.vue
+  Fullscreen_Not_Supported: '해당 브라우저는 전체화면을 지원하지 않습니다.'
 }

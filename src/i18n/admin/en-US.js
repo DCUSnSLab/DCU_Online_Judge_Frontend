@@ -405,5 +405,34 @@ export const m = {
   // StudentList.vue missing keys
   StudentList_Score_Progress_View: 'View practice, assignment, exam score progress (%)',
   StudentList_TA_Search_Placeholder: 'TA/RA student ID',
-  StudentList_Confirm_Delete_Enrollment: 'Are you sure you want to delete this student enrollment?'
+  StudentList_Confirm_Delete_Enrollment: 'Are you sure you want to delete this student enrollment?',
+  // User.vue
+  User_Delete_Button: 'Delete',
+  User_Delete_Confirm: 'Are you sure you want to delete this user? Related resources created by this user (e.g., problems, contests, announcements) will also be deleted.',
+  User_Confirm_Title: 'Confirm',
+  User_Validate_Error: 'Please check the error fields',
+  User_Generate_Success: 'All users have been created successfully, the user sheet has been downloaded to your disk.',
+  User_Notice: 'Notice',
+  // Lecture.vue
+  Lecture_Pre_Admission: 'Pre-Admission',
+  Lecture_Edit_Title: 'Edit Course',
+  Lecture_Create_Title: 'Create Course',
+  // LectureList.vue
+  LectureList_Filter_Year: 'Year',
+  LectureList_Filter_Semester: 'Semester',
+  LectureList_Semester_1: 'Semester 1',
+  LectureList_Semester_2: 'Semester 2',
+  LectureList_Pre_Admission_Education: 'Pre-Admission Education',
+  LectureList_Filter_Professor: 'Professor',
+  LectureList_Semester_Suffix: 'Semester',
+  LectureList_Pre_Admission: 'Pre-Admission',
+  LectureList_Year_Suffix: '',
+  // addTAUserLecture.vue
+  TA_Search_Name: 'Name',
+  TA_Search_StudentID: 'Student ID',
+  TA_Search_Button: 'Search',
+  TA_Add_Column: 'Add',
+  TA_Register: 'Register TA Student',
+  // ScreenFull.vue
+  Fullscreen_Not_Supported: 'This browser does not support fullscreen mode.'
 }
