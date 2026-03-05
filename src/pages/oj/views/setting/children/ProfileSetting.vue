@@ -114,18 +114,30 @@
         languages: languages,
         formProfile: {
           realname: '',
-          schoolssn: ''
+          schoolssn: '',
+          language: ''
         }
       }
     },
     mounted () {
-      let profile = this.$store.state.user.profile.user
-      console.log(profile)
-      Object.keys(this.formProfile).forEach(element => {
-        if (profile[element] !== undefined) {
-          this.formProfile[element] = profile[element]
-        }
-      })
+      // On page refresh, profile may not be loaded yet - ensure it gets fetched
+      if (!this.$store.state.user.profile.user) {
+        this.$store.dispatch('getProfile')
+      }
+    },
+    watch: {
+      storeProfile: {
+        handler (profile) {
+          if (!profile || !profile.id) return
+          Object.keys(this.formProfile).forEach(element => {
+            if (profile[element] !== undefined) {
+              this.formProfile[element] = profile[element]
+            }
+          })
+        },
+        immediate: true,
+        deep: true
+      }
     },
     methods: {
       checkFileType (file) {
@@ -221,6 +233,9 @@
       }
     },
     computed: {
+      storeProfile () {
+        return this.$store.getters.user
+      },
       previewStyle () {
         return {
           'width': this.preview.w + 'px',
