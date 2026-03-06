@@ -35,7 +35,7 @@
         toolbar: this.toolbar,
         pasteImage: true,
         markdown: false,
-        placeholder: '질문 내용을 입력해주세요.',
+        placeholder: this.$i18n.t('m.Simditor_Placeholder'),
         upload: {
           url: '/api/admin/upload_image/',
           params: null,

@@ -4,19 +4,17 @@
     <Col :span="22">
       <panel v-if="(month == 3)">
         <div slot="title">
-          <Button style="float: right" type="info" @click="dialogFormVisible = true">개인정보 변경</Button>
-          <h2>[!신입생 개인정보 변경 안내!]</h2><br/>
-          DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
-          반드시 개인정보를 수정해주시기 바랍니다.<br/>
+          <Button style="float: right" type="info" @click="dialogFormVisible = true">{{$t('m.Home_Change_Info')}}</Button>
+          <h2>{{$t('m.Home_Freshman_Notice_Title')}}</h2><br/>
+          <span v-html="$t('m.Home_Freshman_Notice_Desc')"></span><br/>
         </div>
       </panel>
-      <el-dialog title="개인정보 변경" :modal=false :visible.sync="dialogFormVisible">
+      <el-dialog :title="$t('m.Home_Change_Info')" :modal=false :visible.sync="dialogFormVisible">
         <Form ref="formProfile" :model="formProfile">
           <Row type="flex" :gutter="30" justify="space-around">
             <Col :span="30" align="center">
-              <h4 align="center">DCU Code 입학 전 교육에 참여한 신입생 분들은<br/>
-                반드시 전화번호를 학번으로 변경해주시기 바랍니다.</h4><br/>
-              <Form-item label="학번">
+              <h4 align="center" v-html="$t('m.Home_Dialog_Info_Desc')"></h4><br/>
+              <Form-item :label="$t('m.Home_Student_ID')">
                 <Input v-model="formProfile.schoolssn"/>
               </Form-item>
               <Form-item>
@@ -147,19 +145,7 @@ import { lightTheme, darkTheme } from '@/theme'
 
 Vue.use(Element)
 
-const pieColorMap = {
-  '성공': {color: '#409EFF'},
-  '시작 전': {color: '#F56C6C'},
-  '도전 중': {color: '#E6A23C'},
-  '진행도(%)': {color: '#9BCCFF'},
-  '': {color: 'Transparent'},
-  'CE': {color: '#80848f'},
-  'PAC': {color: '#2d8cf0'}
-}
-
-function getItemColor (obj) {
-  return pieColorMap[obj.name].color
-}
+// pieColorMap moved inside component to support i18n
 
 export default {
   name: 'home',
@@ -217,6 +203,17 @@ export default {
     getDuration (startTime, endTime) {
       return time.duration(startTime, endTime)
     },
+    getItemColor (obj) {
+      const colorMap = {}
+      colorMap[this.$t('m.Home_Chart_Success')] = '#409EFF'
+      colorMap[this.$t('m.Home_Chart_Not_Started')] = '#F56C6C'
+      colorMap[this.$t('m.Home_Chart_In_Progress')] = '#E6A23C'
+      colorMap[this.$t('m.Home_Chart_Progress_Pct')] = '#9BCCFF'
+      colorMap[''] = 'Transparent'
+      colorMap['CE'] = '#80848f'
+      colorMap['PAC'] = '#2d8cf0'
+      return (colorMap[obj.name] || '#ccc')
+    },
     showDetail () {
       if (this.detail === true) {
         this.detail = false
@@ -238,12 +235,12 @@ export default {
             pie: {
               title: [
                 {
-                  subtext: '실습 진행 현황',
+                  subtext: this.$t('m.Home_Practice_Progress'),
                   left: '25%',
                   top: '85%',
                   textAlign: 'center'
                 }, {
-                  subtext: '과제 진행 현황',
+                  subtext: this.$t('m.Home_Assignment_Progress'),
                   left: '75%',
                   top: '85%',
                   textAlign: 'center'
@@ -255,7 +252,7 @@ export default {
                   } */
               ],
               legend: {
-                data: ['성공', '도전 중', '시작 전']
+                data: [this.$t('m.Home_Chart_Success'), this.$t('m.Home_Chart_In_Progress'), this.$t('m.Home_Chart_Not_Started')]
               },
               opts: {
                 width: 'auto',
@@ -268,11 +265,11 @@ export default {
                   radius: ['40%', '45%'],
                   center: ['25%', '50%'],
                   itemStyle: {
-                    normal: {color: getItemColor}
+                    normal: {color: this.getItemColor}
                   },
                   data: [
                     {
-                      value: (lecture.solvePractice || ''), name: '진행도(%)' // 시도한 문제 + 해결한 문제
+                      value: (lecture.solvePractice || ''), name: this.$t('m.Home_Chart_Progress_Pct') // 시도한 문제 + 해결한 문제
                     },
                     {
                       value: (lecture.totalPractice - lecture.solvePractice || ''), name: '' // 총 문제 수 - 시도한 문제 - 해결한 문제
@@ -291,17 +288,17 @@ export default {
                   radius: '35%',
                   center: ['25%', '50%'],
                   itemStyle: {
-                    normal: {color: getItemColor}
+                    normal: {color: this.getItemColor}
                   },
                   data: [
                     {
-                      value: (lecture.solvePractice || ''), name: '성공'
+                      value: (lecture.solvePractice || ''), name: this.$t('m.Home_Chart_Success')
                     },
                     {
-                      value: (lecture.subPractice - lecture.solvePractice || ''), name: '도전 중'
+                      value: (lecture.subPractice - lecture.solvePractice || ''), name: this.$t('m.Home_Chart_In_Progress')
                     },
                     {
-                      value: (lecture.totalPractice - lecture.subPractice || ''), name: '시작 전'
+                      value: (lecture.totalPractice - lecture.subPractice || ''), name: this.$t('m.Home_Chart_Not_Started')
                     }
                   ],
                   label: {
@@ -317,11 +314,11 @@ export default {
                   radius: ['40%', '45%'],
                   center: ['75%', '50%'],
                   itemStyle: {
-                    normal: {color: getItemColor}
+                    normal: {color: this.getItemColor}
                   },
                   data: [
                     {
-                      value: (lecture.solveAssign || ''), name: '진행도(%)' // 시도한 문제 + 해결한 문제
+                      value: (lecture.solveAssign || ''), name: this.$t('m.Home_Chart_Progress_Pct') // 시도한 문제 + 해결한 문제
                     },
                     {
                       value: (lecture.totalAssign - lecture.solveAssign || ''), name: '' // 총 문제 수 - 시도한 문제 - 해결한 문제
@@ -340,17 +337,17 @@ export default {
                   radius: '35%',
                   center: ['75%', '50%'],
                   itemStyle: {
-                    normal: {color: getItemColor}
+                    normal: {color: this.getItemColor}
                   },
                   data: [
                     {
-                      value: (lecture.totalAssign - lecture.subAssign || ''), name: '시작 전'
+                      value: (lecture.totalAssign - lecture.subAssign || ''), name: this.$t('m.Home_Chart_Not_Started')
                     },
                     {
-                      value: (lecture.subAssign - lecture.solveAssign || ''), name: '도전 중'
+                      value: (lecture.subAssign - lecture.solveAssign || ''), name: this.$t('m.Home_Chart_In_Progress')
                     },
                     {
-                      value: (lecture.solveAssign || ''), name: '성공'
+                      value: (lecture.solveAssign || ''), name: this.$t('m.Home_Chart_Success')
                     }
                   ],
                   label: {
@@ -383,21 +380,17 @@ export default {
     remainDuration (endTime) {
       let remain
       if (new Date() - new Date(endTime) > 0) {
-        remain = '종료됨'
-        // console.log('이미 지남')
+        remain = this.$t('m.Home_Ended')
       } else {
         remain = time.duration(new Date(), endTime)
         let current = new Date()
         let end = new Date(endTime)
-        console.log(current)
-        console.log(end)
-        console.log(end - current)
         let dateGap = end.getTime() - current.getTime()
         let timeGap = new Date(0, 0, 0, 0, 0, 0, end - current)
         let diffDay = Math.floor(dateGap / (1000 * 60 * 60 * 24))
         let diffHour = timeGap.getHours()
         let diffMin = timeGap.getMinutes()
-        return diffDay + '일 ' + diffHour + '시간 ' + diffMin + '분'
+        return diffDay + this.$t('m.Home_Days') + diffHour + this.$t('m.Home_Hours') + diffMin + this.$t('m.Home_Minutes')
         // console.log('안 지남')
       }
       return remain

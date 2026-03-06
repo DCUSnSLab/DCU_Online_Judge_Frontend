@@ -104,37 +104,37 @@
   <component :is="modalStatus.mode" v-if="modalVisible"></component>
   <div slot="footer" style="display: none"></div>
 </Modal>
-<el-dialog title="QnA 확인 알림 리스트" :modal=false :visible.sync="dialogFormVisible">
+<el-dialog :title="$t('m.QnA_Notification_Title')" :modal=false :visible.sync="dialogFormVisible">
   <el-table :data="pushData" v-loading="loading">
     <el-table-column
       label="ID"
       prop="id">
     </el-table-column>
     <el-table-column
-      label="수강과목"
+      :label="$t('m.NavBar_Course')"
       prop="problem.contest.lecture_title">
     </el-table-column>
     <el-table-column
-      label="이름"
+      :label="$t('m.NavBar_Name')"
       prop="author.realname">
     </el-table-column>
     <el-table-column
-      label="바로가기"
+      :label="$t('m.NavBar_GoTo')"
       align="center">
       <template slot-scope="{row}">
         <div v-if="row.lecture === 'null'">
-          <el-button icon="el-icon-monitor" name="바로가기"
+          <el-button icon="el-icon-monitor" :name="$t('m.NavBar_GoTo')"
                     @click.native="goContestQnA(row.lecture, row.contest, row.problem.id, row.id)"></el-button>
         </div>
         <div v-else>
-          <el-button icon="el-icon-monitor" name="바로가기"
+          <el-button icon="el-icon-monitor" :name="$t('m.NavBar_GoTo')"
                     @click.native="goPublicContestQnA(row.id)"></el-button>
         </div>
       </template>
     </el-table-column>
     <el-table-column
       v-if="!isAdminRole"
-      label="해결완료"
+      :label="$t('m.NavBar_Solved')"
       align="center">
       <template slot-scope="{row}">
         <el-button icon="el-icon-check"
@@ -187,7 +187,7 @@
         pushTotal: 0,
         pushData: '',
         limit: 10,
-        public_qna: '공개질문',
+        public_qna: '',
         loading: false,
         gridData: [{
           date: '2016-05-02',

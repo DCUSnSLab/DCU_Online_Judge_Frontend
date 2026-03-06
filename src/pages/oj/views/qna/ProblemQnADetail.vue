@@ -226,7 +226,7 @@
       },
       deletePost () {
         if (this.total > 0) {
-          this.$alert('댓글이 작성되어 있어 삭제가 불가능 합니다.<br/>관리자에게 문의해주세요.', '삭제 불가', {
+          this.$alert(this.$t('m.QnA_Cannot_Delete'), this.$t('m.QnA_Cannot_Delete_Title'), {
             confirmButtonText: this.$i18n.t('m.ok'),
             dangerouslyUseHTMLString: true
           })

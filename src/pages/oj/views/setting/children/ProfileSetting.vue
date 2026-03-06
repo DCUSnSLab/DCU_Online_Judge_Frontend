@@ -9,7 +9,7 @@
               :before-upload="handleSelectFile">
         <div style="padding: 30px 0">
           <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
-          <p>이미지 파일을 여기로 드롭하거나, 이곳을 클릭하세요</p>
+          <p>{{$t('m.Drop_Image_Here')}}</p>
         </div>
       </Upload>
     </template>
@@ -52,12 +52,12 @@
       </div>
     </template>
     <Modal v-model="uploadModalVisible"
-           title="아바타 업로드하기">
+           :title="$t('m.Upload_Avatar_Title')">
       <div class="upload-modal">
         <img :src="uploadImgSrc"/>
       </div>
       <div slot="footer">
-        <Button @click="uploadAvatar" :loading="loadingUploadBtn">업로드</Button>
+        <Button @click="uploadAvatar" :loading="loadingUploadBtn">{{$t('m.Upload_Button')}}</Button>
       </div>
     </Modal>
 
@@ -114,25 +114,37 @@
         languages: languages,
         formProfile: {
           realname: '',
-          schoolssn: ''
+          schoolssn: '',
+          language: ''
         }
       }
     },
     mounted () {
-      let profile = this.$store.state.user.profile.user
-      console.log(profile)
-      Object.keys(this.formProfile).forEach(element => {
-        if (profile[element] !== undefined) {
-          this.formProfile[element] = profile[element]
-        }
-      })
+      // On page refresh, profile may not be loaded yet - ensure it gets fetched
+      if (!this.$store.state.user.profile.user) {
+        this.$store.dispatch('getProfile')
+      }
+    },
+    watch: {
+      storeProfile: {
+        handler (profile) {
+          if (!profile || !profile.id) return
+          Object.keys(this.formProfile).forEach(element => {
+            if (profile[element] !== undefined) {
+              this.formProfile[element] = profile[element]
+            }
+          })
+        },
+        immediate: true,
+        deep: true
+      }
     },
     methods: {
       checkFileType (file) {
         if (!/\.(gif|jpg|jpeg|png|bmp|GIF|JPG|PNG)$/.test(file.name)) {
           this.$Notice.warning({
-            title: '지원되지 않는 형식의 파일입니다.',
-            desc: '파일 ' + file.name + ' 의 형식이 올바르지 않습니다. 이미지파일만 업로드 해주세요.'
+            title: this.$t('m.Unsupported_File_Format'),
+            desc: this.$t('m.File') + ' ' + file.name + this.$t('m.Invalid_File_Format_Desc')
           })
           return false
         }
@@ -142,8 +154,8 @@
         // max size is 2MB
         if (file.size > 2 * 1024 * 1024) {
           this.$Notice.warning({
-            title: '파일의 최대 사이즈를 초과하였습니다.',
-            desc: '파일 ' + file.name + ' 이(가) 너무 큽니다, 2MB이내의 크기의 이미지파일을 업로드 해주세요.'
+            title: this.$t('m.File_Too_Large'),
+            desc: this.$t('m.File') + ' ' + file.name + this.$t('m.File_Too_Large_Desc')
           })
           return false
         }
@@ -173,7 +185,7 @@
       },
       reselect () {
         this.$Modal.confirm({
-          content: '변경사항을 취소하시겠습니까?',
+          content: this.$t('m.Cancel_Changes'),
           onOk: () => {
             this.avatarOption.imgSrc = ''
           }
@@ -198,7 +210,7 @@
             headers: {'content-type': 'multipart/form-data'}
           }).then(res => {
             this.loadingUploadBtn = false
-            this.$success('성공적으로 새 아바타를 설정하였습니다.')
+            this.$success(this.$t('m.Avatar_Success'))
             this.uploadModalVisible = false
             this.avatarOption.imgSrc = ''
             this.$store.dispatch('getProfile')
@@ -221,6 +233,9 @@
       }
     },
     computed: {
+      storeProfile () {
+        return this.$store.getters.user
+      },
       previewStyle () {
         return {
           'width': this.preview.w + 'px',

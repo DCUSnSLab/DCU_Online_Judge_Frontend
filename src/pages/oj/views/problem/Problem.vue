@@ -822,7 +822,7 @@
             this.contestExitStatus = true
           }
           if (this.contestExitStatus) {
-            this.$error('이미 퇴실하셨습니다.')
+            this.$error(this.$t('m.Already_Exited'))
           }
         })
       },
@@ -1047,13 +1047,13 @@
           let resultData = res.data.data.outputResultData.map(item => item.result)
           for (let i = 0; i < resultData.length; i++) {
             if (resultData[i] === -1) {
-              this.runResultData.push('오답')
+              this.runResultData.push(this.$t('m.Run_Result_Wrong'))
             } else if (resultData[i] === 0) {
-              this.runResultData.push('정답')
+              this.runResultData.push(this.$t('m.Run_Result_Correct'))
             } else if (resultData[i] === 1) {
-              this.runResultData.push('오류(시간초과)')
+              this.runResultData.push(this.$t('m.Run_Result_Timeout'))
             } else {
-              this.runResultData.push('오류')
+              this.runResultData.push(this.$t('m.Run_Result_Error'))
             }
           }
           // 실행 완료 후 오답/오류 있으면 LLM 힌트 요청
@@ -1065,13 +1065,13 @@
           }
         }).catch((err) => {
           console.error(err)
-          let errMsg = '컴파일 에러 혹은 서버 오류가 발생했습니다.'
+          let errMsg = this.$t('m.Compile_Or_Server_Error')
           if (err.response && err.response.data) {
             errMsg = err.response.data.data || err.response.data.error || errMsg
           }
           // 컴파일 실패 시 모든 테스트 케이스 결과 란에 에러 메시지를 채웁니다.
           for (let i = 0; i < this.problem.samples.length; i++) {
-            this.runResultData.push('오류')
+            this.runResultData.push(this.$t('m.Run_Result_Error'))
             this.outputdata.push(errMsg)
           }
           // 컴파일 에러 상태(전부 '오류')를 AI Hint 패널로 넘깁니다.
@@ -1086,9 +1086,9 @@
       },
       getRunResultLable (index) {
         if (this.runResultData[index]) {
-          return '테스트 ' + (index + 1) + ' > ' + this.runResultData[index]
+          return this.$t('m.Test_Label') + (index + 1) + ' > ' + this.runResultData[index]
         } else {
-          return '테스트 ' + (index + 1) + ' > '
+          return this.$t('m.Test_Label') + (index + 1) + ' > '
         }
       },
       onCopy (event) {
@@ -1099,7 +1099,7 @@
       },
       toggleSidebar () {
         this.sidebarVisible = !this.sidebarVisible
-        this.AIrespone = '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
+        this.AIrespone = this.$t('m.AI_Loading')
       },
       fetchLLMHint (mode, resultInfo) {
         this.llmHintVisible = true
@@ -1293,11 +1293,11 @@
             this.llmHintText = fullContent
             this.llmConversationHistory.push({ role: 'assistant', content: fullContent })
           } else if (!this.llmChatMessages[msgIndex].content) {
-            this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: '힌트를 생성하지 못했습니다. 다시 시도해주세요.' })
+            this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: this.$t('m.LLM_Hint_Failed') })
           }
         } catch (err) {
           console.error('LLM streaming error:', err)
-          this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: '힌트 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.' })
+          this.$set(this.llmChatMessages, msgIndex, { role: 'assistant', content: this.$t('m.LLM_Server_Error') })
         } finally {
           this.llmHintLoading = false
           this.scrollChatToBottom()
@@ -1375,7 +1375,7 @@
         const replacementText = problems[randomIndex]
         event.clipboardData.setData('text/plain', replacementText)
         this.$message.error({
-          message: '⚠️페이지 내용을 복사하는 행위는 부정 행위로 의심될 수 있습니다. 로그 저장 완료',
+          message: this.$t('m.Copy_Warning'),
           duration: 5000
         })
         this.antiData.copy += 1
@@ -1418,12 +1418,12 @@
           // navigator.clipboard.writeText('스크린샷 차단').catch(() => console.warn('클립보드 초기화 실패'))
         }
         this.$message.error({
-          message: '화면 전환 감지되었습니다. 로그 데이터 저장 완료',
+          message: this.$t('m.Focus_Change_Warning'),
           duration: 3000
         })
         setTimeout(() => {
           this.$message.error({
-            message: '🚨화면을 캡처하면 캡처한 내용도 기록됩니다.',
+            message: this.$t('m.Capture_Warning'),
             duration: 3000
           })
         }, 500)

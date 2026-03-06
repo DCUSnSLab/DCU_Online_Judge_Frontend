@@ -3,15 +3,15 @@
     <Panel :title="$t('m.Lecture_List')">
       <div slot="header">
         <div class="filter-row">
-          <el-select v-model="filterYear" placeholder="연도" clearable size="small" style="width: 110px; margin-right: 8px;" @change="applyFilter">
-            <el-option v-for="y in yearOptions" :key="y" :label="y + '년'" :value="y"></el-option>
+          <el-select v-model="filterYear" :placeholder="$t('m.LectureList_Filter_Year')" clearable size="small" style="width: 110px; margin-right: 8px;" @change="applyFilter">
+            <el-option v-for="y in yearOptions" :key="y" :label="y + $t('m.LectureList_Year_Suffix')" :value="y"></el-option>
           </el-select>
-          <el-select v-model="filterSemester" placeholder="학기" clearable size="small" style="width: 120px; margin-right: 8px;" @change="applyFilter">
-            <el-option label="1학기" :value="1"></el-option>
-            <el-option label="2학기" :value="2"></el-option>
-            <el-option label="입학전교육" :value="3"></el-option>
+          <el-select v-model="filterSemester" :placeholder="$t('m.LectureList_Filter_Semester')" clearable size="small" style="width: 120px; margin-right: 8px;" @change="applyFilter">
+            <el-option :label="$t('m.LectureList_Semester_1')" :value="1"></el-option>
+            <el-option :label="$t('m.LectureList_Semester_2')" :value="2"></el-option>
+            <el-option :label="$t('m.LectureList_Pre_Admission_Education')" :value="3"></el-option>
           </el-select>
-          <el-select v-model="filterProfessor" placeholder="담당교수" clearable size="small" style="width: 130px; margin-right: 8px;" @change="applyFilter">
+          <el-select v-model="filterProfessor" :placeholder="$t('m.LectureList_Filter_Professor')" clearable size="small" style="width: 130px; margin-right: 8px;" @change="applyFilter">
             <el-option v-for="p in professorOptions" :key="p" :label="p" :value="p"></el-option>
           </el-select>
           <el-input
@@ -57,8 +57,8 @@
           align="center"
           :label="$t('m.Lecture_Semester')">
           <template slot-scope="scope">
-            <span v-if="scope.row.semester < 3">{{scope.row.semester}}학기</span>
-            <span v-else>입학전</span>
+            <span v-if="scope.row.semester < 3">{{scope.row.semester}}{{$t('m.LectureList_Semester_Suffix')}}</span>
+            <span v-else>{{$t('m.LectureList_Pre_Admission')}}</span>
           </template>
         </el-table-column>
         <el-table-column

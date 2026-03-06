@@ -3,8 +3,8 @@
     <el-row :gutter="20">
       <el-col :span="4">
         <el-select v-model="searchType">
-          <el-option value="이름">이름</el-option>
-          <el-option value="학번">학번</el-option>
+          <el-option :value="$t('m.TA_Search_Name')">{{$t('m.TA_Search_Name')}}</el-option>
+          <el-option :value="$t('m.TA_Search_StudentID')">{{$t('m.TA_Search_StudentID')}}</el-option>
         </el-select>
       </el-col>
       <el-col :span="17" fixed="right">
@@ -16,7 +16,7 @@
         </el-input>
       </el-col>
       <el-col :span="3" fixed="right">
-        <el-button @click="searchUser">검색</el-button>
+        <el-button @click="searchUser">{{$t('m.TA_Search_Button')}}</el-button>
       </el-col>
     </el-row>
     <el-table :data="talist" v-loading="loading">
@@ -25,18 +25,18 @@
         prop="id">
       </el-table-column>
       <el-table-column
-        label="이름"
+        :label="$t('m.TA_Search_Name')"
         prop="realname">
       </el-table-column>
       <el-table-column
-        label="학번"
+        :label="$t('m.TA_Search_StudentID')"
         prop="schoolssn">
       </el-table-column>
       <el-table-column
-        label="추가하기"
+        :label="$t('m.TA_Add_Column')"
         align="center">
         <template slot-scope="{row}">
-          <icon-btn icon="plus" name="TA 학생 등록"
+          <icon-btn icon="plus" :name="$t('m.TA_Register')"
                     @click.native="handleAddContest(row.id)"></icon-btn>
         </template>
       </el-table-column>
@@ -53,13 +53,14 @@
       return {
         innerVisible: false,
         loading: false,
-        searchType: '이름',
+        searchType: '',
         keyword: '',
         talist: [],
         addtalist: []
       }
     },
     mounted () {
+      this.searchType = this.$t('m.TA_Search_Name')
       console.log(this.lectureId)
       // this.getTalist()
     },

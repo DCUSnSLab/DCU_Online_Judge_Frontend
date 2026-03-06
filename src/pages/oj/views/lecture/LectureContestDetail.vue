@@ -3,7 +3,7 @@
     <div v-if="isvisible" v-show="showMenu" class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
       <div v-show="menuExpanded" class="pane-content pane-scroll">
         <div class="pane-header">
-          <span class="title" style="font-weight: bold; margin-left: 10px;">메뉴</span>
+          <span class="title" style="font-weight: bold; margin-left: 10px;">{{$t('m.Contest_Menu')}}</span>
           <icon type="chevron-left" @click="menuExpanded = false" class="toggle-btn"></icon>
         </div>
         <VerticalMenu @on-click="handleRoute">
@@ -29,8 +29,8 @@
               <li v-for="(p, index) in problemList" :key="p._id"
                   @click="selectProblem(p)"
                   :class="{'active-problem': selectedProblem && p._id === selectedProblem._id}">
-                <span v-if="p.my_status === 0" class="status-label status-completed">[완료]</span>
-                <span v-else-if="p.my_status !== null && p.my_status !== undefined" class="status-label status-error">[오류]</span>
+                <span v-if="p.my_status === 0" class="status-label status-completed">{{$t('m.Status_Completed')}}</span>
+                <span v-else-if="p.my_status !== null && p.my_status !== undefined" class="status-label status-error">{{$t('m.Status_Error')}}</span>
                 <span>{{index + 1}}. {{p.title || p._id}}</span>
               </li>
             </ul>
@@ -77,7 +77,7 @@
               }
             }">
             <Icon type="android-exit"></Icon>
-            {{ (this.$store.getters.isAdmin || (this.$store.getters.isSemiAdmin && this.Ta)) ? '관리' : $t('m.Exit') }}
+            {{ (this.$store.getters.isAdmin || (this.$store.getters.isSemiAdmin && this.Ta)) ? $t('m.Manage') : $t('m.Exit') }}
           </VerticalMenu-item>
         </VerticalMenu>
 
@@ -171,7 +171,7 @@
               </div>
               <Table :columns="columns" :data="contest_table" disabled-hover style="margin-bottom: 20px;"></Table>
               <div v-if="OIContestRealTimePermission && contestType === '대회'" class="check-in">
-                <div class="sub-title">{{$t('상태 : '+contestcheckInOutStatusWord)}}</div>
+                <div class="sub-title">{{$t('m.Current_Status')}}{{contestcheckInOutStatusWord}}</div>
                 <el-button
                   v-if="ContestInOutStatus ==='notCheck'"
                   type="info"
@@ -179,7 +179,7 @@
                   @click="checkInContest" 
                   :disabled="ContestInOutStatus !=='notCheck' || contestMenuDisabled"
                 >
-                  <span>{{$t('시험 시작')}}</span>
+                  <span>{{$t('m.Start_Exam')}}</span>
                 </el-button>
               </div>
             </Panel>
@@ -318,16 +318,16 @@
         api.checkContestExit(this.contestID).then(res => {
           if (res.data.data.data === 'notStudent') {
             this.ContestInOutStatus = 'notStudent'
-            this.contestcheckInOutStatusWord = '관리자'
+            this.contestcheckInOutStatusWord = this.$t('m.Status_Admin')
           } else if (res.data.data.end_time) {
             this.ContestInOutStatus = 'checkOut'
-            this.contestcheckInOutStatusWord = '퇴실완료'
+            this.contestcheckInOutStatusWord = this.$t('m.Status_Checked_Out')
           } else if (res.data.data.start_time) {
             this.ContestInOutStatus = 'checkIn'
-            this.contestcheckInOutStatusWord = '입실완료'
+            this.contestcheckInOutStatusWord = this.$t('m.Status_Checked_In')
           } else {
             this.ContestInOutStatus = 'notCheck'
-            this.contestcheckInOutStatusWord = '입실 전'
+            this.contestcheckInOutStatusWord = this.$t('m.Status_Not_Checked')
           }
         })
       },

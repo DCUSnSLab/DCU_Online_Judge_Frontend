@@ -16,7 +16,7 @@
                   <a class="mr-2" href="#">{{ qna.author.realname }}</a>
                   <small class="text-muted">{{ qna.date_posted | localtime('YYYY-M-D HH:mm')}}</small>
                   <el-tag size="mini" v-if="qna.problem">{{ qna.problem.title }}</el-tag>
-                  <el-tag size="mini" v-else>공개 질문</el-tag>
+                  <el-tag size="mini" v-else>{{$t('m.Public_Questions')}}</el-tag>
                   <el-tag size="mini" v-if="!(LectureID === undefined)">{{ qna.problem.contest.lecture_title }}</el-tag>
                   <el-tag size="mini" type="success" v-if="qna.solved">Solved</el-tag>
                 </el-col>
@@ -26,11 +26,11 @@
               </el-row>
             </div>
             <h2>
-              <a class="article-title" @click="handleRoute(qna.id)" v-if="!(qna.author.realname === '관리자')">{{ qna.title }}</a>
+              <a class="article-title" @click="handleRoute(qna.id)" v-if="!(qna.author.realname === $t('m.Admin_Author'))">{{ qna.title }}</a>
               <a class="article-title" v-else>{{ qna.title }}</a>
             </h2>
             <br/>
-            <div class="article-content" v-html="qna.content" v-if="!(qna.author.realname === '관리자')" @click="handleRoute(qna.id)"></div>
+            <div class="article-content" v-html="qna.content" v-if="!(qna.author.realname === $t('m.Admin_Author'))" @click="handleRoute(qna.id)"></div>
             <div class="article-content" v-html="qna.content" v-else></div>
           </el-card>
 
@@ -80,7 +80,7 @@
             <br/>
             <span>chat GPT 3.5 Turbo</span>
             <br/>
-            <span> 여기에 GPT의 답변을 출력 <br/></span>
+            <span> {{$t('m.GPT_Placeholder')}} <br/></span>
             <span> ... <br/></span>
             <span> ... <br/></span>
             <span> ... <br/></span>
@@ -172,21 +172,21 @@
           // if (this.LectureID === undefined) {
           if ((this.$route.name === 'constest-problem-qna' || this.$route.name === 'lecture-contest-qna' || this.$route.name === 'contest-qna')) {
             this.qnaList.unshift({
-              'author': {'realname': '관리자'},
-              'problem': {'title': '비공개 질문&답변', 'contest': {lecture_title: undefined}},
-              'content': '안녕하세요. DCU Code 관리자 입니다.<br/>본 과목 질문 페이지에서는 실습, 과제에 대하여 질문하는 페이지입니다. <br/>문제 / 오류 내역 란에서 조교에게 질문하기 버튼을 통해 질문 할 수 있으며, 자신이 마지막으로 작성한 제출 내역이 자동으로 기입됩니다.</br><br/><b>본 게시판의 경우 비공개 게시판이므로 본인의 게시글만 조회 할 수 있습니다.</b><br/>감사합니다.'
+              'author': {'realname': this.$t('m.Admin_Author')},
+              'problem': {'title': this.$t('m.QnA_Private_Title'), 'contest': {lecture_title: undefined}},
+              'content': this.$t('m.QnA_Private_Notice')
             })
           } else if (this.$route.name === 'constest-problem-public-qna') {
             this.qnaList.unshift({
-              'author': {'realname': '관리자'},
-              'problem': {'title': '공개 질문&답변', 'contest': {lecture_title: undefined}},
-              'content': '안녕하세요. DCU Code 관리자 입니다.<br/>본 과목 질문 페이지에서는 실습, 과제에 대하여 질문 내용 중 일부를 공개하는 페이지입니다. <br/>교수/조교와 질답 간의 진행한 QnA 중 학생들의 문제를 푸는 도중 발생하는 문제에 대하여 참고가 가능하며, 풀이 코드가 공개되지 않을 경우 <br/><b>교수/조교 판단에 따라 해당 페이지에 공개됩니다.</b></br><br/>감사합니다.'
+              'author': {'realname': this.$t('m.Admin_Author')},
+              'problem': {'title': this.$t('m.QnA_Public_Title'), 'contest': {lecture_title: undefined}},
+              'content': this.$t('m.QnA_Public_Notice')
             })
           } else {
             this.qnaList.unshift({
-              'author': {'realname': '관리자'},
-              'problem': {'title': '공개 질문&답변', 'contest': {lecture_title: undefined}},
-              'content': '안녕하세요. DCU Code 관리자 입니다.<br/>본 공개 질문 페이지에서는 프로그래밍 문법 등에 대하여 질문하는 페이지이며, <b>자신이 푼 실습, 과제 코드 공유가 금지되어 있습니다.</b><br/>과제, 실습관련 질문은 해당 과목 페이지 질문을 이용해주세요.<br/><b>코드 공유시 미통보 삭제됩니다.</b><br/>감사합니다.'
+              'author': {'realname': this.$t('m.Admin_Author')},
+              'problem': {'title': this.$t('m.QnA_Public_Title'), 'contest': {lecture_title: undefined}},
+              'content': this.$t('m.QnA_General_Notice')
             })
           }
           this.total = res.data.data.total

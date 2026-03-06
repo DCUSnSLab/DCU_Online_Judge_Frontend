@@ -19,7 +19,7 @@
                         <el-select v-model="lecture.semester">
                           <el-option value="1">1</el-option>
                           <el-option value="2">2</el-option>
-                          <el-option value="3" label="입학 전">입학 전</el-option>
+                          <el-option value="3" :label="$t('m.Lecture_Pre_Admission')">{{$t('m.Lecture_Pre_Admission')}}</el-option>
                         </el-select>
                       </el-form-item>
                   </el-col>
@@ -87,7 +87,7 @@ export default {
       this.$forceUpdate() // Vue에서는 시스템의 모든 변화를 감지하지 못합니다. 해당 코드가 있어야 불러온 교수님 리스트를 현재 화면에 적용할 수 있습니다.
     })
     if (this.$route.name === 'edit-lecture') {
-      this.title = '과목 수정'
+      this.title = this.$t('m.Lecture_Edit_Title')
       api.getProfessorList().then(res => {
         this.professor_list = res.data.data.results.map(prof => ({
           id: prof.id,
@@ -102,7 +102,7 @@ export default {
         }
       }).catch(() => {})
     } else if (this.$route.name === 'lecture-contest-list') {
-      this.title = '개설과목 생성'
+      this.title = this.$t('m.Lecture_Create_Title')
       api.getProfessorList().then(res => {
         this.professor_list = res.data.data.results.map(prof => ({
           id: prof.id,

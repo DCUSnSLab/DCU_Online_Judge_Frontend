@@ -38,9 +38,9 @@
         </Button>
         -->
         <!-- add github button-->
-        <el-input class="sidebar-content-margin" placeholder="토큰을 입력해주세요." v-model="Githubtoken"></el-input>
-        <el-input class="sidebar-content-margin" placeholder="GithubID를 입력해주세요." v-model="GithubID"></el-input>
-        <el-input class="sidebar-content-margin" placeholder="저장소 이름을 입력해주세요." v-model="GithubRepo"></el-input>
+        <el-input class="sidebar-content-margin" :placeholder="$t('m.Enter_Token')" v-model="Githubtoken"></el-input>
+        <el-input class="sidebar-content-margin" :placeholder="$t('m.Enter_GithubID')" v-model="GithubID"></el-input>
+        <el-input class="sidebar-content-margin" :placeholder="$t('m.Enter_Repo_Name')" v-model="GithubRepo"></el-input>
         <el-button type="primary" size="large" @click="githubpush">
           <i class="fab fa-github"></i>
           <span>{{$t('m.PushGithub')}}</span>
@@ -53,10 +53,10 @@
             <hr/>
             <div class="sidebar-content">
               <br/>
-              <span>내용</span>
-              <el-input class="sidebar-content-margin" placeholder="제목을 입력해주세요." v-model="qnaContent.title"></el-input>
+              <span>{{$t('m.QnA_Content')}}</span>
+              <el-input class="sidebar-content-margin" :placeholder="$t('m.Enter_Title')" v-model="qnaContent.title"></el-input>
               <Simditor class="sidebar-content-margin" v-model="qnaContent.content"></Simditor>
-              <el-button class="sidebar-margin d-block mr-0 ml-auto" type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">저장하기</el-button>
+              <el-button class="sidebar-margin d-block mr-0 ml-auto" type="primary" v-b-toggle.sidebar-right @click.native="QnAWrite">{{$t('m.Save_Button')}}</el-button>
             </div>
           </div>
         </b-sidebar>
@@ -71,7 +71,7 @@
               {{AIrespone}}
             </div>
             <el-button class="fl-right" type="primary" b-sidebar id="close" v-on:click="toggleSidebar"
-                    style="margin: auto; display: block">닫기</el-button>
+                    style="margin: auto; display: block">{{$t('m.Close_Button')}}</el-button>
           </div>
         </b-sidebar>
 
@@ -172,10 +172,11 @@
         },
         isConcat: false,
         loading: false,
-        AIrespone: '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
+        AIrespone: ''
       }
     },
     mounted () {
+      this.AIrespone = this.$t('m.AI_Loading')
       this.getSubmission()
     },
     methods: {
@@ -297,7 +298,7 @@
       },
       toggleSidebar () {
         this.sidebarVisible = !this.sidebarVisible
-        this.AIrespone = '답변을 작성하고 있습니다. 잠시만 기다려 주세요. 10초~30초 정도 소요 됩니다.'
+        this.AIrespone = this.$t('m.AI_Loading')
       }
 
     },
