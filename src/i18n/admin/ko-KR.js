@@ -418,6 +418,7 @@ export const m = {
   Alert_Warning: '경고',
   // 누락된 키 추가
   Admin: '관리자',
+  TARA: 'TA/RA',
   Cancel: '취소',
   Enable: '활성화',
   IOMode: 'IO 모드',

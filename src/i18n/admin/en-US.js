@@ -390,6 +390,7 @@ export const m = {
   LectureList_Delete_Alert_Confirm: 'Delete Course',
   // Missing keys
   Admin: 'Admin',
+  TARA: 'TA/RA',
   Cancel: 'Cancel',
   Contests: 'Contests',
   Enable: 'Enable',
