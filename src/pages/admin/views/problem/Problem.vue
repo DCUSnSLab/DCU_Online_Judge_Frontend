@@ -9,9 +9,18 @@
               <el-input :placeholder="$t('m.Display_ID')" v-model="problem._id"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="18">
+          <el-col :span="14">
             <el-form-item prop="title" :label="$t('m.Title')" required>
               <el-input :placeholder="$t('m.Title')" v-model="problem.title"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4" v-if="routeName === 'create-problem' || routeName === 'edit-problem'">
+            <el-form-item label="공개 문제">
+              <el-switch
+                v-model="problem.is_public"
+                active-text=""
+                inactive-text="">
+              </el-switch>
             </el-form-item>
           </el-col>
         </el-row>
@@ -346,6 +355,7 @@
           difficulty: 'Low',
           visible: true,
           share_submission: false,
+          is_public: false,
           tags: [],
           languages: [],
           template: {},
@@ -356,7 +366,7 @@
           spj_compile_ok: false,
           test_case_id: '',
           test_case_score: [],
-          rule_type: 'ACM',
+          rule_type: 'OI',
           hint: '',
           source: '',
           io_mode: {'io_mode': 'Standard IO', 'input': 'input.txt', 'output': 'output.txt'}
