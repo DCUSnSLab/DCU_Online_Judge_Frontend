@@ -209,7 +209,7 @@
             <el-form-item :label="$t('m.User_Type')">
               <el-select v-model="user.admin_type">
                 <el-option :label="$t('m.Student')" value="Regular User"></el-option>
-                <el-option :label="$t('m.TA/RA')" value="TA_Admin"></el-option>
+                <el-option :label="$t('m.TARA')" value="TA_Admin"></el-option>
                 <el-option :label="$t('m.Professor')" value="Admin"></el-option>
                 <el-option :label="$t('m.Admin')" value="Super Admin"></el-option>
               </el-select>
