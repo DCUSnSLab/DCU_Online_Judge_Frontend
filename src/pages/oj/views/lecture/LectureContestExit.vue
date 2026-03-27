@@ -2,7 +2,7 @@
   <div class="flex-container" v-if="accsessR && (this.isAdminRole && !this.isSemiAdmin) || (this.isSemiAdmin && this.Ta !== false)">
     <div id="manage">
       <Panel v-show="chkContesttype" :title="this.lectureTitle + ' ' + $t('m.Lecture_UserList')">
-        <div slot="title"><b>사용자 퇴실 관리</b>
+        <div slot="title"><b>{{$t('m.Exit_User_Management')}}</b>
           <el-input
             type="text"
             v-model="keyword"
@@ -11,7 +11,7 @@
             :placeholder="$t('m.User_Search')"
             style="width: 200px; margin-left: 10px; display: inline-flex; align-items: center;">
           </el-input>
-          <Button @click.native="exitAllStudent()" style="float:right">전체 퇴실 처리</Button>
+          <Button @click.native="exitAllStudent()" style="float:right">{{$t('m.Exit_All_Students')}}</Button>
         </div>
         <template>
           <el-table
@@ -20,7 +20,7 @@
             @selection-change="handleSelectionChange"
             :data="filteredUserList"
             style="width: 100%">
-            <el-table-column prop="realname" label="이름" align="center">
+            <el-table-column prop="realname" :label="$t('m.Student_Name')" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
                 <span v-if="scope.row.realname"><!--해당 값을 출력하고-->
                     {{ scope.row.realname }}
@@ -30,7 +30,7 @@
                   </span>
               </template>
             </el-table-column>
-            <el-table-column prop="schoolssn" label="학번" align="center">
+            <el-table-column prop="schoolssn" :label="$t('m.Student_ID_Number')" align="center">
               <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
                 <span v-if="scope.row.schoolssn"> <!--해당 값을 출력하고-->
                     {{ scope.row.schoolssn }}
@@ -40,7 +40,7 @@
                   </span>
               </template>
             </el-table-column>
-            <el-table-column prop="startTime" label="입실시간" align="center">
+            <el-table-column prop="startTime" :label="$t('m.Check_In_Time')" align="center">
               <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
                 <span v-if="scope.row.start_time"> <!--해당 값을 출력하고-->
                     {{ formatDate(scope.row.start_time) }}
@@ -49,7 +49,7 @@
                   </span>
               </template>
             </el-table-column>
-            <el-table-column prop="endTime" label="퇴실시간" align="center">
+            <el-table-column prop="endTime" :label="$t('m.Check_Out_Time')" align="center">
               <template slot-scope="scope"><!--마찬가지로 lecture_signup_class에 학번이 있는 경우,-->
                 <span v-if="scope.row.end_time"> <!--해당 값을 출력하고-->
                     {{ formatDate(scope.row.end_time) }}
@@ -59,24 +59,24 @@
               </template>
             </el-table-column>
             <!--<el-table-column prop="userScore" label="점수" align="center"></el-table-column>-->
-            <el-table-column prop="exit_status" label="시험 상태" align="center">
+            <el-table-column prop="exit_status" :label="$t('m.Exam_Status')" align="center">
               <template slot-scope="scope"><!--lecture_signup_class에 실제 이름이 있는 경우,-->
                 <span v-if="scope.row.exit_status" style="color:green">
-                  <b>응시완료</b>
+                  <b>{{$t('m.Exam_Completed')}}</b>
                 </span>
                 <span v-else-if="scope.row.start_time" style="color:blue">
-                  <b>응시중</b>
+                  <b>{{$t('m.Exam_In_Progress')}}</b>
                 </span>
                 <span v-else style="color:red">
-                  <b>미응시</b>
+                  <b>{{$t('m.Exam_Not_Taken')}}</b>
                 </span>
               </template>
             </el-table-column>
-            <el-table-column fixed="right" label="응시 상태 변경" width="200" align="center">
+            <el-table-column fixed="right" :label="$t('m.Change_Exam_Status')" width="200" align="center">
               <template slot-scope="{row}">
                 <select v-model="row.exit_status" @change="ExitStudent(row.user.id)" class="custom-select">
-                  <option value="true">응시완료</option>
-                  <option value="false">미응시</option>
+                  <option value="true">{{$t('m.Exam_Completed')}}</option>
+                  <option value="false">{{$t('m.Exam_Not_Taken')}}</option>
                 </select>
               </template>
             </el-table-column>
@@ -96,9 +96,9 @@
           </el-pagination>
         </div>
       </Panel>
-      <Panel style="margin-top: 20px;" title="학생별 문제 점수">
+      <Panel style="margin-top: 20px;" :title="$t('m.Student_Problem_Score')">
         <div slot="title" style="display: inline-flex; align-items: center;">
-          <b>사용자 부정 행위 조회</b>
+          <b>{{$t('m.Cheating_Query')}}</b>
           <el-input
             type="text"
             v-model="cheatKeyword"
@@ -107,7 +107,7 @@
             :placeholder="$t('m.User_Search')"
             style="width: 200px; margin-left: 10px; display: inline-flex; align-items: center;">
           </el-input>
-          <el-tooltip content="Problem copied: 복사 횟수, Screen focusing: 포커스 이탈 횟수" placement="top">
+          <el-tooltip :content="$t('m.Cheating_Tooltip')" placement="top">
             <span
               style="
                 display: flex;
@@ -132,7 +132,7 @@
             element-loading-text="loading"
             :data="cheatUserList"
             style="width: 100%">
-          <el-table-column prop="realname" label="이름" fixed width="120" align="center">
+          <el-table-column prop="realname" :label="$t('m.Student_Name')" fixed width="120" align="center">
             <template slot-scope="scope">
               <span>{{ scope.row.realname || scope.row.user.realname }}</span>
             </template>
@@ -179,8 +179,8 @@
     <div id="exit">
       <div v-if="contestExitStatus">
         <Panel shadow>
-          <div slot="title">퇴실 완료 안내</div>
-          <div slot="title"><br/>{{formatDate(contestEndtime)}} 퇴실 하였습니다.</div>
+          <div slot="title">{{$t('m.Exit_Complete_Notice')}}</div>
+          <div slot="title"><br/>{{formatDate(contestEndtime)}} {{$t('m.Exit_Completed_At')}}</div>
           <div align="center">
             <!-- <h2>귀하의 현재 점수는 <b>{{userTotalScore}}</b>점 입니다.<br/><br/></h2>
             <h3>가채점 결과이므로 변경될 수 있습니다.<br/></h3><br/> -->
@@ -189,9 +189,9 @@
       </div>
       <div v-else>
         <Panel shadow>
-          <div slot="title">퇴실하시겠습니까?</div>
+          <div slot="title">{{$t('m.Confirm_Exit')}}</div>
           <div slot="extra">
-            <Button @click="contestExit">퇴실</Button>
+            <Button @click="contestExit">{{$t('m.Exit_Button')}}</Button>
           </div>
         </Panel>
       </div>
@@ -360,9 +360,9 @@ export default {
     },
     // 퇴실 철회 (수정 필요)
     ExitStudent (userid) {
-      this.$confirm('정말로 응시 상태를 변경하시겠습니까?', '확인', {
-        confirmButtonText: '네',
-        cancelButtonText: '아니요',
+      this.$confirm(this.$t('m.Confirm_Change_Status'), this.$t('m.Confirm'), {
+        confirmButtonText: this.$t('m.Yes'),
+        cancelButtonText: this.$t('m.No'),
         type: 'warning'
       }).then(() => {
         if (userid === undefined) {
@@ -375,10 +375,10 @@ export default {
         console.log(data)
         api.exitStudent(data).then(res => {
           this.getUserList(this.page)
-          this.$success('응시 상태가 변경되었습니다.')
+          this.$success(this.$t('m.Status_Changed'))
         })
       }).catch(() => {
-        this.$info('취소되었습니다.')
+        this.$info(this.$t('m.Cancelled'))
       })
     },
     exitAllStudent () {
@@ -481,7 +481,7 @@ export default {
       this.selectedUsers = val
     },
     formatDate (datetime) {
-      return moment(datetime).format('YY년 MM월 DD일 HH시 mm분')
+      return moment(datetime).format(this.$t('m.Date_Format'))
     }
   },
   computed: {

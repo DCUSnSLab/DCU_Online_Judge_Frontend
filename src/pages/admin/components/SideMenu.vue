@@ -30,7 +30,7 @@
       <template slot="title"><i class="el-icon-fa-book"></i>{{$t('m.Lecture')}}</template>
       <el-menu-item index="/lecture">{{$t('m.Lecture_List')}}</el-menu-item>
       <el-menu-item v-if="isAdmin" index="/lecture/create">{{$t('m.Create_Lecture')}}</el-menu-item>
-      <el-menu-item v-if="isSuperAdmin" index="/lecture/batch-migrate">데이터 일괄 재계산</el-menu-item>
+      <el-menu-item v-if="isSuperAdmin" index="/lecture/batch-migrate">{{$t('m.Batch_Recalculate')}}</el-menu-item>
     </el-submenu>
   </el-menu>
 </template>

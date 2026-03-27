@@ -6,7 +6,7 @@
           <el-col :span="8">
             <el-button v-show="selectedUsers.length"
                        type="warning" icon="el-icon-fa-trash"
-                       @click="deleteUsers(selectedUserIDs)">삭제
+                       @click="deleteUsers(selectedUserIDs)">{{$t('m.User_Delete_Button')}}
             </el-button>
           </el-col>
           <el-col :span="selectedUsers.length ? 16: 24">
@@ -209,7 +209,7 @@
             <el-form-item :label="$t('m.User_Type')">
               <el-select v-model="user.admin_type">
                 <el-option :label="$t('m.Student')" value="Regular User"></el-option>
-                <el-option :label="$t('m.TA/RA')" value="TA_Admin"></el-option>
+                <el-option :label="$t('m.TARA')" value="TA_Admin"></el-option>
                 <el-option :label="$t('m.Professor')" value="Admin"></el-option>
                 <el-option :label="$t('m.Admin')" value="Super Admin"></el-option>
               </el-select>
@@ -364,7 +364,7 @@
         })
       },
       deleteUsers (ids) {
-        this.$confirm('사용자를 삭제 하시겠습니까? 이 사용자가 생성 한 관련 리소스 (예 : 문제, 컨테스트, 발표 등)도 삭제됩니다.', '확인', {
+        this.$confirm(this.$t('m.User_Delete_Confirm'), this.$t('m.User_Confirm_Title'), {
           type: 'warning'
         }).then(() => {
           api.deleteUsers(ids.join(',')).then(res => {
@@ -381,7 +381,7 @@
       generateUser () {
         this.$refs['formGenerateUser'].validate((valid) => {
           if (!valid) {
-            this.$error('오류 필드를 확인하십시오')
+            this.$error(this.$t('m.User_Validate_Error'))
             return
           }
           this.loadingGenerate = true
@@ -390,7 +390,7 @@
             this.loadingGenerate = false
             let url = '/admin/generate_user?file_id=' + res.data.data.file_id
             utils.downloadFile(url).then(() => {
-              this.$alert('모든 사용자가 성공적으로 작성되었으며 사용자 시트가 디스크로 다운로드되었습니다.', '알림')
+              this.$alert(this.$t('m.User_Generate_Success'), this.$t('m.User_Notice'))
             })
             this.getUserList(1)
           }).catch(() => {
