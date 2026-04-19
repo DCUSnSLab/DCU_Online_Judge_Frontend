@@ -78,6 +78,18 @@
               </el-switch>
             </el-form-item>
           </el-col>
+          <el-col :span="8" v-if="contest.lecture_contest_type === '대회'">
+            <el-form-item label="시험 중 AI 힌트 허용">
+              <el-switch
+                v-model="contest.llm_hint_enabled"
+                active-text=""
+                inactive-text="">
+              </el-switch>
+              <div style="font-size: 12px; color: #999; line-height: 1.4;">
+                제출/실행 실패 시 오른쪽 AI 힌트 패널 활성화 여부
+              </div>
+            </el-form-item>
+          </el-col>
           <el-col :span="16">
             <el-form-item :label="$t('m.Allowed_IP_Ranges')">
               <div v-for="(range, index) in contest.allowed_ip_ranges" :key="index">
@@ -128,7 +140,8 @@
             value: ''
           }],
           lecture_contest_type: '실습',
-          lecture_id: null
+          lecture_id: null,
+          llm_hint_enabled: false
         }
       }
     },
