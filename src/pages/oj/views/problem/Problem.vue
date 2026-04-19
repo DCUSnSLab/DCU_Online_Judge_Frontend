@@ -586,6 +586,8 @@
         runResultData: {},
         running: false,
         contestType: '',
+        // 시험(대회) 유형에서 AI 힌트 패널 허용 여부. 실습/과제는 이 값과 무관하게 항상 허용.
+        contestLlmHintEnabled: false,
         isBlurred: false,
         antiData: { copy: 0, focusScreen: 0 },
         initialAntiData: { copy: 0, focusScreen: 0 },
@@ -751,6 +753,7 @@
         if (func === 'getContestProblem') {
           this.$store.dispatch('getContest').then(res => {
             this.contestType = res.data.data.lecture_contest_type
+            this.contestLlmHintEnabled = !!res.data.data.llm_hint_enabled
           }).catch(() => {
           })
         }
@@ -1102,6 +1105,12 @@
         this.AIrespone = this.$t('m.AI_Loading')
       },
       fetchLLMHint (mode, resultInfo) {
+        // 시험(대회) 유형이면서 llm_hint_enabled=false면 AI 힌트 패널을 열지 않는다.
+        // 실습/과제 유형에서는 기존 동작(항상 활성) 유지.
+        if (this.contestType === '대회' && !this.contestLlmHintEnabled) {
+          this.llmHintVisible = false
+          return
+        }
         this.llmHintVisible = true
         this.llmHintExpanded = true
         this.llmHintLoading = true
