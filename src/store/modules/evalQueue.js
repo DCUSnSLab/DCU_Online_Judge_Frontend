@@ -1,12 +1,11 @@
 /*
  * 글로벌 정성평가 큐 상태 모듈.
  *
- * eval-dashboard FastAPI 의 GET /eval-api/queue 를 3초 간격으로 폴링해
- * 사이드카가 들고 있는 running[] / pending[] 스냅샷을 Vue 트리 어디서든 조회하게 한다.
+ * GET /api/eval/queue 를 3초 간격으로 폴링해 활성 job(running/pending) 스냅샷을
+ * Vue 트리 어디서든 조회하게 한다.
  *
  * - observer ref count 로 mount/unmount 시 자동 시작·정지
  * - 비로그인이거나 점수 권한 없는 사용자는 init() 자체가 호출되지 않아 폴링 발생 X
- * - SSE 는 이 모듈을 사용하지 않는다 (포커스된 contest 1개에 한해서만 컴포넌트가 직접 EventSource)
  */
 import EvalApi from '@oj/views/lecture/eval/EvalApi'
 

@@ -1,5 +1,4 @@
-// Eval API client.
-// PR 4: 사이드카 /eval-api → 본 서버 /api/eval 으로 전환. SSE 제거 (폴링 only).
+// Eval API client. 본 서버 eval app endpoint 호출. 진행률은 폴링만 사용 (SSE 없음).
 import axios from 'axios'
 
 const evalAxios = axios.create({
