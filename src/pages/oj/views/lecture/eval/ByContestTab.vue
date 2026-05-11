@@ -1,7 +1,7 @@
 <template>
   <div class="bycontest-tab" :class="{ 'with-panel': panelOpen && selectedContestId }">
     <!-- Toolbar: 좌(label + select) | 우(actions). 모든 컨트롤 28px 통일. -->
-    <div class="toolbar">
+    <div ref="toolbar" class="toolbar">
       <div class="left">
         <span class="lbl">컨테스트</span>
         <Select v-model="selectedContestId"
@@ -55,8 +55,12 @@
     </div>
 
     <!-- Detail panel: body 로 teleport (mounted 시 body 에 직접 append) — 부모의
-         transform/overflow/contain 영향을 받지 않게. v-show 로 mount 유지. -->
-    <div v-show="panelOpen && selectedContestId" ref="floatingPanel" class="floating-panel">
+         transform/overflow/contain 영향을 받지 않게. v-show 로 mount 유지.
+         top 은 toolbar 위치에 맞춰 동적 계산 — 페이지 스크롤 시 96px 로 clamp. -->
+    <div v-show="panelOpen && selectedContestId"
+         ref="floatingPanel"
+         class="floating-panel"
+         :style="{ top: panelTop + 'px' }">
       <DetailPanel v-if="selectedContestId"
                    :visible="panelOpen"
                    :contest-id="selectedContestId"
@@ -89,7 +93,9 @@
         error: '',
         attachJobId: null,
         panelOpen: false,
-        selectedCell: { userId: null, problemId: null, studentName: '', problemLabel: '' }
+        selectedCell: { userId: null, problemId: null, studentName: '', problemLabel: '' },
+        // floating-panel 의 top 은 toolbar 와 정렬. 스크롤 시 viewport 상단(96)으로 clamp.
+        panelTop: 96
       }
     },
     watch: {
@@ -117,8 +123,15 @@
       if (el && el.parentNode !== document.body) {
         document.body.appendChild(el)
       }
+      // toolbar 위치에 맞춰 panel top 동기화 — 페이지/리사이즈 이벤트 listener
+      this._onScroll = () => this.recomputePanelTop()
+      window.addEventListener('scroll', this._onScroll, { passive: true })
+      window.addEventListener('resize', this._onScroll)
+      this.recomputePanelTop()
     },
     beforeDestroy () {
+      window.removeEventListener('scroll', this._onScroll)
+      window.removeEventListener('resize', this._onScroll)
       const el = this.$refs.floatingPanel
       if (el && el.parentNode === document.body) {
         document.body.removeChild(el)
@@ -155,6 +168,16 @@
       onCellClick (cell) {
         this.selectedCell = cell
         this.panelOpen = true
+        // 패널 열림 직후 toolbar 위치 한 번 더 확인 (DOM 영향)
+        this.$nextTick(() => this.recomputePanelTop())
+      },
+      recomputePanelTop () {
+        const t = this.$refs.toolbar
+        if (!t) return
+        const rect = t.getBoundingClientRect()
+        // toolbar 가 viewport 안에 있으면 그 top 에 정렬, 스크롤로 위로 사라졌으면 96 으로 clamp.
+        // 살짝 padding (8px) 빼서 시각적으로 동일 라인.
+        this.panelTop = Math.max(96, Math.round(rect.top))
       },
       closePanel () {
         this.panelOpen = false
