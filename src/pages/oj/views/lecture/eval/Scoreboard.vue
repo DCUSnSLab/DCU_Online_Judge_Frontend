@@ -37,13 +37,17 @@
                     cellClass(s.by_problem[p.label]),
                     isSelected(s.user_id, p.id) ? 'selected' : ''
                   ]"
+                  :title="resultTooltip(s.by_problem[p.label])"
                   @click="openCell(s, p)">
                 <template v-if="s.by_problem[p.label] && s.by_problem[p.label].testcase">
-                  <div class="result-label">{{ s.by_problem[p.label].testcase.result_label }}</div>
+                  <div class="result-label">
+                    <span class="r-ko">{{ resultKo(s.by_problem[p.label].testcase.result_label) }}</span>
+                    <span class="r-abbr">({{ s.by_problem[p.label].testcase.result_label }})</span>
+                  </div>
                   <div class="score">{{ s.by_problem[p.label].testcase.score }}</div>
                 </template>
                 <template v-else>
-                  <div class="result-label muted">-</div>
+                  <div class="result-label muted">미제출</div>
                 </template>
                 <div class="badges" v-if="s.by_problem[p.label] && s.by_problem[p.label].qualitative">
                   <span class="badge overall"
@@ -97,12 +101,40 @@
       },
       cellClass (cell) {
         if (!cell || !cell.testcase) return 'empty'
+        // Backend JudgeStatus: 0=AC, -1=WA, -2=CE, -3 미사용,
+        // 1=TLE, 2=RTLE, 3=MLE, 4=RE, 5=SE, 6=PENDING, 7=JUDGING, 8=PA
         const r = cell.testcase.result
         if (r === 0) return 'ac'
-        if (r === -2) return 'pa'
-        if (r === -3) return 'ce'
-        if (r === 6 || r === 7 || r === 8) return 'pending'
+        if (r === 8) return 'pa'
+        if (r === -2) return 'ce'
+        if (r === 6 || r === 7) return 'pending'
         return 'wa'
+      },
+      resultKo (label) {
+        const map = {
+          AC: '정답',
+          PA: '부분정답',
+          WA: '오답',
+          TLE: '시간초과',
+          RTLE: '실시간초과',
+          MLE: '메모리초과',
+          RE: '런타임오류',
+          CE: '컴파일오류',
+          SE: '시스템오류',
+          PENDING: '대기중',
+          JUDGING: '채점중'
+        }
+        return map[label] || label
+      },
+      resultTooltip (cell) {
+        if (!cell || !cell.testcase) return '미제출'
+        const r = cell.testcase
+        const ko = this.resultKo(r.result_label) + ' (' + r.result_label + ')'
+        const parts = [ko]
+        if (r.score !== undefined && r.score !== null) parts.push(`점수: ${r.score}`)
+        if (r.language) parts.push(`언어: ${r.language}`)
+        if (r.time_cost_ms !== undefined && r.time_cost_ms !== null) parts.push(`시간: ${r.time_cost_ms}ms`)
+        return parts.join('\n')
       },
       aiClass (score) {
         if (score >= 70) return 'ai-high'
@@ -191,8 +223,8 @@
         .su-id { font-size: 11px; opacity: 0.55; margin-top: 2px; }
       }
       .problem-col {
-        min-width: 96px;
-        max-width: 140px;
+        min-width: 110px;
+        max-width: 160px;
         .ph-label { font-weight: 700; font-size: 12px; color: var(--text-hover-color); }
         .ph-title { font-size: 10px; opacity: 0.55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
         .ph-score { font-size: 10px; opacity: 0.5; margin-top: 2px; }
@@ -201,12 +233,22 @@
         position: relative;
         cursor: pointer;
         text-align: center;
-        min-width: 96px;
+        min-width: 110px;
         height: 60px;
         transition: filter 0.1s, box-shadow 0.1s;
         &:hover { filter: brightness(1.07); }
-        .result-label { font-weight: 600; font-size: 12px; line-height: 1.2; }
-        .result-label.muted { opacity: 0.35; }
+        .result-label {
+          font-weight: 600;
+          font-size: 11px;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          padding: 0 4px;
+          .r-ko { font-weight: 700; }
+          .r-abbr { font-weight: 500; opacity: 0.65; margin-left: 3px; font-size: 10px; }
+        }
+        .result-label.muted { opacity: 0.4; font-weight: 500; }
         .score { font-size: 11px; opacity: 0.85; margin-top: 2px; font-variant-numeric: tabular-nums; }
         .badges {
           position: absolute;

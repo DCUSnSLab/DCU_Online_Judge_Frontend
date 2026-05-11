@@ -1,12 +1,13 @@
 <template>
   <div class="bycontest-tab">
-    <!-- Top toolbar: 고정 grid 레이아웃. eval status 가 길어져도 좌측 select/buttons는 안 흔들림. -->
+    <!-- Toolbar: 좌(label + select) | 우(actions). 모든 컨트롤 28px 통일. -->
     <div class="toolbar">
-      <div class="contest-zone">
+      <div class="left">
         <span class="lbl">컨테스트</span>
         <Select v-model="selectedContestId"
                 :placeholder="$t('m.EvalSelectContest')"
                 filterable
+                size="small"
                 class="contest-select"
                 @on-change="onSelectChange">
           <Option v-for="c in contests" :key="c.id" :value="c.id" :label="c.title">
@@ -15,24 +16,23 @@
           </Option>
         </Select>
       </div>
-      <div class="eval-zone">
+      <div class="right">
+        <EvalControls v-if="selectedContestId"
+                      :contest-id="selectedContestId"
+                      :attach-job-id="attachJobId"
+                      @done="refreshScoreboard"/>
         <Dropdown v-if="selectedContestId"
                   @on-click="onExport"
                   trigger="click"
                   class="export-dd">
-          <Button size="small">
-            <Icon type="ios-download-outline"/> Export
-            <Icon type="arrow-down-b"/>
+          <Button size="small" class="export-btn">
+            <Icon type="ios-download-outline"/> Export <Icon type="arrow-down-b"/>
           </Button>
           <DropdownMenu slot="list">
             <DropdownItem name="xlsx">엑셀 (.xlsx)</DropdownItem>
             <DropdownItem name="csv">CSV</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-        <EvalControls v-if="selectedContestId"
-                      :contest-id="selectedContestId"
-                      :attach-job-id="attachJobId"
-                      @done="refreshScoreboard"/>
       </div>
     </div>
 
@@ -164,43 +164,55 @@
     flex-direction: column;
     gap: 16px;
   }
-  // 고정 그리드: contest-zone | eval-zone
-  // eval-zone 의 진행 상태 텍스트가 길어져도 contest-zone 폭은 고정.
+  // 단일 row 플렉스 — 좌측 select 가 가용 폭 채우고, 우측 actions 는 고정.
+  // 좁아지면 wrap.
   .toolbar {
-    display: grid;
-    grid-template-columns: minmax(360px, 420px) 1fr;
-    gap: 18px;
+    display: flex;
     align-items: center;
-    padding: 14px 18px;
+    gap: 16px;
+    padding: 12px 16px;
     background: var(--panelBackground);
     border: 1px solid var(--panel-border-color);
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    .contest-zone {
+    border-radius: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
+    flex-wrap: wrap;
+
+    .left {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex: 1 1 320px;
       min-width: 0;
       .lbl {
         color: var(--text-color);
         opacity: 0.7;
-        font-size: 12px;
-        font-weight: 600;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
         flex-shrink: 0;
       }
-      .contest-select { flex: 1; min-width: 0; }
-      .opt-meta { float: right; font-size: 11px; opacity: 0.55; margin-left: 12px; }
+      .contest-select {
+        flex: 1;
+        min-width: 220px;
+        max-width: 480px;
+      }
+      .opt-meta {
+        float: right;
+        font-size: 11px;
+        opacity: 0.55;
+        margin-left: 12px;
+      }
     }
-    .eval-zone {
-      min-width: 0;
-      overflow: hidden;
+    .right {
       display: flex;
-      justify-content: flex-end;
-      align-items: flex-start;
+      align-items: center;
       gap: 8px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
       .export-dd { flex-shrink: 0; }
+      .export-btn { height: 28px; }
     }
   }
   .content {

@@ -1,37 +1,37 @@
 <template>
   <div class="eval-controls">
-    <div class="btn-row">
-      <Button :disabled="primaryDisabled"
-              @click="trigger(false)"
-              type="primary"
-              size="small"
-              class="primary-btn">
-        <Icon type="ios-flash"/>
-        {{ primaryLabel }}
-      </Button>
-      <Button :disabled="forceDisabled"
-              @click="trigger(true)"
-              size="small">
-        {{ $t('m.EvalReevaluate') }}
-      </Button>
-    </div>
-    <div v-if="status || effectiveTotal > 0" class="status-row">
+    <!-- 진행 상태 (활성 job 있을 때만) — 버튼 왼쪽에 inline -->
+    <div v-if="effectiveTotal > 0 || status" class="eval-status">
       <Progress v-if="effectiveTotal > 0"
                 :percent="progressPercent"
                 :stroke-width="4"
                 hide-info
                 status="active"
                 class="prog"/>
-      <span class="status" v-if="status" :title="status">{{ status }}</span>
       <span v-if="effectiveTotal > 0" class="prog-text">
-        {{ effectiveDone }}/{{ effectiveTotal }} ({{ progressPercent }}%)
+        {{ effectiveDone }}/{{ effectiveTotal }}
+        <span class="prog-pct">({{ progressPercent }}%)</span>
       </span>
+      <span v-if="status" class="status-text" :title="status">{{ status }}</span>
     </div>
+    <Button :disabled="primaryDisabled"
+            @click="trigger(false)"
+            type="primary"
+            size="small"
+            class="btn primary-btn">
+      <Icon type="ios-flash"/>
+      {{ primaryLabel }}
+    </Button>
+    <Button :disabled="forceDisabled"
+            @click="trigger(true)"
+            size="small"
+            class="btn">
+      {{ $t('m.EvalReevaluate') }}
+    </Button>
   </div>
 </template>
 
 <script>
-  // PR 4: SSE 제거. 진행률은 Vuex evalQueue 폴링(3초)만 사용.
   import { mapGetters } from 'vuex'
   import EvalApi from './EvalApi'
 
@@ -39,8 +39,6 @@
     name: 'EvalControls',
     props: {
       contestId: { type: [String, Number], required: true },
-      // PR 4 부터는 attach-job-id 무시 — 폴링이 동일 효과 제공.
-      // 하위 호환을 위해 prop 은 유지하되 미사용.
       attachJobId: { type: String, default: null }
     },
     data () {
@@ -72,10 +70,7 @@
       }
     },
     watch: {
-      contestId () {
-        this.status = ''
-      },
-      // job 이 큐에서 사라지면 (=done) 매트릭스 재로드 시그널
+      contestId () { this.status = '' },
       activeJob (job, oldJob) {
         if (oldJob && !job) {
           this.status = '완료'
@@ -87,12 +82,12 @@
     methods: {
       trigger (force) {
         this.triggering = true
-        this.status = '대기 중…'
+        this.status = '요청 중…'
         EvalApi.triggerEval(this.contestId, force)
           .then(r => {
             this.status = r.joined_existing
               ? `기존 작업 합류 (대기 ${r.queue_position || 0})`
-              : `시작 — ${r.n_to_run}/${r.n_total} 평가 예정`
+              : `시작 — ${r.n_to_run}/${r.n_total} 예정`
             this.$store.dispatch('evalQueue/refreshOnce')
           })
           .catch(e => { this.status = (e && e.detail) || '트리거 실패' })
@@ -104,46 +99,45 @@
 
 <style lang="less" scoped>
   .eval-controls {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-    min-width: 0;
-    max-width: 520px;
-    width: 100%;
-    .btn-row {
-      display: flex;
-      gap: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  .eval-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 10px;
+    background: var(--table-bottom-color);
+    border-radius: 14px;
+    height: 28px;
+    .prog {
+      width: 80px;
       flex-shrink: 0;
     }
-    .primary-btn { font-weight: 600; }
-    .status-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      min-width: 0;
-      .prog {
-        flex: 1;
-        min-width: 60px;
-        max-width: 200px;
-      }
-      .status {
-        font-size: 11px;
-        color: var(--text-color);
-        opacity: 0.75;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        flex: 0 1 auto;
-        min-width: 0;
-      }
-      .prog-text {
-        font-size: 11px;
-        opacity: 0.75;
-        font-variant-numeric: tabular-nums;
-        flex-shrink: 0;
-      }
+    .prog-text {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      color: var(--text-color);
+      opacity: 0.9;
+      white-space: nowrap;
+      .prog-pct { opacity: 0.65; font-weight: 500; margin-left: 2px; }
+    }
+    .status-text {
+      font-size: 11px;
+      color: var(--text-color);
+      opacity: 0.75;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 180px;
     }
   }
+  .btn {
+    flex-shrink: 0;
+    height: 28px;
+  }
+  .primary-btn { font-weight: 600; }
 </style>
