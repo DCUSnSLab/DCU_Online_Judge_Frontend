@@ -52,10 +52,11 @@
       </div>
     </div>
 
-    <!-- Detail panel: position: fixed — 항상 viewport 우측 상단. 스크롤 따라옴.
-         z-index 로 매트릭스 위에 떠 있음. matrix-zone 의 padding 으로 자리 비움. -->
-    <div v-if="panelOpen && selectedContestId" class="floating-panel">
-      <DetailPanel :visible="panelOpen"
+    <!-- Detail panel: body 로 teleport (mounted 시 body 에 직접 append) — 부모의
+         transform/overflow/contain 영향을 받지 않게. v-show 로 mount 유지. -->
+    <div v-show="panelOpen && selectedContestId" ref="floatingPanel" class="floating-panel">
+      <DetailPanel v-if="selectedContestId"
+                   :visible="panelOpen"
                    :contest-id="selectedContestId"
                    :user-id="selectedCell.userId"
                    :problem-id="selectedCell.problemId"
@@ -105,6 +106,20 @@
             this.selectedContestId = qid
           }
         }
+      }
+    },
+    mounted () {
+      // floating-panel 을 document.body 직속으로 이동 — 부모의 transform/overflow/
+      // contain 영향으로 position: fixed 가 깨지는 케이스 회피.
+      const el = this.$refs.floatingPanel
+      if (el && el.parentNode !== document.body) {
+        document.body.appendChild(el)
+      }
+    },
+    beforeDestroy () {
+      const el = this.$refs.floatingPanel
+      if (el && el.parentNode === document.body) {
+        document.body.removeChild(el)
       }
     },
     methods: {
