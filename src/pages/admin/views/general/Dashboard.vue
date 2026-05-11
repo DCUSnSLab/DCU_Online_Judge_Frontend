@@ -60,34 +60,51 @@
                    :value="infoData.recent_contest_count"></info-card>
       </div>
       <panel style="margin-top: 5px">
-        <span slot="title" v-loading="loadingReleases">{{ $t('m.Release_note') }}
-
-        <el-popover placement="right" trigger="hover">
-          <i slot="reference" class="el-icon-fa-question-circle import-user-icon"></i>
-          <p>{{ $t('m.upgradePrompt') }}</p>
-          <p>{{ $t('m.note') }} <a href="http://docs.onlinejudge.me/#/onlinejudge/guide/upgrade" target="_blank">
-          http://docs.onlinejudge.me/#/onlinejudge/guide/upgrade</a>
-          </p>
-        </el-popover>
+        <span slot="title">정성평가 큐 상태
+          <el-tag v-if="evalCfg.slots_in_use >= evalCfg.slots_total && evalCfg.slots_total > 0"
+                  size="mini" type="warning" style="margin-left:8px;">FULL</el-tag>
         </span>
-
-        <el-collapse v-model="activeNames" v-for="(release, index) of releases" :key="'release' + index">
-          <el-collapse-item :name="index+1">
-            <template slot="title">
-              <div v-if="release.new_version">{{release.title}}
-                <el-tag size="mini" type="success">{{$t('m.latestVersion')}}</el-tag>
-              </div>
-              <span v-else>{{release.title}}</span>
-            </template>
-            <p>{{$t('m.recommendedLevel')}} {{release.level}}</p>
-            <p>{{$t('m.details')}}</p>
-            <div class="release-body">
-              <ul v-for="detail in release.details" :key="detail">
-                <li v-html="detail"></li>
-              </ul>
+        <div class="eval-widget">
+          <div class="eval-stats">
+            <div class="stat">
+              <div class="lbl">슬롯</div>
+              <div class="val">{{ evalCfg.slots_in_use }} / {{ evalCfg.slots_total }}</div>
             </div>
-          </el-collapse-item>
-        </el-collapse>
+            <div class="stat">
+              <div class="lbl">대기 큐</div>
+              <div class="val">{{ evalCfg.queue_size }}</div>
+            </div>
+            <div class="stat">
+              <div class="lbl">진행 중 job</div>
+              <div class="val">{{ evalCfg.running.length }}</div>
+            </div>
+          </div>
+          <div v-if="evalCfg.running.length" class="eval-list">
+            <p class="eval-list-title">진행 중</p>
+            <div v-for="r in evalCfg.running" :key="'r' + r.id" class="eval-row">
+              <span class="eval-row-id">#{{ r.id }}</span>
+              <span class="eval-row-meta">강의 {{ r.lecture_id }} / 컨테스트 {{ r.contest_id }}</span>
+              <el-progress :percentage="evalPct(r)" :stroke-width="6"
+                           :status="r.n_failed > 0 ? 'warning' : 'success'"
+                           style="flex:1;margin-left:12px;"></el-progress>
+              <span class="eval-row-num">{{ r.n_done + r.n_failed }} / {{ r.n_total }}</span>
+            </div>
+          </div>
+          <div v-if="evalCfg.pending.length" class="eval-list">
+            <p class="eval-list-title">대기 중</p>
+            <div v-for="p in evalCfg.pending" :key="'p' + p.id" class="eval-row">
+              <span class="eval-row-id">#{{ p.id }}</span>
+              <span class="eval-row-meta">강의 {{ p.lecture_id }} / 컨테스트 {{ p.contest_id }}</span>
+              <span class="eval-row-num">예정 {{ p.n_total }}</span>
+            </div>
+          </div>
+          <p v-if="!evalCfg.running.length && !evalCfg.pending.length" class="eval-empty">
+            활성 작업 없음
+          </p>
+          <p class="eval-link">
+            <router-link to="/eval-queue">→ 슬롯 수 설정 및 상세</router-link>
+          </p>
+        </div>
       </panel>
     </el-col>
   </el-row>
@@ -114,10 +131,9 @@
           judge_server_count: 0,
           env: {}
         },
-        activeNames: [1],
         session: {},
-        loadingReleases: true,
-        releases: []
+        evalCfg: { slots_total: 0, slots_in_use: 0, queue_size: 0, running: [], pending: [] },
+        evalPollHandle: null
       }
     },
     mounted () {
@@ -129,24 +145,27 @@
         this.parseSession(resp.data.data)
       }, () => {
       })
-      api.getReleaseNotes().then(resp => {
-        this.loadingReleases = false
-        let data = resp.data.data
-        if (!data) {
-          return
-        }
-        let currentVersion = data.local_version
-        data.update.forEach(release => {
-          if (release.version > currentVersion) {
-            release.new_version = true
-          }
-        })
-        this.releases = data.update
-      }, () => {
-        this.loadingReleases = false
-      })
+      // 정성평가 큐 — Super Admin 만 폴링
+      if (this.$store.getters.isSuperAdmin) {
+        this.fetchEvalCfg()
+        this.evalPollHandle = setInterval(() => this.fetchEvalCfg(), 4000)
+      }
+    },
+    beforeDestroy () {
+      if (this.evalPollHandle) clearInterval(this.evalPollHandle)
     },
     methods: {
+      fetchEvalCfg () {
+        api.getEvalQueueConfig().then(resp => {
+          if (!resp.data.error && resp.data.data) {
+            this.evalCfg = resp.data.data
+          }
+        }, () => {})
+      },
+      evalPct (row) {
+        if (!row.n_total) return 0
+        return Math.min(100, Math.round(((row.n_done + row.n_failed) / row.n_total) * 100))
+      },
       parseSession (sessions) {
         let session = sessions[0]
         if (sessions.length > 1) {
@@ -216,6 +235,57 @@
       flex: 1 0 auto;
       min-width: 200px;
       margin-bottom: 10px;
+    }
+  }
+
+  .eval-widget {
+    .eval-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+      .stat {
+        background: #f5f7fa;
+        border: 1px solid #ebeef5;
+        border-radius: 6px;
+        padding: 10px 12px;
+        text-align: center;
+        .lbl { font-size: 10px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.05em; }
+        .val { font-size: 18px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+      }
+    }
+    .eval-list {
+      margin-bottom: 12px;
+    }
+    .eval-list-title {
+      font-size: 12px;
+      color: #606266;
+      font-weight: 600;
+      margin: 8px 0 6px;
+    }
+    .eval-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 12px;
+      &:last-child { border-bottom: none; }
+      .eval-row-id { font-weight: 700; color: #409eff; min-width: 36px; }
+      .eval-row-meta { color: #606266; }
+      .eval-row-num { font-variant-numeric: tabular-nums; font-size: 11px; opacity: 0.75; min-width: 70px; text-align: right; }
+    }
+    .eval-empty {
+      text-align: center;
+      padding: 16px;
+      color: #909399;
+      font-size: 12px;
+    }
+    .eval-link {
+      margin-top: 12px;
+      text-align: right;
+      font-size: 12px;
+      a { color: #409eff; }
     }
   }
 

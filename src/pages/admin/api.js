@@ -199,6 +199,14 @@ export default {
   getJudgeServer () {
     return ajax('admin/judge_server', 'get')
   },
+  getEvalQueueConfig () {
+    return ajax('admin/eval/queue-config', 'get')
+  },
+  setEvalQueueConfig (value) {
+    return ajax('admin/eval/queue-config', 'post', {
+      data: { value: value }
+    })
+  },
   deleteJudgeServer (hostname) {
     return ajax('admin/judge_server', 'delete', {
       params: {

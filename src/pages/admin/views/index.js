@@ -5,6 +5,7 @@ import Conf from './general/Conf.vue'
 import JudgeServer from './general/JudgeServer.vue'
 import LLMKeys from './general/LLMKeys.vue'
 import PruneTestCase from './general/PruneTestCase.vue'
+import EvalQueueConfig from './general/EvalQueueConfig.vue'
 import Problem from './problem/Problem.vue'
 import ProblemList from './problem/ProblemList.vue'
 import ContestList from './contest/ContestList.vue'
@@ -22,5 +23,6 @@ import BatchMigrate from './lecture/BatchMigrate.vue'
 export {
   Announcement, User, Conf, JudgeServer, LLMKeys, Problem, ProblemList, Contest,
   ContestList, Login, Home, PruneTestCase, Dashboard, ProblemImportOrExport,
-  Lecture, LectureList, StudentList, ContStudentList, CopyKiller, BatchMigrate
+  Lecture, LectureList, StudentList, ContStudentList, CopyKiller, BatchMigrate,
+  EvalQueueConfig
 }
