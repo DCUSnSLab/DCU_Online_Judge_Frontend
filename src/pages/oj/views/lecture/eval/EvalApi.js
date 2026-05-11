@@ -1,7 +1,9 @@
+// Eval API client.
+// PR 4: 사이드카 /eval-api → 본 서버 /api/eval 으로 전환. SSE 제거 (폴링 only).
 import axios from 'axios'
 
 const evalAxios = axios.create({
-  baseURL: '/eval-api',
+  baseURL: '/api/eval',
   xsrfHeaderName: 'X-CSRFToken',
   xsrfCookieName: 'csrftoken'
 })
@@ -27,6 +29,7 @@ export default {
   getJob: (jobId) => unwrap(evalAxios.get(`/jobs/${jobId}`)),
   triggerEval: (contestId, force) =>
     unwrap(evalAxios.post(`/contests/${contestId}/qualitative-eval`, { force: !!force })),
-  // SSE는 EventSource 사용 — same-origin('/eval-api/...')이라 세션 쿠키 자동 첨부
-  streamJobUrl: (jobId) => `/eval-api/jobs/${jobId}/stream`
+  // Export 는 브라우저가 직접 GET (세션 쿠키 자동) — URL 만 제공
+  contestExportUrl: (contestId, fmt) => `/api/eval/contests/${contestId}/score_export?format=${fmt}`,
+  lectureExportUrl: (lectureId, fmt) => `/api/eval/lectures/${lectureId}/score_export?format=${fmt}`
 }

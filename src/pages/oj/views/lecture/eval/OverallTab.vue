@@ -310,15 +310,14 @@
       onExport (fmt) {
         if (this.exporting) return
         this.exporting = true
-        const url = `/api/lecture/${this.lectureId}/score_export?format=${fmt}`
-        // 브라우저가 직접 GET → 세션 쿠키 자동 첨부, Content-Disposition 으로 다운로드
+        // PR 4: 사이드카 → 본 서버 endpoint 로 전환
+        const url = EvalApi.lectureExportUrl(this.lectureId, fmt)
         const a = document.createElement('a')
         a.href = url
         a.target = '_blank'
         document.body.appendChild(a)
         a.click()
         document.body.removeChild(a)
-        // 즉시 풀어줘도 됨 — 다운로드는 새 요청으로 진행
         setTimeout(() => { this.exporting = false }, 800)
       }
     }

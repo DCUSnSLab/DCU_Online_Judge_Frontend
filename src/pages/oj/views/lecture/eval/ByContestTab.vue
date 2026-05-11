@@ -134,7 +134,8 @@
       },
       onExport (fmt) {
         if (!this.selectedContestId) return
-        const url = `/api/contest/${this.selectedContestId}/score_export?format=${fmt}`
+        // PR 4: 사이드카 → 본 서버 endpoint 로 전환
+        const url = EvalApi.contestExportUrl(this.selectedContestId, fmt)
         const a = document.createElement('a')
         a.href = url
         a.target = '_blank'

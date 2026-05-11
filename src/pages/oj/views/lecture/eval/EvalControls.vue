@@ -31,6 +31,7 @@
 </template>
 
 <script>
+  // PR 4: SSE 제거. 진행률은 Vuex evalQueue 폴링(3초)만 사용.
   import { mapGetters } from 'vuex'
   import EvalApi from './EvalApi'
 
@@ -38,16 +39,14 @@
     name: 'EvalControls',
     props: {
       contestId: { type: [String, Number], required: true },
+      // PR 4 부터는 attach-job-id 무시 — 폴링이 동일 효과 제공.
+      // 하위 호환을 위해 prop 은 유지하되 미사용.
       attachJobId: { type: String, default: null }
     },
     data () {
       return {
         triggering: false,
-        status: '',
-        es: null,
-        sseDone: 0,
-        sseTotal: 0,
-        attachedJobId: null
+        status: ''
       }
     },
     computed: {
@@ -62,14 +61,10 @@
         return this.$t('m.EvalRunQualitative')
       },
       effectiveTotal () {
-        if (this.sseTotal > 0) return this.sseTotal
-        if (this.activeJob && this.activeJob.n_total) return this.activeJob.n_total
-        return 0
+        return (this.activeJob && this.activeJob.n_total) || 0
       },
       effectiveDone () {
-        if (this.sseTotal > 0) return this.sseDone
-        if (this.activeJob && this.activeJob.n_done !== undefined) return this.activeJob.n_done
-        return 0
+        return (this.activeJob && this.activeJob.n_done !== undefined) ? this.activeJob.n_done : 0
       },
       progressPercent () {
         if (!this.effectiveTotal) return 0
@@ -78,97 +73,30 @@
     },
     watch: {
       contestId () {
-        this.closeStream()
         this.status = ''
-        this.sseDone = 0
-        this.sseTotal = 0
-        this.maybeAttach()
       },
-      attachJobId () { this.maybeAttach() },
-      activeJob: {
-        immediate: false,
-        handler (job) {
-          if (job && !this.es && job.job_id !== this.attachedJobId) {
-            this.openStream(job.job_id)
-          }
+      // job 이 큐에서 사라지면 (=done) 매트릭스 재로드 시그널
+      activeJob (job, oldJob) {
+        if (oldJob && !job) {
+          this.status = '완료'
+          this.$emit('done')
+          this.$store.dispatch('evalQueue/refreshOnce')
         }
       }
     },
-    mounted () { this.maybeAttach() },
-    beforeDestroy () { this.closeStream() },
     methods: {
-      maybeAttach () {
-        const jid = this.attachJobId || (this.activeJob && this.activeJob.job_id)
-        if (jid && this.attachedJobId !== jid) this.openStream(jid)
-      },
       trigger (force) {
         this.triggering = true
         this.status = '대기 중…'
-        this.sseDone = 0
-        this.sseTotal = 0
         EvalApi.triggerEval(this.contestId, force)
           .then(r => {
             this.status = r.joined_existing
               ? `기존 작업 합류 (대기 ${r.queue_position || 0})`
               : `시작 — ${r.n_to_run}/${r.n_total} 평가 예정`
-            this.openStream(r.job_id)
             this.$store.dispatch('evalQueue/refreshOnce')
           })
           .catch(e => { this.status = (e && e.detail) || '트리거 실패' })
           .finally(() => { this.triggering = false })
-      },
-      openStream (jobId) {
-        if (!jobId) return
-        if (this.attachedJobId === jobId && this.es) return
-        this.closeStream()
-        const url = EvalApi.streamJobUrl(jobId)
-        const es = new EventSource(url, { withCredentials: true })
-        this.es = es
-        this.attachedJobId = jobId
-        es.addEventListener('queued', (ev) => {
-          const d = JSON.parse(ev.data)
-          this.status = `대기 ${d.queue_position}/${d.queue_size}`
-        })
-        es.addEventListener('queue-update', (ev) => {
-          const d = JSON.parse(ev.data)
-          this.status = `대기 갱신: ${d.queue_position}`
-        })
-        es.addEventListener('started', (ev) => {
-          const d = JSON.parse(ev.data)
-          this.status = `시작 — ${d.n_total}건`
-          this.sseTotal = d.n_total || 0
-          this.sseDone = 0
-        })
-        es.addEventListener('stage', (ev) => {
-          const d = JSON.parse(ev.data)
-          this.status = `Stage: ${d.name}`
-        })
-        es.addEventListener('progress', (ev) => {
-          const d = JSON.parse(ev.data)
-          this.sseDone = d.n
-          this.sseTotal = d.total || this.sseTotal
-          this.status = `${d.current_user}@${d.current_problem}`
-        })
-        es.addEventListener('done', (ev) => {
-          const d = JSON.parse(ev.data)
-          this.status = d.skipped
-            ? '이미 모두 평가됨'
-            : `완료 — ${d.n_evaluated} 평가, ${d.n_failed} 실패`
-          this.$emit('done')
-          this.$store.dispatch('evalQueue/refreshOnce')
-          this.closeStream()
-        })
-        es.addEventListener('error', () => {
-          this.status = '스트림 오류 — 폴링으로 진행 추적'
-          this.closeStream()
-        })
-      },
-      closeStream () {
-        if (this.es) {
-          try { this.es.close() } catch (e) {}
-          this.es = null
-        }
-        this.attachedJobId = null
       }
     }
   }
