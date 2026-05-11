@@ -160,20 +160,18 @@
 </script>
 
 <style lang="less" scoped>
+  // layout/positioning 은 부모(ByContestTab .floating-panel)가 책임짐 — viewport fixed.
+  // 본 컴포넌트는 시각적 카드(배경/테두리/그림자) + 내부 스크롤만 담당.
   .eval-detail-panel {
-    width: 520px;
-    flex: 0 0 520px;
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
     background: var(--panelBackground);
     border: 1px solid var(--panel-border-color);
     border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.10), 0 2px 8px rgba(0, 0, 0, 0.06);
     overflow: hidden;
-    max-height: calc(100vh - 220px);
-    position: sticky;
-    top: 96px;
-    align-self: flex-start;
   }
   .panel-header {
     display: flex;

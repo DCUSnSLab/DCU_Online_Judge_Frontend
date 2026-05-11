@@ -36,9 +36,8 @@
       </div>
     </div>
 
-    <!-- Content: 좌측 매트릭스 + 우측 detail panel (조건부) -->
-    <div class="content"
-         :class="{ 'with-panel': panelOpen }">
+    <!-- Content: 매트릭스 (단일 zone). 상세 패널은 viewport-fixed 라 별도 layer -->
+    <div class="content" :class="{ 'with-panel': panelOpen }">
       <div class="matrix-zone">
         <div v-if="loadingContests" class="placeholder">불러오는 중…</div>
         <div v-else-if="error" class="placeholder error">{{ error }}</div>
@@ -51,8 +50,12 @@
                     @cell-click="onCellClick"/>
         <div v-else class="placeholder muted">상단에서 컨테스트를 선택해 주세요.</div>
       </div>
-      <DetailPanel v-if="panelOpen && selectedContestId"
-                   :visible="panelOpen"
+    </div>
+
+    <!-- Detail panel: position: fixed — 항상 viewport 우측 상단. 스크롤 따라옴.
+         z-index 로 매트릭스 위에 떠 있음. matrix-zone 의 padding 으로 자리 비움. -->
+    <div v-if="panelOpen && selectedContestId" class="floating-panel">
+      <DetailPanel :visible="panelOpen"
                    :contest-id="selectedContestId"
                    :user-id="selectedCell.userId"
                    :problem-id="selectedCell.problemId"
@@ -216,15 +219,38 @@
     }
   }
   .content {
-    display: flex;
-    gap: 16px;
-    align-items: flex-start;
     .matrix-zone {
-      flex: 1 1 0;
       min-width: 0;
+      transition: padding-right 0.18s ease;
     }
+    // 패널 열림 — 매트릭스 우측에 540px 자리 비워 가려지지 않게
     &.with-panel .matrix-zone {
-      // detail panel이 열리면 매트릭스 영역을 줄여 공간 확보
+      padding-right: 540px;
+    }
+  }
+
+  // viewport 우측 상단 고정 — 페이지 스크롤과 무관하게 항상 그 자리.
+  // 매트릭스가 길어도, 가로 스크롤이 있어도 영향 없음 (viewport 기준).
+  .floating-panel {
+    position: fixed;
+    top: 96px;
+    right: 24px;
+    width: 520px;
+    max-height: calc(100vh - 120px);
+    z-index: 100;
+    animation: panel-in 0.18s ease-out;
+  }
+  @keyframes panel-in {
+    from { opacity: 0; transform: translateX(8px); }
+    to   { opacity: 1; transform: none; }
+  }
+
+  // 좁은 화면 (1280 이하): panel 자리 충분치 않으니 padding 줄임
+  @media (max-width: 1280px) {
+    .content.with-panel .matrix-zone { padding-right: 0; }
+    .floating-panel {
+      width: 420px;
+      right: 16px;
     }
   }
   .placeholder {
