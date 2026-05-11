@@ -468,7 +468,7 @@ export const m = {
   // Lecture eval tabs
   EvalTab_Contests: '컨테스트 목록',
   EvalTab_Overall: '과목 종합 점수',
-  EvalTab_ByContest: '컨테스트별 점수',
+  EvalTab_ByContest: '실습(시험)별 점수',
   // Lecture eval - contest type group labels
   EvalGroup_Exam: '시험·대회',
   EvalGroup_Lab: '실습',

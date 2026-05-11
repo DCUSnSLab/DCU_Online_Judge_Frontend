@@ -478,7 +478,7 @@ export const m = {
   // Lecture eval tabs
   EvalTab_Contests: 'Contests',
   EvalTab_Overall: 'Overall Scores',
-  EvalTab_ByContest: 'Per-Contest Scores',
+  EvalTab_ByContest: 'Per Lab / Exam Scores',
   // Lecture eval - contest type group labels
   EvalGroup_Exam: 'Exams & Contests',
   EvalGroup_Lab: 'Labs',
