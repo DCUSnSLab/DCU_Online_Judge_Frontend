@@ -464,5 +464,30 @@ export const m = {
   Home_Ended: '종료됨',
   Home_Days: '일 ',
   Home_Hours: '시간 ',
-  Home_Minutes: '분'
+  Home_Minutes: '분',
+  // Lecture eval tabs
+  EvalTab_Contests: '컨테스트 목록',
+  EvalTab_Overall: '과목 종합 점수',
+  EvalTab_ByContest: '컨테스트별 점수',
+  // Lecture eval - contest type group labels
+  EvalGroup_Exam: '시험·대회',
+  EvalGroup_Lab: '실습',
+  EvalGroup_Assignment: '과제',
+  EvalGroup_Other: '기타',
+  EvalGroup_Subtotal: '소계',
+  // Lecture eval - controls
+  EvalRunQualitative: '정성평가 실행',
+  EvalReevaluate: '재평가',
+  EvalInProgress: '진행 중',
+  EvalRequesting: '요청 중…',
+  EvalSelectContest: '컨테스트를 선택하세요',
+  EvalSlots: '슬롯',
+  EvalQueue: '대기열',
+  EvalMyJobs: '내 정성평가',
+  EvalWaitingNth: '대기 {n}번째',
+  // Detail panel tabs
+  EvalDetail_Judge: '자동 채점',
+  EvalDetail_Qualitative: '정성평가',
+  EvalDetail_AIUsage: 'AI 사용 가능성',
+  EvalDetail_Problem: '문제'
 }

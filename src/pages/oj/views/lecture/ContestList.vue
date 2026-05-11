@@ -1,0 +1,195 @@
+<template>
+  <Panel id="contest-card" shadow :style="currentTheme">
+    <div slot="title">
+      {{ lecture_title }}
+      <p :style="{ color: 'var(--text-color)' }">{{$t('m.Created')}} : {{ lecture_creator }}</p>
+    </div>
+    <div slot="extra">
+      <ul class="filter">
+        <li>
+          <Dropdown @on-click="onRuleChange">
+            <span>{{query.rule_type === '' ? $t('m.Rule') : $t('m.' + query.rule_type)}}
+              <Icon type="arrow-down-b"></Icon>
+            </span>
+            <Dropdown-menu slot="list">
+              <Dropdown-item name="">{{$t('m.All')}}</Dropdown-item>
+              <Dropdown-item name="OI">{{$t('m.OI')}}</Dropdown-item>
+              <Dropdown-item name="ACM">{{$t('m.ACM')}}</Dropdown-item>
+            </Dropdown-menu>
+          </Dropdown>
+        </li>
+        <li>
+          <Dropdown @on-click="onStatusChange">
+            <span>{{query.status === '' ? $t('m.Status') : $t('m.' + CONTEST_STATUS_REVERSE[query.status].display.replace(/ /g,"_"))}}
+              <Icon type="arrow-down-b"></Icon>
+            </span>
+            <Dropdown-menu slot="list">
+              <Dropdown-item name="">{{$t('m.All')}}</Dropdown-item>
+              <Dropdown-item name="0">{{$t('m.Underway')}}</Dropdown-item>
+              <Dropdown-item name="1">{{$t('m.Not_Started')}}</Dropdown-item>
+              <Dropdown-item name="-1">{{$t('m.Ended')}}</Dropdown-item>
+            </Dropdown-menu>
+          </Dropdown>
+        </li>
+        <li>
+          <Input id="keyword" @on-enter="changeRoute" @on-click="changeRoute" v-model="query.keyword"
+                 icon="ios-search-strong" placeholder="Keyword"/>
+        </li>
+      </ul>
+    </div>
+    <p id="no-contest" v-if="contests.length == 0">{{$t('m.No_contest')}}</p>
+    <ol id="contest-list">
+      <li v-for="contest in contests" :key="contest.title">
+        <Row type="flex" justify="space-between" align="middle">
+          <img class="trophy" src="../../../../assets/Cup.png"/>
+          <Col :span="18" class="contest-main">
+            <p class="title">
+              <a class="entry" @click.stop="goContest(contest)">{{contest.title}}</a>
+              <template v-if="contest.contest_type != 'Public'">
+                <Icon type="ios-locked-outline" size="20"></Icon>
+              </template>
+            </p>
+            <ul class="detail">
+              <li>
+                <Icon type="calendar" color="#3091f2"></Icon>
+                {{$t('m.StartDate')}} : {{ contest.start_time | localtime('YYYY-M-D HH:mm') }}
+              </li>
+              <li>
+                <Icon type="calendar" color="#3091f2"></Icon>
+                {{$t('m.EndDate')}} : {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
+              </li>
+              <li>
+                <Icon type="android-time" color="#3091f2"></Icon>
+                {{$t('m.Remaining_Time')}} : {{ remainDuration(contest.end_time) }}
+              </li>
+            </ul>
+          </Col>
+          <Col :span="4" style="text-align: center">
+            <Tag type="dot" :color="CONTEST_STATUS_REVERSE[contest.status].color">{{$t(CONTEST_STATUS_REVERSE[contest.status].display)}}</Tag>
+          </Col>
+        </Row>
+      </li>
+    </ol>
+    <Pagination :total="total" :pageSize="limit" @on-change="getContestList" :current.sync="page"></Pagination>
+  </Panel>
+</template>
+
+<script>
+  import api from '@oj/api'
+  import { mapGetters } from 'vuex'
+  import utils from '@/utils/utils'
+  import Pagination from '@/pages/oj/components/Pagination'
+  import { CONTEST_STATUS_REVERSE, CONTEST_TYPE } from '@/utils/constants'
+
+  const limit = 50
+
+  export default {
+    name: 'ContestList',
+    components: { Pagination },
+    props: {
+      lectureId: { type: [String, Number], required: true }
+    },
+    data () {
+      return {
+        lecture_title: '',
+        lecture_creator: '',
+        page: 1,
+        query: {
+          status: '',
+          keyword: '',
+          rule_type: '',
+          lectureid: ''
+        },
+        limit,
+        total: 0,
+        contests: [],
+        CONTEST_STATUS_REVERSE,
+        cur_contest_id: ''
+      }
+    },
+    mounted () { this.init() },
+    methods: {
+      init () {
+        let route = this.$route.query
+        this.query.status = route.status || ''
+        this.query.rule_type = route.rule_type || ''
+        this.query.keyword = route.keyword
+        this.query.lectureid = this.lectureId
+        this.page = parseInt(route.page) || 1
+        this.getContestList()
+      },
+      getContestList (page = 1) {
+        let offset = (page - 1) * this.limit
+        api.getContestList(offset, this.limit, this.query).then((res) => {
+          this.contests = res.data.data.results
+          this.total = res.data.data.total
+          if (this.contests.length) {
+            this.lecture_title = this.contests[0].lecture_title
+            this.lecture_creator = this.contests[0].created_by.realname
+          }
+          this.$emit('contests-loaded', {
+            title: this.lecture_title,
+            creator: this.lecture_creator,
+            contests: this.contests
+          })
+        })
+      },
+      changeRoute () {
+        let q = Object.assign({}, this.query)
+        q.page = this.page
+        q.tab = this.$route.query.tab
+        this.$router.push({ name: 'lecture-details', params: { lectureID: this.lectureId }, query: utils.filterEmptyValue(q) })
+      },
+      onRuleChange (rule) { this.query.rule_type = rule; this.page = 1; this.changeRoute() },
+      onStatusChange (status) { this.query.status = status; this.page = 1; this.changeRoute() },
+      goContest (contest) {
+        this.cur_contest_id = contest.id
+        if (contest.contest_type !== CONTEST_TYPE.PUBLIC && !this.isAuthenticated) {
+          this.$error(this.$i18n.t('m.Please_login_first'))
+          this.$store.dispatch('changeModalStatus', { visible: true })
+        } else {
+          this.$router.push({ name: 'lecture-contest-details', params: { contestID: contest.id, lectureID: this.lectureId } })
+        }
+      },
+      remainDuration (endTime) {
+        if (new Date() - new Date(endTime) > 0) return this.$i18n.t('m.Ended')
+        const end = new Date(endTime)
+        const current = new Date()
+        const dateGap = end.getTime() - current.getTime()
+        const timeGap = new Date(0, 0, 0, 0, 0, 0, end - current)
+        const diffDay = Math.floor(dateGap / (1000 * 60 * 60 * 24))
+        return diffDay + this.$i18n.t('m.Day') + timeGap.getHours() + this.$i18n.t('m.Hour') + timeGap.getMinutes() + this.$i18n.t('m.Minute')
+      }
+    },
+    computed: { ...mapGetters(['isAuthenticated', 'user', 'isSuperAdmin', 'currentTheme']) },
+    watch: {
+      '$route' (newVal, oldVal) {
+        if (newVal.params.lectureID !== oldVal.params.lectureID) this.init()
+      }
+    }
+  }
+</script>
+<style lang="less" scoped>
+  #contest-card {
+    #keyword { width: 80%; margin-right: 30px; }
+    #no-contest { text-align: center; font-size: 16px; padding: 20px; }
+    #contest-list {
+      > li {
+        padding: 20px;
+        border-bottom: 1px solid var(--list-border-bottom);
+        list-style: none;
+        .trophy { height: 40px; margin-left: 10px; margin-right: -20px; }
+        .contest-main {
+          .title {
+            font-size: 18px;
+            a.entry {
+              color: var(--text-color);
+              &:hover { color: var(--text-hover-color); border-bottom: 1px solid var(--text-hover-color); }
+            }
+          }
+          li { display: inline-block; padding: 10px 0 0 10px; &:first-child { padding: 10px 0 0 0; } }
+        }
+      }
+    }
+  }
+</style>

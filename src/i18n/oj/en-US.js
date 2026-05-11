@@ -474,5 +474,30 @@ export const m = {
   Home_Ended: 'Ended',
   Home_Days: 'd ',
   Home_Hours: 'h ',
-  Home_Minutes: 'm'
+  Home_Minutes: 'm',
+  // Lecture eval tabs
+  EvalTab_Contests: 'Contests',
+  EvalTab_Overall: 'Overall Scores',
+  EvalTab_ByContest: 'Per-Contest Scores',
+  // Lecture eval - contest type group labels
+  EvalGroup_Exam: 'Exams & Contests',
+  EvalGroup_Lab: 'Labs',
+  EvalGroup_Assignment: 'Assignments',
+  EvalGroup_Other: 'Other',
+  EvalGroup_Subtotal: 'Subtotal',
+  // Lecture eval - controls
+  EvalRunQualitative: 'Run Qualitative Eval',
+  EvalReevaluate: 'Re-evaluate',
+  EvalInProgress: 'In Progress',
+  EvalRequesting: 'Requesting…',
+  EvalSelectContest: 'Select a contest',
+  EvalSlots: 'Slots',
+  EvalQueue: 'Queue',
+  EvalMyJobs: 'My Evaluations',
+  EvalWaitingNth: 'Waiting #{n}',
+  // Detail panel tabs
+  EvalDetail_Judge: 'Auto Judge',
+  EvalDetail_Qualitative: 'Qualitative',
+  EvalDetail_AIUsage: 'AI-Usage',
+  EvalDetail_Problem: 'Problem'
 }

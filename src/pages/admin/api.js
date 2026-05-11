@@ -199,6 +199,14 @@ export default {
   getJudgeServer () {
     return ajax('admin/judge_server', 'get')
   },
+  getEvalSlots () {
+    return ajax('admin/eval/slots', 'get')
+  },
+  setEvalSlots (value) {
+    return ajax('admin/eval/slots', 'post', {
+      data: { value: value }
+    })
+  },
   deleteJudgeServer (hostname) {
     return ajax('admin/judge_server', 'delete', {
       params: {
