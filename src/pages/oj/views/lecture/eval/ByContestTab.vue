@@ -91,6 +91,17 @@
       selectedContestId (id) {
         this.fetchAttachStatus(id)
         this.closePanel()
+      },
+      // URL query.contest 가 외부에서 바뀌면 (예: MyJobsBanner 클릭) 동기화.
+      // 같은 lecture 안에서 query 만 바뀌는 케이스 — props 는 변하지 않아 다른 watch 가 안 잡음.
+      '$route.query.contest': {
+        handler (newVal) {
+          const qid = parseInt(newVal)
+          if (!qid || qid === this.selectedContestId) return
+          if (this.contests.find(c => c.id === qid)) {
+            this.selectedContestId = qid
+          }
+        }
       }
     },
     methods: {

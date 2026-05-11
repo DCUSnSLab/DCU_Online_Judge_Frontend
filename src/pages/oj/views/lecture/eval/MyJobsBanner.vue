@@ -116,11 +116,12 @@
         return tmpl.replace('{n}', j.queue_position)
       },
       goTo (j) {
+        // 같은 route + 같은 query 면 vue-router 가 NavigationDuplicated 를 throw — 무시.
         this.$router.push({
           name: 'lecture-details',
           params: { lectureID: j.lecture_id },
           query: { tab: 'by-contest', contest: j.contest_id }
-        })
+        }).catch(() => {})
       }
     }
   }
