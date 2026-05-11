@@ -1,5 +1,5 @@
 <template>
-  <div class="bycontest-tab">
+  <div class="bycontest-tab" :class="{ 'with-panel': panelOpen && selectedContestId }">
     <!-- Toolbar: 좌(label + select) | 우(actions). 모든 컨트롤 28px 통일. -->
     <div class="toolbar">
       <div class="left">
@@ -36,8 +36,10 @@
       </div>
     </div>
 
-    <!-- Content: 매트릭스 (단일 zone). 상세 패널은 viewport-fixed 라 별도 layer -->
-    <div class="content" :class="{ 'with-panel': panelOpen }">
+    <!-- Content: 매트릭스 (단일 zone). 상세 패널은 viewport-fixed 라 별도 layer.
+         자리 비움(padding-right)은 root .bycontest-tab.with-panel 에서 toolbar+content
+         양쪽에 동시 적용 — 버튼들이 패널에 가려지지 않게. -->
+    <div class="content">
       <div class="matrix-zone">
         <div v-if="loadingContests" class="placeholder">불러오는 중…</div>
         <div v-else-if="error" class="placeholder error">{{ error }}</div>
@@ -181,6 +183,11 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
+    transition: padding-right 0.18s ease;
+    // 패널 열림 — toolbar + matrix 같이 우측 자리 비움 (버튼들이 가리지 않도록)
+    &.with-panel {
+      padding-right: 540px;
+    }
   }
   // 단일 row 플렉스 — 좌측 select 가 가용 폭 채우고, 우측 actions 는 고정.
   // 좁아지면 wrap.
@@ -236,11 +243,6 @@
   .content {
     .matrix-zone {
       min-width: 0;
-      transition: padding-right 0.18s ease;
-    }
-    // 패널 열림 — 매트릭스 우측에 540px 자리 비워 가려지지 않게
-    &.with-panel .matrix-zone {
-      padding-right: 540px;
     }
   }
 
@@ -262,7 +264,7 @@
 
   // 좁은 화면 (1280 이하): panel 자리 충분치 않으니 padding 줄임
   @media (max-width: 1280px) {
-    .content.with-panel .matrix-zone { padding-right: 0; }
+    .bycontest-tab.with-panel { padding-right: 0; }
     .floating-panel {
       width: 420px;
       right: 16px;
