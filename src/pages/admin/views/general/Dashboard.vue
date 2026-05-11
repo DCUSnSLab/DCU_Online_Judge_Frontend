@@ -81,9 +81,13 @@
           </div>
           <div v-if="evalCfg.running.length" class="eval-list">
             <p class="eval-list-title">진행 중</p>
-            <div v-for="r in evalCfg.running" :key="'r' + r.id" class="eval-row">
+            <div v-for="r in evalCfg.running" :key="'r' + r.id" class="eval-row" :title="rowTitle(r)">
               <span class="eval-row-id">#{{ r.id }}</span>
-              <span class="eval-row-meta">강의 {{ r.lecture_id }} / 컨테스트 {{ r.contest_id }}</span>
+              <span class="eval-row-meta">
+                <span class="eval-row-lec">{{ r.lecture_title || ('강의 ' + r.lecture_id) }}</span>
+                <span class="eval-row-sep">›</span>
+                <span class="eval-row-con">{{ r.contest_title || ('#' + r.contest_id) }}</span>
+              </span>
               <el-progress :percentage="evalPct(r)" :stroke-width="6"
                            :status="r.n_failed > 0 ? 'warning' : 'success'"
                            style="flex:1;margin-left:12px;"></el-progress>
@@ -92,9 +96,13 @@
           </div>
           <div v-if="evalCfg.pending.length" class="eval-list">
             <p class="eval-list-title">대기 중</p>
-            <div v-for="p in evalCfg.pending" :key="'p' + p.id" class="eval-row">
+            <div v-for="p in evalCfg.pending" :key="'p' + p.id" class="eval-row" :title="rowTitle(p)">
               <span class="eval-row-id">#{{ p.id }}</span>
-              <span class="eval-row-meta">강의 {{ p.lecture_id }} / 컨테스트 {{ p.contest_id }}</span>
+              <span class="eval-row-meta">
+                <span class="eval-row-lec">{{ p.lecture_title || ('강의 ' + p.lecture_id) }}</span>
+                <span class="eval-row-sep">›</span>
+                <span class="eval-row-con">{{ p.contest_title || ('#' + p.contest_id) }}</span>
+              </span>
               <span class="eval-row-num">예정 {{ p.n_total }}</span>
             </div>
           </div>
@@ -165,6 +173,11 @@
       evalPct (row) {
         if (!row.n_total) return 0
         return Math.min(100, Math.round(((row.n_done + row.n_failed) / row.n_total) * 100))
+      },
+      rowTitle (row) {
+        const lec = row.lecture_title || ('강의 ' + row.lecture_id)
+        const con = row.contest_title || ('#' + row.contest_id)
+        return `${lec} › ${con}`
       },
       parseSession (sessions) {
         let session = sessions[0]
@@ -272,7 +285,17 @@
       font-size: 12px;
       &:last-child { border-bottom: none; }
       .eval-row-id { font-weight: 700; color: #409eff; min-width: 36px; }
-      .eval-row-meta { color: #606266; }
+      .eval-row-meta {
+        color: #606266;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        max-width: 360px;
+        overflow: hidden;
+        .eval-row-lec { opacity: 0.7; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .eval-row-sep { opacity: 0.4; }
+        .eval-row-con { font-weight: 600; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      }
       .eval-row-num { font-variant-numeric: tabular-nums; font-size: 11px; opacity: 0.75; min-width: 70px; text-align: right; }
     }
     .eval-empty {

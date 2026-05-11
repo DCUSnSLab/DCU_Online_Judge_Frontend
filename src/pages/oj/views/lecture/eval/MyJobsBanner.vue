@@ -14,8 +14,11 @@
       <span v-for="j in myRunningJobs"
             :key="'r' + j.job_id"
             class="job-pill running"
+            :title="fullTitleFor(j)"
             @click="goTo(j)">
-        <span class="ttl">{{ titleFor(j) }}</span>
+        <span class="lec">{{ lectureNameFor(j) }}</span>
+        <span class="sep">›</span>
+        <span class="ttl">{{ contestNameFor(j) }}</span>
         <span class="prog">{{ j.n_done }}/{{ j.n_total }}</span>
         <span class="pct">{{ pctOf(j) }}%</span>
         <span v-if="(j.requester_ids || []).length > 1"
@@ -27,8 +30,11 @@
       <span v-for="j in myPendingJobs"
             :key="'p' + j.job_id"
             class="job-pill pending"
+            :title="fullTitleFor(j)"
             @click="goTo(j)">
-        <span class="ttl">{{ titleFor(j) }}</span>
+        <span class="lec">{{ lectureNameFor(j) }}</span>
+        <span class="sep">›</span>
+        <span class="ttl">{{ contestNameFor(j) }}</span>
         <span class="prog">{{ waitingLabel(j) }}</span>
       </span>
     </div>
@@ -84,10 +90,22 @@
         this._booted = false
         this.$store.dispatch('evalQueue/stopPolling')
       },
-      titleFor (j) {
-        const t = this.evalLectureTitle(j.lecture_id)
-        const short = t && t.length > 20 ? t.slice(0, 18) + '…' : (t || `lecture ${j.lecture_id}`)
-        return `${short} · #${j.contest_id}`
+      lectureNameFor (j) {
+        // Backend 가 lecture_title 동봉 — 옛 응답 호환 위해 Vuex 캐시 fallback
+        const t = j.lecture_title || this.evalLectureTitle(j.lecture_id)
+        if (!t) return `강의 ${j.lecture_id}`
+        return t.length > 18 ? t.slice(0, 16) + '…' : t
+      },
+      contestNameFor (j) {
+        const t = j.contest_title
+        if (!t) return `#${j.contest_id}`
+        return t.length > 22 ? t.slice(0, 20) + '…' : t
+      },
+      fullTitleFor (j) {
+        // 마우스 오버 시 전체 텍스트
+        const lec = j.lecture_title || this.evalLectureTitle(j.lecture_id) || `강의 ${j.lecture_id}`
+        const con = j.contest_title || `#${j.contest_id}`
+        return `${lec} › ${con}`
       },
       pctOf (j) {
         if (!j.n_total) return 0
@@ -170,8 +188,17 @@
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
+    .lec {
+      font-size: 11px;
+      opacity: 0.7;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .sep { opacity: 0.45; font-size: 11px; }
     .ttl {
-      font-weight: 500;
+      font-weight: 600;
       max-width: 240px;
       overflow: hidden;
       text-overflow: ellipsis;

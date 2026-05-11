@@ -63,27 +63,41 @@
         <el-table v-if="snapshot.running.length"
                   :data="snapshot.running"
                   border size="small" style="width: 100%; margin-bottom: 16px;">
-          <el-table-column prop="id" label="Job" width="80"></el-table-column>
-          <el-table-column prop="lecture_id" label="강의" width="80"></el-table-column>
-          <el-table-column prop="contest_id" label="컨테스트" width="100"></el-table-column>
+          <el-table-column prop="id" label="Job" width="70"></el-table-column>
+          <el-table-column label="강의">
+            <template slot-scope="s">{{ s.row.lecture_title || ('강의 ' + s.row.lecture_id) }}</template>
+          </el-table-column>
+          <el-table-column label="컨테스트">
+            <template slot-scope="s">
+              <span style="font-weight:600;">{{ s.row.contest_title || ('#' + s.row.contest_id) }}</span>
+              <span v-if="s.row.contest_type" class="ctype">{{ s.row.contest_type }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="진행률" width="240">
             <template slot-scope="s">
               <el-progress :percentage="pct(s.row)" :status="s.row.n_failed > 0 ? 'warning' : 'success'"></el-progress>
               <span class="tabnum">{{ s.row.n_done }} + {{ s.row.n_failed }} / {{ s.row.n_total }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="started_at" label="시작" :formatter="fmtTime"></el-table-column>
+          <el-table-column prop="started_at" label="시작" :formatter="fmtTime" width="150"></el-table-column>
         </el-table>
 
         <h4 v-if="snapshot.pending.length">대기 중 ({{ snapshot.pending.length }})</h4>
         <el-table v-if="snapshot.pending.length"
                   :data="snapshot.pending"
                   border size="small" style="width: 100%;">
-          <el-table-column prop="id" label="Job" width="80"></el-table-column>
-          <el-table-column prop="lecture_id" label="강의" width="80"></el-table-column>
-          <el-table-column prop="contest_id" label="컨테스트" width="100"></el-table-column>
-          <el-table-column prop="n_total" label="예정" width="100"></el-table-column>
-          <el-table-column prop="enqueued_at" label="enqueue" :formatter="fmtTime"></el-table-column>
+          <el-table-column prop="id" label="Job" width="70"></el-table-column>
+          <el-table-column label="강의">
+            <template slot-scope="s">{{ s.row.lecture_title || ('강의 ' + s.row.lecture_id) }}</template>
+          </el-table-column>
+          <el-table-column label="컨테스트">
+            <template slot-scope="s">
+              <span style="font-weight:600;">{{ s.row.contest_title || ('#' + s.row.contest_id) }}</span>
+              <span v-if="s.row.contest_type" class="ctype">{{ s.row.contest_type }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="n_total" label="예정" width="80"></el-table-column>
+          <el-table-column prop="enqueued_at" label="enqueue" :formatter="fmtTime" width="150"></el-table-column>
         </el-table>
       </div>
     </Panel>
@@ -220,4 +234,13 @@
 
   h4 { margin: 12px 0 8px; font-size: 13px; color: #495057; }
   .tabnum { display: inline-block; margin-left: 8px; font-size: 11px; color: #666; font-variant-numeric: tabular-nums; }
+  .ctype {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 10px;
+    padding: 1px 6px;
+    background: #f0f2f5;
+    color: #606266;
+    border-radius: 8px;
+  }
 </style>
