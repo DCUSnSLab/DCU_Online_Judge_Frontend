@@ -5,7 +5,7 @@
       집계 중… ({{ progressText }})
     </div>
     <div v-else-if="error" class="placeholder error">{{ error }}</div>
-    <div v-else-if="!aggregated.length" class="placeholder">집계할 데이터가 없습니다.</div>
+    <div v-else-if="!groupSections.length" class="placeholder">집계할 데이터가 없습니다.</div>
     <div v-else>
       <div class="export-bar">
         <Dropdown @on-click="onExport" trigger="click">
@@ -20,44 +20,48 @@
         </Dropdown>
       </div>
 
-      <!-- 그룹별 요약 카드 -->
-      <div class="group-summary">
-        <div v-for="g in groupSummary" :key="g.key"
-             class="group-card"
-             :class="'g-' + g.key">
+      <!-- 그룹별 독립 섹션: 카드(요약 통계) + 표(학생 행) -->
+      <div v-for="g in groupSections" :key="g.key" class="group-section" :class="'g-' + g.key">
+        <!-- 그룹 요약 카드 -->
+        <div class="group-card" :class="'g-' + g.key">
           <div class="g-header">
             <span class="g-name">{{ g.label }}</span>
-            <span class="g-count">{{ g.contestCount }} 건</span>
+            <span class="g-count">{{ g.contestCount }} 컨테스트 · {{ g.problemCount }} 문제</span>
           </div>
           <div class="g-stats">
             <div class="g-stat">
-              <span class="lbl">최대 점수</span>
+              <span class="lbl">{{ $t('m.EvalStat_MaxScore') }}</span>
               <span class="val">{{ g.maxScore }}</span>
             </div>
             <div class="g-stat">
-              <span class="lbl">평균</span>
-              <span class="val">{{ g.avg }}</span>
+              <span class="lbl">{{ $t('m.EvalStat_AvgScaled') }}</span>
+              <span class="val">{{ g.avgScaled }} <small>/100</small></span>
             </div>
             <div class="g-stat">
-              <span class="lbl">평균 비율</span>
-              <span class="val">{{ g.avgPct }}%</span>
+              <span class="lbl">{{ $t('m.EvalStat_AvgSubmitted') }}</span>
+              <span class="val">{{ g.avgSubmitted }} <small>/ {{ g.problemCount }}</small></span>
+            </div>
+            <div class="g-stat">
+              <span class="lbl">{{ $t('m.EvalStat_AvgACRate') }}</span>
+              <span class="val">{{ g.avgACRate }}%</span>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- 학생별 종합표 -->
-      <div class="table-card">
-        <div class="table-meta">
-          <span><b>학생</b> {{ aggregated.length }}</span>
-          <span><b>컨테스트</b> {{ scoreboards.length }}</span>
-          <span><b>최대 가능 총점</b> {{ totalPossible }}</span>
+        <!-- 그룹 학생별 표 -->
+        <div class="table-card">
+          <div class="table-meta">
+            <span><b>{{ $t('m.EvalStat_StudentCount') }}</b> {{ g.rows.length }}</span>
+            <span><b>{{ $t('m.EvalStat_ContestCount') }}</b> {{ g.contestCount }}</span>
+            <span><b>{{ $t('m.EvalStat_ProblemCount') }}</b> {{ g.problemCount }}</span>
+            <span><b>{{ $t('m.EvalStat_MaxScore') }}</b> {{ g.maxScore }}</span>
+          </div>
+          <Table :columns="g.columns"
+                 :data="g.rows"
+                 :stripe="true"
+                 :max-height="tableMaxHeight"
+                 class="overall-table"></Table>
         </div>
-        <Table :columns="columns"
-               :data="aggregated"
-               :stripe="true"
-               :max-height="tableMaxHeight"
-               class="overall-table"></Table>
       </div>
     </div>
   </div>
@@ -66,7 +70,6 @@
 <script>
   import EvalApi from './EvalApi'
 
-  // contest type 우선 순위 + 라벨 매핑
   const TYPE_ORDER = ['exam', 'lab', 'assignment', 'other']
   const TYPE_KEYS = {
     '대회': 'exam',
@@ -77,6 +80,13 @@
 
   function classify (type) {
     return TYPE_KEYS[type] || 'other'
+  }
+
+  // PENDING(6) / JUDGING(7) 은 "제출" 으로 인정하지 않음. 그 외는 채점 끝난 것으로 본다.
+  function isJudgedCell (cell) {
+    if (!cell || !cell.testcase) return false
+    const r = cell.testcase.result
+    return r !== 6 && r !== 7
   }
 
   export default {
@@ -100,15 +110,6 @@
       progressText () {
         return this.progressTotal ? `${this.progressDone} / ${this.progressTotal} 컨테스트` : ''
       },
-      // 분류된 contest 그룹
-      groups () {
-        const map = { exam: [], lab: [], assignment: [], other: [] }
-        this.scoreboards.forEach(sb => {
-          const k = classify(sb.contest.lecture_contest_type)
-          map[k].push(sb)
-        })
-        return map
-      },
       groupLabels () {
         return {
           exam: this.$t('m.EvalGroup_Exam'),
@@ -117,175 +118,172 @@
           other: this.$t('m.EvalGroup_Other')
         }
       },
-      groupSummary () {
-        const out = []
-        TYPE_ORDER.forEach(k => {
-          const list = this.groups[k]
-          if (!list.length) return
-          let max = 0
-          let totalEarned = 0
-          let studentCount = 0
-          list.forEach(sb => {
-            ;(sb.problems || []).forEach(p => { max += p.total_score || 0 })
-            studentCount = Math.max(studentCount, (sb.students || []).length)
-            ;(sb.students || []).forEach(s => {
-              ;(sb.problems || []).forEach(p => {
-                const cell = s.by_problem[p.label]
-                if (cell && cell.testcase) totalEarned += (cell.testcase.score || 0)
-              })
-            })
-          })
-          const denom = max * studentCount || 1
-          const avg = studentCount ? Math.round(totalEarned / studentCount) : 0
-          const avgPct = ((totalEarned / denom) * 100).toFixed(1)
-          out.push({
-            key: k,
-            label: this.groupLabels[k],
-            contestCount: list.length,
-            maxScore: max,
-            avg,
-            avgPct
-          })
-        })
-        return out
-      },
-      totalPossible () {
-        let t = 0
-        this.scoreboards.forEach(sb => { (sb.problems || []).forEach(p => { t += p.total_score || 0 }) })
-        return t
-      },
-      // 그룹별 max 점수 (학생 행에 표시할 그룹 소계 분모)
-      groupMaxByKey () {
-        const out = {}
-        TYPE_ORDER.forEach(k => {
-          let m = 0
-          this.groups[k].forEach(sb => {
-            (sb.problems || []).forEach(p => { m += p.total_score || 0 })
-          })
-          out[k] = m
-        })
-        return out
-      },
-      columns () {
-        const cols = [
-          {
-            title: '학생',
-            key: 'name',
-            width: 150,
-            fixed: 'left',
-            sortable: true
-          },
-          {
-            title: '학번',
-            key: 'username',
-            width: 110,
-            fixed: 'left'
-          },
-          {
-            title: '총점',
-            key: 'total',
-            width: 90,
-            fixed: 'left',
-            sortable: true,
-            renderHeader: (h) => h('div', { class: 'th-strong' }, '총점'),
-            render: (h, p) => h('strong', { class: 'cell-total' }, String(p.row.total))
-          },
-          {
-            title: '%',
-            key: 'pct',
-            width: 80,
-            fixed: 'left',
-            sortable: true,
-            render: (h, p) => h('span', { class: 'cell-pct' }, `${p.row.pct}%`)
-          }
-        ]
-        // 그룹별 column: 각 그룹의 소계 컬럼 + 그룹 안의 contest 컬럼
-        TYPE_ORDER.forEach(k => {
-          const list = this.groups[k]
-          if (!list.length) return
-          const label = this.groupLabels[k]
-          // 그룹 소계
-          cols.push({
-            title: `${label} ${this.$t('m.EvalGroup_Subtotal')}`,
-            key: `g_${k}`,
-            width: 130,
-            sortable: true,
-            renderHeader: (h) => h('div', { class: `th-group g-${k}` }, [
-              h('div', { class: 'th-group-name' }, label),
-              h('div', { class: 'th-group-sub' }, this.$t('m.EvalGroup_Subtotal'))
-            ]),
-            render: (h, p) => {
-              const v = p.row[`g_${k}`] || 0
-              const max = this.groupMaxByKey[k]
-              const pct = max ? Math.round((v / max) * 100) : 0
-              return h('div', { class: `cell-group g-${k}` }, [
-                h('strong', String(v)),
-                h('span', { class: 'cell-group-pct' }, ` (${pct}%)`)
-              ])
-            }
-          })
-          // 그룹 내 각 contest
-          list.forEach(sb => {
-            cols.push({
-              title: sb.contest.title,
-              key: 'c_' + sb.contest.id,
-              width: 130,
-              sortable: true,
-              renderHeader: (h) => {
-                const t = sb.contest.title
-                const short = t.length > 14 ? t.slice(0, 12) + '…' : t
-                return h('div', { class: `th-contest g-${k}`, attrs: { title: t } }, [
-                  h('div', { class: 'th-contest-name' }, short),
-                  h('div', { class: 'th-contest-type' }, sb.contest.lecture_contest_type || '')
-                ])
-              },
-              render: (h, p) => h('span', { class: 'cell-contest' }, String(p.row['c_' + sb.contest.id] || 0))
-            })
-          })
-        })
-        return cols
-      },
-      aggregated () {
-        if (!this.scoreboards.length) return []
-        const byUser = new Map()
+      groups () {
+        const map = { exam: [], lab: [], assignment: [], other: [] }
         this.scoreboards.forEach(sb => {
-          const k = classify(sb.contest.lecture_contest_type)
-          ;(sb.students || []).forEach(s => {
-            if (!byUser.has(s.user_id)) {
-              byUser.set(s.user_id, {
-                user_id: s.user_id,
-                username: s.username,
-                name: s.realname || s.username,
-                total: 0,
-                g_exam: 0,
-                g_lab: 0,
-                g_assignment: 0,
-                g_other: 0
-              })
-            }
-            const row = byUser.get(s.user_id)
-            let csum = 0
-            ;(sb.problems || []).forEach(p => {
-              const cell = s.by_problem[p.label]
-              const sc = cell && cell.testcase ? (cell.testcase.score || 0) : 0
-              csum += sc
-            })
-            row['c_' + sb.contest.id] = csum
-            row.total += csum
-            row['g_' + k] += csum
-          })
+          map[classify(sb.contest.lecture_contest_type)].push(sb)
         })
-        const rows = [...byUser.values()]
-        const tp = this.totalPossible || 1
-        rows.forEach(r => { r.pct = ((r.total / tp) * 100).toFixed(1) })
-        rows.sort((a, b) => b.total - a.total)
-        return rows
+        return map
+      },
+      // 그룹별 독립 섹션 — 각 섹션은 자기 그룹의 학생 rows / columns / 통계만 가짐
+      groupSections () {
+        const sections = []
+        TYPE_ORDER.forEach(k => {
+          const list = this.groups[k]
+          if (!list.length) return
+          sections.push(this._buildSection(k, list))
+        })
+        return sections
       }
     },
     watch: {
       lectureId: { immediate: true, handler () { this.run() } }
     },
     methods: {
+      _buildSection (groupKey, scoreboards) {
+        const label = this.groupLabels[groupKey]
+        // 그룹 만점 = 그 그룹 안 모든 contest 의 problem.total_score 합
+        let maxScore = 0
+        let problemCount = 0
+        scoreboards.forEach(sb => {
+          (sb.problems || []).forEach(p => {
+            maxScore += (p.total_score || 0)
+            problemCount += 1
+          })
+        })
+
+        // 학생별 행 집계
+        const byUser = new Map()
+        scoreboards.forEach(sb => {
+          (sb.students || []).forEach(s => {
+            if (!byUser.has(s.user_id)) {
+              byUser.set(s.user_id, {
+                user_id: s.user_id,
+                username: s.username,
+                name: s.realname || s.username,
+                total: 0,
+                submitted: 0,
+                ac: 0
+              })
+            }
+            const row = byUser.get(s.user_id)
+            let csum = 0
+            ;(sb.problems || []).forEach(p => {
+              const cell = s.by_problem[p.label]
+              if (isJudgedCell(cell)) {
+                row.submitted += 1
+                csum += (cell.testcase.score || 0)
+                if (cell.testcase.result === 0) row.ac += 1
+              }
+            })
+            row['c_' + sb.contest.id] = csum
+            row.total += csum
+          })
+        })
+        const rows = [...byUser.values()]
+        const denom = maxScore || 1
+        rows.forEach(r => {
+          r.scaled = Math.round((r.total / denom) * 100)
+          r.progressPct = problemCount ? Math.round((r.submitted / problemCount) * 100) : 0
+          r.acRate = r.submitted ? Math.round((r.ac / r.submitted) * 100) : 0
+        })
+        rows.sort((a, b) => b.total - a.total)
+
+        // 그룹 카드 통계
+        const studentCount = rows.length || 1
+        const avgScaled = Math.round(rows.reduce((a, r) => a + r.scaled, 0) / studentCount)
+        const avgSubmitted = (rows.reduce((a, r) => a + r.submitted, 0) / studentCount).toFixed(1)
+        const totalAttempts = rows.reduce((a, r) => a + r.submitted, 0)
+        const totalAC = rows.reduce((a, r) => a + r.ac, 0)
+        const avgACRate = totalAttempts ? Math.round((totalAC / totalAttempts) * 100) : 0
+
+        return {
+          key: groupKey,
+          label,
+          contestCount: scoreboards.length,
+          problemCount,
+          maxScore,
+          avgScaled,
+          avgSubmitted,
+          avgACRate,
+          rows,
+          columns: this._buildColumns(groupKey, scoreboards, maxScore, problemCount)
+        }
+      },
+      _buildColumns (groupKey, scoreboards, maxScore, problemCount) {
+        const cols = [
+          { title: '학생', key: 'name', width: 140, fixed: 'left', sortable: true },
+          { title: '학번', key: 'username', width: 110, fixed: 'left' },
+          {
+            title: this.$t('m.EvalCol_TotalRaw'),
+            key: 'total',
+            width: 90,
+            fixed: 'left',
+            sortable: true,
+            renderHeader: (h) => h('div', { class: 'th-strong' }, this.$t('m.EvalCol_TotalRaw')),
+            render: (h, p) => h('strong', { class: 'cell-total' }, String(p.row.total))
+          },
+          {
+            title: this.$t('m.EvalCol_Scaled'),
+            key: 'scaled',
+            width: 110,
+            fixed: 'left',
+            sortable: true,
+            renderHeader: (h) => h('div', { class: 'th-strong' }, [
+              h('div', this.$t('m.EvalCol_Scaled')),
+              h('div', { class: 'th-sub' }, `만점 ${maxScore}`)
+            ]),
+            render: (h, p) => h('span', { class: 'cell-scaled' }, [
+              h('strong', String(p.row.scaled)),
+              h('small', { class: 'unit' }, ' /100')
+            ])
+          },
+          {
+            title: this.$t('m.EvalCol_Progress'),
+            key: 'submitted',
+            width: 130,
+            sortable: true,
+            renderHeader: (h) => h('div', { class: 'th-strong' }, [
+              h('div', this.$t('m.EvalCol_Progress')),
+              h('div', { class: 'th-sub' }, `전체 ${problemCount}`)
+            ]),
+            render: (h, p) => h('span', { class: 'cell-progress' }, [
+              h('strong', `${p.row.submitted} / ${problemCount}`),
+              h('small', { class: 'unit' }, ` (${p.row.progressPct}%)`)
+            ])
+          },
+          {
+            title: this.$t('m.EvalCol_ACCount'),
+            key: 'ac',
+            width: 100,
+            sortable: true,
+            renderHeader: (h) => h('div', { class: 'th-strong' }, this.$t('m.EvalCol_ACCount')),
+            render: (h, p) => h('span', { class: 'cell-ac' }, [
+              h('strong', String(p.row.ac)),
+              h('small', { class: 'unit' }, ` (${p.row.acRate}%)`)
+            ])
+          }
+        ]
+        // 그룹 안 각 contest 점수 컬럼
+        scoreboards.forEach(sb => {
+          cols.push({
+            title: sb.contest.title,
+            key: 'c_' + sb.contest.id,
+            width: 130,
+            sortable: true,
+            renderHeader: (h) => {
+              const t = sb.contest.title
+              const short = t.length > 14 ? t.slice(0, 12) + '…' : t
+              return h('div', { class: `th-contest g-${groupKey}`, attrs: { title: t } }, [
+                h('div', { class: 'th-contest-name' }, short),
+                h('div', { class: 'th-contest-type' }, sb.contest.lecture_contest_type || '')
+              ])
+            },
+            render: (h, p) => h('span', { class: 'cell-contest' }, String(p.row['c_' + sb.contest.id] || 0))
+          })
+        })
+        return cols
+      },
       run () {
         if (!this.lectureId) return
         this.loading = true
@@ -310,7 +308,6 @@
       onExport (fmt) {
         if (this.exporting) return
         this.exporting = true
-        // PR 4: 사이드카 → 본 서버 endpoint 로 전환
         const url = EvalApi.lectureExportUrl(this.lectureId, fmt)
         const a = document.createElement('a')
         a.href = url
@@ -328,7 +325,7 @@
   .overall-tab {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 20px;
   }
   .placeholder {
     padding: 80px 24px;
@@ -347,41 +344,45 @@
     margin-bottom: 4px;
   }
 
-  // 그룹 요약 카드들 (시험/실습/과제…)
-  .group-summary {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
+  // 그룹 섹션 = 카드 + 표 한 쌍
+  .group-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 4px;
+    &.g-exam   { --g-color: #ed4014; }
+    &.g-lab    { --g-color: #19be6b; }
+    &.g-assignment { --g-color: #2d8cf0; }
+    &.g-other  { --g-color: #95a5a6; }
   }
+
   .group-card {
     background: var(--panelBackground);
     border: 1px solid var(--panel-border-color);
     border-radius: 12px;
-    padding: 16px 18px;
+    padding: 16px 20px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-    border-top: 3px solid #95a5a6;
-    &.g-exam { border-top-color: #ed4014; }
-    &.g-lab { border-top-color: #19be6b; }
-    &.g-assignment { border-top-color: #2d8cf0; }
-    &.g-other { border-top-color: #95a5a6; }
+    border-left: 4px solid var(--g-color, #95a5a6);
     .g-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 12px;
-      .g-name { font-size: 14px; font-weight: 700; color: var(--text-color); }
-      .g-count { font-size: 11px; opacity: 0.6; }
+      margin-bottom: 14px;
+      .g-name { font-size: 16px; font-weight: 700; color: var(--g-color, var(--text-color)); }
+      .g-count { font-size: 11px; opacity: 0.6; color: var(--text-color); }
     }
     .g-stats {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
       .g-stat {
         display: flex;
         flex-direction: column;
-        gap: 2px;
+        gap: 3px;
         .lbl { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; }
-        .val { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .val { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-color);
+          small { font-size: 11px; font-weight: 400; opacity: 0.55; margin-left: 2px; }
+        }
       }
     }
   }
@@ -393,10 +394,10 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     overflow: hidden;
     .table-meta {
-      padding: 12px 18px;
+      padding: 10px 18px;
       border-bottom: 1px solid var(--panel-border-color);
       background: var(--table-head-backgound);
-      font-size: 13px;
+      font-size: 12px;
       color: var(--text-color);
       span { margin-right: 24px; }
       b { font-weight: 500; opacity: 0.65; margin-right: 6px; }
@@ -405,24 +406,21 @@
 
   .overall-table /deep/ .ivu-table {
     .th-strong { font-weight: 700; }
-    .th-group-name { font-weight: 700; font-size: 12px; }
-    .th-group-sub { font-size: 10px; opacity: 0.55; }
+    .th-sub { font-size: 10px; opacity: 0.5; font-weight: 400; }
     .th-contest-name { font-size: 12px; font-weight: 500; }
     .th-contest-type { font-size: 10px; opacity: 0.5; }
-    .th-group, .th-contest { line-height: 1.25; }
-    .th-group.g-exam .th-group-name { color: #ed4014; }
-    .th-group.g-lab .th-group-name { color: #19be6b; }
-    .th-group.g-assignment .th-group-name { color: #2d8cf0; }
+    .th-contest { line-height: 1.25; }
     .th-contest.g-exam { border-bottom: 2px solid rgba(237, 64, 20, 0.4); }
     .th-contest.g-lab { border-bottom: 2px solid rgba(25, 190, 107, 0.4); }
     .th-contest.g-assignment { border-bottom: 2px solid rgba(45, 140, 240, 0.4); }
+    .th-contest.g-other { border-bottom: 2px solid rgba(149, 165, 166, 0.4); }
     .cell-total { font-weight: 700; }
-    .cell-pct { opacity: 0.75; font-variant-numeric: tabular-nums; }
-    .cell-group strong { font-weight: 700; font-variant-numeric: tabular-nums; }
-    .cell-group.g-exam strong { color: #ed4014; }
-    .cell-group.g-lab strong { color: #19be6b; }
-    .cell-group.g-assignment strong { color: #2d8cf0; }
-    .cell-group-pct { opacity: 0.55; font-size: 11px; margin-left: 4px; }
+    .cell-scaled strong { font-weight: 700; font-variant-numeric: tabular-nums; }
+    .cell-scaled .unit, .cell-progress .unit, .cell-ac .unit {
+      opacity: 0.55; font-size: 11px; font-weight: 400;
+    }
+    .cell-progress strong { font-variant-numeric: tabular-nums; }
+    .cell-ac strong { font-weight: 700; font-variant-numeric: tabular-nums; color: #19be6b; }
     .cell-contest { font-variant-numeric: tabular-nums; }
   }
 </style>
