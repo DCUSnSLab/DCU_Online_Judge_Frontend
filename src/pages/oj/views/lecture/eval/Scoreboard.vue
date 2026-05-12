@@ -12,6 +12,11 @@
         <span class="meta-item">
           <b>정성평가</b> {{ sb.n_evaluated_pairs }} / {{ sb.n_total_pairs }}
         </span>
+        <span class="meta-item ac-rate">
+          <b>{{ $t('m.EvalStat_ContestACRate') }}</b>
+          <strong>{{ acRate }}%</strong>
+          <span class="ac-rate-detail">({{ acCount }} / {{ submittedCount }} 제출 중, 전체 {{ totalCells }})</span>
+        </span>
       </div>
       <div class="matrix-wrap">
         <table class="matrix">
@@ -88,6 +93,35 @@
     },
     watch: {
       contestId: { immediate: true, handler () { this.fetch() } }
+    },
+    computed: {
+      _cellStats () {
+        // PENDING(6) / JUDGING(7) 은 채점 끝나지 않은 셀이므로 분모에서 제외.
+        // 미제출 셀(by_problem 에 미존재 or testcase 없음) 도 분모에서 제외 — "제출한 셀 기준 AC율".
+        if (!this.sb) return { totalCells: 0, submitted: 0, ac: 0 }
+        let totalCells = 0
+        let submitted = 0
+        let ac = 0
+        this.sb.students.forEach(s => {
+          this.sb.problems.forEach(p => {
+            totalCells += 1
+            const cell = s.by_problem[p.label]
+            if (!cell || !cell.testcase) return
+            const r = cell.testcase.result
+            if (r === 6 || r === 7) return
+            submitted += 1
+            if (r === 0) ac += 1
+          })
+        })
+        return { totalCells, submitted, ac }
+      },
+      totalCells () { return this._cellStats.totalCells },
+      submittedCount () { return this._cellStats.submitted },
+      acCount () { return this._cellStats.ac },
+      acRate () {
+        const s = this._cellStats.submitted
+        return s ? Math.round((this._cellStats.ac / s) * 100) : 0
+      }
     },
     methods: {
       fetch () {
@@ -178,9 +212,17 @@
       font-size: 13px;
       border-bottom: 1px solid var(--panel-border-color);
       background: var(--table-head-backgound);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      gap: 4px 28px;
       .meta-item {
-        margin-right: 28px;
         b { font-weight: 500; opacity: 0.65; margin-right: 6px; }
+      }
+      .ac-rate {
+        margin-left: auto;
+        strong { color: #19be6b; font-weight: 700; font-variant-numeric: tabular-nums; }
+        .ac-rate-detail { opacity: 0.55; font-size: 11px; margin-left: 6px; }
       }
     }
     .matrix-wrap {
