@@ -260,19 +260,6 @@
       resetExamWeights () {
         this.examWeights = {}
       },
-      _weightedScaledFor (row, scoreboards) {
-        // sum( (c_score / c_max) * weight ) — weight 합이 100 일 때 결과도 100점 만점
-        let acc = 0
-        scoreboards.forEach(sb => {
-          const w = Number(this.examWeights[sb.contest.id]) || 0
-          if (!w) return
-          const cmax = (sb.problems || []).reduce((a, p) => a + (p.total_score || 0), 0)
-          if (!cmax) return
-          const cscore = row['c_' + sb.contest.id] || 0
-          acc += (cscore / cmax) * w
-        })
-        return Math.round(acc * 10) / 10
-      },
       renderTabLabel (g) {
         // h 가 인자로 들어오지 않는 형태로 label 을 함수로 넘기면 iView 가 알아서 처리.
         // 라벨에 그룹명 + 학생수 보조 표기.
@@ -330,12 +317,17 @@
           r.scaled = Math.round((r.total / denom) * 100)
           r.progressPct = problemCount ? Math.round((r.submitted / problemCount) * 100) : 0
           r.acRate = r.submitted ? Math.round((r.ac / r.submitted) * 100) : 0
-          if (groupKey === 'exam') {
-            r.weightedScaled = this._weightedScaledFor(r, scoreboards)
-          } else {
+          if (groupKey !== 'exam') {
             r.customScaled = scaleMax && maxScore ? Math.round((r.total / maxScore) * scaleMax * 10) / 10 : 0
           }
         })
+        // exam 그룹: 컨테스트별 환산 셀은 closure 안에서 this.examWeights 를 읽기 때문에,
+        // 여기서 명시적으로 access 해야 groupSections 가 examWeights 에 dependency 를 가짐
+        // (변경 시 columns 재빌드 + Table 재렌더).
+        if (groupKey === 'exam') {
+          // eslint-disable-next-line no-unused-expressions
+          scoreboards.forEach(sb => this.examWeights[sb.contest.id])
+        }
         rows.sort((a, b) => b.total - a.total)
 
         // 그룹 카드 통계
@@ -420,27 +412,9 @@
             ])
           }
         ]
-        // 시험/대회 그룹 전용: 컨테스트 가중치 합산 환산 컬럼
-        if (groupKey === 'exam') {
-          cols.push({
-            title: '가중환산',
-            key: 'weightedScaled',
-            width: 120,
-            sortable: true,
-            renderHeader: (h) => h('div', { class: 'th-strong th-weighted' }, [
-              h('div', '가중환산'),
-              h('div', { class: 'th-sub' }, `합 ${this.examWeightsSum}점`)
-            ]),
-            render: (h, p) => {
-              const v = p.row.weightedScaled || 0
-              return h('span', { class: 'cell-weighted' }, [
-                h('strong', v.toFixed(1)),
-                h('small', { class: 'unit' }, ` / ${this.examWeightsSum}`)
-              ])
-            }
-          })
-        } else {
-          // 실습/과제/기타: 그룹 전체 환산 만점 (단일 입력) 기반 환산 컬럼
+        // 실습/과제/기타: 그룹 전체 환산 만점 (단일 입력) 기반 환산 컬럼
+        // 시험/대회 그룹은 컨테스트별 셀에서 직접 환산값을 보여줌 (총합 컬럼 없음)
+        if (groupKey !== 'exam') {
           const scaleMax = Number(this.groupScaleMax[groupKey]) || 0
           if (scaleMax) {
             cols.push({
@@ -462,41 +436,58 @@
             })
           }
         }
-        // 그룹 안 각 contest 점수 컬럼
+        // 그룹 안 각 contest: 원점수 컬럼 + (시험/대회 그룹만) 환산점수 컬럼
         scoreboards.forEach(sb => {
           const cmax = (sb.problems || []).reduce((a, p) => a + (p.total_score || 0), 0)
+          const rawKey = 'c_' + sb.contest.id
+          const t = sb.contest.title
+          const short = t.length > 14 ? t.slice(0, 12) + '…' : t
+          // 원점수 컬럼
           cols.push({
-            title: sb.contest.title,
-            key: 'c_' + sb.contest.id,
-            width: 140,
+            title: t,
+            key: rawKey,
+            width: 120,
             sortable: true,
-            renderHeader: (h) => {
-              const t = sb.contest.title
-              const short = t.length > 14 ? t.slice(0, 12) + '…' : t
-              const children = [
-                h('div', { class: 'th-contest-name' }, short),
-                h('div', { class: 'th-contest-type' }, sb.contest.lecture_contest_type || '')
-              ]
-              // 시험/대회 그룹의 contest 헤더에 적용 가중치 표시 (가독성)
-              if (groupKey === 'exam') {
-                const w = Number(this.examWeights[sb.contest.id]) || 0
-                if (w) children.push(h('div', { class: 'th-contest-weight' }, `× ${w}%`))
-              }
-              return h('div', { class: `th-contest g-${groupKey}`, attrs: { title: t } }, children)
-            },
-            render: (h, p) => {
-              const raw = p.row['c_' + sb.contest.id] || 0
-              const children = [h('div', { class: 'cell-contest-raw' }, String(raw))]
-              if (groupKey === 'exam') {
-                const w = Number(this.examWeights[sb.contest.id]) || 0
-                if (w && cmax) {
-                  const conv = Math.round((raw / cmax) * w * 10) / 10
-                  children.push(h('div', { class: 'cell-contest-conv' }, `${conv.toFixed(1)} / ${w}`))
-                }
-              }
-              return h('span', { class: 'cell-contest' }, children)
-            }
+            renderHeader: (h) => h('div', { class: `th-contest g-${groupKey}`, attrs: { title: t } }, [
+              h('div', { class: 'th-contest-name' }, short),
+              h('div', { class: 'th-contest-sub' }, [
+                h('span', { class: 'th-contest-type' }, sb.contest.lecture_contest_type || ''),
+                h('span', { class: 'th-contest-max' }, ` · 만점 ${cmax}`)
+              ])
+            ]),
+            render: (h, p) => h('span', { class: 'cell-contest-raw' }, String(p.row[rawKey] || 0))
           })
+          // 시험/대회 그룹: 환산점수 컬럼 추가
+          if (groupKey === 'exam') {
+            cols.push({
+              title: t + ' 환산',
+              key: rawKey + '_conv',
+              width: 110,
+              sortable: true,
+              sortMethod: (a, b, type) => {
+                const w = Number(this.examWeights[sb.contest.id]) || 0
+                const av = cmax ? (a[rawKey] || 0) / cmax * w : 0
+                const bv = cmax ? (b[rawKey] || 0) / cmax * w : 0
+                return type === 'asc' ? av - bv : bv - av
+              },
+              renderHeader: (h) => {
+                const w = Number(this.examWeights[sb.contest.id]) || 0
+                return h('div', { class: `th-contest th-contest-conv g-${groupKey}`, attrs: { title: t + ' 환산' } }, [
+                  h('div', { class: 'th-contest-name' }, short + ' 환산'),
+                  h('div', { class: 'th-contest-sub' }, w ? `만점 ${w}점` : '미설정')
+                ])
+              },
+              render: (h, p) => {
+                const w = Number(this.examWeights[sb.contest.id]) || 0
+                if (!w || !cmax) return h('span', { class: 'cell-contest-conv muted' }, '—')
+                const conv = Math.round(((p.row[rawKey] || 0) / cmax) * w * 10) / 10
+                return h('span', { class: 'cell-contest-conv' }, [
+                  h('strong', conv.toFixed(1)),
+                  h('small', { class: 'unit' }, ` / ${w}`)
+                ])
+              }
+            })
+          }
         })
         return cols
       },
@@ -749,28 +740,24 @@
     }
     .cell-progress strong { font-variant-numeric: tabular-nums; }
     .cell-ac strong { font-weight: 700; font-variant-numeric: tabular-nums; color: #19be6b; }
-    .cell-contest {
+    .cell-contest-raw {
       font-variant-numeric: tabular-nums;
-      line-height: 1.25;
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      .cell-contest-raw { font-weight: 600; }
-      .cell-contest-conv {
-        font-size: 10px;
-        opacity: 0.7;
-        color: #ed4014;
-        margin-top: 1px;
-        &::before { content: '↦ '; opacity: 0.6; }
-      }
+      font-weight: 500;
     }
-    .th-contest-weight {
-      font-size: 9px;
-      font-weight: 600;
-      opacity: 0.75;
+    .cell-contest-conv {
+      font-variant-numeric: tabular-nums;
       color: #ed4014;
-      margin-top: 2px;
+      strong { font-weight: 700; }
+      .unit { opacity: 0.6; font-size: 11px; margin-left: 1px; }
+      &.muted { color: var(--text-color); opacity: 0.35; }
     }
+    .th-contest-sub {
+      font-size: 10px;
+      opacity: 0.5;
+      .th-contest-type, .th-contest-max { display: inline; }
+    }
+    .th-contest-conv .th-contest-name { color: #ed4014; }
+    .th-contest-conv .th-contest-sub { color: #ed4014; opacity: 0.7; }
     .cell-ssn { font-variant-numeric: tabular-nums; opacity: 0.9; }
     .cell-weighted strong { font-weight: 700; font-variant-numeric: tabular-nums; color: #ed4014; }
     .th-weighted .th-sub { color: #ed4014; opacity: 0.7; }
