@@ -20,10 +20,13 @@
         </Dropdown>
       </div>
 
-      <!-- 그룹별 독립 섹션: 카드(요약 통계) + 표(학생 행) -->
-      <div v-for="g in groupSections" :key="g.key" class="group-section" :class="'g-' + g.key">
-        <!-- 그룹 요약 카드 -->
-        <div class="group-card" :class="'g-' + g.key">
+      <!-- 그룹별 요약 카드들 — 탭 전환과 무관하게 상단에 항상 노출 -->
+      <div class="group-summary-bar">
+        <div v-for="g in groupSections"
+             :key="'card-' + g.key"
+             class="group-card"
+             :class="['g-' + g.key, { active: activeGroupKey === g.key }]"
+             @click="activeGroupKey = g.key">
           <div class="g-header">
             <span class="g-name">{{ g.label }}</span>
             <span class="g-count">{{ g.contestCount }} 컨테스트 · {{ g.problemCount }} 문제</span>
@@ -47,22 +50,29 @@
             </div>
           </div>
         </div>
-
-        <!-- 그룹 학생별 표 -->
-        <div class="table-card">
-          <div class="table-meta">
-            <span><b>{{ $t('m.EvalStat_StudentCount') }}</b> {{ g.rows.length }}</span>
-            <span><b>{{ $t('m.EvalStat_ContestCount') }}</b> {{ g.contestCount }}</span>
-            <span><b>{{ $t('m.EvalStat_ProblemCount') }}</b> {{ g.problemCount }}</span>
-            <span><b>{{ $t('m.EvalStat_MaxScore') }}</b> {{ g.maxScore }}</span>
-          </div>
-          <Table :columns="g.columns"
-                 :data="g.rows"
-                 :stripe="true"
-                 :max-height="tableMaxHeight"
-                 class="overall-table"></Table>
-        </div>
       </div>
+
+      <!-- 그룹별 표 (탭) -->
+      <Tabs v-model="activeGroupKey" class="overall-tabs" :animated="false">
+        <TabPane v-for="g in groupSections"
+                 :key="'tab-' + g.key"
+                 :name="g.key"
+                 :label="renderTabLabel(g)">
+          <div class="table-card">
+            <div class="table-meta">
+              <span><b>{{ $t('m.EvalStat_StudentCount') }}</b> {{ g.rows.length }}</span>
+              <span><b>{{ $t('m.EvalStat_ContestCount') }}</b> {{ g.contestCount }}</span>
+              <span><b>{{ $t('m.EvalStat_ProblemCount') }}</b> {{ g.problemCount }}</span>
+              <span><b>{{ $t('m.EvalStat_MaxScore') }}</b> {{ g.maxScore }}</span>
+            </div>
+            <Table :columns="g.columns"
+                   :data="g.rows"
+                   :stripe="true"
+                   :max-height="tableMaxHeight"
+                   class="overall-table"></Table>
+          </div>
+        </TabPane>
+      </Tabs>
     </div>
   </div>
 </template>
@@ -102,8 +112,9 @@
         scoreboards: [],
         progressDone: 0,
         progressTotal: 0,
-        tableMaxHeight: window.innerHeight - 360,
-        exporting: false
+        tableMaxHeight: window.innerHeight - 420,
+        exporting: false,
+        activeGroupKey: 'exam'
       }
     },
     computed: {
@@ -137,9 +148,22 @@
       }
     },
     watch: {
-      lectureId: { immediate: true, handler () { this.run() } }
+      lectureId: { immediate: true, handler () { this.run() } },
+      groupSections (sections) {
+        // 데이터 도착 후 활성 탭이 비어있는 그룹이면 첫 그룹으로 이동
+        const has = sections.some(s => s.key === this.activeGroupKey)
+        if (!has && sections.length) this.activeGroupKey = sections[0].key
+      }
     },
     methods: {
+      renderTabLabel (g) {
+        // h 가 인자로 들어오지 않는 형태로 label 을 함수로 넘기면 iView 가 알아서 처리.
+        // 라벨에 그룹명 + 학생수 보조 표기.
+        return (h) => h('span', { class: 'tab-label g-' + g.key }, [
+          h('span', { class: 'tab-name' }, g.label),
+          h('span', { class: 'tab-count' }, ` (${g.rows.length})`)
+        ])
+      },
       _buildSection (groupKey, scoreboards) {
         const label = this.groupLabels[groupKey]
         // 그룹 만점 = 그 그룹 안 모든 contest 의 problem.total_score 합
@@ -344,48 +368,72 @@
     margin-bottom: 4px;
   }
 
-  // 그룹 섹션 = 카드 + 표 한 쌍
-  .group-section {
-    display: flex;
-    flex-direction: column;
+  // 그룹 요약 카드 가로 띠 (탭 전환과 무관, 상시 노출)
+  .group-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 12px;
-    padding-top: 4px;
-    &.g-exam   { --g-color: #ed4014; }
-    &.g-lab    { --g-color: #19be6b; }
-    &.g-assignment { --g-color: #2d8cf0; }
-    &.g-other  { --g-color: #95a5a6; }
+    margin-bottom: 4px;
   }
 
   .group-card {
     background: var(--panelBackground);
     border: 1px solid var(--panel-border-color);
     border-radius: 12px;
-    padding: 16px 20px;
+    padding: 14px 16px;
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     border-left: 4px solid var(--g-color, #95a5a6);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s, border-color 0.1s;
+    &.g-exam   { --g-color: #ed4014; }
+    &.g-lab    { --g-color: #19be6b; }
+    &.g-assignment { --g-color: #2d8cf0; }
+    &.g-other  { --g-color: #95a5a6; }
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    &.active {
+      box-shadow: 0 0 0 2px var(--g-color), 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
     .g-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      margin-bottom: 14px;
-      .g-name { font-size: 16px; font-weight: 700; color: var(--g-color, var(--text-color)); }
-      .g-count { font-size: 11px; opacity: 0.6; color: var(--text-color); }
+      margin-bottom: 10px;
+      .g-name { font-size: 15px; font-weight: 700; color: var(--g-color, var(--text-color)); }
+      .g-count { font-size: 10px; opacity: 0.6; color: var(--text-color); }
     }
     .g-stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px 12px;
       .g-stat {
         display: flex;
         flex-direction: column;
-        gap: 3px;
-        .lbl { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.05em; }
-        .val { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-color);
-          small { font-size: 11px; font-weight: 400; opacity: 0.55; margin-left: 2px; }
+        gap: 2px;
+        .lbl { font-size: 9px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.04em; }
+        .val { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--text-color);
+          small { font-size: 10px; font-weight: 400; opacity: 0.55; margin-left: 2px; }
         }
       }
     }
   }
+
+  .overall-tabs /deep/ .ivu-tabs-bar {
+    margin-bottom: 12px;
+    border-bottom-color: var(--panel-border-color);
+  }
+  .overall-tabs /deep/ .ivu-tabs-tab {
+    font-size: 13px;
+    padding: 8px 16px;
+    .tab-label .tab-count { opacity: 0.55; font-size: 11px; }
+    &.g-exam.ivu-tabs-tab-active, &.ivu-tabs-tab-active .tab-label.g-exam .tab-name { color: #ed4014; }
+    &.g-lab.ivu-tabs-tab-active, &.ivu-tabs-tab-active .tab-label.g-lab .tab-name { color: #19be6b; }
+    &.g-assignment.ivu-tabs-tab-active, &.ivu-tabs-tab-active .tab-label.g-assignment .tab-name { color: #2d8cf0; }
+    &.g-other.ivu-tabs-tab-active, &.ivu-tabs-tab-active .tab-label.g-other .tab-name { color: #95a5a6; }
+  }
+  .overall-tabs /deep/ .ivu-tabs-ink-bar { height: 3px; background-color: var(--text-hover-color); }
 
   .table-card {
     background: var(--panelBackground);
