@@ -61,10 +61,9 @@
           <!-- 시험/대회 전용: 컨테스트별 가중치 입력 -->
           <div v-if="g.key === 'exam'" class="weights-panel">
             <div class="wp-head">
-              <span class="wp-title">컨테스트별 가중치</span>
-              <span class="wp-sum" :class="{ ok: examWeightsSum === 100, off: examWeightsSum !== 100 }">
-                합계 <strong>{{ examWeightsSum }}</strong>%
-                <small v-if="examWeightsSum !== 100">(목표 100%)</small>
+              <span class="wp-title">컨테스트별 환산 점수</span>
+              <span class="wp-sum ok">
+                합계 만점 <strong>{{ examWeightsSum }}</strong>점
               </span>
               <a class="wp-reset" @click="resetExamWeights">초기화</a>
             </div>
@@ -72,13 +71,27 @@
               <label v-for="sb in g.scoreboards" :key="'w-' + sb.contest.id" class="wp-item" :title="sb.contest.title">
                 <span class="wp-name">{{ sb.contest.title }}</span>
                 <span class="wp-input">
-                  <input type="number" min="0" max="100" step="1"
+                  <input type="number" min="0" step="1"
                          :value="examWeights[sb.contest.id] || 0"
                          @input="onWeightInput(sb.contest.id, $event)"
                          class="wp-num"/>
-                  <span class="wp-unit">%</span>
+                  <span class="wp-unit">점</span>
                 </span>
               </label>
+            </div>
+          </div>
+          <!-- 비-시험 그룹: 그룹 전체 환산 만점 단일 입력 -->
+          <div v-else class="weights-panel">
+            <div class="wp-head">
+              <span class="wp-title">{{ g.label }} 전체 환산 만점</span>
+              <span class="wp-input wp-input-inline">
+                <input type="number" min="0" step="1"
+                       :value="groupScaleMax[g.key] || 0"
+                       @input="onGroupScaleInput(g.key, $event)"
+                       class="wp-num wp-num-large"/>
+                <span class="wp-unit">점</span>
+              </span>
+              <span class="wp-hint">학생별 환산점수 = 총점 / 그룹 만점 × 위 값</span>
             </div>
           </div>
           <div class="table-card">
@@ -138,7 +151,8 @@
         tableMaxHeight: window.innerHeight - 420,
         exporting: false,
         activeGroupKey: 'exam',
-        examWeights: {}
+        examWeights: {},
+        groupScaleMax: { lab: 0, assignment: 0, other: 0 }
       }
     },
     computed: {
@@ -180,6 +194,7 @@
         immediate: true,
         handler (id) {
           this.loadExamWeights(id)
+          this.loadGroupScaleMax(id)
           this.run()
         }
       },
@@ -191,11 +206,37 @@
       examWeights: {
         deep: true,
         handler () { this.saveExamWeights() }
+      },
+      groupScaleMax: {
+        deep: true,
+        handler () { this.saveGroupScaleMax() }
       }
     },
     methods: {
       _examWeightsKey (lectureId) {
         return `eval_exam_weights_${lectureId}`
+      },
+      _groupScaleMaxKey (lectureId) {
+        return `eval_group_scale_max_${lectureId}`
+      },
+      loadGroupScaleMax (lectureId) {
+        const defaults = { lab: 0, assignment: 0, other: 0 }
+        if (!lectureId) { this.groupScaleMax = defaults; return }
+        try {
+          const raw = localStorage.getItem(this._groupScaleMaxKey(lectureId))
+          this.groupScaleMax = raw ? Object.assign({}, defaults, JSON.parse(raw)) : defaults
+        } catch (e) { this.groupScaleMax = defaults }
+      },
+      saveGroupScaleMax () {
+        if (!this.lectureId) return
+        try {
+          localStorage.setItem(this._groupScaleMaxKey(this.lectureId), JSON.stringify(this.groupScaleMax))
+        } catch (e) {}
+      },
+      onGroupScaleInput (groupKey, ev) {
+        let v = Number(ev.target.value)
+        if (!isFinite(v) || v < 0) v = 0
+        this.$set(this.groupScaleMax, groupKey, v)
       },
       loadExamWeights (lectureId) {
         if (!lectureId) { this.examWeights = {}; return }
@@ -284,12 +325,15 @@
         })
         const rows = [...byUser.values()]
         const denom = maxScore || 1
+        const scaleMax = Number(this.groupScaleMax[groupKey]) || 0
         rows.forEach(r => {
           r.scaled = Math.round((r.total / denom) * 100)
           r.progressPct = problemCount ? Math.round((r.submitted / problemCount) * 100) : 0
           r.acRate = r.submitted ? Math.round((r.ac / r.submitted) * 100) : 0
           if (groupKey === 'exam') {
             r.weightedScaled = this._weightedScaledFor(r, scoreboards)
+          } else {
+            r.customScaled = scaleMax && maxScore ? Math.round((r.total / maxScore) * scaleMax * 10) / 10 : 0
           }
         })
         rows.sort((a, b) => b.total - a.total)
@@ -376,7 +420,7 @@
             ])
           }
         ]
-        // 시험/대회 그룹 전용: 가중치 환산 컬럼
+        // 시험/대회 그룹 전용: 컨테스트 가중치 합산 환산 컬럼
         if (groupKey === 'exam') {
           cols.push({
             title: '가중환산',
@@ -385,33 +429,73 @@
             sortable: true,
             renderHeader: (h) => h('div', { class: 'th-strong th-weighted' }, [
               h('div', '가중환산'),
-              h('div', { class: 'th-sub' }, '컨테스트 % 기준')
+              h('div', { class: 'th-sub' }, `합 ${this.examWeightsSum}점`)
             ]),
             render: (h, p) => {
               const v = p.row.weightedScaled || 0
               return h('span', { class: 'cell-weighted' }, [
                 h('strong', v.toFixed(1)),
-                h('small', { class: 'unit' }, ' /100')
+                h('small', { class: 'unit' }, ` / ${this.examWeightsSum}`)
               ])
             }
           })
+        } else {
+          // 실습/과제/기타: 그룹 전체 환산 만점 (단일 입력) 기반 환산 컬럼
+          const scaleMax = Number(this.groupScaleMax[groupKey]) || 0
+          if (scaleMax) {
+            cols.push({
+              title: '환산',
+              key: 'customScaled',
+              width: 120,
+              sortable: true,
+              renderHeader: (h) => h('div', { class: 'th-strong th-weighted' }, [
+                h('div', '환산'),
+                h('div', { class: 'th-sub' }, `만점 ${scaleMax}점`)
+              ]),
+              render: (h, p) => {
+                const v = p.row.customScaled || 0
+                return h('span', { class: 'cell-weighted' }, [
+                  h('strong', v.toFixed(1)),
+                  h('small', { class: 'unit' }, ` / ${scaleMax}`)
+                ])
+              }
+            })
+          }
         }
         // 그룹 안 각 contest 점수 컬럼
         scoreboards.forEach(sb => {
+          const cmax = (sb.problems || []).reduce((a, p) => a + (p.total_score || 0), 0)
           cols.push({
             title: sb.contest.title,
             key: 'c_' + sb.contest.id,
-            width: 130,
+            width: 140,
             sortable: true,
             renderHeader: (h) => {
               const t = sb.contest.title
               const short = t.length > 14 ? t.slice(0, 12) + '…' : t
-              return h('div', { class: `th-contest g-${groupKey}`, attrs: { title: t } }, [
+              const children = [
                 h('div', { class: 'th-contest-name' }, short),
                 h('div', { class: 'th-contest-type' }, sb.contest.lecture_contest_type || '')
-              ])
+              ]
+              // 시험/대회 그룹의 contest 헤더에 적용 가중치 표시 (가독성)
+              if (groupKey === 'exam') {
+                const w = Number(this.examWeights[sb.contest.id]) || 0
+                if (w) children.push(h('div', { class: 'th-contest-weight' }, `× ${w}%`))
+              }
+              return h('div', { class: `th-contest g-${groupKey}`, attrs: { title: t } }, children)
             },
-            render: (h, p) => h('span', { class: 'cell-contest' }, String(p.row['c_' + sb.contest.id] || 0))
+            render: (h, p) => {
+              const raw = p.row['c_' + sb.contest.id] || 0
+              const children = [h('div', { class: 'cell-contest-raw' }, String(raw))]
+              if (groupKey === 'exam') {
+                const w = Number(this.examWeights[sb.contest.id]) || 0
+                if (w && cmax) {
+                  const conv = Math.round((raw / cmax) * w * 10) / 10
+                  children.push(h('div', { class: 'cell-contest-conv' }, `${conv.toFixed(1)} / ${w}`))
+                }
+              }
+              return h('span', { class: 'cell-contest' }, children)
+            }
           })
         })
         return cols
@@ -560,6 +644,23 @@
         cursor: pointer;
         &:hover { opacity: 1; color: var(--text-hover-color); }
       }
+      .wp-input-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        .wp-num-large {
+          width: 80px;
+          font-size: 14px;
+          font-weight: 600;
+        }
+        .wp-unit { font-size: 12px; opacity: 0.7; }
+      }
+      .wp-hint {
+        font-size: 11px;
+        opacity: 0.55;
+        color: var(--text-color);
+        margin-left: 8px;
+      }
     }
     .wp-grid {
       display: grid;
@@ -648,7 +749,28 @@
     }
     .cell-progress strong { font-variant-numeric: tabular-nums; }
     .cell-ac strong { font-weight: 700; font-variant-numeric: tabular-nums; color: #19be6b; }
-    .cell-contest { font-variant-numeric: tabular-nums; }
+    .cell-contest {
+      font-variant-numeric: tabular-nums;
+      line-height: 1.25;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      .cell-contest-raw { font-weight: 600; }
+      .cell-contest-conv {
+        font-size: 10px;
+        opacity: 0.7;
+        color: #ed4014;
+        margin-top: 1px;
+        &::before { content: '↦ '; opacity: 0.6; }
+      }
+    }
+    .th-contest-weight {
+      font-size: 9px;
+      font-weight: 600;
+      opacity: 0.75;
+      color: #ed4014;
+      margin-top: 2px;
+    }
     .cell-ssn { font-variant-numeric: tabular-nums; opacity: 0.9; }
     .cell-weighted strong { font-weight: 700; font-variant-numeric: tabular-nums; color: #ed4014; }
     .th-weighted .th-sub { color: #ed4014; opacity: 0.7; }
