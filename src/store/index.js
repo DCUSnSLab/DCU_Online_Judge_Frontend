@@ -5,6 +5,7 @@ import contest from './modules/contest'
 import api from '@oj/api'
 import types from './types'
 import theme from './modules/theme'
+import evalQueue from './modules/evalQueue'
 
 Vue.use(Vuex)
 const debug = process.env.NODE_ENV !== 'production'
@@ -64,7 +65,8 @@ export default new Vuex.Store({
   modules: {
     user,
     contest,
-    theme
+    theme,
+    evalQueue
   },
   state: rootState,
   getters: rootGetters,

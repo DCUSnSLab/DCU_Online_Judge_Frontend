@@ -1,271 +1,131 @@
 <template>
-  <Row type="flex">
-    <Col :span="24">
-    <Panel id="contest-card" shadow :style="currentTheme">
-      <div slot="title">{{ this.lecture_title }} <p :style="{ color: 'var(--text-color)' }">{{$t('m.Created')}} : {{ this.lecture_creator }}</p></div><!--LectureList.vue에서 보낸 수강과목 title 값-->
-      <div slot="extra">
-        <ul class="filter">
-          <li>
-            <Dropdown @on-click="onRuleChange">
-              <span>{{query.rule_type === '' ? this.$i18n.t('m.Rule') : this.$i18n.t('m.' + query.rule_type)}}
-                <Icon type="arrow-down-b"></Icon>
-              </span>
-              <Dropdown-menu slot="list">
-                <Dropdown-item name="">{{$t('m.All')}}</Dropdown-item>
-                <Dropdown-item name="OI">{{$t('m.OI')}}</Dropdown-item>
-                <Dropdown-item name="ACM">{{$t('m.ACM')}}</Dropdown-item>
-              </Dropdown-menu>
-            </Dropdown>
-          </li>
-          <li>
-            <Dropdown @on-click="onStatusChange">
-              <span>{{query.status === '' ? this.$i18n.t('m.Status') : this.$i18n.t('m.' + CONTEST_STATUS_REVERSE[query.status].display.replace(/ /g,"_"))}}
-                <Icon type="arrow-down-b"></Icon>
-              </span>
-              <Dropdown-menu slot="list">
-                <Dropdown-item name="">{{$t('m.All')}}</Dropdown-item>
-                <Dropdown-item name="0">{{$t('m.Underway')}}</Dropdown-item>
-                <Dropdown-item name="1">{{$t('m.Not_Started')}}</Dropdown-item>
-                <Dropdown-item name="-1">{{$t('m.Ended')}}</Dropdown-item>
-              </Dropdown-menu>
-            </Dropdown>
-          </li>
-          <li>
-            <Input id="keyword" @on-enter="changeRoute" @on-click="changeRoute" v-model="query.keyword"
-                   icon="ios-search-strong" placeholder="Keyword"/>
-          </li>
-        </ul>
-      </div>
-      <p id="no-contest" v-if="contests.length == 0">{{$t('m.No_contest')}}</p>
-      <ol id="contest-list">
-        <li v-for="contest in contests" :key="contest.title">
-		<!--수강 과목에 포함된 contest만을 (contest에서 assigned lecture의 값이 lecture id 값과 같은 경우) contest를 출력한다.-->
-            <Row type="flex" justify="space-between" align="middle">
-            <img class="trophy" src="../../../../assets/Cup.png"/><!--다른 이미지로 변경 요망-->
-            <Col :span="18" class="contest-main">
-            <p class="title">
-              <a class="entry" @click.stop="goContest(contest)">
-                {{contest.title}}
-              </a>
-              <template v-if="contest.contest_type != 'Public'">
-                <Icon type="ios-locked-outline" size="20"></Icon>
-              </template>
-            </p>
-            <ul class="detail">
-              <li>
-                <Icon type="calendar" color="#3091f2"></Icon>
-                {{$t('m.StartDate')}} : {{ contest.start_time | localtime('YYYY-M-D HH:mm') }}
-              </li>
-              <li>
-                <Icon type="calendar" color="#3091f2"></Icon>
-                {{$t('m.EndDate')}} : {{ contest.end_time | localtime('YYYY-M-D HH:mm') }}
-              </li>
-              <li>
-                <Icon type="android-time" color="#3091f2"></Icon>
-                {{$t('m.Remaining_Time')}} : {{ remainDuration(contest.end_time) }}
-              </li>
-              <!--<li>
-                <Icon type="android-time" color="#3091f2"></Icon>
-                {{ getDuration(contest.start_time, contest.end_time) }}
-              </li>
-              <li>
-                <Icon type="android-time" color="#3091f2"></Icon>
-                {{getDuration(contest.start_time, contest.end_time)}}
-              </li>
-              <li>
-                <Button size="small" shape="circle" @click="onRuleChange(contest.rule_type)">
-                  {{contest.rule_type}}
-                </Button>
-              </li>-->
-            </ul>
-            </Col>
-            <Col :span="4" style="text-align: center">
-              <Tag type="dot" :color="CONTEST_STATUS_REVERSE[contest.status].color">{{$t(CONTEST_STATUS_REVERSE[contest.status].display)}}</Tag>
-            </Col>
-            </Row>
-        </li>
-      </ol>
-    </Panel>
-    <Pagination :total="total" :pageSize="limit" @on-change="getContestList" :current.sync="page"></Pagination>
-    </Col>
-  </Row>
-
+  <div class="lecture-page">
+    <Tabs :value="activeTab"
+          @on-click="onTabChange"
+          class="lecture-tabs"
+          type="card">
+      <TabPane :label="tabLabel('contests')" name="contests">
+        <ContestList :lecture-id="lectureID" @contests-loaded="onContestsLoaded"/>
+      </TabPane>
+      <TabPane v-if="canViewScores"
+               :label="tabLabel('overall')"
+               name="overall">
+        <OverallTab v-if="activeTab === 'overall'"
+                    :lecture-id="lectureID"/>
+      </TabPane>
+      <TabPane v-if="canViewScores"
+               :label="tabLabel('by-contest')"
+               name="by-contest">
+        <ByContestTab v-if="activeTab === 'by-contest'"
+                      :lecture-id="lectureID"/>
+      </TabPane>
+    </Tabs>
+  </div>
 </template>
 
 <script>
   import api from '@oj/api'
-  import { mapGetters } from 'vuex'
-  import utils from '@/utils/utils'
-  import Pagination from '@/pages/oj/components/Pagination'
-  import time from '@/utils/time'
-  import { CONTEST_STATUS_REVERSE, CONTEST_TYPE } from '@/utils/constants'
+  import ContestList from './ContestList.vue'
 
-  const limit = 50
+  const OverallTab = () => import(/* webpackChunkName: "lecture-eval" */ './eval/OverallTab.vue')
+  const ByContestTab = () => import(/* webpackChunkName: "lecture-eval" */ './eval/ByContestTab.vue')
 
   export default {
-    name: 'contest-list',
-    components: {
-      Pagination
-    },
+    name: 'LectureDetail',
+    components: { ContestList, OverallTab, ByContestTab },
     data () {
       return {
-        lecture_title: '',
-        lecture_creator: '',
-        page: 1,
-        route_name: '',
-        query: {
-          status: '',
-          keyword: '',
-          rule_type: '',
-          lectureid: ''
-        },
-        limit: limit,
-        total: 0,
-        rows: '',
-        contests: [],
-        CONTEST_STATUS_REVERSE: CONTEST_STATUS_REVERSE,
-//      for password modal use
-        cur_contest_id: ''
-      }
-    },
-    mounted () {
-      this.init()
-    },
-    methods: {
-      init () {
-        let route = this.$route.query
-        this.query.status = route.status || ''
-        this.query.rule_type = route.rule_type || ''
-        this.query.keyword = route.keyword
-        this.query.lectureid = this.$route.params.lectureID
-        this.page = parseInt(route.page) || 1
-        this.getContestList()
-      },
-      getContestList (page = 1) {
-        let offset = (page - 1) * this.limit
-        api.getContestList(offset, this.limit, this.query).then((res) => {
-          this.contests = res.data.data.results
-          this.total = res.data.data.total
-          this.lecture_title = this.contests[0].lecture_title
-          this.lecture_creator = this.contests[0].created_by.realname
-        })
-      },
-      changeRoute () {
-        let query = Object.assign({}, this.query)
-        query.page = this.page
-        this.$router.push({
-          name: 'contest-list',
-          query: utils.filterEmptyValue(query)
-        })
-      },
-      onRuleChange (rule) {
-        this.query.rule_type = rule
-        this.page = 1
-        this.changeRoute()
-      },
-      onStatusChange (status) {
-        this.query.status = status
-        this.page = 1
-        this.changeRoute()
-      },
-      goSubmissionDetail () {
-        if (!this.isAuthenticated) {
-          this.$error(this.$i18n.t('m.Please_login_first'))
-          this.$store.dispatch('changeModalStatus', {visible: true})
-        } else {
-          this.$router.push({name: 'lecture-submission-detail', params: {lectureID: this.query.lectureid}})
-        }
-      },
-      goContest (contest) {
-        this.cur_contest_id = contest.id
-        if (contest.contest_type !== CONTEST_TYPE.PUBLIC && !this.isAuthenticated) {
-          this.$error(this.$i18n.t('m.Please_login_first'))
-          this.$store.dispatch('changeModalStatus', {visible: true})
-        } else {
-          this.$router.push({name: 'lecture-contest-details', params: {contestID: contest.id, lectureID: this.query.lectureid}})
-        }
-      },
-
-      getDuration (startTime, endTime) {
-        return time.duration(startTime, endTime)
-      },
-
-      remainDuration (endTime) {
-        let remain
-        if (new Date() - new Date(endTime) > 0) {
-          remain = (this.$i18n.t('m.Ended'))
-          // console.log('이미 지남')
-        } else {
-          remain = time.duration(new Date(), endTime)
-          let current = new Date()
-          let end = new Date(endTime)
-          let dateGap = end.getTime() - current.getTime()
-          let timeGap = new Date(0, 0, 0, 0, 0, 0, end - current)
-          let diffDay = Math.floor(dateGap / (1000 * 60 * 60 * 24))
-          let diffHour = timeGap.getHours()
-          let diffMin = timeGap.getMinutes()
-          return diffDay + (this.$i18n.t('m.Day')) + diffHour + (this.$i18n.t('m.Hour')) + diffMin + (this.$i18n.t('m.Minute'))
-          // console.log('안 지남')
-        }
-        return remain
+        canViewScores: false,
+        loadedContests: [],
+        activeTab: 'contests'
       }
     },
     computed: {
-      ...mapGetters(['isAuthenticated', 'user', 'isSuperAdmin'])
+      lectureID () { return this.$route.params.lectureID }
+    },
+    mounted () {
+      this.activeTab = this.$route.query.tab || 'contests'
+      this.fetchPermission()
+    },
+    methods: {
+      tabLabel (key) {
+        const map = {
+          'contests': 'm.EvalTab_Contests',
+          'overall': 'm.EvalTab_Overall',
+          'by-contest': 'm.EvalTab_ByContest'
+        }
+        return this.$t(map[key])
+      },
+      fetchPermission () {
+        api.getLectureScorePermission(this.lectureID).then(res => {
+          this.canViewScores = !!(res.data && res.data.data && res.data.data.can_view_scores)
+        }).catch(() => { this.canViewScores = false })
+      },
+      onContestsLoaded (payload) {
+        this.loadedContests = payload.contests || []
+      },
+      onTabChange (name) {
+        this.activeTab = name
+        const q = Object.assign({}, this.$route.query, { tab: name })
+        if (name === 'contests') delete q.tab
+        this.$router.replace({ name: 'lecture-details', params: { lectureID: this.lectureID }, query: q })
+      }
     },
     watch: {
-      '$route' (newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.init()
-        }
+      '$route' (newVal) {
+        const t = newVal.query.tab || 'contests'
+        if (t !== this.activeTab) this.activeTab = t
+        if (newVal.params.lectureID !== this.lectureID) this.fetchPermission()
       }
     }
-
   }
 </script>
-<style lang="less" scoped>
-  #contest-card {
-    // color: var(--text-color); 
-    #keyword {
-      width: 80%;
-      margin-right: 30px;
-    }
-    #no-contest {
-      text-align: center;
-      font-size: 16px;
-      padding: 20px;
-    }
-    #contest-list {
-      > li {
-        padding: 20px;
-        border-bottom: 1px solid var(--list-border-bottom);
-        list-style: none;
 
-        .trophy {
-          height: 40px;
-          margin-left: 10px;
-          margin-right: -20px;
-        }
-        .contest-main {
-          .title {
-            font-size: 18px;
-            a.entry {
-              color: var(--text-color);
-              &:hover {
-                color: var(--text-hover-color);
-                border-bottom: 1px solid var(--text-hover-color);
-              }
-            }
-          }
-          li {
-            display: inline-block;
-            padding: 10px 0 0 10px;
-            &:first-child {
-              padding: 10px 0 0 0;
-            }
-          }
-        }
+<style lang="less" scoped>
+  .lecture-page {
+    padding: 4px 0 24px;
+  }
+  .lecture-tabs {
+    /deep/ .ivu-tabs-bar {
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--panel-border-color);
+    }
+    /deep/ .ivu-tabs-nav-container {
+      font-size: 14px;
+    }
+    /deep/ .ivu-tabs-tab {
+      position: relative;
+      padding: 10px 22px;
+      margin-right: 8px;
+      color: var(--text-color);
+      opacity: 0.65;
+      border: none !important;
+      background: transparent !important;
+      border-radius: 8px 8px 0 0;
+      transition: opacity 0.15s, color 0.15s;
+      font-weight: 500;
+      &:hover {
+        opacity: 1;
+        color: var(--text-hover-color);
       }
+    }
+    /deep/ .ivu-tabs-tab-active {
+      opacity: 1;
+      color: var(--text-hover-color) !important;
+      font-weight: 600;
+      &::after {
+        content: '';
+        position: absolute;
+        left: 12px;
+        right: 12px;
+        bottom: -1px;
+        height: 3px;
+        background: var(--text-hover-color);
+        border-radius: 3px 3px 0 0;
+      }
+    }
+    /deep/ .ivu-tabs-ink-bar {
+      display: none;  // 위 ::after 로 직접 그림
     }
   }
 </style>

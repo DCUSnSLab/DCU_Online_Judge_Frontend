@@ -2,6 +2,7 @@
   <div :style="currentTheme">
     <NavBar ref="navbar"></NavBar>
     <div :class="contentClass" v-bind:style="navbarmargin">
+      <MyJobsBanner/>
       <transition name="fadeInUp" mode="out-in">
         <router-view></router-view>
       </transition>
@@ -27,6 +28,7 @@
 <script>
   import { mapActions, mapState } from 'vuex'
   import NavBar from '@oj/components/NavBar.vue'
+  import MyJobsBanner from '@oj/views/lecture/eval/MyJobsBanner.vue'
   import Vue from 'vue'
   import router from './router'
   import VueAnalytics from 'vue-analytics'
@@ -40,7 +42,8 @@
   export default {
     name: 'app',
     components: {
-      NavBar
+      NavBar,
+      MyJobsBanner
     },
     data () {
       return {
