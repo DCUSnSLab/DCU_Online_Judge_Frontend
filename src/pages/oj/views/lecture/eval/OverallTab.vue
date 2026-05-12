@@ -541,10 +541,24 @@
           .catch(e => { this.error = (e && e.detail) || '집계 실패' })
           .finally(() => { this.loading = false })
       },
+      _exportPayload () {
+        // examWeights / groupScaleMax 중 0 이 아닌 값만 backend 로 전달.
+        const weights = {}
+        Object.keys(this.examWeights).forEach(cid => {
+          const v = Number(this.examWeights[cid]) || 0
+          if (v > 0) weights[cid] = v
+        })
+        const scales = {}
+        Object.keys(this.groupScaleMax).forEach(g => {
+          const v = Number(this.groupScaleMax[g]) || 0
+          if (v > 0) scales[g] = v
+        })
+        return { weights, scales }
+      },
       onExport (fmt) {
         if (this.exporting) return
         this.exporting = true
-        const url = EvalApi.lectureExportUrl(this.lectureId, fmt)
+        const url = EvalApi.lectureExportUrl(this.lectureId, fmt, this._exportPayload())
         const a = document.createElement('a')
         a.href = url
         a.target = '_blank'
