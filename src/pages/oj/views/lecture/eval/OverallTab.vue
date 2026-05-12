@@ -313,21 +313,30 @@
         const rows = [...byUser.values()]
         const denom = maxScore || 1
         const scaleMax = Number(this.groupScaleMax[groupKey]) || 0
+        // exam 그룹: contestId → cmax 캐시. row 별 totalConv 계산에 사용.
+        const examCmaxById = {}
+        if (groupKey === 'exam') {
+          scoreboards.forEach(sb => {
+            examCmaxById[sb.contest.id] = (sb.problems || []).reduce((a, p) => a + (p.total_score || 0), 0)
+          })
+        }
         rows.forEach(r => {
           r.scaled = Math.round((r.total / denom) * 100)
           r.progressPct = problemCount ? Math.round((r.submitted / problemCount) * 100) : 0
           r.acRate = r.submitted ? Math.round((r.ac / r.submitted) * 100) : 0
-          if (groupKey !== 'exam') {
+          if (groupKey === 'exam') {
+            let acc = 0
+            scoreboards.forEach(sb => {
+              const w = Number(this.examWeights[sb.contest.id]) || 0
+              const cmax = examCmaxById[sb.contest.id] || 0
+              if (!w || !cmax) return
+              acc += ((r['c_' + sb.contest.id] || 0) / cmax) * w
+            })
+            r.totalConv = Math.round(acc * 10) / 10
+          } else {
             r.customScaled = scaleMax && maxScore ? Math.round((r.total / maxScore) * scaleMax * 10) / 10 : 0
           }
         })
-        // exam 그룹: 컨테스트별 환산 셀은 closure 안에서 this.examWeights 를 읽기 때문에,
-        // 여기서 명시적으로 access 해야 groupSections 가 examWeights 에 dependency 를 가짐
-        // (변경 시 columns 재빌드 + Table 재렌더).
-        if (groupKey === 'exam') {
-          // eslint-disable-next-line no-unused-expressions
-          scoreboards.forEach(sb => this.examWeights[sb.contest.id])
-        }
         rows.sort((a, b) => b.total - a.total)
 
         // 그룹 카드 통계
@@ -385,45 +394,39 @@
               h('strong', String(p.row.scaled)),
               h('small', { class: 'unit' }, ' /100')
             ])
-          },
-          {
-            title: this.$t('m.EvalCol_Progress'),
-            key: 'submitted',
-            width: 130,
-            sortable: true,
-            renderHeader: (h) => h('div', { class: 'th-strong' }, [
-              h('div', this.$t('m.EvalCol_Progress')),
-              h('div', { class: 'th-sub' }, `전체 ${problemCount}`)
-            ]),
-            render: (h, p) => h('span', { class: 'cell-progress' }, [
-              h('strong', `${p.row.submitted} / ${problemCount}`),
-              h('small', { class: 'unit' }, ` (${p.row.progressPct}%)`)
-            ])
-          },
-          {
-            title: this.$t('m.EvalCol_ACCount'),
-            key: 'ac',
-            width: 100,
-            sortable: true,
-            renderHeader: (h) => h('div', { class: 'th-strong' }, this.$t('m.EvalCol_ACCount')),
-            render: (h, p) => h('span', { class: 'cell-ac' }, [
-              h('strong', String(p.row.ac)),
-              h('small', { class: 'unit' }, ` (${p.row.acRate}%)`)
-            ])
           }
         ]
-        // 실습/과제/기타: 그룹 전체 환산 만점 (단일 입력) 기반 환산 컬럼
-        // 시험/대회 그룹은 컨테스트별 셀에서 직접 환산값을 보여줌 (총합 컬럼 없음)
-        if (groupKey !== 'exam') {
+        // [환산] 다음 — [전체 환산점수] 컬럼.
+        //   exam: 컨테스트별 환산값의 합 (가중치 합 만점 기준)
+        //   비-exam: 그룹 전체 환산 만점 입력값 기준 (총점 / 그룹만점 × 만점)
+        if (groupKey === 'exam') {
+          cols.push({
+            title: '전체 환산',
+            key: 'totalConv',
+            width: 130,
+            sortable: true,
+            renderHeader: (h) => h('div', { class: 'th-strong th-weighted' }, [
+              h('div', '전체 환산'),
+              h('div', { class: 'th-sub' }, `합계 만점 ${this.examWeightsSum}점`)
+            ]),
+            render: (h, p) => {
+              const v = p.row.totalConv || 0
+              return h('span', { class: 'cell-weighted' }, [
+                h('strong', v.toFixed(1)),
+                h('small', { class: 'unit' }, ` / ${this.examWeightsSum}`)
+              ])
+            }
+          })
+        } else {
           const scaleMax = Number(this.groupScaleMax[groupKey]) || 0
           if (scaleMax) {
             cols.push({
-              title: '환산',
+              title: '전체 환산',
               key: 'customScaled',
-              width: 120,
+              width: 130,
               sortable: true,
               renderHeader: (h) => h('div', { class: 'th-strong th-weighted' }, [
-                h('div', '환산'),
+                h('div', '전체 환산'),
                 h('div', { class: 'th-sub' }, `만점 ${scaleMax}점`)
               ]),
               render: (h, p) => {
@@ -436,6 +439,32 @@
             })
           }
         }
+        // 진행 / AC 는 전체환산 다음에
+        cols.push({
+          title: this.$t('m.EvalCol_Progress'),
+          key: 'submitted',
+          width: 130,
+          sortable: true,
+          renderHeader: (h) => h('div', { class: 'th-strong' }, [
+            h('div', this.$t('m.EvalCol_Progress')),
+            h('div', { class: 'th-sub' }, `전체 ${problemCount}`)
+          ]),
+          render: (h, p) => h('span', { class: 'cell-progress' }, [
+            h('strong', `${p.row.submitted} / ${problemCount}`),
+            h('small', { class: 'unit' }, ` (${p.row.progressPct}%)`)
+          ])
+        })
+        cols.push({
+          title: this.$t('m.EvalCol_ACCount'),
+          key: 'ac',
+          width: 100,
+          sortable: true,
+          renderHeader: (h) => h('div', { class: 'th-strong' }, this.$t('m.EvalCol_ACCount')),
+          render: (h, p) => h('span', { class: 'cell-ac' }, [
+            h('strong', String(p.row.ac)),
+            h('small', { class: 'unit' }, ` (${p.row.acRate}%)`)
+          ])
+        })
         // 그룹 안 각 contest: 원점수 컬럼 + (시험/대회 그룹만) 환산점수 컬럼
         scoreboards.forEach(sb => {
           const cmax = (sb.problems || []).reduce((a, p) => a + (p.total_score || 0), 0)
