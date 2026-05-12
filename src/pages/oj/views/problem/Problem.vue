@@ -1,6 +1,15 @@
 <template>
-  <div class="problem-layout-container" :style="currentTheme">
-    
+  <div class="problem-page-wrap" :style="currentTheme">
+    <!-- 0. Breadcrumb (lecture-contest-problem-details 만) -->
+    <nav v-if="showBreadcrumb" class="problem-breadcrumb" aria-label="breadcrumb">
+      <a class="bc-seg bc-link" @click="goLecture" :title="lectureTitleFull">{{ lectureTitleShort }}</a>
+      <span class="bc-sep">›</span>
+      <a class="bc-seg bc-link" @click="goContestProblems" :title="contestTitleFull">{{ contestTitleShort }}</a>
+      <span class="bc-sep">›</span>
+      <span class="bc-seg bc-current">{{ breadcrumbProblemLabel }}</span>
+    </nav>
+  <div class="problem-layout-container">
+
     <!-- 1. Menu Pane (only shown when Problem.vue is standalone, not a child of ContestDetail) -->
     <div v-if="!isContestChildRoute" class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
       <div v-show="menuExpanded" class="pane-content pane-scroll">
@@ -488,6 +497,7 @@
       </div>
     </transition>
   </div>
+  </div>
 </template>
 
 <script>
@@ -603,7 +613,8 @@
         scrollTimeout: null,
         showHintNotification: false,
         problemList: [],
-        problemListExpanded: true
+        problemListExpanded: true,
+        lectureTitle: ''
       }
     },
 
@@ -721,7 +732,10 @@
           let data = { contestID: this.contestID }
           api.getlectureid(data).then(res => {
             this.lectureID = res.data.data
+            this.fetchLectureTitle()
           })
+        } else {
+          this.fetchLectureTitle()
         }
       },
       checkAllowedAIhelper () {
@@ -740,6 +754,25 @@
             contestID: this.contestID
           }
         })
+      },
+      goLecture () {
+        if (!this.lectureID) return
+        this.$router.push({ name: 'lecture-details', params: { lectureID: this.lectureID } })
+          .catch(() => {})
+      },
+      goContestProblems () {
+        if (!this.lectureID || !this.contestID) return
+        this.$router.push({
+          name: 'lecture-contest-problem-list',
+          params: { lectureID: this.lectureID, contestID: this.contestID }
+        }).catch(() => {})
+      },
+      fetchLectureTitle () {
+        if (!this.lectureID) return
+        api.getLecture(this.lectureID).then(res => {
+          const d = res && res.data && res.data.data
+          if (d) this.lectureTitle = d.title || d.name || ''
+        }).catch(() => {})
       },
       init () {
         this.$Loading.start()
@@ -1468,6 +1501,28 @@
       isContestChildRoute () {
         const childRouteNames = ['contest-problem-details', 'lecture-contest-problem-details']
         return childRouteNames.indexOf(this.$route.name) > -1
+      },
+      showBreadcrumb () {
+        // 강의 컨텍스트 안의 문제 페이지에서만 breadcrumb 노출.
+        // sidebar 가 숨는 full-width route 라 명시적 복귀 경로가 필요.
+        return this.$route.name === 'lecture-contest-problem-details' && !!this.lectureID && !!this.contestID
+      },
+      lectureTitleFull () {
+        return this.lectureTitle || ''
+      },
+      lectureTitleShort () {
+        const t = this.lectureTitle || '강의'
+        return t.length > 20 ? t.slice(0, 18) + '…' : t
+      },
+      contestTitleFull () {
+        return (this.contest && this.contest.title) || ''
+      },
+      contestTitleShort () {
+        const t = (this.contest && this.contest.title) || '컨테스트'
+        return t.length > 22 ? t.slice(0, 20) + '…' : t
+      },
+      breadcrumbProblemLabel () {
+        return this.problem._id || this.problem.title || '문제'
       },
       ...mapState('theme', ['isDarkMode']),
       currentTheme () {
@@ -2298,10 +2353,56 @@
   }
 
   /* ====== New Layout System ====== */
+  .problem-page-wrap {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 60px);
+  }
+  .problem-breadcrumb {
+    flex: 0 0 auto;
+    padding: 8px 18px;
+    background: var(--panelBackground, #fafafa);
+    border-bottom: 1px solid var(--panel-border-color, #e8eaec);
+    font-size: 12px;
+    color: var(--text-color, #57606a);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+    .bc-seg {
+      max-width: 240px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bc-link {
+      cursor: pointer;
+      color: var(--text-color, #57606a);
+      opacity: 0.75;
+      text-decoration: none;
+      transition: color 0.1s, opacity 0.1s;
+    }
+    .bc-link:hover {
+      color: var(--text-hover-color, #2d8cf0);
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .bc-current {
+      font-weight: 600;
+      color: var(--text-color, #1f2328);
+      opacity: 0.95;
+    }
+    .bc-sep {
+      opacity: 0.4;
+      font-size: 13px;
+    }
+  }
   .problem-layout-container {
     display: flex;
     width: 100%;
-    height: calc(100vh - 60px);
+    flex: 1 1 auto;
+    min-height: 0;
     overflow: hidden;
     background-color: #fff;
   }
