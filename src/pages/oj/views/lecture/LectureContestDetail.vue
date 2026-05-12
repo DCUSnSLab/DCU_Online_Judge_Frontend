@@ -1,5 +1,14 @@
 <template>
-  <div class="flex-container" :style="currentTheme">
+  <div class="lecture-contest-wrap" :style="currentTheme">
+    <!-- Breadcrumb — lecture-contest 자식 페이지 전체에 노출 (full-width route 라 sidebar 가 없어도 복귀 경로 필요) -->
+    <nav class="contest-breadcrumb" aria-label="breadcrumb">
+      <a class="bc-seg bc-link" @click="goLecture" :title="lectureTitleFull">{{ lectureTitleShort }}</a>
+      <span class="bc-sep">›</span>
+      <a class="bc-seg bc-link" @click="goContestOverview" :title="contestTitleFull">{{ contestTitleShort }}</a>
+      <span class="bc-sep">›</span>
+      <span class="bc-seg bc-current" :title="currentPageLabel">{{ currentPageLabel }}</span>
+    </nav>
+  <div class="flex-container">
     <div v-if="isvisible" v-show="showMenu" class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
       <div v-show="menuExpanded" class="pane-content pane-scroll">
         <div class="pane-header">
@@ -188,6 +197,7 @@
       </div>
     </div>
   </div>
+  </div>
 </template>
 
 <script>
@@ -257,6 +267,7 @@
         ],
         typeIs: false,
         contestcheckInOutStatusWord: '',
+        lectureTitle: '',
         ContestInOutStatus: ''
       }
     },
@@ -264,6 +275,7 @@
       this.contestID = this.$route.params.contestID
       this.lectureID = this.$route.params.lectureID
       this.route_name = this.$route.name
+      this.fetchLectureTitle()
       api.getTAList(this.lectureID).then(res => {
         this.Ta = res.data.data
       })
@@ -377,6 +389,25 @@
             this.changePie(res.data.data)
           }).catch(() => {})
         }
+      },
+      fetchLectureTitle () {
+        if (!this.lectureID) return
+        api.getLecture(this.lectureID).then(res => {
+          const d = res && res.data && res.data.data
+          if (d) this.lectureTitle = d.title || d.name || ''
+        }).catch(() => {})
+      },
+      goLecture () {
+        if (!this.lectureID) return
+        this.$router.push({ name: 'lecture-details', params: { lectureID: this.lectureID } })
+          .catch(() => {})
+      },
+      goContestOverview () {
+        if (!this.lectureID || !this.contestID) return
+        this.$router.push({
+          name: 'lecture-contest-details',
+          params: { lectureID: this.lectureID, contestID: this.contestID }
+        }).catch(() => {})
       }
     },
     computed: {
@@ -401,6 +432,39 @@
       },
       showAdminHelper () {
         return this.typeIs && this.contestRuleType === 'ACM'
+      },
+      lectureTitleFull () {
+        return this.lectureTitle || (this.contest && this.contest.lecture_title) || ''
+      },
+      lectureTitleShort () {
+        const t = this.lectureTitleFull || '강의'
+        return t.length > 20 ? t.slice(0, 18) + '…' : t
+      },
+      contestTitleFull () {
+        return (this.contest && this.contest.title) || ''
+      },
+      contestTitleShort () {
+        const t = this.contestTitleFull || '컨테스트'
+        return t.length > 22 ? t.slice(0, 20) + '…' : t
+      },
+      currentPageLabel () {
+        // route 별 표기. 문제 페이지는 selectedProblem._id (P01 같은 라벨) 우선.
+        const name = this.$route.name
+        if (name === 'lecture-contest-problem-details') {
+          const p = this.selectedProblem
+          return (p && (p._id || p.title)) || this.$route.params.problemID || '문제'
+        }
+        const map = {
+          'lecture-contest-details': this.$t('m.Overview'),
+          'lecture-contest-announcement-list': this.$t('m.Announcements'),
+          'lecture-contest-problem-list': this.$t('m.Problems'),
+          'lecture-contest-submission-list': this.$t('m.Submissions'),
+          'lecture-contest-rank': this.$t('m.Rankings'),
+          'lecture-contest-qna': this.$t('m.qa'),
+          'lecture-acm-helper': this.$t('m.Admin_Helper'),
+          'lecture-contest-exit': this.$t('m.Manage')
+        }
+        return map[name] || ''
       }
     },
     watch: {
@@ -414,6 +478,9 @@
         } else {
           this.selectedProblem = null
         }
+      },
+      lectureID (newId, oldId) {
+        if (newId && newId !== oldId && !this.lectureTitle) this.fetchLectureTitle()
       }
     },
     beforeDestroy () {
@@ -433,12 +500,59 @@
     font-size: 16px;
   }
 
+  .lecture-contest-wrap {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100vh - 60px);
+  }
+  .contest-breadcrumb {
+    flex: 0 0 auto;
+    padding: 8px 18px;
+    background: var(--panelBackground, #fafafa);
+    border-bottom: 1px solid var(--panel-border-color, #e8eaec);
+    font-size: 12px;
+    color: var(--text-color, #57606a);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    line-height: 1.4;
+    .bc-seg {
+      max-width: 260px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bc-link {
+      cursor: pointer;
+      color: var(--text-color, #57606a);
+      opacity: 0.75;
+      text-decoration: none;
+      transition: color 0.1s, opacity 0.1s;
+    }
+    .bc-link:hover {
+      color: var(--text-hover-color, #2d8cf0);
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .bc-current {
+      font-weight: 600;
+      color: var(--text-color, #1f2328);
+      opacity: 0.95;
+    }
+    .bc-sep {
+      opacity: 0.4;
+      font-size: 13px;
+    }
+  }
+
   .flex-container {
     display: flex;
     flex-direction: row;
     width: 100%;
-    height: calc(100vh - 60px);
+    flex: 1 1 auto;
     min-width: 0;
+    min-height: 0;
     overflow: hidden;
     background-color: #fff;
 
