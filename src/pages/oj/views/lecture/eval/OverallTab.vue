@@ -811,7 +811,9 @@
     border-bottom-color: var(--panel-border-color);
   }
   .overall-tabs /deep/ .ivu-tabs-extra {
-    padding: 10px 0 0;  // 탭 라벨 baseline 쪽으로 살짝 내림
+    // iView 2 의 .ivu-tabs-extra 는 padding 영향을 안 받음 (float/absolute).
+    // transform 으로 확실히 내림.
+    transform: translateY(10px);
   }
   .overall-tabs /deep/ .ivu-tabs-tab {
     font-size: 13px;
