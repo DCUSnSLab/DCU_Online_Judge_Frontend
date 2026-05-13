@@ -7,19 +7,6 @@
     <div v-else-if="error" class="placeholder error">{{ error }}</div>
     <div v-else-if="!groupSections.length" class="placeholder">집계할 데이터가 없습니다.</div>
     <div v-else>
-      <div class="export-bar">
-        <Dropdown @on-click="onExport" trigger="click">
-          <Button type="primary" size="small" :loading="exporting">
-            <Icon type="ios-download-outline"/> Export
-            <Icon type="arrow-down-b"/>
-          </Button>
-          <DropdownMenu slot="list">
-            <DropdownItem name="xlsx">엑셀 (.xlsx) — 그룹별 시트</DropdownItem>
-            <DropdownItem name="csv">CSV (평탄형)</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
-
       <!-- 그룹별 요약 카드들 — 탭 전환과 무관하게 상단에 항상 노출 -->
       <div class="group-summary-bar">
         <div v-for="g in groupSections"
@@ -52,8 +39,20 @@
         </div>
       </div>
 
-      <!-- 그룹별 표 (탭) -->
+      <!-- 그룹별 표 (탭) — extra slot 에 Export 버튼 -->
       <Tabs v-model="activeGroupKey" class="overall-tabs" :animated="false">
+        <div slot="extra">
+          <Dropdown @on-click="onExport" trigger="click">
+            <Button type="primary" size="small" :loading="exporting">
+              <Icon type="ios-download-outline"/> Export
+              <Icon type="arrow-down-b"/>
+            </Button>
+            <DropdownMenu slot="list">
+              <DropdownItem name="xlsx">엑셀 (.xlsx) — 그룹별 시트</DropdownItem>
+              <DropdownItem name="csv">CSV (평탄형)</DropdownItem>
+            </DropdownMenu>
+          </Dropdown>
+        </div>
         <TabPane v-for="g in groupSections"
                  :key="'tab-' + g.key"
                  :name="g.key"
@@ -635,11 +634,6 @@
     &.error { color: #ed4014; opacity: 1; }
   }
 
-  .export-bar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 4px;
-  }
 
   // 그룹 요약 카드 가로 띠 (탭 전환과 무관, 상시 노출)
   .group-summary-bar {
@@ -815,6 +809,9 @@
   .overall-tabs /deep/ .ivu-tabs-bar {
     margin-bottom: 12px;
     border-bottom-color: var(--panel-border-color);
+  }
+  .overall-tabs /deep/ .ivu-tabs-extra {
+    padding: 4px 0;  // 탭 라벨과 수직 정렬
   }
   .overall-tabs /deep/ .ivu-tabs-tab {
     font-size: 13px;

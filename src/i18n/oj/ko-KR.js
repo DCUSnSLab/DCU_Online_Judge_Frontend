@@ -466,7 +466,7 @@ export const m = {
   Home_Hours: '시간 ',
   Home_Minutes: '분',
   // Lecture eval tabs
-  EvalTab_Contests: '컨테스트 목록',
+  EvalTab_Contests: '실습(시험) 목록',
   EvalTab_Overall: '과목 종합 점수',
   EvalTab_ByContest: '실습(시험)별 점수',
   // Lecture eval - contest type group labels
