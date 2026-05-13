@@ -1,6 +1,6 @@
 <template>
-  <div class="problem-layout-container" :style="currentTheme">
-    
+  <div class="problem-layout-container" :style="layoutStyle">
+
     <!-- 1. Menu Pane (only shown when Problem.vue is standalone, not a child of ContestDetail) -->
     <div v-if="!isContestChildRoute" class="pane menu-pane" :class="{'pane-collapsed': !menuExpanded}">
       <div v-show="menuExpanded" class="pane-content pane-scroll">
@@ -1468,6 +1468,12 @@
       isContestChildRoute () {
         const childRouteNames = ['contest-problem-details', 'lecture-contest-problem-details']
         return childRouteNames.indexOf(this.$route.name) > -1
+      },
+      layoutStyle () {
+        // 부모(LectureContestDetail.vue) 가 breadcrumb (~37px) 을 추가하므로,
+        // 강의 컨테스트 자식 route 에서는 그만큼 더 뺀 높이로 맞춘다.
+        const bcOffset = this.$route.name === 'lecture-contest-problem-details' ? 37 : 0
+        return { height: `calc(100vh - 60px - ${bcOffset}px)` }
       },
       ...mapState('theme', ['isDarkMode']),
       currentTheme () {

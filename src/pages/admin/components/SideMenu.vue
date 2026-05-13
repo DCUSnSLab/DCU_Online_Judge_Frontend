@@ -13,6 +13,7 @@
       <el-menu-item index="/judge-server">{{$t('m.Judge_Server')}}</el-menu-item>
       <el-menu-item index="/llm-keys">{{$t('m.LLM_Keys')}}</el-menu-item>
       <el-menu-item index="/prune-test-case">{{$t('m.Prune_Test_Case')}}</el-menu-item>
+      <el-menu-item index="/eval-queue">정성평가 큐</el-menu-item>
     </el-submenu>
     <el-submenu index="problem" v-if="hasProblemPermission">
       <template slot="title"><i class="el-icon-fa-bars"></i>{{$t('m.Problem')}}</template>

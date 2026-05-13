@@ -15,6 +15,11 @@ export default {
       }
     })
   },
+  getLectureScorePermission (lectureId) {
+    return ajax('lecture/score_permission', 'get', {
+      params: { lecture_id: lectureId }
+    })
+  },
   getlectureid (data) {
     return ajax('lecture', 'post', {
       data

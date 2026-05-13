@@ -121,7 +121,8 @@ export const PROBLEM_PERMISSION = {
 export const STORAGE_KEY = {
   AUTHED: 'authed',
   PROBLEM_CODE: 'problemCode',
-  languages: 'languages'
+  // Python 2 제거 반영을 위해 버전 suffix 부여 — 옛 캐시는 무효화됨
+  languages: 'languages_v2'
 }
 
 export function buildProblemCodeKey (problemID, contestID = null) {
