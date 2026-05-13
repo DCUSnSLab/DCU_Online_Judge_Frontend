@@ -1,0 +1,5 @@
+@use 'vuetify/settings' with (
+  $body-font-family: ('IBM Plex Sans', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif),
+  $border-radius-root: 6px,
+  $heading-font-family: ('IBM Plex Sans', sans-serif)
+);

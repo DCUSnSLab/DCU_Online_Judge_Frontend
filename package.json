@@ -1,0 +1,41 @@
+{
+  "name": "dcu-online-judge-frontend",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "description": "DCU Online Judge frontend (Vue 3 + Vite + Vuetify 3)",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{js,vue,scss,css,json,md}\""
+  },
+  "dependencies": {
+    "@mdi/js": "^7.4.47",
+    "axios": "^1.7.7",
+    "jsencrypt": "^3.3.2",
+    "pinia": "^2.2.4",
+    "vue": "^3.5.12",
+    "vue-i18n": "^9.14.1",
+    "vue-router": "^4.4.5",
+    "vuetify": "^3.7.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-vue": "^9.30.0",
+    "globals": "^15.11.0",
+    "prettier": "^3.3.3",
+    "sass": "^1.80.4",
+    "vite": "^5.4.10",
+    "vite-plugin-vuetify": "^2.0.4"
+  }
+}

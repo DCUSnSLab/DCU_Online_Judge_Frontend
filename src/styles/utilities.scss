@@ -1,0 +1,183 @@
+// ============================================================
+// DCUCODE Utility classes — used across artboards and pages.
+// Depends on src/styles/tokens.scss being loaded first.
+// ============================================================
+
+.mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'zero', 'ss01';
+}
+
+// ---------- Surface card ----------
+.surface {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.surface-sunken {
+  background: var(--sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+.hairline {
+  border-bottom: 1px solid var(--line);
+}
+
+// ---------- Buttons ----------
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: var(--t-13);
+  font-weight: var(--w-medium);
+  cursor: pointer;
+  transition:
+    background var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+
+  &:hover {
+    border-color: var(--ink-3);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-ink-on);
+  border-color: var(--accent);
+
+  &:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: transparent;
+
+  &:hover {
+    background: var(--sunken);
+  }
+}
+
+.btn-sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--t-12);
+}
+
+.btn-lg {
+  height: 44px;
+  padding: 0 22px;
+  font-size: var(--t-14);
+}
+
+// ---------- Chips ----------
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: var(--t-12);
+  font-weight: var(--w-medium);
+  border-radius: var(--r-pill);
+  background: var(--sunken);
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+
+.chip-low {
+  background: var(--diff-low-soft);
+  color: var(--diff-low-ink);
+}
+
+.chip-mid {
+  background: var(--diff-mid-soft);
+  color: var(--diff-mid-ink);
+}
+
+.chip-high {
+  background: var(--diff-high-soft);
+  color: var(--diff-high-ink);
+}
+
+.chip-accent {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+// ---------- Status dot ----------
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-ac {
+  background: var(--status-ac);
+}
+.dot-wa {
+  background: var(--status-wa);
+}
+.dot-tle {
+  background: var(--status-tle);
+}
+.dot-mle {
+  background: var(--status-mle);
+}
+.dot-ce {
+  background: var(--status-ce);
+}
+.dot-pending {
+  background: var(--status-pending);
+}
+.dot-judging {
+  background: var(--status-judging);
+}
+
+// ---------- Text helpers ----------
+.t-meta {
+  font-size: var(--t-11, 11px);
+  font-family: var(--font-mono);
+  color: var(--ink-3);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+
+.t-muted {
+  color: var(--ink-3);
+}
+
+.t-secondary {
+  color: var(--ink-2);
+}
+
+// ---------- Focus ring helper for custom interactive elements ----------
+.focus-ring {
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+}

@@ -1,0 +1,159 @@
+// ============================================================
+// DCUCODE Redesign — Design Tokens
+// "Studio Coding Workbench" system
+// Source: design-handoff/project/phase2/tokens.css
+// ============================================================
+
+:root {
+  // ---------- Type ----------
+  --font-ui: 'IBM Plex Sans', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-display: 'IBM Plex Sans', sans-serif;
+
+  // Type scale
+  --t-12: 12px;
+  --t-13: 13px;
+  --t-14: 14px;
+  --t-15: 15px;
+  --t-16: 16px;
+  --t-18: 18px;
+  --t-21: 21px;
+  --t-24: 24px;
+  --t-28: 28px;
+  --t-32: 32px;
+  --t-40: 40px;
+  --t-48: 48px;
+  --t-64: 64px;
+
+  --lh-tight: 1.15;
+  --lh-snug: 1.3;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  --w-regular: 400;
+  --w-medium: 500;
+  --w-semibold: 600;
+  --w-bold: 700;
+
+  // ---------- Spacing (4px base) ----------
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+  --s-16: 64px;
+  --s-20: 80px;
+
+  // ---------- Radius ----------
+  --r-xs: 3px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-xl: 16px;
+  --r-pill: 999px;
+
+  // ---------- Color: Paper (light) ----------
+  --paper-bg: #FAFAF7;
+  --paper-surface: #FFFFFF;
+  --paper-sunken: #F4F3EE;
+  --paper-line: #E8E6DF;
+  --paper-line-strong: #D6D3CA;
+  --paper-ink: #1A1A1A;
+  --paper-ink-2: #4A4A48;
+  --paper-ink-3: #8A8A86;
+  --paper-ink-4: #B4B2AC;
+
+  // ---------- Color: Carbon (dark) ----------
+  --carbon-bg: #131316;
+  --carbon-surface: #1A1A1E;
+  --carbon-sunken: #0E0E11;
+  --carbon-line: #2A2A30;
+  --carbon-line-strong: #3A3A42;
+  --carbon-ink: #F5F5F2;
+  --carbon-ink-2: #B8B8B2;
+  --carbon-ink-3: #7C7C76;
+  --carbon-ink-4: #4A4A46;
+
+  // ---------- Accent (indigo, oklch-tuned) ----------
+  --accent: oklch(0.52 0.18 264);
+  --accent-hover: oklch(0.46 0.20 264);
+  --accent-soft: oklch(0.94 0.05 264);
+  --accent-soft-strong: oklch(0.88 0.08 264);
+  --accent-ink-on: #FFFFFF;
+
+  // ---------- Difficulty (perceptual-balanced) ----------
+  --diff-low: oklch(0.62 0.16 150);
+  --diff-low-soft: oklch(0.94 0.06 150);
+  --diff-low-ink: oklch(0.40 0.16 150);
+  --diff-mid: oklch(0.62 0.16 240);
+  --diff-mid-soft: oklch(0.94 0.06 240);
+  --diff-mid-ink: oklch(0.42 0.18 240);
+  --diff-high: oklch(0.60 0.18 28);
+  --diff-high-soft: oklch(0.94 0.06 28);
+  --diff-high-ink: oklch(0.42 0.20 28);
+
+  // ---------- Judge status ----------
+  --status-ac: oklch(0.60 0.16 150);
+  --status-wa: oklch(0.58 0.18 28);
+  --status-tle: oklch(0.66 0.16 60);
+  --status-mle: oklch(0.66 0.16 60);
+  --status-ce: oklch(0.62 0.10 300);
+  --status-pending: oklch(0.70 0.04 240);
+  --status-judging: oklch(0.62 0.16 240);
+
+  // ---------- Effects ----------
+  --focus-ring: 0 0 0 3px oklch(0.52 0.18 264 / 0.25);
+  --shadow-card: 0 1px 0 rgba(0, 0, 0, 0.02);
+  --shadow-pop: 0 4px 16px -4px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  // ---------- Transitions ----------
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.5, 1.5, 0.5, 1);
+  --t-fast: 120ms;
+  --t-base: 200ms;
+  --t-slow: 320ms;
+}
+
+// Active theme — default paper
+:root {
+  --bg: var(--paper-bg);
+  --surface: var(--paper-surface);
+  --sunken: var(--paper-sunken);
+  --line: var(--paper-line);
+  --line-strong: var(--paper-line-strong);
+  --ink: var(--paper-ink);
+  --ink-2: var(--paper-ink-2);
+  --ink-3: var(--paper-ink-3);
+  --ink-4: var(--paper-ink-4);
+}
+
+[data-theme='dark'] {
+  --bg: var(--carbon-bg);
+  --surface: var(--carbon-surface);
+  --sunken: var(--carbon-sunken);
+  --line: var(--carbon-line);
+  --line-strong: var(--carbon-line-strong);
+  --ink: var(--carbon-ink);
+  --ink-2: var(--carbon-ink-2);
+  --ink-3: var(--carbon-ink-3);
+  --ink-4: var(--carbon-ink-4);
+  --accent-soft: oklch(0.30 0.10 264 / 0.4);
+  --accent-soft-strong: oklch(0.40 0.14 264 / 0.5);
+  --diff-low-soft: oklch(0.30 0.10 150 / 0.4);
+  --diff-mid-soft: oklch(0.30 0.10 240 / 0.4);
+  --diff-high-soft: oklch(0.30 0.10 28 / 0.4);
+  --diff-low-ink: oklch(0.78 0.14 150);
+  --diff-mid-ink: oklch(0.78 0.14 240);
+  --diff-high-ink: oklch(0.78 0.16 28);
+}
+
+// Body background tracks the theme so route transitions don't flash white
+html,
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
