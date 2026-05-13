@@ -811,7 +811,7 @@
     border-bottom-color: var(--panel-border-color);
   }
   .overall-tabs /deep/ .ivu-tabs-extra {
-    padding: 4px 0;  // 탭 라벨과 수직 정렬
+    padding: 10px 0 0;  // 탭 라벨 baseline 쪽으로 살짝 내림
   }
   .overall-tabs /deep/ .ivu-tabs-tab {
     font-size: 13px;
