@@ -39,9 +39,10 @@
         </div>
       </div>
 
-      <!-- 그룹별 표 (탭) — extra slot 에 Export 버튼 -->
+      <!-- 그룹별 표 (탭) — extra slot 에 Export 버튼.
+           ivu-tabs-extra 가 scoped /deep/ 로 안 잡혀서 inline style 로 강제 하강. -->
       <Tabs v-model="activeGroupKey" class="overall-tabs" :animated="false">
-        <div slot="extra">
+        <div slot="extra" style="position: relative; top: 20px;">
           <Dropdown @on-click="onExport" trigger="click">
             <Button type="primary" size="small" :loading="exporting">
               <Icon type="ios-download-outline"/> Export
