@@ -25,6 +25,9 @@ function exportQuery (fmt, opts) {
   if (opts && opts.scales && Object.keys(opts.scales).length) {
     params.set('scales', JSON.stringify(opts.scales))
   }
+  if (opts && opts.useQual && Object.keys(opts.useQual).length) {
+    params.set('use_qual', JSON.stringify(opts.useQual))
+  }
   return params.toString()
 }
 

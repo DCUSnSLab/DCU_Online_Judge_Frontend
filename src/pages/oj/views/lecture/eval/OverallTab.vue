@@ -65,6 +65,12 @@
               <span class="wp-sum ok">
                 합계 만점 <strong>{{ examWeightsSum }}</strong>점
               </span>
+              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] }">
+                <input type="checkbox" :checked="useQual[g.key]"
+                       @change="$set(useQual, g.key, $event.target.checked)"/>
+                <span>정성평가 점수 반영</span>
+                <span class="wp-qual-hint">max(자동, 제안부분점수)</span>
+              </label>
               <a class="wp-reset" @click="resetExamWeights">초기화</a>
             </div>
             <div class="wp-grid">
@@ -91,6 +97,12 @@
                        class="wp-num wp-num-large"/>
                 <span class="wp-unit">점</span>
               </span>
+              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] }">
+                <input type="checkbox" :checked="useQual[g.key]"
+                       @change="$set(useQual, g.key, $event.target.checked)"/>
+                <span>정성평가 점수 반영</span>
+                <span class="wp-qual-hint">max(자동, 제안부분점수)</span>
+              </label>
               <span class="wp-hint">학생별 환산점수 = 총점 / 그룹 만점 × 위 값</span>
             </div>
           </div>
@@ -152,7 +164,8 @@
         exporting: false,
         activeGroupKey: 'exam',
         examWeights: {},
-        groupScaleMax: { lab: 0, assignment: 0, other: 0 }
+        groupScaleMax: { lab: 0, assignment: 0, other: 0 },
+        useQual: { exam: false, lab: false, assignment: false, other: false }
       }
     },
     computed: {
@@ -195,6 +208,7 @@
         handler (id) {
           this.loadExamWeights(id)
           this.loadGroupScaleMax(id)
+          this.loadUseQual(id)
           this.run()
         }
       },
@@ -210,6 +224,10 @@
       groupScaleMax: {
         deep: true,
         handler () { this.saveGroupScaleMax() }
+      },
+      useQual: {
+        deep: true,
+        handler () { this.saveUseQual() }
       }
     },
     methods: {
@@ -218,6 +236,23 @@
       },
       _groupScaleMaxKey (lectureId) {
         return `eval_group_scale_max_${lectureId}`
+      },
+      _useQualKey (lectureId) {
+        return `eval_use_qual_${lectureId}`
+      },
+      loadUseQual (lectureId) {
+        const defaults = { exam: false, lab: false, assignment: false, other: false }
+        if (!lectureId) { this.useQual = defaults; return }
+        try {
+          const raw = localStorage.getItem(this._useQualKey(lectureId))
+          this.useQual = raw ? Object.assign({}, defaults, JSON.parse(raw)) : defaults
+        } catch (e) { this.useQual = defaults }
+      },
+      saveUseQual () {
+        if (!this.lectureId) return
+        try {
+          localStorage.setItem(this._useQualKey(this.lectureId), JSON.stringify(this.useQual))
+        } catch (e) {}
       },
       loadGroupScaleMax (lectureId) {
         const defaults = { lab: 0, assignment: 0, other: 0 }
@@ -270,6 +305,7 @@
       },
       _buildSection (groupKey, scoreboards) {
         const label = this.groupLabels[groupKey]
+        const useQual = !!this.useQual[groupKey]
         // 그룹 만점 = 그 그룹 안 모든 contest 의 problem.total_score 합
         let maxScore = 0
         let problemCount = 0
@@ -302,7 +338,14 @@
               const cell = s.by_problem[p.label]
               if (isJudgedCell(cell)) {
                 row.submitted += 1
-                csum += (cell.testcase.score || 0)
+                let cellScore = cell.testcase.score || 0
+                // 정성평가 반영: qualitative.suggested_partial_score 와 비교해 큰 값.
+                // qualitative 없으면 자동점수 그대로 (안전 기본).
+                if (useQual && cell.qualitative && cell.qualitative.suggested_partial_score != null) {
+                  const sps = cell.qualitative.suggested_partial_score || 0
+                  if (sps > cellScore) cellScore = sps
+                }
+                csum += cellScore
                 if (cell.testcase.result === 0) row.ac += 1
               }
             })
@@ -542,7 +585,7 @@
           .finally(() => { this.loading = false })
       },
       _exportPayload () {
-        // examWeights / groupScaleMax 중 0 이 아닌 값만 backend 로 전달.
+        // examWeights / groupScaleMax / useQual 중 의미있는 값만 backend 로 전달.
         const weights = {}
         Object.keys(this.examWeights).forEach(cid => {
           const v = Number(this.examWeights[cid]) || 0
@@ -553,7 +596,11 @@
           const v = Number(this.groupScaleMax[g]) || 0
           if (v > 0) scales[g] = v
         })
-        return { weights, scales }
+        const useQual = {}
+        Object.keys(this.useQual).forEach(g => {
+          if (this.useQual[g]) useQual[g] = true
+        })
+        return { weights, scales, useQual }
       },
       onExport (fmt) {
         if (this.exporting) return
@@ -694,6 +741,37 @@
         opacity: 0.55;
         color: var(--text-color);
         margin-left: 8px;
+      }
+      .wp-qual-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border: 1px solid var(--panel-border-color);
+        border-radius: 14px;
+        font-size: 12px;
+        color: var(--text-color);
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.1s, border-color 0.1s, color 0.1s;
+        input[type="checkbox"] {
+          margin: 0;
+          cursor: pointer;
+        }
+        .wp-qual-hint {
+          opacity: 0.55;
+          font-size: 10px;
+          font-variant-numeric: tabular-nums;
+        }
+        &:hover {
+          border-color: var(--text-hover-color);
+        }
+        &.on {
+          background: rgba(45, 140, 240, 0.12);
+          border-color: var(--text-hover-color);
+          color: var(--text-hover-color);
+          .wp-qual-hint { opacity: 0.75; }
+        }
       }
     }
     .wp-grid {
