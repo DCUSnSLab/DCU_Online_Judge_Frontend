@@ -207,6 +207,11 @@ export default {
       data: { value: value }
     })
   },
+  getEvalJob (jobId, params) {
+    return ajax(`eval/jobs/${jobId}`, 'get', {
+      params: params || {}
+    })
+  },
   deleteJudgeServer (hostname) {
     return ajax('admin/judge_server', 'delete', {
       params: {

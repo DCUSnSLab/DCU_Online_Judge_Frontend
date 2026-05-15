@@ -80,6 +80,11 @@
             </template>
           </el-table-column>
           <el-table-column prop="started_at" label="시작" :formatter="fmtTime" width="150"></el-table-column>
+          <el-table-column label="로그" width="80" align="center">
+            <template slot-scope="s">
+              <el-button size="mini" @click="openLog(s.row.id)">로그</el-button>
+            </template>
+          </el-table-column>
         </el-table>
 
         <h4 v-if="snapshot.pending.length">대기 중 ({{ snapshot.pending.length }})</h4>
@@ -98,19 +103,27 @@
           </el-table-column>
           <el-table-column prop="n_total" label="예정" width="80"></el-table-column>
           <el-table-column prop="enqueued_at" label="enqueue" :formatter="fmtTime" width="150"></el-table-column>
+          <el-table-column label="로그" width="80" align="center">
+            <template slot-scope="s">
+              <el-button size="mini" @click="openLog(s.row.id)">로그</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </Panel>
+
+    <eval-job-log-drawer :job-id="logJobId" :visible="logVisible" @close="logVisible = false" />
   </div>
 </template>
 
 <script>
   import api from '../../api.js'
   import Panel from '../../components/Panel.vue'
+  import EvalJobLogDrawer from '../../components/EvalJobLogDrawer.vue'
 
   export default {
     name: 'EvalQueueConfig',
-    components: { Panel },
+    components: { Panel, EvalJobLogDrawer },
     data () {
       return {
         loading: true,
@@ -118,7 +131,9 @@
         error: '',
         snapshot: { slots_total: 0, slots_in_use: 0, queue_size: 0, running: [], pending: [] },
         newValue: 3,
-        pollHandle: null
+        pollHandle: null,
+        logVisible: false,
+        logJobId: null
       }
     },
     mounted () {
@@ -180,6 +195,10 @@
         if (!val) return '-'
         const d = new Date(val)
         return d.toLocaleString('ko-KR', { hour12: false })
+      },
+      openLog (id) {
+        this.logJobId = id
+        this.logVisible = true
       }
     }
   }
