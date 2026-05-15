@@ -45,6 +45,7 @@ export default {
   getJob: (jobId) => unwrap(evalAxios.get(`/jobs/${jobId}`)),
   triggerEval: (contestId, force) =>
     unwrap(evalAxios.post(`/contests/${contestId}/qualitative-eval`, { force: !!force })),
+  cancelJob: (jobId) => unwrap(evalAxios.post(`/jobs/${jobId}/cancel`)),
   contestExportUrl: (contestId, fmt, opts) =>
     `/api/eval/contests/${contestId}/score_export?${exportQuery(fmt, opts)}`,
   lectureExportUrl: (lectureId, fmt, opts) =>
