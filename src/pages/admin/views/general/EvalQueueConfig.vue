@@ -3,9 +3,9 @@
     <Panel :title="'LLM 정성평가 큐 설정'">
       <div class="eval-queue-config">
         <p class="hint">
-          정성평가는 LLM 호출 비용이 큰 작업입니다. <strong>슬롯 수</strong>는 동시에 LLM 게이트웨이로
-          호출 가능한 평가 작업 수입니다. 값을 바꾸면 즉시 적용되며 (Redis 갱신 + DB 영구화),
-          현재 실행 중인 작업은 끝까지 진행한 뒤 새 한도가 적용됩니다.
+          정성평가는 LLM 호출 비용이 큰 작업입니다. <strong>슬롯 수</strong>는 동시에 진행 가능한
+          평가 요청(Job) 수입니다. 한 요청 안의 pair 들은 워커 thread 만큼 자동 병렬 처리됩니다.
+          한도를 늘리면 대기 중인 요청이 즉시 시작됩니다.
         </p>
 
         <div v-if="loading" class="placeholder">
@@ -19,16 +19,7 @@
               <div class="val">{{ snapshot.slots_total }}</div>
             </div>
             <div class="stat" :class="{ busy: snapshot.slots_in_use >= snapshot.slots_total }">
-              <div class="lbl">
-                사용 중
-                <el-popconfirm
-                  title="in-flight 카운터를 0 으로 리셋합니다. 워커 SIGKILL/OOM 등으로 leak 된 경우만 사용하세요."
-                  confirm-button-text="리셋"
-                  cancel-button-text="취소"
-                  @confirm="resetSlots">
-                  <el-button slot="reference" type="text" size="mini" class="reset-btn" :loading="resetting">리셋</el-button>
-                </el-popconfirm>
-              </div>
+              <div class="lbl">진행 중 요청</div>
               <div class="val">{{ snapshot.slots_in_use }} / {{ snapshot.slots_total }}</div>
             </div>
             <div class="stat">
@@ -137,7 +128,6 @@
       return {
         loading: true,
         saving: false,
-        resetting: false,
         error: '',
         snapshot: { slots_total: 0, slots_in_use: 0, queue_size: 0, running: [], pending: [] },
         newValue: 3,
@@ -209,29 +199,6 @@
       openLog (id) {
         this.logJobId = id
         this.logVisible = true
-      },
-      resetSlots () {
-        if (this.resetting) return
-        this.resetting = true
-        api.resetEvalSlots().then(res => {
-          if (res.data.error) {
-            this.$error(res.data.data || '리셋 실패')
-          } else {
-            const d = res.data.data || {}
-            this.snapshot = {
-              slots_total: d.slots_total,
-              slots_in_use: d.slots_in_use,
-              queue_size: d.queue_size,
-              running: d.running,
-              pending: d.pending
-            }
-            this.$success(`in-flight ${d.before || 0} → 0 으로 리셋됨`)
-          }
-        }).catch(() => {
-          this.$error('리셋 요청 실패')
-        }).finally(() => {
-          this.resetting = false
-        })
       }
     }
   }
@@ -262,12 +229,7 @@
         border-radius: 8px;
         padding: 14px 16px;
         transition: border-color 0.15s;
-        .lbl {
-          font-size: 11px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;
-          display: flex; align-items: center; justify-content: space-between; gap: 8px;
-          .reset-btn { padding: 0; font-size: 11px; opacity: 0.7; }
-          .reset-btn:hover { opacity: 1; }
-        }
+        .lbl { font-size: 11px; opacity: 0.65; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
         .val { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
         &.busy { border-color: #ff9900; .val { color: #ff9900; } }
       }
