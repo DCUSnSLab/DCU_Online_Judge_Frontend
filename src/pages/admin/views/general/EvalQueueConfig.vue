@@ -3,9 +3,11 @@
     <Panel :title="'LLM 정성평가 큐 설정'">
       <div class="eval-queue-config">
         <p class="hint">
-          정성평가는 LLM 호출 비용이 큰 작업입니다. <strong>슬롯 수</strong>는 동시에 LLM 게이트웨이로
-          호출 가능한 평가 작업 수입니다. 값을 바꾸면 즉시 적용되며 (Redis 갱신 + DB 영구화),
-          현재 실행 중인 작업은 끝까지 진행한 뒤 새 한도가 적용됩니다.
+          정성평가는 LLM 호출 비용이 큰 작업입니다.
+          <strong>슬롯 수</strong>는 동시에 진행 가능한 평가 요청(Job) 수,
+          <strong>요청당 워커 수</strong>는 한 평가 요청 안에서 동시 처리되는 pair (LLM 호출) 수입니다.
+          시스템 전체 동시 LLM 호출 한도는 두 값의 곱이며, dramatiq 워커 thread 수 이하여야 throughput 손실 없습니다.
+          한도 변경은 즉시 적용됩니다.
         </p>
 
         <div v-if="loading" class="placeholder">
@@ -19,33 +21,42 @@
               <div class="val">{{ snapshot.slots_total }}</div>
             </div>
             <div class="stat" :class="{ busy: snapshot.slots_in_use >= snapshot.slots_total }">
-              <div class="lbl">사용 중</div>
+              <div class="lbl">진행 중 요청</div>
               <div class="val">{{ snapshot.slots_in_use }} / {{ snapshot.slots_total }}</div>
+            </div>
+            <div class="stat">
+              <div class="lbl">요청당 워커</div>
+              <div class="val">{{ snapshot.pair_workers_per_job }}</div>
             </div>
             <div class="stat">
               <div class="lbl">대기 큐</div>
               <div class="val">{{ snapshot.queue_size }}</div>
             </div>
-            <div class="stat">
-              <div class="lbl">진행 중 job</div>
-              <div class="val">{{ snapshot.running.length }}</div>
-            </div>
           </div>
 
           <div class="form">
-            <label class="label">슬롯 수 변경</label>
-            <div class="row">
-              <el-input-number v-model="newValue" :min="1" :max="32" size="small" style="width: 140px;"></el-input-number>
+            <div class="form-row">
+              <label class="label">슬롯 수 (동시 요청)</label>
+              <el-input-number v-model="newSlots" :min="1" :max="64" size="small" style="width: 140px;"></el-input-number>
+            </div>
+            <div class="form-row">
+              <label class="label">요청당 워커 (Job 내 동시 LLM 호출)</label>
+              <el-input-number v-model="newPairWorkers" :min="1" :max="16" size="small" style="width: 140px;"></el-input-number>
+            </div>
+            <div class="form-row">
               <el-button type="primary" size="small"
                          :loading="saving"
-                         :disabled="newValue === snapshot.slots_total"
+                         :disabled="!hasChanges"
                          @click="save">
                 적용
               </el-button>
-              <span v-if="newValue !== snapshot.slots_total" class="apply-hint">
-                {{ snapshot.slots_total }} → {{ newValue }} 으로 변경
-                <span v-if="newValue < snapshot.slots_total" class="warn">
-                  감소 시 현재 실행 중인 평가가 끝난 뒤 점진 적용
+              <span v-if="hasChanges" class="apply-hint">
+                <span v-if="newSlots !== snapshot.slots_total">
+                  슬롯 {{ snapshot.slots_total }} → {{ newSlots }}
+                </span>
+                <span v-if="newSlots !== snapshot.slots_total && newPairWorkers !== snapshot.pair_workers_per_job"> / </span>
+                <span v-if="newPairWorkers !== snapshot.pair_workers_per_job">
+                  요청당 워커 {{ snapshot.pair_workers_per_job }} → {{ newPairWorkers }}
                 </span>
               </span>
             </div>
@@ -129,11 +140,18 @@
         loading: true,
         saving: false,
         error: '',
-        snapshot: { slots_total: 0, slots_in_use: 0, queue_size: 0, running: [], pending: [] },
-        newValue: 3,
+        snapshot: { slots_total: 0, slots_in_use: 0, pair_workers_per_job: 0, queue_size: 0, running: [], pending: [] },
+        newSlots: 3,
+        newPairWorkers: 2,
         pollHandle: null,
         logVisible: false,
         logJobId: null
+      }
+    },
+    computed: {
+      hasChanges () {
+        return this.newSlots !== this.snapshot.slots_total ||
+               this.newPairWorkers !== this.snapshot.pair_workers_per_job
       }
     },
     mounted () {
@@ -152,9 +170,14 @@
             this.error = res.data.data || '로드 실패'
           } else {
             const wasSlots = this.snapshot.slots_total
+            const wasPairs = this.snapshot.pair_workers_per_job
             this.snapshot = res.data.data
-            if (this.newValue === wasSlots || wasSlots === 0) {
-              this.newValue = this.snapshot.slots_total
+            // 사용자가 아직 input 을 만지지 않았으면 서버 값으로 동기화
+            if (this.newSlots === wasSlots || wasSlots === 0) {
+              this.newSlots = this.snapshot.slots_total
+            }
+            if (this.newPairWorkers === wasPairs || wasPairs === 0) {
+              this.newPairWorkers = this.snapshot.pair_workers_per_job
             }
           }
         }).catch(() => {
@@ -164,22 +187,29 @@
         })
       },
       save () {
-        if (this.saving) return
+        if (this.saving || !this.hasChanges) return
         this.saving = true
         this.error = ''
-        api.setEvalQueueConfig(this.newValue).then(res => {
+        const payload = {}
+        if (this.newSlots !== this.snapshot.slots_total) payload.max_concurrent_jobs = this.newSlots
+        if (this.newPairWorkers !== this.snapshot.pair_workers_per_job) payload.pair_workers_per_job = this.newPairWorkers
+        api.setEvalQueueConfig(payload).then(res => {
           if (res.data.error) {
             this.error = res.data.data
           } else {
+            const d = res.data.data
             this.snapshot = {
-              slots_total: res.data.data.slots_total,
-              slots_in_use: res.data.data.slots_in_use,
-              queue_size: res.data.data.queue_size,
-              running: res.data.data.running,
-              pending: res.data.data.pending
+              slots_total: d.slots_total,
+              slots_in_use: d.slots_in_use,
+              pair_workers_per_job: d.pair_workers_per_job,
+              queue_size: d.queue_size,
+              running: d.running,
+              pending: d.pending
             }
-            this.newValue = this.snapshot.slots_total
-            this.$Message.success(`슬롯이 ${this.snapshot.slots_total} 으로 변경됨`)
+            this.newSlots = this.snapshot.slots_total
+            this.newPairWorkers = this.snapshot.pair_workers_per_job
+            // admin 은 element-ui — iView 의 $Message 가 없으므로 admin/index.js 의 $success 헬퍼 사용
+            this.$success(`적용됨: 슬롯 ${this.snapshot.slots_total} / 요청당 워커 ${this.snapshot.pair_workers_per_job}`)
           }
         }).catch(e => {
           this.error = (e && e.data) || '변경 실패'
@@ -240,13 +270,15 @@
       background: #f8f9fa;
       border: 1px solid #e9ecef;
       border-radius: 8px;
-      .label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #495057; }
-      .row {
+      .form-row {
         display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-        .apply-hint {
-          font-size: 12px; color: #666;
-          .warn { color: #ff9900; margin-left: 4px; }
-        }
+        margin-bottom: 10px;
+        &:last-child { margin-bottom: 0; }
+      }
+      .label { display: inline-block; font-size: 12px; font-weight: 600; color: #495057; min-width: 200px; }
+      .apply-hint {
+        font-size: 12px; color: #666;
+        .warn { color: #ff9900; margin-left: 4px; }
       }
     }
   }

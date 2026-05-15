@@ -202,10 +202,11 @@ export default {
   getEvalQueueConfig () {
     return ajax('admin/eval/queue-config', 'get')
   },
-  setEvalQueueConfig (value) {
-    return ajax('admin/eval/queue-config', 'post', {
-      data: { value: value }
-    })
+  setEvalQueueConfig (payload) {
+    // payload: { max_concurrent_jobs?: number, pair_workers_per_job?: number }
+    // 변경된 키만 포함해 부분 갱신 가능. 구버전 호환을 위해 number 만 받으면 max 로 처리.
+    const body = typeof payload === 'number' ? { max_concurrent_jobs: payload } : payload
+    return ajax('admin/eval/queue-config', 'post', { data: body })
   },
   getEvalJob (jobId, params) {
     return ajax(`eval/jobs/${jobId}`, 'get', {
