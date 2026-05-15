@@ -207,6 +207,9 @@ export default {
       data: { value: value }
     })
   },
+  resetEvalSlots () {
+    return ajax('admin/eval/slots/reset', 'post')
+  },
   getEvalJob (jobId, params) {
     return ajax(`eval/jobs/${jobId}`, 'get', {
       params: params || {}
