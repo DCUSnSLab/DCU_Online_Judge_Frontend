@@ -134,15 +134,24 @@
           .finally(() => { this.loading = false })
       },
       cellClass (cell) {
-        if (!cell || !cell.testcase) return 'empty'
-        // Backend JudgeStatus: 0=AC, -1=WA, -2=CE, -3 미사용,
-        // 1=TLE, 2=RTLE, 3=MLE, 4=RE, 5=SE, 6=PENDING, 7=JUDGING, 8=PA
-        const r = cell.testcase.result
-        if (r === 0) return 'ac'
-        if (r === 8) return 'pa'
-        if (r === -2) return 'ce'
-        if (r === 6 || r === 7) return 'pending'
-        return 'wa'
+        const classes = []
+        if (!cell || !cell.testcase) {
+          classes.push('empty')
+        } else {
+          // Backend JudgeStatus: 0=AC, -1=WA, -2=CE, -3 미사용,
+          // 1=TLE, 2=RTLE, 3=MLE, 4=RE, 5=SE, 6=PENDING, 7=JUDGING, 8=PA
+          const r = cell.testcase.result
+          if (r === 0) classes.push('ac')
+          else if (r === 8) classes.push('pa')
+          else if (r === -2) classes.push('ce')
+          else if (r === 6 || r === 7) classes.push('pending')
+          else classes.push('wa')
+        }
+        // 정성평가/AI 사용 평가가 실패로 기록된 셀은 좌상단 빨강 점으로 표시.
+        if (cell && cell.qualitative && cell.qualitative.has_error) {
+          classes.push('eval-fail')
+        }
+        return classes
       },
       resultKo (label) {
         const map = {
@@ -161,14 +170,31 @@
         return map[label] || label
       },
       resultTooltip (cell) {
-        if (!cell || !cell.testcase) return '미제출'
+        if (!cell || !cell.testcase) {
+          // 미제출이라도 정성평가 실패 정보가 있다면 우선 노출
+          if (cell && cell.qualitative && cell.qualitative.has_error) {
+            return this._evalErrorLines(cell.qualitative).join('\n') || '미제출'
+          }
+          return '미제출'
+        }
         const r = cell.testcase
         const ko = this.resultKo(r.result_label) + ' (' + r.result_label + ')'
         const parts = [ko]
         if (r.score !== undefined && r.score !== null) parts.push(`점수: ${r.score}`)
         if (r.language) parts.push(`언어: ${r.language}`)
         if (r.time_cost_ms !== undefined && r.time_cost_ms !== null) parts.push(`시간: ${r.time_cost_ms}ms`)
+        if (cell.qualitative && cell.qualitative.has_error) {
+          parts.push('') // 빈 줄 구분
+          parts.push(...this._evalErrorLines(cell.qualitative))
+        }
         return parts.join('\n')
+      },
+      _evalErrorLines (qual) {
+        const lines = []
+        if (qual.qual_error) lines.push(`정성평가 실패: ${qual.qual_error}`)
+        if (qual.ai_error) lines.push(`AI 사용 평가 실패: ${qual.ai_error}`)
+        if (lines.length === 0 && qual.has_error) lines.push('평가 실패 — 자세한 메시지는 셀을 클릭해 확인')
+        return lines
       },
       aiClass (score) {
         if (score >= 70) return 'ai-high'
@@ -317,6 +343,20 @@
         &.wa { background: rgba(237, 64, 20, 0.14); }
         &.ce { background: rgba(150, 150, 150, 0.16); }
         &.pending { background: rgba(45, 140, 240, 0.10); }
+        // 정성/AI 평가 실패 표시 — 좌상단 빨강 점. 기존 결과 배경 위에 overlay 라 가독성 영향 적음.
+        &.eval-fail::before {
+          content: '';
+          position: absolute;
+          top: 3px;
+          left: 3px;
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #ed4014;
+          box-shadow: 0 0 0 1px #fff;
+          pointer-events: none;
+          z-index: 1;
+        }
         &.selected {
           box-shadow: inset 0 0 0 3px var(--text-hover-color);
           z-index: 1;

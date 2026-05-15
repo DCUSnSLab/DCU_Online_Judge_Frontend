@@ -43,8 +43,12 @@ export default {
   getEvalStatus: (contestId) => unwrap(evalAxios.get(`/contests/${contestId}/eval-status`)),
   getQueue: () => unwrap(evalAxios.get('/queue')),
   getJob: (jobId) => unwrap(evalAxios.get(`/jobs/${jobId}`)),
-  triggerEval: (contestId, force) =>
-    unwrap(evalAxios.post(`/contests/${contestId}/qualitative-eval`, { force: !!force })),
+  triggerEval: (contestId, force, mode) => {
+    // mode 가 명시되면 우선 (pending|all|failed). 미지정 시 force boolean 으로 폴백.
+    const body = mode ? { mode } : { force: !!force }
+    return unwrap(evalAxios.post(`/contests/${contestId}/qualitative-eval`, body))
+  },
+  cancelJob: (jobId) => unwrap(evalAxios.post(`/jobs/${jobId}/cancel`)),
   contestExportUrl: (contestId, fmt, opts) =>
     `/api/eval/contests/${contestId}/score_export?${exportQuery(fmt, opts)}`,
   lectureExportUrl: (lectureId, fmt, opts) =>

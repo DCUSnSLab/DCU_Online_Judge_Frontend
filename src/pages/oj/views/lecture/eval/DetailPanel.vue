@@ -32,6 +32,14 @@
         <TabPane :label="$t('m.EvalDetail_Qualitative')"
                  name="qual"
                  v-if="data && data.qualitative">
+          <div v-if="data.qualitative.error" class="eval-error-banner">
+            <Icon type="alert-circled"/>
+            <div>
+              <div class="title">정성평가 실패</div>
+              <div class="msg">{{ data.qualitative.error }}</div>
+              <div class="hint">‘재평가’ 버튼으로 다시 시도하실 수 있습니다.</div>
+            </div>
+          </div>
           <div class="kv">
             <div><b>Overall</b>{{ data.qualitative.overall }}</div>
             <div><b>제안 부분점수</b>{{ data.qualitative.suggested_partial_score }}</div>
@@ -58,6 +66,14 @@
         <TabPane :label="$t('m.EvalDetail_AIUsage')"
                  name="ai"
                  v-if="data && data.ai_usage_assessment">
+          <div v-if="data.ai_usage_assessment.error" class="eval-error-banner">
+            <Icon type="alert-circled"/>
+            <div>
+              <div class="title">AI 사용 평가 실패</div>
+              <div class="msg">{{ data.ai_usage_assessment.error }}</div>
+              <div class="hint">‘재평가’ 버튼으로 다시 시도하실 수 있습니다.</div>
+            </div>
+          </div>
           <div class="kv">
             <div><b>Likelihood</b>{{ data.ai_usage_assessment.likelihood_score }}</div>
             <div><b>Confidence</b>{{ data.ai_usage_assessment.confidence }}</div>
@@ -160,6 +176,29 @@
 </script>
 
 <style lang="less" scoped>
+  .eval-error-banner {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    background: #fef0f0;
+    border: 1px solid #fbc4c4;
+    border-radius: 8px;
+    color: #b94a48;
+    font-size: 12px;
+    i { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .title { font-weight: 700; margin-bottom: 2px; }
+    .msg {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      word-break: break-all;
+      max-height: 80px;
+      overflow-y: auto;
+      opacity: 0.85;
+    }
+    .hint { font-size: 11px; opacity: 0.75; margin-top: 4px; }
+  }
   // layout/positioning 은 부모(ByContestTab .floating-panel)가 책임짐 — viewport fixed.
   // 본 컴포넌트는 시각적 카드(배경/테두리/그림자) + 내부 스크롤만 담당.
   .eval-detail-panel {
