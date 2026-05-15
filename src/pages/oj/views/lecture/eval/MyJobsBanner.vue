@@ -14,28 +14,57 @@
       <span v-for="j in myRunningJobs"
             :key="'r' + j.job_id"
             class="job-pill running"
-            :title="fullTitleFor(j)"
-            @click="goTo(j)">
-        <span class="lec">{{ lectureNameFor(j) }}</span>
-        <span class="sep">›</span>
-        <span class="ttl">{{ contestNameFor(j) }}</span>
-        <span class="prog">{{ j.n_done }}/{{ j.n_total }}</span>
-        <span class="pct">{{ pctOf(j) }}%</span>
-        <span v-if="(j.requester_ids || []).length > 1"
-              class="multi"
-              :title="$t('m.EvalMyJobs')">
-          +{{ (j.requester_ids || []).length - 1 }}
+            :title="fullTitleFor(j)">
+        <span class="pill-body" @click="goTo(j)">
+          <span class="lec">{{ lectureNameFor(j) }}</span>
+          <span class="sep">›</span>
+          <span class="ttl">{{ contestNameFor(j) }}</span>
+          <span class="prog">{{ j.n_done }}/{{ j.n_total }}</span>
+          <span class="pct">{{ pctOf(j) }}%</span>
+          <span v-if="j.n_failed > 0"
+                class="failed"
+                :title="`정성평가 실패: ${j.n_failed}건`">
+            실패 {{ j.n_failed }}
+          </span>
+          <span v-if="(j.requester_ids || []).length > 1"
+                class="multi"
+                :title="$t('m.EvalMyJobs')">
+            +{{ (j.requester_ids || []).length - 1 }}
+          </span>
         </span>
+        <Poptip confirm
+                transfer
+                placement="bottom-end"
+                :title="cancelConfirmTitle(j)"
+                ok-text="중지"
+                cancel-text="취소"
+                @on-ok="cancel(j)">
+          <span class="cancel-x" title="이 정성평가 중지">
+            <Icon type="close"/>
+          </span>
+        </Poptip>
       </span>
       <span v-for="j in myPendingJobs"
             :key="'p' + j.job_id"
             class="job-pill pending"
-            :title="fullTitleFor(j)"
-            @click="goTo(j)">
-        <span class="lec">{{ lectureNameFor(j) }}</span>
-        <span class="sep">›</span>
-        <span class="ttl">{{ contestNameFor(j) }}</span>
-        <span class="prog">{{ waitingLabel(j) }}</span>
+            :title="fullTitleFor(j)">
+        <span class="pill-body" @click="goTo(j)">
+          <span class="lec">{{ lectureNameFor(j) }}</span>
+          <span class="sep">›</span>
+          <span class="ttl">{{ contestNameFor(j) }}</span>
+          <span class="prog">{{ waitingLabel(j) }}</span>
+        </span>
+        <Poptip confirm
+                transfer
+                placement="bottom-end"
+                :title="cancelConfirmTitle(j)"
+                ok-text="중지"
+                cancel-text="취소"
+                @on-ok="cancel(j)">
+          <span class="cancel-x" title="이 정성평가 중지">
+            <Icon type="close"/>
+          </span>
+        </Poptip>
       </span>
     </div>
   </div>
@@ -43,6 +72,7 @@
 
 <script>
   import { mapGetters } from 'vuex'
+  import EvalApi from './EvalApi'
 
   export default {
     name: 'MyJobsBanner',
@@ -122,6 +152,18 @@
           params: { lectureID: j.lecture_id },
           query: { tab: 'by-contest', contest: j.contest_id }
         }).catch(() => {})
+      },
+      cancelConfirmTitle (j) {
+        const remaining = Math.max(0, (j.n_total || 0) - (j.n_done || 0) - (j.n_failed || 0))
+        const con = j.contest_title || `컨테스트 ${j.contest_id}`
+        return `‘${con}’ 정성평가를 중지하시겠습니까? 남은 ${remaining}건이 취소됩니다.`
+      },
+      cancel (j) {
+        EvalApi.cancelJob(j.job_id)
+          .then(() => this.$store.dispatch('evalQueue/refreshOnce'))
+          .catch(e => {
+            this.$Message.error((e && e.detail) || '중지 실패')
+          })
       }
     }
   }
@@ -174,20 +216,50 @@
   }
   .job-pill {
     display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 12px;
+    align-items: stretch;
     border-radius: 16px;
-    cursor: pointer;
     border: 1px solid var(--panel-border-color);
     background: var(--panelBackground);
     transition: filter 0.12s, transform 0.12s, box-shadow 0.12s;
     font-size: 12px;
     line-height: 1.2;
+    overflow: hidden;
     &:hover {
       filter: brightness(1.04);
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    .pill-body {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px 5px 12px;
+      cursor: pointer;
+    }
+    .cancel-x {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 9px;
+      cursor: pointer;
+      border-left: 1px solid var(--panel-border-color);
+      color: var(--text-color);
+      opacity: 0.55;
+      font-size: 14px;
+      transition: background 0.12s, opacity 0.12s, color 0.12s;
+      &:hover {
+        background: #fef0f0;
+        color: #c0392b;
+        opacity: 1;
+      }
+    }
+    .failed {
+      font-size: 10px;
+      padding: 1px 7px;
+      border-radius: 9px;
+      background: #fef0f0;
+      color: #c0392b;
+      font-weight: 700;
     }
     .lec {
       font-size: 11px;
