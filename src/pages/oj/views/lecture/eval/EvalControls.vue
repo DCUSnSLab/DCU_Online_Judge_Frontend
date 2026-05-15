@@ -20,7 +20,7 @@
       <span v-if="status" class="status-text" :title="status">{{ status }}</span>
     </div>
     <Button :disabled="primaryDisabled"
-            @click="trigger(false)"
+            @click="trigger('pending')"
             type="primary"
             size="small"
             class="btn primary-btn">
@@ -28,10 +28,17 @@
       {{ primaryLabel }}
     </Button>
     <Button :disabled="forceDisabled"
-            @click="trigger(true)"
+            @click="trigger('all')"
             size="small"
             class="btn">
       {{ $t('m.EvalReevaluate') }}
+    </Button>
+    <Button :disabled="failedOnlyDisabled"
+            @click="trigger('failed')"
+            size="small"
+            class="btn"
+            title="이전 평가에서 LLM 응답 처리에 실패한 항목만 다시 시도합니다">
+      실패만 재평가
     </Button>
     <Poptip v-if="isActive"
             confirm
@@ -71,6 +78,7 @@
       isActive () { return !!this.activeJob },
       primaryDisabled () { return this.triggering || this.isActive },
       forceDisabled () { return this.triggering || this.isActive },
+      failedOnlyDisabled () { return this.triggering || this.isActive },
       primaryLabel () {
         if (this.triggering) return this.$t('m.EvalRequesting')
         if (this.isActive) return this.$t('m.EvalInProgress')
@@ -108,10 +116,14 @@
       }
     },
     methods: {
-      trigger (force) {
+      trigger (modeOrForce) {
+        // boolean(legacy: false/true) → 'pending'/'all', string('pending'|'all'|'failed') 그대로 사용.
+        const mode = typeof modeOrForce === 'boolean'
+          ? (modeOrForce ? 'all' : 'pending')
+          : modeOrForce
         this.triggering = true
         this.status = '요청 중…'
-        EvalApi.triggerEval(this.contestId, force)
+        EvalApi.triggerEval(this.contestId, null, mode)
           .then(r => {
             this.status = r.joined_existing
               ? `기존 작업 합류 (대기 ${r.queue_position || 0})`
