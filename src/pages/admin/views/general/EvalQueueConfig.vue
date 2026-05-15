@@ -208,7 +208,8 @@
             }
             this.newSlots = this.snapshot.slots_total
             this.newPairWorkers = this.snapshot.pair_workers_per_job
-            this.$Message.success(`적용됨: 슬롯 ${this.snapshot.slots_total} / 요청당 워커 ${this.snapshot.pair_workers_per_job}`)
+            // admin 은 element-ui — iView 의 $Message 가 없으므로 admin/index.js 의 $success 헬퍼 사용
+            this.$success(`적용됨: 슬롯 ${this.snapshot.slots_total} / 요청당 워커 ${this.snapshot.pair_workers_per_job}`)
           }
         }).catch(e => {
           this.error = (e && e.data) || '변경 실패'
