@@ -4,6 +4,7 @@ import {
   ACMRank,
   Announcements,
   ApplyResetPassword,
+  AuthCallback,
   FAQ,
   Home,
   Login_,
@@ -72,6 +73,12 @@ export default [
     path: '/reset-password/:token',
     meta: { title: 'Reset Password' },
     component: ResetPassword
+  },
+  {
+    name: 'sso-callback',
+    path: '/auth/callback',
+    meta: { title: 'Sign-in' },
+    component: AuthCallback
   },
   {
     name: 'problem-list',

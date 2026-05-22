@@ -25,14 +25,12 @@ router.beforeEach((to, from, next) => {
   Vue.prototype.$Loading.start()
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!storage.get(STORAGE_KEY.AUTHED)) {
-      Vue.prototype.$error('Please login first')
-      store.commit(types.CHANGE_MODAL_STATUS, {mode: 'login', visible: true})
-      next({
-        name: 'home'
-      })
-    } else {
-      next()
+      // dcu-sso 전환: 미로그인 사용자가 인증 필요 페이지에 진입하면
+      // 모달 띄우는 대신 SSO authorize 로 직접 redirect.
+      window.location.href = '/api/auth/oidc/start?next=' + encodeURIComponent(to.fullPath)
+      return
     }
+    next()
   } else {
     next()
   }
