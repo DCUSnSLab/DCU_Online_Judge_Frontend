@@ -10,7 +10,10 @@
         this.$store.dispatch('clearProfile')
         // backend 가 sso_logout_url 을 함께 응답 → SSO end_session 까지 navigate.
         // 없으면 자체 routing 으로 fallback.
-        const ssoLogout = res?.data?.data?.sso_logout_url
+        var ssoLogout = ''
+        if (res && res.data && res.data.data) {
+          ssoLogout = res.data.data.sso_logout_url
+        }
         if (ssoLogout) {
           window.location.href = ssoLogout
         } else {
