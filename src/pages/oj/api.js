@@ -7,6 +7,47 @@ axios.defaults.baseURL = '/api'
 axios.defaults.xsrfHeaderName = 'X-CSRFToken'
 axios.defaults.xsrfCookieName = 'csrftoken'
 
+// ─── dcu-sso 전환: JWT-only 인증 ───
+// 모든 요청에 localStorage 의 access_token 을 Authorization 헤더로 자동 부착.
+// Django sessionid 쿠키 의존을 끊기 위함. 세션 인프라는 그대로 — 살릴 때는 이 interceptor 만 제거.
+axios.interceptors.request.use(config => {
+  const access = localStorage.getItem('access_token')
+  if (access) {
+    config.headers = config.headers || {}
+    config.headers.Authorization = 'Bearer ' + access
+  }
+  return config
+})
+
+// 401 → refresh_token 으로 새 access 발급 후 원 요청 재시도. 실패 시 토큰 폐기.
+let _refreshing = null
+axios.interceptors.response.use(undefined, async (err) => {
+  const orig = err.config || {}
+  if (!err.response || err.response.status !== 401 || orig._ssoRetried) {
+    return Promise.reject(err)
+  }
+  const refresh = localStorage.getItem('refresh_token')
+  if (!refresh) return Promise.reject(err)
+  try {
+    if (!_refreshing) {
+      _refreshing = axios.post('token_refresh', { refresh_token: refresh }, { _ssoRetried: true })
+        .finally(() => { _refreshing = null })
+    }
+    const r = await _refreshing
+    const newAccess = r.data && r.data.data && r.data.data.access_token
+    if (!newAccess) throw new Error('no_access_token_in_refresh_response')
+    localStorage.setItem('access_token', newAccess)
+    orig._ssoRetried = true
+    orig.headers = orig.headers || {}
+    orig.headers.Authorization = 'Bearer ' + newAccess
+    return axios(orig)
+  } catch (e) {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
+    return Promise.reject(err)
+  }
+})
+
 export default {
   getTAList (lecture) {
     return ajax('lecture/talist', 'get', {
@@ -193,6 +234,16 @@ export default {
         username
       }
     })
+  },
+  // dcu-sso 통합 (Phase A) — 로그인 버튼 클릭 시 호출.
+  // 브라우저를 backend 의 /api/auth/oidc/start 로 직접 이동 → SSO authorize 페이지로 redirect.
+  startSsoLogin (next = '/') {
+    const url = '/api/auth/oidc/start?next=' + encodeURIComponent(next)
+    window.location.href = url
+  },
+  // 회원가입 버튼 클릭 시 호출. backend 가 SSO /signup 페이지로 302.
+  startSsoSignup () {
+    window.location.href = '/api/auth/signup'
   },
   updateProfile (profile) {
     return ajax('profile', 'put', {
@@ -581,10 +632,9 @@ function ajax (url, method, options) {
       if (res.data.error !== null) {
         Vue.prototype.$error(res.data.data)
         reject(res)
-        // 若后端返回为登录，则为session失效，应退出当前登录用户
-        if (res.data.data.startsWith('Please login')) {
-          store.dispatch('changeModalStatus', { 'mode': 'login', 'visible': true })
-        }
+        // dcu-sso 전환: 'Please login' 응답이 와도 자동으로 SSO redirect 하지 않음.
+        // 사용자가 명시적으로 '로그인' 버튼을 누르면 그때 SSO 로 이동.
+        // (페이지 첫 로드 시 자동 모달이 뜨던 문제 해결)
       } else {
         resolve(res)
         // if (method !== 'get') {

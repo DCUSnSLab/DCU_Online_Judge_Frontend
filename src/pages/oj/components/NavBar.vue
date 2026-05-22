@@ -257,7 +257,15 @@
         })
       },
       handleBtnClick (mode) {
-        console.log(mode)
+        // dcu-sso 전환: 로그인/회원가입 모두 SSO 로 직접 redirect (모달 X)
+        if (mode === 'login') {
+          api.startSsoLogin(this.$route.fullPath || '/')
+          return
+        }
+        if (mode === 'register') {
+          api.startSsoSignup()
+          return
+        }
         this.changeModalStatus({
           visible: true,
           mode: mode
