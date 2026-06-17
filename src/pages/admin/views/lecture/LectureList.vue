@@ -3,19 +3,19 @@
     <Panel :title="$t('m.Lecture_List')">
       <div slot="header">
         <div class="filter-row">
-          <el-select v-model="filterYear" :placeholder="$t('m.LectureList_Filter_Year')" clearable size="small" style="width: 110px; margin-right: 8px;" @change="applyFilter">
+          <el-select v-model="query.year" :placeholder="$t('m.LectureList_Filter_Year')" clearable size="small" style="width: 110px; margin-right: 8px;" @change="applyFilter">
             <el-option v-for="y in yearOptions" :key="y" :label="y + $t('m.LectureList_Year_Suffix')" :value="y"></el-option>
           </el-select>
-          <el-select v-model="filterSemester" :placeholder="$t('m.LectureList_Filter_Semester')" clearable size="small" style="width: 120px; margin-right: 8px;" @change="applyFilter">
+          <el-select v-model="query.semester" :placeholder="$t('m.LectureList_Filter_Semester')" clearable size="small" style="width: 120px; margin-right: 8px;" @change="applyFilter">
             <el-option :label="$t('m.LectureList_Semester_1')" :value="1"></el-option>
             <el-option :label="$t('m.LectureList_Semester_2')" :value="2"></el-option>
             <el-option :label="$t('m.LectureList_Pre_Admission_Education')" :value="3"></el-option>
           </el-select>
-          <el-select v-model="filterProfessor" :placeholder="$t('m.LectureList_Filter_Professor')" clearable size="small" style="width: 130px; margin-right: 8px;" @change="applyFilter">
+          <el-select v-model="query.professor" :placeholder="$t('m.LectureList_Filter_Professor')" clearable size="small" style="width: 130px; margin-right: 8px;" @change="applyFilter">
             <el-option v-for="p in professorOptions" :key="p" :label="p" :value="p"></el-option>
           </el-select>
           <el-input
-            v-model="keyword"
+            v-model="query.keyword"
             prefix-icon="el-icon-search"
             placeholder="Keywords"
             size="small"
@@ -117,49 +117,48 @@
   export default {
     name: '',
     data () {
+      // 페이지·필터·검색어를 모두 URL 쿼리에 보존해, 상세 보고 뒤로가기 시 상태가 복원되도록 한다.
+      // watch 등록 전인 data 단계에서 라우트 값을 읽어 초기화한다(복원값이 watch 를 트리거하지 않도록).
+      const q = this.$route.query
+      let page = parseInt(q.page) || 1
+      if (page < 1) {
+        page = 1
+      }
       return {
         pageSize: 25,
         total: 0,
         lectureList: [],
-        keyword: '',
-        filterYear: '',
-        filterSemester: '',
-        filterProfessor: '',
         yearOptions: [],
         professorOptions: [],
         loading: false,
         excludeAdmin: true,
-        currentPage: 1,
         currentId: 1,
         downloadDialogVisible: false,
         query: {
-          page: parseInt(this.$route.query.page) || 1
+          page: page,
+          // el-select 옵션 값이 숫자이므로 연도·학기는 숫자로 복원해야 선택 상태가 반영된다.
+          year: q.year ? parseInt(q.year) : '',
+          semester: q.semester ? parseInt(q.semester) : '',
+          professor: q.professor || '',
+          keyword: q.keyword || ''
         }
       }
     },
     mounted () {
-      this.query.page = parseInt(this.$route.query.page) || 1
-      if (this.query.page < 1) {
-        this.query.page = 1
-      }
       this.getFilterOptions()
       this.getLectureList()
     },
     methods: {
-      currentChange (page) {
-        this.query.page = page
-        this.getLectureList()
-      },
       applyFilter () {
         // 필터 변경 시 1페이지로 리셋한 뒤 전체 레코드 기준으로 서버에서 재조회
         this.query.page = 1
-        this.getLectureList()
+        this.pushRouter()
       },
       pushRouter () {
         this.$router.push({
           name: 'lecture-list',
           query: utils.filterEmptyValue(this.query)
-        })
+        }).catch(() => {})
         this.getLectureList()
       },
       getFilterOptions () {
@@ -170,8 +169,7 @@
       },
       getLectureList () {
         this.loading = true
-        api.getLectureList((this.query.page - 1) * this.pageSize, this.pageSize, this.keyword,
-          this.filterYear, this.filterSemester, this.filterProfessor).then(res => {
+        api.getLectureList((this.query.page - 1) * this.pageSize, this.pageSize, this.query.keyword, this.query.year, this.query.semester, this.query.professor).then(res => {
           this.loading = false
           this.total = res.data.data.total
           this.lectureList = res.data.data.results
@@ -197,9 +195,9 @@
           type: 'warning'
         }).then(() => {
           api.deleteLecture(lectureId).then(res => {
-            this.getLectureList(this.currentPage)
+            this.getLectureList()
           }).catch(() => {
-            this.getLectureList(this.currentPage)
+            this.getLectureList()
           })
         }, () => {
         })
@@ -213,8 +211,14 @@
       }
     },
     watch: {
-      'keyword' () {
-        this.currentChange(1)
+      'query.keyword' () {
+        // 검색어는 입력마다 갱신되므로 history 를 늘리지 않도록 replace 로 URL 만 동기화한다.
+        this.query.page = 1
+        this.$router.replace({
+          name: 'lecture-list',
+          query: utils.filterEmptyValue(this.query)
+        }).catch(() => {})
+        this.getLectureList()
       }
     }
   }
