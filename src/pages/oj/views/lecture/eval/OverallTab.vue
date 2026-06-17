@@ -65,11 +65,17 @@
               <span class="wp-sum ok">
                 합계 만점 <strong>{{ examWeightsSum }}</strong>점
               </span>
-              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] }">
-                <input type="checkbox" :checked="useQual[g.key]"
-                       @change="$set(useQual, g.key, $event.target.checked)"/>
+              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] === 'max' }">
+                <input type="checkbox" :checked="useQual[g.key] === 'max'"
+                       @change="$set(useQual, g.key, $event.target.checked ? 'max' : 'off')"/>
                 <span>정성평가 점수 반영</span>
                 <span class="wp-qual-hint">max(자동, 제안부분점수)</span>
+              </label>
+              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] === 'only' }">
+                <input type="checkbox" :checked="useQual[g.key] === 'only'"
+                       @change="$set(useQual, g.key, $event.target.checked ? 'only' : 'off')"/>
+                <span>정성평가 점수만 반영</span>
+                <span class="wp-qual-hint">제안부분점수 (없으면 0)</span>
               </label>
               <a class="wp-reset" @click="resetExamWeights">초기화</a>
             </div>
@@ -97,11 +103,17 @@
                        class="wp-num wp-num-large"/>
                 <span class="wp-unit">점</span>
               </span>
-              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] }">
-                <input type="checkbox" :checked="useQual[g.key]"
-                       @change="$set(useQual, g.key, $event.target.checked)"/>
+              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] === 'max' }">
+                <input type="checkbox" :checked="useQual[g.key] === 'max'"
+                       @change="$set(useQual, g.key, $event.target.checked ? 'max' : 'off')"/>
                 <span>정성평가 점수 반영</span>
                 <span class="wp-qual-hint">max(자동, 제안부분점수)</span>
+              </label>
+              <label class="wp-qual-toggle" :class="{ on: useQual[g.key] === 'only' }">
+                <input type="checkbox" :checked="useQual[g.key] === 'only'"
+                       @change="$set(useQual, g.key, $event.target.checked ? 'only' : 'off')"/>
+                <span>정성평가 점수만 반영</span>
+                <span class="wp-qual-hint">제안부분점수 (없으면 0)</span>
               </label>
               <span class="wp-hint">학생별 환산점수 = 총점 / 그룹 만점 × 위 값</span>
             </div>
@@ -113,7 +125,8 @@
               <span><b>{{ $t('m.EvalStat_ProblemCount') }}</b> {{ g.problemCount }}</span>
               <span><b>{{ $t('m.EvalStat_MaxScore') }}</b> {{ g.maxScore }}</span>
             </div>
-            <Table :columns="g.columns"
+            <Table :ref="'tbl_' + g.key"
+                   :columns="g.columns"
                    :data="g.rows"
                    :stripe="true"
                    :max-height="tableMaxHeight"
@@ -165,7 +178,7 @@
         activeGroupKey: 'exam',
         examWeights: {},
         groupScaleMax: { lab: 0, assignment: 0, other: 0 },
-        useQual: { exam: false, lab: false, assignment: false, other: false }
+        useQual: { exam: 'off', lab: 'off', assignment: 'off', other: 'off' }
       }
     },
     computed: {
@@ -241,11 +254,18 @@
         return `eval_use_qual_${lectureId}`
       },
       loadUseQual (lectureId) {
-        const defaults = { exam: false, lab: false, assignment: false, other: false }
+        const defaults = { exam: 'off', lab: 'off', assignment: 'off', other: 'off' }
         if (!lectureId) { this.useQual = defaults; return }
         try {
           const raw = localStorage.getItem(this._useQualKey(lectureId))
-          this.useQual = raw ? Object.assign({}, defaults, JSON.parse(raw)) : defaults
+          const merged = raw ? Object.assign({}, defaults, JSON.parse(raw)) : defaults
+          // 구버전 호환: boolean(true=max) 으로 저장된 값을 모드 문자열로 변환.
+          Object.keys(merged).forEach(g => {
+            const v = merged[g]
+            if (v === true) merged[g] = 'max'
+            else if (v !== 'max' && v !== 'only') merged[g] = 'off'
+          })
+          this.useQual = merged
         } catch (e) { this.useQual = defaults }
       },
       saveUseQual () {
@@ -305,7 +325,7 @@
       },
       _buildSection (groupKey, scoreboards) {
         const label = this.groupLabels[groupKey]
-        const useQual = !!this.useQual[groupKey]
+        const qmode = this.useQual[groupKey] || 'off'
         // 그룹 만점 = 그 그룹 안 모든 contest 의 problem.total_score 합
         let maxScore = 0
         let problemCount = 0
@@ -339,11 +359,15 @@
               if (isJudgedCell(cell)) {
                 row.submitted += 1
                 let cellScore = cell.testcase.score || 0
-                // 정성평가 반영: qualitative.suggested_partial_score 와 비교해 큰 값.
-                // qualitative 없으면 자동점수 그대로 (안전 기본).
-                if (useQual && cell.qualitative && cell.qualitative.suggested_partial_score != null) {
-                  const sps = cell.qualitative.suggested_partial_score || 0
-                  if (sps > cellScore) cellScore = sps
+                // 정성평가 반영 모드:
+                //   max  → max(자동, 제안부분점수). qualitative 없으면 자동점수 그대로.
+                //   only → 제안부분점수만. qualitative 없으면 0.
+                const qa = cell.qualitative
+                const sps = (qa && qa.suggested_partial_score != null) ? (qa.suggested_partial_score || 0) : null
+                if (qmode === 'max') {
+                  if (sps != null && sps > cellScore) cellScore = sps
+                } else if (qmode === 'only') {
+                  cellScore = sps != null ? sps : 0
                 }
                 csum += cellScore
                 if (cell.testcase.result === 0) row.ac += 1
@@ -598,9 +622,22 @@
         })
         const useQual = {}
         Object.keys(this.useQual).forEach(g => {
-          if (this.useQual[g]) useQual[g] = true
+          const m = this.useQual[g]
+          if (m && m !== 'off') useQual[g] = m
         })
-        return { weights, scales, useQual }
+        // 화면 표에 보이는 순서(헤더 클릭 정렬 포함) 그대로 export 하도록 그룹별 user_id 순서 전달.
+        // iView Table 이 실제 렌더하는 정렬/필터 결과는 컴포넌트의 rebuildData 에 들어있다.
+        const order = {}
+        ;(this.groupSections || []).forEach(sec => {
+          const ref = this.$refs['tbl_' + sec.key]
+          const comp = Array.isArray(ref) ? ref[0] : ref
+          const displayed = comp && comp.rebuildData
+          const ids = (displayed && displayed.length)
+            ? displayed.map(r => r.user_id)
+            : sec.rows.map(r => r.user_id)
+          order[sec.key] = ids
+        })
+        return { weights, scales, useQual, order, activeGroup: this.activeGroupKey }
       },
       onExport (fmt) {
         if (this.exporting) return

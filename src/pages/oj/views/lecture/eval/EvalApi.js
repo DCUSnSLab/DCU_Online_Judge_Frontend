@@ -28,6 +28,13 @@ function exportQuery (fmt, opts) {
   if (opts && opts.useQual && Object.keys(opts.useQual).length) {
     params.set('use_qual', JSON.stringify(opts.useQual))
   }
+  // order: {group_key: [user_id...]} — 화면 표 정렬 순서. active_group: 종합 시트 정렬 기준 그룹.
+  if (opts && opts.order && Object.keys(opts.order).length) {
+    params.set('order', JSON.stringify(opts.order))
+  }
+  if (opts && opts.activeGroup) {
+    params.set('active_group', opts.activeGroup)
+  }
   return params.toString()
 }
 
