@@ -27,7 +27,7 @@
         v-loading="loading"
         element-loading-text="loading"
         ref="table"
-        :data="filteredLectureList"
+        :data="lectureList"
         :default-sort="{prop: 'id', order: 'descending'}"
         style="width: 100%">
         <el-table-column type="expand">
@@ -125,6 +125,8 @@
         filterYear: '',
         filterSemester: '',
         filterProfessor: '',
+        yearOptions: [],
+        professorOptions: [],
         loading: false,
         excludeAdmin: true,
         currentPage: 1,
@@ -135,45 +137,23 @@
         }
       }
     },
-    computed: {
-      yearOptions () {
-        const years = [...new Set(this.lectureList.map(l => l.year))].sort((a, b) => b - a)
-        return years
-      },
-      professorOptions () {
-        const names = this.lectureList
-          .map(l => l.created_by && l.created_by.realname)
-          .filter(n => n)
-        return [...new Set(names)].sort()
-      },
-      filteredLectureList () {
-        let list = this.lectureList
-        if (this.filterYear) {
-          list = list.filter(l => l.year === this.filterYear)
-        }
-        if (this.filterSemester) {
-          list = list.filter(l => l.semester === this.filterSemester)
-        }
-        if (this.filterProfessor) {
-          list = list.filter(l => l.created_by && l.created_by.realname === this.filterProfessor)
-        }
-        return list
-      }
-    },
     mounted () {
       this.query.page = parseInt(this.$route.query.page) || 1
       if (this.query.page < 1) {
         this.query.page = 1
       }
-      this.getLectureList(this.currentPage)
+      this.getFilterOptions()
+      this.getLectureList()
     },
     methods: {
       currentChange (page) {
-        this.currentPage = page
-        this.getLectureList(page)
+        this.query.page = page
+        this.getLectureList()
       },
       applyFilter () {
-        // filters are computed, nothing extra needed
+        // 필터 변경 시 1페이지로 리셋한 뒤 전체 레코드 기준으로 서버에서 재조회
+        this.query.page = 1
+        this.getLectureList()
       },
       pushRouter () {
         this.$router.push({
@@ -182,9 +162,16 @@
         })
         this.getLectureList()
       },
+      getFilterOptions () {
+        api.getLectureFilterOptions().then(res => {
+          this.yearOptions = res.data.data.years || []
+          this.professorOptions = res.data.data.professors || []
+        }, () => {})
+      },
       getLectureList () {
         this.loading = true
-        api.getLectureList((this.query.page - 1) * this.pageSize, this.pageSize, this.keyword).then(res => {
+        api.getLectureList((this.query.page - 1) * this.pageSize, this.pageSize, this.keyword,
+          this.filterYear, this.filterSemester, this.filterProfessor).then(res => {
           this.loading = false
           this.total = res.data.data.total
           this.lectureList = res.data.data.results
