@@ -559,6 +559,67 @@
           this.user.real_tfa = this.user.two_factor_auth
         })
       },
+      // user(API 응답) → 실습/과제/시험 컬럼 점수 구조로 변환. 점수 없으면 null.
+      buildScoreRow (user) {
+        if (user.score === null) {
+          return null
+        }
+        if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
+          return null
+        }
+        var userinfo = {}
+        userinfo['realname'] = user.realname
+        userinfo['schoolssn'] = user.schoolssn
+        var trains = []
+        var assigns = []
+        var contests = []
+        var trainpersentSum = 0
+        var assignpersentSum = 0
+        var contestpersentSum = 0
+        for (var train in user.score.ContestAnalysis.실습.contests) {
+          trainpersentSum = trainpersentSum + user.score.ContestAnalysis.실습.contests[train].Info.average
+        }
+        for (var assign in user.score.ContestAnalysis.과제.contests) {
+          assignpersentSum = assignpersentSum + user.score.ContestAnalysis.과제.contests[assign].Info.average
+        }
+        for (var contest in user.score.ContestAnalysis.대회.contests) {
+          contestpersentSum = contestpersentSum + user.score.ContestAnalysis.대회.contests[contest].Info.average
+        }
+        for (var i in user.score.ContestAnalysis.실습.contests) {
+          trains.push(user.score.ContestAnalysis.실습.contests[i])
+        }
+        for (var j in user.score.ContestAnalysis.과제.contests) {
+          assigns.push(user.score.ContestAnalysis.과제.contests[j])
+        }
+        for (var k in user.score.ContestAnalysis.대회.contests) {
+          contests.push(user.score.ContestAnalysis.대회.contests[k])
+        }
+        var columnscore = {
+          traincolumnscore: {
+            contests: trains,
+            totalscore: user.score.ContestAnalysis.실습.Info.score,
+            avg: user.score.ContestAnalysis.실습.Info.average,
+            persentSum: trainpersentSum,
+            persentavg: trainpersentSum / user.score.ContestAnalysis.실습.Info.numofcontents
+          },
+          assigncolumnscore: {
+            contests: assigns,
+            totalscore: user.score.ContestAnalysis.과제.Info.score,
+            avg: user.score.ContestAnalysis.과제.Info.average,
+            persentSum: assignpersentSum,
+            persentavg: assignpersentSum / user.score.ContestAnalysis.과제.Info.numofcontents
+          },
+          contestcolumnscore: {
+            contests: contests,
+            totalscore: user.score.ContestAnalysis.대회.Info.score,
+            avg: user.score.ContestAnalysis.대회.Info.average,
+            persentSum: contestpersentSum,
+            persentavg: contestpersentSum / user.score.ContestAnalysis.대회.Info.numofcontents
+          }
+        }
+        userinfo.score = columnscore
+        return userinfo
+      },
       // 获取用户列表
       getUserList (page) {
         console.log('getUserList Called')
@@ -580,73 +641,14 @@
             }
             this.RegistUser = this.userList.length - this.noRegistUser
           }
-          if (this.userList.length === 0) {
-            console.log('null')
-          } else {
-            this.userList.forEach(user => {
-              if (user.score !== null) {
-                if (user.score.constructor === Object && Object.keys(user.score).length === 0) {
-                  console.log('empty object')
-                } else {
-                  var userinfo = {}
-                  userinfo['realname'] = user.realname
-                  userinfo['schoolssn'] = user.schoolssn
-                  var trains = []
-                  var assigns = []
-                  var contests = []
-                  var trainpersentSum = 0
-                  var assignpersentSum = 0
-                  var contestpersentSum = 0
-                  for (var train in user.score.ContestAnalysis.실습.contests) {
-                    trainpersentSum = trainpersentSum + user.score.ContestAnalysis.실습.contests[train].Info.average
-                  }
-                  for (var assign in user.score.ContestAnalysis.과제.contests) {
-                    assignpersentSum = assignpersentSum + user.score.ContestAnalysis.과제.contests[assign].Info.average
-                  }
-                  for (var contest in user.score.ContestAnalysis.대회.contests) {
-                    contestpersentSum = contestpersentSum + user.score.ContestAnalysis.대회.contests[contest].Info.average
-                  }
-                  for (var i in user.score.ContestAnalysis.실습.contests) {
-                    trains.push(user.score.ContestAnalysis.실습.contests[i])
-                  }
-                  for (var j in user.score.ContestAnalysis.과제.contests) {
-                    assigns.push(user.score.ContestAnalysis.과제.contests[j])
-                  }
-                  for (var k in user.score.ContestAnalysis.대회.contests) {
-                    contests.push(user.score.ContestAnalysis.대회.contests[k])
-                  }
-                  var columnscore = {
-                    traincolumnscore: {
-                      contests: trains,
-                      totalscore: user.score.ContestAnalysis.실습.Info.score,
-                      // avg: user.score.ContestAnalysis.실습.Info.score / user.score.ContestAnalysis.실습.Info.numofcontents
-                      avg: user.score.ContestAnalysis.실습.Info.average,
-                      persentSum: trainpersentSum,
-                      persentavg: trainpersentSum / user.score.ContestAnalysis.실습.Info.numofcontents
-                    },
-                    assigncolumnscore: {
-                      contests: assigns,
-                      totalscore: user.score.ContestAnalysis.과제.Info.score,
-                      // avg: user.score.ContestAnalysis.과제.Info.score / user.score.ContestAnalysis.실습.Info.numofcontents
-                      avg: user.score.ContestAnalysis.과제.Info.average,
-                      persentSum: assignpersentSum,
-                      persentavg: assignpersentSum / user.score.ContestAnalysis.과제.Info.numofcontents
-                    },
-                    contestcolumnscore: {
-                      contests: contests,
-                      totalscore: user.score.ContestAnalysis.대회.Info.score,
-                      // avg: user.score.ContestAnalysis.대회.Info.score / user.score.ContestAnalysis.실습.Info.numofcontents
-                      avg: user.score.ContestAnalysis.대회.Info.average,
-                      persentSum: contestpersentSum,
-                      persentavg: contestpersentSum / user.score.ContestAnalysis.대회.Info.numofcontents
-                    }
-                  }
-                  userinfo.score = columnscore
-                  this.scoreListTable.push(userinfo)
-                }
-              }
-            })
-          }
+          // 페이지 전환 시 누적/중복을 막기 위해 매번 초기화하고 현재 페이지만 채운다.
+          this.scoreListTable = []
+          this.userList.forEach(user => {
+            var row = this.buildScoreRow(user)
+            if (row) {
+              this.scoreListTable.push(row)
+            }
+          })
           // console.log(this.userList)
         }, res => {
           this.loadingTable = false
@@ -711,6 +713,21 @@
         this.uploadUsers = []
       },
       exportToExcel () {
+        // 누적된 현재 페이지가 아니라 서버에서 전체 학생을 받아 export 한다 (첫 페이지만/중복 버그 방지).
+        api.getLectureUserListAll(this.keyword, this.lectureId).then(res => {
+          var rows = []
+          res.data.data.results.forEach(user => {
+            var row = this.buildScoreRow(user)
+            if (row) {
+              rows.push(row)
+            }
+          })
+          this.writeExcel(rows)
+        }, () => {
+          this.$error('Excel export에 실패했습니다.')
+        })
+      },
+      writeExcel (rows) {
         var wb = XLSX.utils.book_new()
         var exceldata = {
           '실습': [
@@ -726,7 +743,7 @@
         for (var exportval in this.checkList) {
           console.log(this.checkList[exportval])
           if (this.checkList[exportval] === '실습') {
-            this.scoreListTable.forEach(user => {
+            rows.forEach(user => {
               var traindata = {}
               traindata.이름 = user.realname
               traindata.학번 = user.schoolssn
@@ -752,7 +769,7 @@
             var trainxls = XLSX.utils.json_to_sheet(exceldata.실습)
             XLSX.utils.book_append_sheet(wb, trainxls, '실습')
           } else if (this.checkList[exportval] === '과제') {
-            this.scoreListTable.forEach(user => {
+            rows.forEach(user => {
               var assigndata = {}
               assigndata.이름 = user.realname
               assigndata.학번 = user.schoolssn
@@ -774,7 +791,7 @@
             var assignxls = XLSX.utils.json_to_sheet(exceldata.과제)
             XLSX.utils.book_append_sheet(wb, assignxls, '과제')
           } else if (this.checkList[exportval] === '시험') {
-            this.scoreListTable.forEach(user => {
+            rows.forEach(user => {
               var contestdata = {}
               contestdata.이름 = user.realname
               contestdata.학번 = user.schoolssn
