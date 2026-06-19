@@ -105,6 +105,16 @@ export default {
       params: params
     })
   },
+  // Excel export 용 — 페이지네이션 없이 해당 수강과목의 전체 학생을 한 번에 반환
+  getLectureUserListAll (keyword, lectureid) {
+    let params = { export: 1, lectureid }
+    if (keyword) {
+      params.keyword = keyword
+    }
+    return ajax('admin/user', 'get', {
+      params: params
+    })
+  },
   getContestUserList (offset, limit, keyword, contestid) {
     let params = { paging: true, offset, limit }
     if (keyword) {
