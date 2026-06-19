@@ -352,13 +352,28 @@ export default {
       }
     })
   },
-  getLectureList (offset, limit, keyword) {
+  getLectureList (offset, limit, keyword, year, semester, professor) {
     let params = { paging: true, offset, limit }
     if (keyword) {
       params.keyword = keyword
     }
+    if (year) {
+      params.year = year
+    }
+    if (semester) {
+      params.semester = semester
+    }
+    if (professor) {
+      params.professor = professor
+    }
     return ajax('admin/lecture', 'get', {
       params: params
+    })
+  },
+  // 콤보박스 필터 옵션(연도·교수)을 전체 레코드 기준으로 조회
+  getLectureFilterOptions () {
+    return ajax('admin/lecture', 'get', {
+      params: { get_filters: 1 }
     })
   },
   // 임의 함수 종료
