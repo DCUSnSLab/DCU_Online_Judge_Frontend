@@ -96,10 +96,10 @@ export default {
         return api.getLecture(this.$route.params.lectureId)
       }).then(res => {
         let data = res.data.data
+        // created_by_id 를 객체 교체 '전에' 넣어야 Vue 가 반응형으로 추적한다.
+        // (this.lecture = data 이후 새 키를 직접 대입하면 비반응형이라 개설자 el-select 선택이 안 바뀜)
+        data.created_by_id = data.created_by ? data.created_by.id : null
         this.lecture = data
-        if (data.created_by && data.created_by.id) {
-          this.lecture.created_by_id = data.created_by.id
-        }
       }).catch(() => {})
     } else if (this.$route.name === 'lecture-contest-list') {
       this.title = this.$t('m.Lecture_Create_Title')
